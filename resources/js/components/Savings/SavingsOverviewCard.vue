@@ -1,0 +1,219 @@
+<template>
+  <div
+    class="savings-overview-card bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200"
+    @click="navigateToSavings"
+  >
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-xl font-semibold text-gray-800">Savings</h3>
+      <div class="text-sm text-gray-500">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Emergency Fund Runway -->
+    <div class="mb-6">
+      <div class="flex items-baseline mb-2">
+        <span
+          class="text-4xl font-bold"
+          :class="runwayColor"
+        >
+          {{ emergencyFundRunway.toFixed(1) }}
+        </span>
+        <span class="ml-2 text-sm text-gray-600">months runway</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2">
+        <div
+          class="h-2 rounded-full transition-all duration-300"
+          :class="runwayBarColor"
+          :style="{ width: Math.min(runwayPercentage, 100) + '%' }"
+        ></div>
+      </div>
+      <p class="text-xs text-gray-500 mt-1">Target: 6 months</p>
+    </div>
+
+    <!-- Total Savings and ISA -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <p class="text-sm text-gray-600 mb-1">Total Savings</p>
+        <p class="text-lg font-semibold text-gray-800">
+          {{ formatCurrency(totalSavings) }}
+        </p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-600 mb-1">ISA Used</p>
+        <p class="text-lg font-semibold text-gray-800">
+          {{ isaUsagePercent }}%
+        </p>
+      </div>
+    </div>
+
+    <!-- Goals Status -->
+    <div
+      class="flex items-center p-3 rounded-md"
+      :class="goalsStatusClass"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5 mr-2"
+        :class="goalsIconClass"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span class="text-sm font-medium" :class="goalsTextClass">
+        {{ goalsStatusText }}
+      </span>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'SavingsOverviewCard',
+
+  props: {
+    emergencyFundRunway: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    totalSavings: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    isaUsagePercent: {
+      type: Number,
+      required: true,
+      default: 0,
+      validator: (value) => value >= 0 && value <= 100,
+    },
+    goalsStatus: {
+      type: Object,
+      required: true,
+      default: () => ({ onTrack: 0, total: 0 }),
+    },
+  },
+
+  computed: {
+    runwayPercentage() {
+      return (this.emergencyFundRunway / 6) * 100; // 6 months is target
+    },
+
+    runwayColor() {
+      if (this.emergencyFundRunway >= 6) {
+        return 'text-green-600';
+      } else if (this.emergencyFundRunway >= 3) {
+        return 'text-amber-600';
+      } else {
+        return 'text-red-600';
+      }
+    },
+
+    runwayBarColor() {
+      if (this.emergencyFundRunway >= 6) {
+        return 'bg-green-600';
+      } else if (this.emergencyFundRunway >= 3) {
+        return 'bg-amber-600';
+      } else {
+        return 'bg-red-600';
+      }
+    },
+
+    goalsStatusClass() {
+      if (this.goalsStatus.total === 0) {
+        return 'bg-gray-50';
+      } else if (this.goalsStatus.onTrack === this.goalsStatus.total) {
+        return 'bg-green-50';
+      } else if (this.goalsStatus.onTrack > 0) {
+        return 'bg-amber-50';
+      } else {
+        return 'bg-red-50';
+      }
+    },
+
+    goalsIconClass() {
+      if (this.goalsStatus.total === 0) {
+        return 'text-gray-600';
+      } else if (this.goalsStatus.onTrack === this.goalsStatus.total) {
+        return 'text-green-600';
+      } else if (this.goalsStatus.onTrack > 0) {
+        return 'text-amber-600';
+      } else {
+        return 'text-red-600';
+      }
+    },
+
+    goalsTextClass() {
+      if (this.goalsStatus.total === 0) {
+        return 'text-gray-800';
+      } else if (this.goalsStatus.onTrack === this.goalsStatus.total) {
+        return 'text-green-800';
+      } else if (this.goalsStatus.onTrack > 0) {
+        return 'text-amber-800';
+      } else {
+        return 'text-red-800';
+      }
+    },
+
+    goalsStatusText() {
+      if (this.goalsStatus.total === 0) {
+        return 'No savings goals set';
+      }
+      return `${this.goalsStatus.onTrack} of ${this.goalsStatus.total} goals on track`;
+    },
+  },
+
+  methods: {
+    navigateToSavings() {
+      this.$router.push('/savings');
+    },
+
+    formatCurrency(value) {
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    },
+  },
+};
+</script>
+
+<style scoped>
+.savings-overview-card {
+  min-width: 280px;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .savings-overview-card {
+    min-width: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .savings-overview-card {
+    min-width: 360px;
+  }
+}
+</style>

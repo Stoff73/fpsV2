@@ -1,0 +1,543 @@
+<template>
+  <div class="gift-card" :class="statusClass">
+    <div class="card-header">
+      <div class="gift-icon" :class="iconClass">
+        <i :class="giftIcon"></i>
+      </div>
+      <div class="gift-info">
+        <h4 class="recipient-name">{{ gift.recipient || 'Unknown Recipient' }}</h4>
+        <p class="gift-date">
+          <i class="fas fa-calendar"></i>
+          {{ formatDate(gift.gift_date) }}
+        </p>
+      </div>
+      <div class="gift-value">
+        <span class="value-label">Gift Value</span>
+        <span class="value-amount">{{ formatCurrency(gift.gift_value) }}</span>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="info-row">
+        <span class="label">Gift Type:</span>
+        <span class="value">{{ giftTypeDisplay }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Years Elapsed:</span>
+        <span class="value">{{ yearsElapsed.toFixed(1) }} years</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Years Remaining:</span>
+        <span class="value">{{ yearsRemaining }} years</span>
+      </div>
+
+      <!-- Progress Bar for 7-Year Timeline -->
+      <div class="timeline-progress">
+        <div class="progress-label-row">
+          <span class="progress-label">7-Year Survival Timeline</span>
+          <span class="progress-percentage">{{ survivalPercentage }}%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div
+            class="progress-bar"
+            :class="progressBarClass"
+            :style="{ width: survivalPercentage + '%' }"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Taper Relief -->
+      <div v-if="showTaperRelief" class="taper-relief">
+        <div class="relief-badge" :class="reliefBadgeClass">
+          <i class="fas fa-percentage"></i>
+          <span>{{ taperReliefPercentage }}% Taper Relief</span>
+        </div>
+        <p class="relief-description">
+          Effective IHT rate: {{ effectiveIhtRate }}% (instead of 40%)
+        </p>
+      </div>
+
+      <!-- Status Banner -->
+      <div class="status-banner" :class="statusBannerClass">
+        <i :class="statusIcon"></i>
+        <strong>{{ statusText }}</strong>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button class="btn btn-secondary btn-sm" @click="handleEdit">
+        <i class="fas fa-edit"></i>
+        Edit
+      </button>
+      <button class="btn btn-danger btn-sm" @click="handleDelete">
+        <i class="fas fa-trash"></i>
+        Delete
+      </button>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'GiftCard',
+
+  props: {
+    gift: {
+      type: Object,
+      required: true,
+    },
+  },
+
+  emits: ['edit', 'delete'],
+
+  computed: {
+    giftDate() {
+      return new Date(this.gift.gift_date);
+    },
+
+    yearsElapsed() {
+      const now = new Date();
+      const diffTime = Math.abs(now - this.giftDate);
+      return diffTime / (1000 * 60 * 60 * 24 * 365.25);
+    },
+
+    yearsRemaining() {
+      const remaining = Math.max(0, 7 - this.yearsElapsed);
+      return remaining.toFixed(1);
+    },
+
+    survivalPercentage() {
+      return Math.min(100, (this.yearsElapsed / 7) * 100).toFixed(0);
+    },
+
+    showTaperRelief() {
+      return this.yearsElapsed >= 3 && this.yearsElapsed < 7;
+    },
+
+    taperReliefPercentage() {
+      if (this.yearsElapsed < 3) return 0;
+      if (this.yearsElapsed < 4) return 20;
+      if (this.yearsElapsed < 5) return 40;
+      if (this.yearsElapsed < 6) return 60;
+      if (this.yearsElapsed < 7) return 80;
+      return 100;
+    },
+
+    effectiveIhtRate() {
+      const baseRate = 40;
+      const relief = this.taperReliefPercentage;
+      return (baseRate * (100 - relief) / 100).toFixed(0);
+    },
+
+    giftTypeDisplay() {
+      const typeMap = {
+        pet: 'Potentially Exempt Transfer (PET)',
+        clt: 'Chargeable Lifetime Transfer (CLT)',
+        exempt: 'Exempt Gift',
+        small_gift: 'Small Gift Exemption',
+        annual_exemption: 'Annual Exemption',
+      };
+      return typeMap[this.gift.gift_type] || this.gift.gift_type || 'General Gift';
+    },
+
+    giftIcon() {
+      if (this.yearsElapsed >= 7) {
+        return 'fas fa-check-circle';
+      } else if (this.yearsElapsed >= 3) {
+        return 'fas fa-clock';
+      } else {
+        return 'fas fa-gift';
+      }
+    },
+
+    iconClass() {
+      if (this.yearsElapsed >= 7) {
+        return 'icon-success';
+      } else if (this.yearsElapsed >= 3) {
+        return 'icon-warning';
+      } else {
+        return 'icon-danger';
+      }
+    },
+
+    statusClass() {
+      if (this.yearsElapsed >= 7) {
+        return 'status-exempt';
+      } else if (this.yearsElapsed >= 3) {
+        return 'status-taper';
+      } else {
+        return 'status-taxable';
+      }
+    },
+
+    progressBarClass() {
+      if (this.yearsElapsed >= 7) {
+        return 'progress-complete';
+      } else if (this.yearsElapsed >= 3) {
+        return 'progress-partial';
+      } else {
+        return 'progress-early';
+      }
+    },
+
+    reliefBadgeClass() {
+      const relief = this.taperReliefPercentage;
+      if (relief >= 80) return 'relief-high';
+      if (relief >= 40) return 'relief-medium';
+      return 'relief-low';
+    },
+
+    statusText() {
+      if (this.yearsElapsed >= 7) {
+        return 'IHT-Exempt (Survived 7 Years)';
+      } else if (this.yearsElapsed >= 3) {
+        return `Taper Relief Applies (${this.taperReliefPercentage}%)`;
+      } else {
+        return 'Potentially Taxable (Within 3 Years)';
+      }
+    },
+
+    statusIcon() {
+      if (this.yearsElapsed >= 7) {
+        return 'fas fa-shield-check';
+      } else if (this.yearsElapsed >= 3) {
+        return 'fas fa-hourglass-half';
+      } else {
+        return 'fas fa-exclamation-triangle';
+      }
+    },
+
+    statusBannerClass() {
+      if (this.yearsElapsed >= 7) {
+        return 'banner-success';
+      } else if (this.yearsElapsed >= 3) {
+        return 'banner-warning';
+      } else {
+        return 'banner-danger';
+      }
+    },
+  },
+
+  methods: {
+    formatDate(dateString) {
+      if (!dateString) return 'Unknown Date';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+    },
+
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    },
+
+    handleEdit() {
+      this.$emit('edit', this.gift);
+    },
+
+    handleDelete() {
+      if (confirm(`Are you sure you want to delete this gift to ${this.gift.recipient}?`)) {
+        this.$emit('delete', this.gift.id);
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+.gift-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+  border-left: 4px solid #d1d5db;
+}
+
+.gift-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.gift-card.status-exempt {
+  border-left-color: #10b981;
+}
+
+.gift-card.status-taper {
+  border-left-color: #f59e0b;
+}
+
+.gift-card.status-taxable {
+  border-left-color: #ef4444;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.gift-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.icon-success {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.icon-warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.icon-danger {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.gift-info {
+  flex: 1;
+}
+
+.recipient-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.gift-date {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gift-value {
+  text-align: right;
+}
+
+.value-label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.value-amount {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.info-row .label {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.info-row .value {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.timeline-progress {
+  margin: 20px 0;
+}
+
+.progress-label-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.progress-label {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.progress-percentage {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.progress-bar-container {
+  height: 12px;
+  background-color: #f3f4f6;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.progress-early {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.progress-partial {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.progress-complete {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.taper-relief {
+  margin: 16px 0;
+  padding: 12px;
+  background-color: #fffbeb;
+  border-radius: 6px;
+}
+
+.relief-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.relief-low {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+.relief-medium {
+  background-color: #fed7aa;
+  color: #92400e;
+}
+
+.relief-high {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.relief-description {
+  font-size: 12px;
+  color: #78350f;
+  margin: 0;
+}
+
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-top: 16px;
+}
+
+.status-banner i {
+  font-size: 16px;
+}
+
+.banner-success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
+.banner-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.banner-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 20px;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.btn-secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.btn-secondary:hover {
+  background-color: #d1d5db;
+}
+
+.btn-danger {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+.btn-danger:hover {
+  background-color: #fca5a5;
+}
+</style>

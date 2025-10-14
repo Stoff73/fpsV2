@@ -1,0 +1,411 @@
+<template>
+  <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto" @click.self="closeModal">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closeModal"></div>
+
+      <!-- Modal panel -->
+      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+        <!-- Header -->
+        <div class="bg-white px-6 py-4 border-b border-gray-200">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">
+              {{ isEditMode ? 'Edit Investment Account' : 'Add New Investment Account' }}
+            </h3>
+            <button
+              @click="closeModal"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form @submit.prevent="submitForm">
+          <div class="bg-white px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+            <!-- Account Type -->
+            <div>
+              <label for="account_type" class="block text-sm font-medium text-gray-700 mb-1">
+                Account Type <span class="text-red-500">*</span>
+              </label>
+              <select
+                id="account_type"
+                v-model="formData.account_type"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :class="{ 'border-red-500': errors.account_type }"
+                required
+              >
+                <option value="">Select account type</option>
+                <option value="isa">ISA (Stocks & Shares)</option>
+                <option value="gia">General Investment Account</option>
+                <option value="sipp">SIPP</option>
+                <option value="pension">Pension</option>
+                <option value="other">Other</option>
+              </select>
+              <p v-if="errors.account_type" class="mt-1 text-sm text-red-600">{{ errors.account_type }}</p>
+            </div>
+
+            <!-- Provider -->
+            <div>
+              <label for="provider" class="block text-sm font-medium text-gray-700 mb-1">
+                Provider <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="provider"
+                v-model="formData.provider"
+                type="text"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :class="{ 'border-red-500': errors.provider }"
+                placeholder="e.g., Vanguard, Hargreaves Lansdown, Interactive Investor"
+                required
+              />
+              <p v-if="errors.provider" class="mt-1 text-sm text-red-600">{{ errors.provider }}</p>
+            </div>
+
+            <!-- Platform -->
+            <div>
+              <label for="platform" class="block text-sm font-medium text-gray-700 mb-1">
+                Platform/Product Name
+              </label>
+              <input
+                id="platform"
+                v-model="formData.platform"
+                type="text"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., Investment Account, ISA"
+              />
+              <p class="mt-1 text-xs text-gray-500">Optional: Specific platform or product name</p>
+            </div>
+
+            <!-- Platform Fee Percent -->
+            <div>
+              <label for="platform_fee_percent" class="block text-sm font-medium text-gray-700 mb-1">
+                Platform Fee (% p.a.)
+              </label>
+              <input
+                id="platform_fee_percent"
+                v-model.number="formData.platform_fee_percent"
+                type="number"
+                step="0.01"
+                min="0"
+                max="5"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., 0.45"
+              />
+              <p class="mt-1 text-xs text-gray-500">Annual platform/administration fee as a percentage</p>
+            </div>
+
+            <!-- ISA-specific fields -->
+            <div v-if="isISAType" class="bg-blue-50 border border-blue-200 rounded-md p-4 space-y-4">
+              <div class="flex items-start gap-2 mb-3">
+                <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p class="text-sm font-medium text-blue-900">ISA Account Information</p>
+                  <p class="text-xs text-blue-700 mt-1">
+                    ISA contributions count towards your £20,000 annual allowance (2024/25)
+                  </p>
+                </div>
+              </div>
+
+              <!-- Tax Year Subscription -->
+              <div>
+                <label for="isa_subscription_current_year" class="block text-sm font-medium text-blue-900 mb-1">
+                  Subscription This Tax Year (£)
+                </label>
+                <input
+                  id="isa_subscription_current_year"
+                  v-model.number="formData.isa_subscription_current_year"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="20000"
+                  class="w-full border border-blue-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  placeholder="0.00"
+                />
+                <p class="mt-1 text-xs text-blue-700">
+                  Amount contributed in current tax year {{ currentTaxYear }}
+                </p>
+              </div>
+
+              <!-- ISA Type -->
+              <div>
+                <label for="isa_type" class="block text-sm font-medium text-blue-900 mb-1">
+                  ISA Type
+                </label>
+                <select
+                  id="isa_type"
+                  v-model="formData.isa_type"
+                  class="w-full border border-blue-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                >
+                  <option value="stocks_and_shares">Stocks & Shares ISA</option>
+                  <option value="lifetime">Lifetime ISA</option>
+                  <option value="innovative_finance">Innovative Finance ISA</option>
+                </select>
+              </div>
+
+              <!-- Remaining Allowance Display -->
+              <div v-if="formData.isa_subscription_current_year" class="bg-white border border-blue-200 rounded-md p-3">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-sm font-medium text-gray-700">Remaining ISA Allowance:</span>
+                  <span class="text-lg font-bold" :class="remainingAllowanceClass">
+                    {{ formatCurrency(remainingAllowance) }}
+                  </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    class="h-2 rounded-full transition-all"
+                    :class="allowanceBarClass"
+                    :style="{ width: allowanceUsedPercent + '%' }"
+                  ></div>
+                </div>
+                <p class="text-xs text-gray-600 mt-2">
+                  {{ allowanceUsedPercent.toFixed(1) }}% of annual allowance used
+                </p>
+              </div>
+            </div>
+
+            <!-- Account Note -->
+            <div>
+              <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
+                Notes
+              </label>
+              <textarea
+                id="notes"
+                v-model="formData.notes"
+                rows="3"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Optional notes about this account"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+            <button
+              type="button"
+              @click="closeModal"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              :disabled="submitting"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ submitting ? 'Saving...' : (isEditMode ? 'Update Account' : 'Add Account') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'AccountForm',
+
+  props: {
+    show: {
+      type: Boolean,
+      required: true,
+    },
+    account: {
+      type: Object,
+      default: null,
+    },
+  },
+
+  data() {
+    return {
+      formData: {
+        account_type: '',
+        provider: '',
+        platform: '',
+        platform_fee_percent: null,
+        isa_type: 'stocks_and_shares',
+        isa_subscription_current_year: null,
+        notes: '',
+      },
+      errors: {},
+      submitting: false,
+      ISA_ALLOWANCE: 20000, // 2024/25 tax year
+    };
+  },
+
+  computed: {
+    isEditMode() {
+      return !!this.account;
+    },
+
+    isISAType() {
+      return this.formData.account_type === 'isa';
+    },
+
+    currentTaxYear() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+
+      // UK tax year runs April 6 to April 5
+      if (month < 3) { // Jan-March
+        return `${year - 1}/${year}`;
+      } else {
+        return `${year}/${year + 1}`;
+      }
+    },
+
+    remainingAllowance() {
+      const subscription = this.formData.isa_subscription_current_year || 0;
+      return Math.max(0, this.ISA_ALLOWANCE - subscription);
+    },
+
+    allowanceUsedPercent() {
+      const subscription = this.formData.isa_subscription_current_year || 0;
+      return Math.min(100, (subscription / this.ISA_ALLOWANCE) * 100);
+    },
+
+    remainingAllowanceClass() {
+      if (this.remainingAllowance === 0) return 'text-red-600';
+      if (this.remainingAllowance < 2000) return 'text-orange-600';
+      return 'text-green-600';
+    },
+
+    allowanceBarClass() {
+      if (this.allowanceUsedPercent >= 100) return 'bg-red-600';
+      if (this.allowanceUsedPercent >= 75) return 'bg-orange-500';
+      if (this.allowanceUsedPercent >= 50) return 'bg-yellow-500';
+      return 'bg-green-600';
+    },
+  },
+
+  watch: {
+    account: {
+      immediate: true,
+      handler(newAccount) {
+        if (newAccount) {
+          this.formData = {
+            ...newAccount,
+            isa_type: newAccount.isa_type || 'stocks_and_shares',
+          };
+        } else {
+          this.resetForm();
+        }
+      },
+    },
+    show(newVal) {
+      if (!newVal) {
+        this.errors = {};
+      }
+    },
+    'formData.account_type'(newType) {
+      // Reset ISA-specific fields when account type changes
+      if (newType !== 'isa') {
+        this.formData.isa_type = 'stocks_and_shares';
+        this.formData.isa_subscription_current_year = null;
+      }
+    },
+  },
+
+  methods: {
+    async submitForm() {
+      this.errors = {};
+      this.submitting = true;
+
+      try {
+        // Client-side validation
+        if (!this.validateForm()) {
+          this.submitting = false;
+          return;
+        }
+
+        // Clean up data before submission
+        const submitData = { ...this.formData };
+
+        // Remove ISA fields if not ISA account
+        if (submitData.account_type !== 'isa') {
+          delete submitData.isa_type;
+          delete submitData.isa_subscription_current_year;
+        }
+
+        this.$emit('submit', submitData);
+        this.closeModal();
+      } catch (error) {
+        console.error('Form submission error:', error);
+        if (error.response?.data?.errors) {
+          this.errors = error.response.data.errors;
+        }
+      } finally {
+        this.submitting = false;
+      }
+    },
+
+    validateForm() {
+      let isValid = true;
+
+      if (!this.formData.account_type) {
+        this.errors.account_type = 'Account type is required';
+        isValid = false;
+      }
+
+      if (!this.formData.provider || this.formData.provider.trim().length === 0) {
+        this.errors.provider = 'Provider is required';
+        isValid = false;
+      }
+
+      if (this.formData.platform_fee_percent !== null &&
+          (this.formData.platform_fee_percent < 0 || this.formData.platform_fee_percent > 5)) {
+        this.errors.platform_fee_percent = 'Platform fee must be between 0 and 5%';
+        isValid = false;
+      }
+
+      // ISA-specific validation
+      if (this.isISAType && this.formData.isa_subscription_current_year) {
+        if (this.formData.isa_subscription_current_year < 0) {
+          this.errors.isa_subscription_current_year = 'Subscription amount cannot be negative';
+          isValid = false;
+        }
+        if (this.formData.isa_subscription_current_year > this.ISA_ALLOWANCE) {
+          this.errors.isa_subscription_current_year = `Subscription cannot exceed £${this.ISA_ALLOWANCE.toLocaleString()} allowance`;
+          isValid = false;
+        }
+      }
+
+      return isValid;
+    },
+
+    closeModal() {
+      this.$emit('close');
+      this.resetForm();
+    },
+
+    resetForm() {
+      this.formData = {
+        account_type: '',
+        provider: '',
+        platform: '',
+        platform_fee_percent: null,
+        isa_type: 'stocks_and_shares',
+        isa_subscription_current_year: null,
+        notes: '',
+      };
+      this.errors = {};
+    },
+
+    formatCurrency(value) {
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value || 0);
+    },
+  },
+};
+</script>

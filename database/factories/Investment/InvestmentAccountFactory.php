@@ -1,0 +1,46 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Factories\Investment;
+
+use App\Models\Investment\InvestmentAccount;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<InvestmentAccount>
+ */
+class InvestmentAccountFactory extends Factory
+{
+    protected $model = InvestmentAccount::class;
+
+    public function definition(): array
+    {
+        return [
+            'user_id' => User::factory(),
+            'account_type' => $this->faker->randomElement(['isa', 'gia', 'onshore_bond', 'offshore_bond', 'vct', 'eis']),
+            'provider' => $this->faker->randomElement(['Vanguard', 'Hargreaves Lansdown', 'Interactive Investor', 'AJ Bell', 'Fidelity']),
+            'account_number' => strtoupper($this->faker->bothify('???######')),
+            'platform' => $this->faker->randomElement(['Vanguard Investor', 'HL Platform', 'ii Platform', 'AJ Bell Youinvest']),
+            'current_value' => $this->faker->randomFloat(2, 10000, 200000),
+            'contributions_ytd' => $this->faker->randomFloat(2, 0, 20000),
+            'tax_year' => $this->faker->randomElement(['2023/24', '2024/25']),
+            'platform_fee_percent' => $this->faker->randomFloat(4, 0.10, 0.45),
+        ];
+    }
+
+    public function isa(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'account_type' => 'isa',
+        ]);
+    }
+
+    public function gia(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'account_type' => 'gia',
+        ]);
+    }
+}

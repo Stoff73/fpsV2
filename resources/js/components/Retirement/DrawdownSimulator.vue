@@ -1,0 +1,337 @@
+<template>
+  <div class="drawdown-simulator bg-white rounded-lg shadow p-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-6">Drawdown Simulator</h3>
+
+    <!-- Simulator Controls -->
+    <div class="space-y-6 mb-8">
+      <!-- Initial Pot Size -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Initial Pension Pot: £{{ formatNumber(simulatorData.initialPot) }}
+        </label>
+        <input
+          v-model.number="simulatorData.initialPot"
+          type="range"
+          :min="50000"
+          :max="1000000"
+          :step="10000"
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+          @input="runSimulation"
+        />
+        <div class="flex items-center justify-between text-xs text-gray-500 mt-1">
+          <span>£50k</span>
+          <span>£1m</span>
+        </div>
+      </div>
+
+      <!-- Withdrawal Rate -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Annual Withdrawal Rate: {{ simulatorData.withdrawalRate }}%
+        </label>
+        <input
+          v-model.number="simulatorData.withdrawalRate"
+          type="range"
+          :min="2"
+          :max="6"
+          :step="0.5"
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+          @input="runSimulation"
+        />
+        <div class="flex items-center justify-between text-xs text-gray-500 mt-1">
+          <span>2%</span>
+          <span>3%</span>
+          <span>4%</span>
+          <span>5%</span>
+          <span>6%</span>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">
+          Annual withdrawal: £{{ formatNumber(annualWithdrawal) }}
+        </p>
+      </div>
+
+      <!-- Growth Rate -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Investment Growth Rate: {{ simulatorData.growthRate }}% p.a.
+        </label>
+        <input
+          v-model.number="simulatorData.growthRate"
+          type="range"
+          :min="0"
+          :max="8"
+          :step="0.5"
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+          @input="runSimulation"
+        />
+        <div class="flex items-center justify-between text-xs text-gray-500 mt-1">
+          <span>0%</span>
+          <span>8%</span>
+        </div>
+      </div>
+
+      <!-- Inflation Rate -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Inflation Rate: {{ simulatorData.inflationRate }}% p.a.
+        </label>
+        <input
+          v-model.number="simulatorData.inflationRate"
+          type="range"
+          :min="0"
+          :max="5"
+          :step="0.5"
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+          @input="runSimulation"
+        />
+        <div class="flex items-center justify-between text-xs text-gray-500 mt-1">
+          <span>0%</span>
+          <span>5%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div v-if="simulationResults" class="space-y-6">
+      <!-- Result Summary -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Portfolio Depletion</p>
+          <p
+            class="text-2xl font-bold"
+            :class="simulationResults.depletes ? 'text-red-600' : 'text-green-600'"
+          >
+            {{ simulationResults.depletes ? `Age ${simulationResults.depletionAge}` : 'No' }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">
+            {{ simulationResults.depletes ? 'Portfolio runs out' : 'Sustainable' }}
+          </p>
+        </div>
+
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Final Balance at 95</p>
+          <p class="text-2xl font-bold text-gray-900">
+            £{{ formatNumber(simulationResults.finalBalance) }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Remaining pot value</p>
+        </div>
+
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Real Value Lost (Inflation)</p>
+          <p class="text-2xl font-bold text-orange-600">
+            {{ simulationResults.realValueLoss }}%
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Purchasing power erosion</p>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div>
+        <apexchart
+          type="line"
+          :options="chartOptions"
+          :series="chartSeries"
+          height="300"
+        ></apexchart>
+      </div>
+
+      <!-- Warning/Success Message -->
+      <div
+        v-if="simulationResults.depletes"
+        class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start"
+      >
+        <svg class="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <div>
+          <p class="text-sm font-bold text-red-900">Warning: Portfolio Depletion</p>
+          <p class="text-sm text-red-800 mt-1">
+            At this withdrawal rate, your pension pot would run out at age {{ simulationResults.depletionAge }}.
+            Consider reducing your withdrawal rate or increasing investment growth.
+          </p>
+        </div>
+      </div>
+
+      <div
+        v-else
+        class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start"
+      >
+        <svg class="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+          <p class="text-sm font-bold text-green-900">Sustainable Drawdown</p>
+          <p class="text-sm text-green-800 mt-1">
+            Your pension pot should sustain this withdrawal rate throughout retirement.
+            You would have approximately £{{ formatNumber(simulationResults.finalBalance) }} remaining at age 95.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'DrawdownSimulator',
+
+  data() {
+    return {
+      simulatorData: {
+        initialPot: 500000,
+        withdrawalRate: 4.0,
+        growthRate: 5.0,
+        inflationRate: 2.5,
+      },
+      simulationResults: null,
+    };
+  },
+
+  computed: {
+    annualWithdrawal() {
+      return Math.round((this.simulatorData.initialPot * this.simulatorData.withdrawalRate) / 100);
+    },
+
+    chartSeries() {
+      if (!this.simulationResults) return [];
+      return [
+        {
+          name: 'Portfolio Value',
+          data: this.simulationResults.portfolioValues,
+        },
+      ];
+    },
+
+    chartOptions() {
+      return {
+        chart: {
+          type: 'line',
+          height: 300,
+          toolbar: {
+            show: false,
+          },
+        },
+        stroke: {
+          curve: 'smooth',
+          width: 3,
+        },
+        colors: [this.simulationResults?.depletes ? '#ef4444' : '#10b981'],
+        xaxis: {
+          categories: this.simulationResults?.ages || [],
+          title: {
+            text: 'Age',
+            style: {
+              fontSize: '14px',
+              fontWeight: 600,
+              fontFamily: 'Inter, sans-serif',
+            },
+          },
+        },
+        yaxis: {
+          title: {
+            text: 'Portfolio Value (£)',
+            style: {
+              fontSize: '14px',
+              fontWeight: 600,
+              fontFamily: 'Inter, sans-serif',
+            },
+          },
+          labels: {
+            formatter: (value) => {
+              return '£' + Math.round(value).toLocaleString();
+            },
+          },
+        },
+        tooltip: {
+          y: {
+            formatter: (value) => {
+              return '£' + Math.round(value).toLocaleString();
+            },
+          },
+        },
+        grid: {
+          borderColor: '#e5e7eb',
+        },
+      };
+    },
+  },
+
+  methods: {
+    runSimulation() {
+      const startAge = 67;
+      const endAge = 95;
+      let portfolioValue = this.simulatorData.initialPot;
+      const portfolioValues = [portfolioValue];
+      const ages = [startAge];
+      let depletes = false;
+      let depletionAge = null;
+
+      for (let age = startAge + 1; age <= endAge; age++) {
+        // Deduct annual withdrawal
+        const withdrawal = portfolioValue * (this.simulatorData.withdrawalRate / 100);
+        portfolioValue -= withdrawal;
+
+        // Apply investment growth
+        portfolioValue *= (1 + this.simulatorData.growthRate / 100);
+
+        // Check if depleted
+        if (portfolioValue <= 0 && !depletes) {
+          depletes = true;
+          depletionAge = age;
+          portfolioValue = 0;
+        }
+
+        portfolioValues.push(Math.round(Math.max(0, portfolioValue)));
+        ages.push(age);
+
+        if (depletes && age > depletionAge + 2) {
+          // Stop simulation a few years after depletion
+          break;
+        }
+      }
+
+      // Calculate real value loss due to inflation
+      const years = endAge - startAge;
+      const realValueLoss = Math.round((1 - Math.pow(1 + this.simulatorData.inflationRate / 100, -years)) * 100);
+
+      this.simulationResults = {
+        portfolioValues,
+        ages,
+        depletes,
+        depletionAge,
+        finalBalance: portfolioValues[portfolioValues.length - 1],
+        realValueLoss,
+      };
+    },
+
+    formatNumber(value) {
+      return Math.round(value).toLocaleString();
+    },
+  },
+
+  mounted() {
+    this.runSimulation();
+  },
+};
+</script>
+
+<style scoped>
+/* Slider styling */
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #4f46e5;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #4f46e5;
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+}
+</style>

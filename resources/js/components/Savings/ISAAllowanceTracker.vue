@@ -1,0 +1,114 @@
+<template>
+  <div class="isa-allowance-tracker bg-white rounded-lg border border-gray-200 p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-900">ISA Allowance 2024/25</h3>
+      <span class="text-sm text-gray-600">{{ formatCurrency(totalAllowance) }} total</span>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="mb-4">
+      <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+        <div class="h-full flex">
+          <!-- Cash ISA -->
+          <div
+            v-if="cashISAUsed > 0"
+            class="bg-blue-500 flex items-center justify-center text-xs text-white font-medium"
+            :style="{ width: cashISAPercent + '%' }"
+            :title="`Cash ISA: ${formatCurrency(cashISAUsed)}`"
+          >
+            <span v-if="cashISAPercent > 10">Cash</span>
+          </div>
+          <!-- Stocks & Shares ISA -->
+          <div
+            v-if="stocksISAUsed > 0"
+            class="bg-purple-500 flex items-center justify-center text-xs text-white font-medium"
+            :style="{ width: stocksISAPercent + '%' }"
+            :title="`Stocks ISA: ${formatCurrency(stocksISAUsed)}`"
+          >
+            <span v-if="stocksISAPercent > 10">Stocks</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div class="text-center p-3 bg-blue-50 rounded-lg">
+        <p class="text-sm text-gray-600 mb-1">Cash ISA Used</p>
+        <p class="text-lg font-bold text-blue-700">{{ formatCurrency(cashISAUsed) }}</p>
+      </div>
+
+      <div class="text-center p-3 bg-purple-50 rounded-lg">
+        <p class="text-sm text-gray-600 mb-1">Stocks ISA Used</p>
+        <p class="text-lg font-bold text-purple-700">{{ formatCurrency(stocksISAUsed) }}</p>
+      </div>
+
+      <div class="text-center p-3 bg-green-50 rounded-lg">
+        <p class="text-sm text-gray-600 mb-1">Remaining</p>
+        <p class="text-lg font-bold text-green-700">{{ formatCurrency(remaining) }}</p>
+      </div>
+    </div>
+
+    <!-- Info Message -->
+    <div class="p-3 bg-blue-50 rounded-lg">
+      <p class="text-sm text-gray-700">
+        <span class="font-medium">Tax year 2024/25:</span> You can save up to £20,000 across all ISAs.
+        Any unused allowance cannot be carried forward.
+      </p>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapState, mapGetters } from 'vuex';
+
+export default {
+  name: 'ISAAllowanceTracker',
+
+  computed: {
+    ...mapState('savings', ['isaAllowance']),
+    ...mapGetters('savings', ['isaAllowanceRemaining']),
+
+    totalAllowance() {
+      return 20000; // UK ISA allowance for 2024/25
+    },
+
+    cashISAUsed() {
+      return this.isaAllowance?.cash_isa_used || 0;
+    },
+
+    stocksISAUsed() {
+      return this.isaAllowance?.stocks_isa_used || 0;
+    },
+
+    remaining() {
+      return Math.max(0, this.totalAllowance - this.cashISAUsed - this.stocksISAUsed);
+    },
+
+    cashISAPercent() {
+      return (this.cashISAUsed / this.totalAllowance) * 100;
+    },
+
+    stocksISAPercent() {
+      return (this.stocksISAUsed / this.totalAllowance) * 100;
+    },
+  },
+
+  methods: {
+    formatCurrency(value) {
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    },
+  },
+};
+</script>
+
+<style scoped>
+.isa-allowance-tracker {
+  /* Custom styling if needed */
+}
+</style>
