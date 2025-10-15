@@ -314,4 +314,107 @@ return [
         'mortgage_rate' => 0.055, // 5.5% assumed
         'state_pension_increase_rate' => 0.025, // Triple lock assumption
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Trusts & IHT Planning
+    |--------------------------------------------------------------------------
+    |
+    | Trust types and their IHT treatment under UK tax law.
+    |
+    */
+
+    'trusts' => [
+        'types' => [
+            'bare' => [
+                'name' => 'Bare Trust',
+                'description' => 'Beneficiary has absolute entitlement to capital and income at age 18',
+                'iht_treatment' => 'Assets count in beneficiary estate, not settlor',
+                'periodic_charges' => false,
+                'entry_charge' => false,
+                'best_for' => 'Passing assets to young people with certainty',
+            ],
+            'interest_in_possession' => [
+                'name' => 'Interest in Possession Trust',
+                'description' => 'Beneficiary entitled to income, trustees hold capital',
+                'iht_treatment' => 'Qualifying IIP: counts in life tenant estate. Non-qualifying: relevant property regime',
+                'periodic_charges' => false, // For qualifying IIP
+                'entry_charge' => false, // For qualifying IIP
+                'best_for' => 'Providing income to spouse while preserving capital for children',
+            ],
+            'discretionary' => [
+                'name' => 'Discretionary Trust',
+                'description' => 'Trustees have full discretion over distributions',
+                'iht_treatment' => 'Relevant property regime - outside settlor estate',
+                'periodic_charges' => true,
+                'periodic_charge_rate' => 0.06, // Up to 6% every 10 years
+                'entry_charge' => true,
+                'entry_charge_rate' => 0.20, // 20% on amounts over NRB
+                'exit_charges' => true,
+                'best_for' => 'Flexible planning where beneficiary needs uncertain or beneficiaries unable to manage money',
+            ],
+            'accumulation_maintenance' => [
+                'name' => 'Accumulation & Maintenance Trust',
+                'description' => 'Income accumulated for children, capital distributed at set age',
+                'iht_treatment' => 'Relevant property regime (post-2006)',
+                'periodic_charges' => true,
+                'periodic_charge_rate' => 0.06,
+                'entry_charge' => true,
+                'entry_charge_rate' => 0.20,
+                'best_for' => 'Providing for children during minority',
+            ],
+            'life_insurance' => [
+                'name' => 'Life Insurance Trust',
+                'description' => 'Life insurance policy written in trust',
+                'iht_treatment' => 'Policy proceeds outside estate if written in trust from inception',
+                'periodic_charges' => false,
+                'entry_charge' => false, // No IHT if no change of ownership
+                'best_for' => 'Providing liquid funds to pay IHT liability without affecting estate assets',
+            ],
+            'discounted_gift' => [
+                'name' => 'Discounted Gift Trust',
+                'description' => 'Gift to trust with retained income stream',
+                'iht_treatment' => 'Actuarial discount applied - only retained income counts in estate',
+                'periodic_charges' => false, // If structured as bare or qualifying IIP
+                'entry_charge' => true, // PET on discounted value
+                'best_for' => 'Reducing estate while retaining income',
+                'typical_discount_range' => [0.30, 0.60], // 30-60% typical discount
+            ],
+            'loan' => [
+                'name' => 'Loan Trust',
+                'description' => 'Interest-free loan to trust, growth accrues outside estate',
+                'iht_treatment' => 'Loan remains in estate, growth is outside estate immediately',
+                'periodic_charges' => false,
+                'entry_charge' => false, // Loan, not gift
+                'best_for' => 'Freezing estate value while maintaining access to capital',
+            ],
+            'mixed' => [
+                'name' => 'Mixed Trust',
+                'description' => 'Combination of trust types',
+                'iht_treatment' => 'Different parts taxed according to applicable rules',
+                'periodic_charges' => null, // Depends on structure
+                'entry_charge' => null,
+                'best_for' => 'Complex estate planning with multiple objectives',
+            ],
+            'settlor_interested' => [
+                'name' => 'Settlor-Interested Trust',
+                'description' => 'Settlor or spouse can benefit',
+                'iht_treatment' => 'Counts in settlor estate (reservation of benefit)',
+                'periodic_charges' => false,
+                'entry_charge' => false,
+                'best_for' => 'Limited use - potential for reservation of benefit issues',
+            ],
+        ],
+
+        'periodic_charges' => [
+            'frequency_years' => 10,
+            'max_rate' => 0.06, // 6% maximum
+            'calculation_base' => 'cumulative_total', // Uses 7-year cumulation like IHT
+        ],
+
+        'exit_charges' => [
+            'applies_to' => ['discretionary', 'accumulation_maintenance'],
+            'calculation' => 'proportionate', // Proportionate to time since last 10-year charge
+        ],
+    ],
 ];

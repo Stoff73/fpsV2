@@ -21,6 +21,7 @@ class Gift extends Model
         'gift_value',
         'status',
         'taper_relief_applicable',
+        'notes',
     ];
 
     protected $casts = [

@@ -4,6 +4,7 @@ const state = {
     assets: [],
     liabilities: [],
     gifts: [],
+    trusts: [],
     ihtProfile: null,
     netWorth: null,
     cashFlow: null,
@@ -132,6 +133,7 @@ const actions = {
             commit('setAssets', response.data.assets || []);
             commit('setLiabilities', response.data.liabilities || []);
             commit('setGifts', response.data.gifts || []);
+            commit('setTrusts', response.data.trusts || []);
             commit('setIHTProfile', response.data.iht_profile);
             return response;
         } catch (error) {
@@ -345,10 +347,10 @@ const actions = {
 
         try {
             const response = await estateService.createGift(giftData);
-            commit('addGift', response.data.data);
+            commit('addGift', response.data);
             return response;
         } catch (error) {
-            const errorMessage = error.message || 'Failed to create gift';
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to create gift';
             commit('setError', errorMessage);
             throw error;
         } finally {
@@ -362,10 +364,10 @@ const actions = {
 
         try {
             const response = await estateService.updateGift(id, giftData);
-            commit('updateGift', response.data.data);
+            commit('updateGift', response.data);
             return response;
         } catch (error) {
-            const errorMessage = error.message || 'Failed to update gift';
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to update gift';
             commit('setError', errorMessage);
             throw error;
         } finally {
@@ -389,6 +391,75 @@ const actions = {
             commit('setLoading', false);
         }
     },
+
+    // Trust actions
+    async fetchTrusts({ commit }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await estateService.getTrusts();
+            commit('setTrusts', response.data || []);
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to fetch trusts';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async createTrust({ commit }, trustData) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await estateService.createTrust(trustData);
+            commit('addTrust', response.data);
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to create trust';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async updateTrust({ commit }, { id, data }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await estateService.updateTrust(id, data);
+            commit('updateTrust', response.data);
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to update trust';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async removeTrust({ commit }, id) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await estateService.deleteTrust(id);
+            commit('removeTrust', id);
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to delete trust';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
 };
 
 const mutations = {
@@ -402,6 +473,10 @@ const mutations = {
 
     setGifts(state, gifts) {
         state.gifts = gifts;
+    },
+
+    setTrusts(state, trusts) {
+        state.trusts = trusts;
     },
 
     setIHTProfile(state, profile) {
@@ -475,6 +550,24 @@ const mutations = {
         const index = state.gifts.findIndex(g => g.id === id);
         if (index !== -1) {
             state.gifts.splice(index, 1);
+        }
+    },
+
+    addTrust(state, trust) {
+        state.trusts.push(trust);
+    },
+
+    updateTrust(state, trust) {
+        const index = state.trusts.findIndex(t => t.id === trust.id);
+        if (index !== -1) {
+            state.trusts.splice(index, 1, trust);
+        }
+    },
+
+    removeTrust(state, id) {
+        const index = state.trusts.findIndex(t => t.id === id);
+        if (index !== -1) {
+            state.trusts.splice(index, 1);
         }
     },
 

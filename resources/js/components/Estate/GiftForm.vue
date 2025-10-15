@@ -151,7 +151,7 @@ export default {
     },
   },
 
-  emits: ['submit', 'cancel'],
+  emits: ['save', 'cancel'],
 
   data() {
     return {

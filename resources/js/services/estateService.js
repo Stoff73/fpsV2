@@ -180,6 +180,78 @@ const estateService = {
         const response = await api.delete(`/estate/gifts/${id}`);
         return response.data;
     },
+
+    // ==================== TRUSTS ====================
+
+    /**
+     * Get all trusts for the authenticated user
+     * @returns {Promise} List of trusts
+     */
+    async getTrusts() {
+        const response = await api.get('/estate/trusts');
+        return response.data;
+    },
+
+    /**
+     * Create a new trust
+     * @param {Object} trustData - Trust data
+     * @returns {Promise} Created trust
+     */
+    async createTrust(trustData) {
+        const response = await api.post('/estate/trusts', trustData);
+        return response.data;
+    },
+
+    /**
+     * Update an existing trust
+     * @param {Number} id - Trust ID
+     * @param {Object} trustData - Updated trust data
+     * @returns {Promise} Updated trust
+     */
+    async updateTrust(id, trustData) {
+        const response = await api.put(`/estate/trusts/${id}`, trustData);
+        return response.data;
+    },
+
+    /**
+     * Delete a trust
+     * @param {Number} id - Trust ID
+     * @returns {Promise} Deletion confirmation
+     */
+    async deleteTrust(id) {
+        const response = await api.delete(`/estate/trusts/${id}`);
+        return response.data;
+    },
+
+    /**
+     * Get trust analysis
+     * @param {Number} id - Trust ID
+     * @returns {Promise} Trust analysis and efficiency metrics
+     */
+    async analyzeTrust(id) {
+        const response = await api.get(`/estate/trusts/${id}/analyze`);
+        return response.data;
+    },
+
+    /**
+     * Get trust recommendations
+     * @param {Object} params - Parameters (has_children, needs_flexibility)
+     * @returns {Promise} Trust recommendations based on estate
+     */
+    async getTrustRecommendations(params = {}) {
+        const response = await api.get('/estate/trust-recommendations', { params });
+        return response.data;
+    },
+
+    /**
+     * Calculate discounted gift trust discount estimate
+     * @param {Object} data - Age, gift value, annual income
+     * @returns {Promise} Discount calculation
+     */
+    async calculateDiscountedGiftDiscount(data) {
+        const response = await api.post('/estate/calculate-discount', data);
+        return response.data;
+    },
 };
 
 export default estateService;

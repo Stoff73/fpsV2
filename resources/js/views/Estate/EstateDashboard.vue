@@ -100,6 +100,9 @@
           <!-- Gifting Strategy Tab -->
           <GiftingStrategy v-else-if="activeTab === 'gifting'" />
 
+          <!-- Trust Planning Tab -->
+          <TrustPlanning v-else-if="activeTab === 'trusts'" />
+
           <!-- Cash Flow Tab -->
           <CashFlow v-else-if="activeTab === 'cashflow'" />
 
@@ -124,6 +127,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import NetWorth from '@/components/Estate/NetWorth.vue';
 import IHTPlanning from '@/components/Estate/IHTPlanning.vue';
 import GiftingStrategy from '@/components/Estate/GiftingStrategy.vue';
+import TrustPlanning from '@/components/Estate/TrustPlanning.vue';
 import CashFlow from '@/components/Estate/CashFlow.vue';
 import AssetsLiabilities from '@/components/Estate/AssetsLiabilities.vue';
 import Recommendations from '@/components/Estate/Recommendations.vue';
@@ -137,6 +141,7 @@ export default {
     NetWorth,
     IHTPlanning,
     GiftingStrategy,
+    TrustPlanning,
     CashFlow,
     AssetsLiabilities,
     Recommendations,
@@ -151,6 +156,7 @@ export default {
         { id: 'networth', label: 'Net Worth' },
         { id: 'iht', label: 'IHT Planning' },
         { id: 'gifting', label: 'Gifting Strategy' },
+        { id: 'trusts', label: 'Trust Planning' },
         { id: 'cashflow', label: 'Cash Flow' },
         { id: 'assets', label: 'Assets & Liabilities' },
         { id: 'recommendations', label: 'Recommendations' },

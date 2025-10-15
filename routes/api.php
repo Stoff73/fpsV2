@@ -188,6 +188,19 @@ Route::middleware('auth:sanctum')->prefix('estate')->group(function () {
         Route::put('/{id}', [EstateController::class, 'updateGift']);
         Route::delete('/{id}', [EstateController::class, 'destroyGift']);
     });
+
+    // Trusts
+    Route::prefix('trusts')->group(function () {
+        Route::get('/', [EstateController::class, 'getTrusts']);
+        Route::post('/', [EstateController::class, 'createTrust']);
+        Route::put('/{id}', [EstateController::class, 'updateTrust']);
+        Route::delete('/{id}', [EstateController::class, 'deleteTrust']);
+        Route::get('/{id}/analyze', [EstateController::class, 'analyzeTrust']);
+    });
+
+    // Trust planning
+    Route::get('/trust-recommendations', [EstateController::class, 'getTrustRecommendations']);
+    Route::post('/calculate-discount', [EstateController::class, 'calculateDiscountedGiftDiscount']);
 });
 
 // Retirement module routes
