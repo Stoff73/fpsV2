@@ -128,7 +128,7 @@ export default {
     ...mapActions('investment', [
       'createHolding',
       'updateHolding',
-      'deleteHoldingAction',
+      'deleteHolding',
       'fetchInvestmentData',
       'analyzeInvestment',
     ]),
@@ -191,7 +191,7 @@ export default {
       this.clearMessages();
 
       try {
-        await this.deleteHoldingAction(this.holdingToDelete.id);
+        await this.deleteHolding(this.holdingToDelete.id);
         this.successMessage = `${this.holdingToDelete.security_name} deleted successfully`;
         this.showDeleteModal = false;
         this.holdingToDelete = null;

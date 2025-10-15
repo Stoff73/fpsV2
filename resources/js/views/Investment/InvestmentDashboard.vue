@@ -94,6 +94,9 @@
           <!-- Portfolio Overview Tab -->
           <PortfolioOverview v-if="activeTab === 'overview'" />
 
+          <!-- Accounts Tab -->
+          <Accounts v-else-if="activeTab === 'accounts'" />
+
           <!-- Holdings Tab -->
           <Holdings v-else-if="activeTab === 'holdings'" />
 
@@ -122,6 +125,7 @@
 import { mapState, mapActions } from 'vuex';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PortfolioOverview from '@/components/Investment/PortfolioOverview.vue';
+import Accounts from '@/components/Investment/Accounts.vue';
 import Holdings from '@/components/Investment/Holdings.vue';
 import Performance from '@/components/Investment/Performance.vue';
 import Goals from '@/components/Investment/Goals.vue';
@@ -135,6 +139,7 @@ export default {
   components: {
     AppLayout,
     PortfolioOverview,
+    Accounts,
     Holdings,
     Performance,
     Goals,
@@ -148,6 +153,7 @@ export default {
       activeTab: 'overview',
       tabs: [
         { id: 'overview', label: 'Portfolio Overview' },
+        { id: 'accounts', label: 'Accounts' },
         { id: 'holdings', label: 'Holdings' },
         { id: 'performance', label: 'Performance' },
         { id: 'goals', label: 'Goals' },

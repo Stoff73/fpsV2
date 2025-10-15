@@ -15,6 +15,9 @@ const state = {
 };
 
 const getters = {
+    // Get accounts
+    accounts: (state) => state.accounts,
+
     // Get total portfolio value across all accounts
     totalPortfolioValue: (state) => {
         if (state.analysis?.portfolio_summary?.total_value) {

@@ -33,17 +33,21 @@
               </label>
               <select
                 id="account_id"
-                v-model="formData.account_id"
+                v-model="formData.investment_account_id"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                :class="{ 'border-red-500': errors.account_id }"
+                :class="{ 'border-red-500': errors.investment_account_id }"
+                :disabled="accounts.length === 0"
                 required
               >
-                <option value="">Select an account</option>
+                <option value="">{{ accounts.length === 0 ? 'No accounts available' : 'Select an account' }}</option>
                 <option v-for="account in accounts" :key="account.id" :value="account.id">
-                  {{ account.account_type }} - {{ account.provider }}
+                  {{ formatAccountName(account) }}
                 </option>
               </select>
-              <p v-if="errors.account_id" class="mt-1 text-sm text-red-600">{{ errors.account_id }}</p>
+              <p v-if="errors.investment_account_id" class="mt-1 text-sm text-red-600">{{ errors.investment_account_id }}</p>
+              <p v-if="accounts.length === 0" class="mt-2 text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-2">
+                ⚠️ You need to create an investment account first before adding holdings. Please go to the Accounts tab to add an account.
+              </p>
             </div>
 
             <!-- Security Name -->
@@ -265,7 +269,7 @@ export default {
   data() {
     return {
       formData: {
-        account_id: '',
+        investment_account_id: '',
         security_name: '',
         ticker: '',
         isin: '',
@@ -351,8 +355,8 @@ export default {
     validateForm() {
       let isValid = true;
 
-      if (!this.formData.account_id) {
-        this.errors.account_id = 'Account is required';
+      if (!this.formData.investment_account_id) {
+        this.errors.investment_account_id = 'Account is required';
         isValid = false;
       }
 
@@ -396,7 +400,7 @@ export default {
 
     resetForm() {
       this.formData = {
-        account_id: '',
+        investment_account_id: '',
         security_name: '',
         ticker: '',
         isin: '',
@@ -422,6 +426,29 @@ export default {
     formatReturn(value) {
       const sign = value >= 0 ? '+' : '';
       return `${sign}${value.toFixed(2)}%`;
+    },
+
+    formatAccountName(account) {
+      // Handle different possible account structures
+      if (account.provider && account.account_type) {
+        return `${account.provider} - ${this.formatAccountType(account.account_type)}`;
+      } else if (account.provider) {
+        return account.provider;
+      } else if (account.account_name) {
+        return account.account_name;
+      } else {
+        return `Account ${account.id}`;
+      }
+    },
+
+    formatAccountType(type) {
+      const types = {
+        isa: 'ISA',
+        sipp: 'SIPP',
+        gia: 'General Investment Account',
+        pension: 'Pension',
+      };
+      return types[type] || type;
     },
   },
 };

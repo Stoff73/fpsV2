@@ -41,9 +41,10 @@
                 <option value="">Select account type</option>
                 <option value="isa">ISA (Stocks & Shares)</option>
                 <option value="gia">General Investment Account</option>
-                <option value="sipp">SIPP</option>
-                <option value="pension">Pension</option>
-                <option value="other">Other</option>
+                <option value="onshore_bond">Onshore Bond</option>
+                <option value="offshore_bond">Offshore Bond</option>
+                <option value="vct">Venture Capital Trust (VCT)</option>
+                <option value="eis">Enterprise Investment Scheme (EIS)</option>
               </select>
               <p v-if="errors.account_type" class="mt-1 text-sm text-red-600">{{ errors.account_type }}</p>
             </div>
@@ -78,6 +79,45 @@
                 placeholder="e.g., Investment Account, ISA"
               />
               <p class="mt-1 text-xs text-gray-500">Optional: Specific platform or product name</p>
+            </div>
+
+            <!-- Current Value -->
+            <div>
+              <label for="current_value" class="block text-sm font-medium text-gray-700 mb-1">
+                Current Value (£) <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="current_value"
+                v-model.number="formData.current_value"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :class="{ 'border-red-500': errors.current_value }"
+                placeholder="0.00"
+                required
+              />
+              <p v-if="errors.current_value" class="mt-1 text-sm text-red-600">{{ errors.current_value }}</p>
+              <p class="mt-1 text-xs text-gray-500">Current total value of the account</p>
+            </div>
+
+            <!-- Tax Year -->
+            <div>
+              <label for="tax_year" class="block text-sm font-medium text-gray-700 mb-1">
+                Tax Year <span class="text-red-500">*</span>
+              </label>
+              <select
+                id="tax_year"
+                v-model="formData.tax_year"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :class="{ 'border-red-500': errors.tax_year }"
+                required
+              >
+                <option value="2024/25">2024/25</option>
+                <option value="2023/24">2023/24</option>
+                <option value="2022/23">2022/23</option>
+              </select>
+              <p v-if="errors.tax_year" class="mt-1 text-sm text-red-600">{{ errors.tax_year }}</p>
             </div>
 
             <!-- Platform Fee Percent -->
@@ -168,20 +208,6 @@
                 </p>
               </div>
             </div>
-
-            <!-- Account Note -->
-            <div>
-              <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
-                Notes
-              </label>
-              <textarea
-                id="notes"
-                v-model="formData.notes"
-                rows="3"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Optional notes about this account"
-              ></textarea>
-            </div>
           </div>
 
           <!-- Footer -->
@@ -228,10 +254,12 @@ export default {
         account_type: '',
         provider: '',
         platform: '',
+        current_value: null,
+        tax_year: '2024/25',
+        contributions_ytd: null,
         platform_fee_percent: null,
         isa_type: 'stocks_and_shares',
         isa_subscription_current_year: null,
-        notes: '',
       },
       errors: {},
       submitting: false,
@@ -359,6 +387,16 @@ export default {
         isValid = false;
       }
 
+      if (this.formData.current_value === null || this.formData.current_value < 0) {
+        this.errors.current_value = 'Current value is required and must be 0 or greater';
+        isValid = false;
+      }
+
+      if (!this.formData.tax_year) {
+        this.errors.tax_year = 'Tax year is required';
+        isValid = false;
+      }
+
       if (this.formData.platform_fee_percent !== null &&
           (this.formData.platform_fee_percent < 0 || this.formData.platform_fee_percent > 5)) {
         this.errors.platform_fee_percent = 'Platform fee must be between 0 and 5%';
@@ -390,10 +428,12 @@ export default {
         account_type: '',
         provider: '',
         platform: '',
+        current_value: null,
+        tax_year: '2024/25',
+        contributions_ytd: null,
         platform_fee_percent: null,
         isa_type: 'stocks_and_shares',
         isa_subscription_current_year: null,
-        notes: '',
       };
       this.errors = {};
     },

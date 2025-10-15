@@ -171,7 +171,8 @@ const actions = {
 
         try {
             const response = await savingsService.createAccount(accountData);
-            commit('addAccount', response.data.account);
+            const account = response.data || response;
+            commit('addAccount', account);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create account';
@@ -188,7 +189,8 @@ const actions = {
 
         try {
             const response = await savingsService.updateAccount(id, accountData);
-            commit('updateAccount', response.data.account);
+            const account = response.data || response;
+            commit('updateAccount', account);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update account';
@@ -223,7 +225,8 @@ const actions = {
 
         try {
             const response = await savingsService.createGoal(goalData);
-            commit('addGoal', response.data.goal);
+            const goal = response.data || response;
+            commit('addGoal', goal);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create goal';
@@ -240,7 +243,8 @@ const actions = {
 
         try {
             const response = await savingsService.updateGoal(id, goalData);
-            commit('updateGoal', response.data.goal);
+            const goal = response.data || response;
+            commit('updateGoal', goal);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update goal';
@@ -274,7 +278,8 @@ const actions = {
 
         try {
             const response = await savingsService.updateGoalProgress(id, amount);
-            commit('updateGoal', response.data.goal);
+            const goal = response.data || response;
+            commit('updateGoal', goal);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update goal progress';

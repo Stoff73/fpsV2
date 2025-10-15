@@ -92,14 +92,22 @@
         <!-- Actions -->
         <div class="flex gap-3">
           <button
+            @click="handleUpdateProgress(goal.id)"
             class="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
           >
             Update Progress
           </button>
           <button
+            @click="handleEditGoal(goal)"
             class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200"
           >
             Edit
+          </button>
+          <button
+            @click="handleDeleteGoal(goal.id)"
+            class="px-4 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100"
+          >
+            Delete
           </button>
         </div>
       </div>
@@ -131,18 +139,34 @@
         Create Goal
       </button>
     </div>
+
+    <!-- Save Goal Modal -->
+    <SaveGoalModal
+      v-if="showAddGoalModal"
+      :goal="selectedGoal"
+      :is-editing="isEditingGoal"
+      @save="handleSaveGoal"
+      @close="handleCloseModal"
+    />
   </div>
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
+import SaveGoalModal from './SaveGoalModal.vue';
 
 export default {
   name: 'SavingsGoals',
 
+  components: {
+    SaveGoalModal,
+  },
+
   data() {
     return {
       showAddGoalModal: false,
+      selectedGoal: null,
+      isEditingGoal: false,
     };
   },
 
@@ -152,6 +176,8 @@ export default {
   },
 
   methods: {
+    ...mapActions('savings', ['createGoal', 'updateGoal', 'deleteGoal', 'updateGoalProgress', 'fetchSavingsData']),
+
     getProgressPercent(goal) {
       return Math.min(Math.round((goal.current_saved / goal.target_amount) * 100), 100);
     },
@@ -210,6 +236,79 @@ export default {
         year: 'numeric',
         month: 'long',
       });
+    },
+
+    // Modal handlers
+    handleCloseModal() {
+      this.showAddGoalModal = false;
+      this.selectedGoal = null;
+      this.isEditingGoal = false;
+    },
+
+    handleEditGoal(goal) {
+      this.selectedGoal = goal;
+      this.isEditingGoal = true;
+      this.showAddGoalModal = true;
+    },
+
+    async handleSaveGoal(goalData) {
+      try {
+        if (this.isEditingGoal && this.selectedGoal) {
+          // Update existing goal
+          await this.updateGoal({
+            id: this.selectedGoal.id,
+            goalData,
+          });
+        } else {
+          // Create new goal
+          await this.createGoal(goalData);
+        }
+
+        // Refresh data
+        await this.fetchSavingsData();
+
+        // Close modal
+        this.handleCloseModal();
+      } catch (error) {
+        console.error('Failed to save goal:', error);
+        alert('Failed to save goal. Please try again.');
+      }
+    },
+
+    async handleDeleteGoal(goalId) {
+      if (!confirm('Are you sure you want to delete this goal?')) {
+        return;
+      }
+
+      try {
+        await this.deleteGoal(goalId);
+        await this.fetchSavingsData();
+      } catch (error) {
+        console.error('Failed to delete goal:', error);
+        alert('Failed to delete goal. Please try again.');
+      }
+    },
+
+    async handleUpdateProgress(goalId) {
+      const amount = prompt('Enter the current amount saved for this goal:');
+      if (amount === null) return;
+
+      const numAmount = parseFloat(amount);
+      if (isNaN(numAmount) || numAmount < 0) {
+        alert('Please enter a valid amount.');
+        return;
+      }
+
+      try {
+        await this.updateGoalProgress({
+          id: goalId,
+          amount: numAmount,
+        });
+        await this.fetchSavingsData();
+      } catch (error) {
+        console.error('Failed to update goal progress:', error);
+        alert('Failed to update goal progress. Please try again.');
+      }
     },
   },
 };

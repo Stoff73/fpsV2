@@ -158,6 +158,12 @@ export default {
 
   mounted() {
     this.loadSavingsData();
+
+    // Check for tab query parameter and set active tab
+    const tabParam = this.$route.query.tab;
+    if (tabParam && this.tabs.some(tab => tab.id === tabParam)) {
+      this.activeTab = tabParam;
+    }
   },
 
   methods: {

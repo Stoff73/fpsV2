@@ -9,6 +9,7 @@
         </p>
       </div>
       <button
+        @click="handleAddAccount"
         class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
       >
         <svg
@@ -53,12 +54,12 @@
             <p class="text-2xl font-bold text-gray-900">
               {{ formatCurrency(account.current_balance) }}
             </p>
-            <p class="text-sm text-gray-600">{{ account.interest_rate }}% APY</p>
+            <p class="text-sm text-gray-600">{{ formatInterestRate(account.interest_rate) }}% APY</p>
           </div>
         </div>
 
         <!-- Account Details -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 text-sm">
           <div>
             <p class="text-gray-600">Access Type</p>
             <p class="font-semibold">{{ formatAccessType(account.access_type) }}</p>
@@ -71,20 +72,18 @@
             <p class="text-gray-600">Maturity Date</p>
             <p class="font-semibold">{{ formatDate(account.maturity_date) }}</p>
           </div>
-          <div>
-            <p class="text-gray-600">Opened</p>
-            <p class="font-semibold">{{ formatDate(account.opened_date) }}</p>
-          </div>
         </div>
 
         <!-- Actions -->
         <div class="flex gap-3">
           <button
+            @click="handleEditAccount(account)"
             class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
           >
             Edit
           </button>
           <button
+            @click="handleDeleteAccount(account.id)"
             class="px-4 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100"
           >
             Delete
@@ -112,21 +111,65 @@
       <p class="mt-1 text-sm text-gray-500">
         Get started by adding your first savings account.
       </p>
+      <button
+        @click="handleAddAccount"
+        class="mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Add Your First Account
+      </button>
     </div>
+
+    <!-- Save Account Modal -->
+    <SaveAccountModal
+      v-if="showAddAccountModal"
+      :account="selectedAccount"
+      :is-editing="isEditingAccount"
+      @save="handleSaveAccount"
+      @close="handleCloseModal"
+    />
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
+import SaveAccountModal from './SaveAccountModal.vue';
 
 export default {
   name: 'AccountDetails',
+
+  components: {
+    SaveAccountModal,
+  },
+
+  data() {
+    return {
+      showAddAccountModal: false,
+      selectedAccount: null,
+      isEditingAccount: false,
+    };
+  },
 
   computed: {
     ...mapState('savings', ['accounts']),
   },
 
   methods: {
+    ...mapActions('savings', ['createAccount', 'updateAccount', 'deleteAccount', 'fetchSavingsData']),
+
     formatCurrency(value) {
       return new Intl.NumberFormat('en-GB', {
         style: 'currency',
@@ -157,6 +200,68 @@ export default {
     formatDate(dateString) {
       if (!dateString) return 'N/A';
       return new Date(dateString).toLocaleDateString('en-GB');
+    },
+
+    formatInterestRate(rate) {
+      // Convert decimal to percentage (e.g., 0.05 -> 5)
+      return (parseFloat(rate) * 100).toFixed(2);
+    },
+
+    // Modal handlers
+    handleCloseModal() {
+      this.showAddAccountModal = false;
+      this.selectedAccount = null;
+      this.isEditingAccount = false;
+    },
+
+    handleAddAccount() {
+      this.selectedAccount = null;
+      this.isEditingAccount = false;
+      this.showAddAccountModal = true;
+    },
+
+    handleEditAccount(account) {
+      this.selectedAccount = account;
+      this.isEditingAccount = true;
+      this.showAddAccountModal = true;
+    },
+
+    async handleSaveAccount(accountData) {
+      try {
+        if (this.isEditingAccount && this.selectedAccount) {
+          // Update existing account
+          await this.updateAccount({
+            id: this.selectedAccount.id,
+            accountData,
+          });
+        } else {
+          // Create new account
+          await this.createAccount(accountData);
+        }
+
+        // Refresh data
+        await this.fetchSavingsData();
+
+        // Close modal
+        this.handleCloseModal();
+      } catch (error) {
+        console.error('Failed to save account:', error);
+        alert('Failed to save account. Please try again.');
+      }
+    },
+
+    async handleDeleteAccount(accountId) {
+      if (!confirm('Are you sure you want to delete this account?')) {
+        return;
+      }
+
+      try {
+        await this.deleteAccount(accountId);
+        await this.fetchSavingsData();
+      } catch (error) {
+        console.error('Failed to delete account:', error);
+        alert('Failed to delete account. Please try again.');
+      }
     },
   },
 };
