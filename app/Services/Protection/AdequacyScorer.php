@@ -8,10 +8,6 @@ class AdequacyScorer
 {
     /**
      * Calculate adequacy score based on coverage gaps.
-     *
-     * @param array $gaps
-     * @param array $needs
-     * @return int
      */
     public function calculateAdequacyScore(array $gaps, array $needs): int
     {
@@ -30,9 +26,6 @@ class AdequacyScorer
 
     /**
      * Categorize adequacy score.
-     *
-     * @param int $score
-     * @return string
      */
     public function categorizeScore(int $score): string
     {
@@ -46,9 +39,6 @@ class AdequacyScorer
 
     /**
      * Get score color for UI display.
-     *
-     * @param int $score
-     * @return string
      */
     public function getScoreColor(int $score): string
     {
@@ -62,10 +52,6 @@ class AdequacyScorer
 
     /**
      * Generate score insights.
-     *
-     * @param int $score
-     * @param array $gaps
-     * @return array
      */
     public function generateScoreInsights(int $score, array $gaps): array
     {

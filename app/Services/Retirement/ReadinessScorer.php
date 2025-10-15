@@ -14,8 +14,8 @@ class ReadinessScorer
     /**
      * Calculate retirement readiness score.
      *
-     * @param float $projectedIncome Projected annual retirement income
-     * @param float $targetIncome Target annual retirement income
+     * @param  float  $projectedIncome  Projected annual retirement income
+     * @param  float  $targetIncome  Target annual retirement income
      * @return int Score from 0 to 100
      */
     public function calculateReadinessScore(float $projectedIncome, float $targetIncome): int
@@ -25,13 +25,14 @@ class ReadinessScorer
         }
 
         $ratio = ($projectedIncome / $targetIncome) * 100;
+
         return (int) min(100, round($ratio));
     }
 
     /**
      * Categorize readiness based on score.
      *
-     * @param int $score Readiness score (0-100)
+     * @param  int  $score  Readiness score (0-100)
      * @return string Category label
      */
     public function categorizeReadiness(int $score): string
@@ -47,8 +48,8 @@ class ReadinessScorer
     /**
      * Calculate income gap between target and projected.
      *
-     * @param float $projected Projected annual income
-     * @param float $target Target annual income
+     * @param  float  $projected  Projected annual income
+     * @param  float  $target  Target annual income
      * @return float Gap amount (positive if shortfall, negative if surplus)
      */
     public function calculateIncomeGap(float $projected, float $target): float
@@ -59,7 +60,6 @@ class ReadinessScorer
     /**
      * Get color code for readiness score (for UI display).
      *
-     * @param int $score
      * @return string Color: 'green', 'amber', or 'red'
      */
     public function getReadinessColor(int $score): string
@@ -73,10 +73,6 @@ class ReadinessScorer
 
     /**
      * Generate readiness analysis with score, category, gap, and recommendations.
-     *
-     * @param float $projectedIncome
-     * @param float $targetIncome
-     * @return array
      */
     public function analyzeReadiness(float $projectedIncome, float $targetIncome): array
     {
@@ -101,10 +97,6 @@ class ReadinessScorer
 
     /**
      * Generate contextual messages based on score and gap.
-     *
-     * @param int $score
-     * @param float $gap
-     * @return array
      */
     private function generateMessages(int $score, float $gap): array
     {

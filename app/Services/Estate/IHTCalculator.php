@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Estate;
 
-use App\Models\Estate\Asset;
 use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Trust;
@@ -15,10 +14,11 @@ class IHTCalculator
 {
     /**
      * Calculate IHT liability on an estate
-     * @param Collection $assets Estate assets
-     * @param IHTProfile $profile IHT profile
-     * @param Collection|null $gifts Gifts (optional, for comprehensive calculation)
-     * @param Collection|null $trusts Trusts (optional, for trust IHT value calculation)
+     *
+     * @param  Collection  $assets  Estate assets
+     * @param  IHTProfile  $profile  IHT profile
+     * @param  Collection|null  $gifts  Gifts (optional, for comprehensive calculation)
+     * @param  Collection|null  $trusts  Trusts (optional, for trust IHT value calculation)
      */
     public function calculateIHTLiability(Collection $assets, IHTProfile $profile, ?Collection $gifts = null, ?Collection $trusts = null): array
     {
@@ -118,7 +118,7 @@ class IHTCalculator
     public function checkRNRBEligibility(IHTProfile $profile, Collection $assets): bool
     {
         // Must own a home
-        if (!$profile->own_home) {
+        if (! $profile->own_home) {
             return false;
         }
 
@@ -211,6 +211,7 @@ class IHTCalculator
         // Filter gifts within 7 years
         $recentGifts = $gifts->filter(function ($gift) {
             $yearsAgo = Carbon::now()->diffInYears($gift->gift_date);
+
             return $yearsAgo < 7 && $gift->gift_type === 'pet';
         })->sortBy('gift_date');
 
@@ -253,7 +254,7 @@ class IHTCalculator
      * Calculate CLT (Chargeable Lifetime Transfer) liability
      * CLTs require 14-year lookback for cumulative calculation
      *
-     * @param Collection $gifts All gifts (includes CLTs to trusts, etc.)
+     * @param  Collection  $gifts  All gifts (includes CLTs to trusts, etc.)
      * @return array CLT calculation details
      */
     public function calculateCLTLiability(Collection $gifts): array
@@ -265,6 +266,7 @@ class IHTCalculator
         // Filter CLT gifts within 14 years (lookback period for cumulation)
         $cltGifts = $gifts->filter(function ($gift) {
             $yearsAgo = Carbon::now()->diffInYears($gift->gift_date);
+
             return $yearsAgo < 14 && $gift->gift_type === 'clt';
         })->sortBy('gift_date');
 
@@ -320,7 +322,7 @@ class IHTCalculator
     /**
      * Calculate total gifting liability (PETs + CLTs)
      *
-     * @param Collection $gifts All gifts
+     * @param  Collection  $gifts  All gifts
      * @return array Complete gifting liability breakdown
      */
     public function calculateGiftingLiability(Collection $gifts): array
@@ -342,8 +344,8 @@ class IHTCalculator
      * Calculate gifting liability WITH proper NRB allocation
      * Gifts use NRB first (chronologically), then estate gets remainder
      *
-     * @param Collection $gifts All gifts
-     * @param float $totalNRB Total NRB available (including spouse transfer)
+     * @param  Collection  $gifts  All gifts
+     * @param  float  $totalNRB  Total NRB available (including spouse transfer)
      * @return array Complete gifting liability breakdown with NRB tracking
      */
     public function calculateGiftingLiabilityWithNRB(Collection $gifts, float $totalNRB): array
@@ -353,6 +355,7 @@ class IHTCalculator
         // Get all gifts within 7 years, sorted by date (oldest first)
         $recentGifts = $gifts->filter(function ($gift) {
             $yearsAgo = Carbon::now()->diffInYears($gift->gift_date);
+
             return $yearsAgo < 7 && $gift->gift_type === 'pet';
         })->sortBy('gift_date');
 
@@ -417,11 +420,22 @@ class IHTCalculator
      */
     private function getTaperRate(int $yearsAgo): float
     {
-        if ($yearsAgo < 3) return 0.40;
-        if ($yearsAgo < 4) return 0.32;
-        if ($yearsAgo < 5) return 0.24;
-        if ($yearsAgo < 6) return 0.16;
-        if ($yearsAgo < 7) return 0.08;
+        if ($yearsAgo < 3) {
+            return 0.40;
+        }
+        if ($yearsAgo < 4) {
+            return 0.32;
+        }
+        if ($yearsAgo < 5) {
+            return 0.24;
+        }
+        if ($yearsAgo < 6) {
+            return 0.16;
+        }
+        if ($yearsAgo < 7) {
+            return 0.08;
+        }
+
         return 0;
     }
 }

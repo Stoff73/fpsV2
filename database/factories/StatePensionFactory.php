@@ -30,7 +30,7 @@ class StatePensionFactory extends Factory
         $niGaps = [];
         for ($i = 0; $i < $gapsCount; $i++) {
             $niGaps[] = [
-                'tax_year' => '20' . $this->faker->numberBetween(10, 23) . '-' . ($this->faker->numberBetween(11, 24)),
+                'tax_year' => '20'.$this->faker->numberBetween(10, 23).'-'.($this->faker->numberBetween(11, 24)),
                 'cost_to_fill' => $this->faker->randomFloat(2, 500, 800),
             ];
         }
@@ -41,8 +41,8 @@ class StatePensionFactory extends Factory
             'ni_years_required' => $niYearsRequired,
             'state_pension_forecast_annual' => round($statePensionForecast, 2),
             'state_pension_age' => $this->faker->randomElement([66, 67, 68]),
-            'ni_gaps' => !empty($niGaps) ? $niGaps : null,
-            'gap_fill_cost' => !empty($niGaps) ? array_sum(array_column($niGaps, 'cost_to_fill')) : null,
+            'ni_gaps' => ! empty($niGaps) ? $niGaps : null,
+            'gap_fill_cost' => ! empty($niGaps) ? array_sum(array_column($niGaps, 'cost_to_fill')) : null,
         ];
     }
 }

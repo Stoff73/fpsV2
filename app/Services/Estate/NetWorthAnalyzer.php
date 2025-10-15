@@ -63,6 +63,7 @@ class NetWorthAnalyzer
 
         $byType = $assets->groupBy('asset_type')->map(function ($group, $type) use ($totalValue) {
             $typeValue = $group->sum('current_value');
+
             return [
                 'type' => $type,
                 'value' => round($typeValue, 2),
@@ -277,7 +278,7 @@ class NetWorthAnalyzer
             $factors[] = [
                 'factor' => 'High Debt Ratio',
                 'impact' => -round($deduction, 0),
-                'detail' => "Debt-to-asset ratio of " . round($debtRatio * 100, 1) . "% is concerning",
+                'detail' => 'Debt-to-asset ratio of '.round($debtRatio * 100, 1).'% is concerning',
             ];
         }
 

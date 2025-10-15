@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Services\Protection\AdequacyScorer;
 
 beforeEach(function () {
-    $this->scorer = new AdequacyScorer();
+    $this->scorer = new AdequacyScorer;
 });
 
 describe('calculateAdequacyScore', function () {

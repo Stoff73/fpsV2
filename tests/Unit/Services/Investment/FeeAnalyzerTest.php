@@ -7,7 +7,7 @@ use App\Models\Investment\InvestmentAccount;
 use App\Services\Investment\FeeAnalyzer;
 
 beforeEach(function () {
-    $this->feeAnalyzer = new FeeAnalyzer();
+    $this->feeAnalyzer = new FeeAnalyzer;
 });
 
 describe('calculateTotalFees', function () {

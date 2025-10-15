@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->projector = new CashFlowProjector();
+    $this->projector = new CashFlowProjector;
     $this->user = User::factory()->create();
 });
 

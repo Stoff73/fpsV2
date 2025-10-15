@@ -3,7 +3,7 @@
 use App\Services\Retirement\ReadinessScorer;
 
 beforeEach(function () {
-    $this->scorer = new ReadinessScorer();
+    $this->scorer = new ReadinessScorer;
 });
 
 test('calculates readiness score correctly', function () {

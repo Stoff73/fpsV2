@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\Investment;
 
 use App\Models\Investment\Holding;
-use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\RiskProfile;
 use Illuminate\Support\Collection;
 
@@ -64,6 +63,7 @@ class PortfolioAnalyzer
 
         $byType = $holdings->groupBy('asset_type')->map(function ($group, $type) use ($totalValue) {
             $typeValue = $group->sum('current_value');
+
             return [
                 'asset_type' => $type,
                 'value' => round($typeValue, 2),

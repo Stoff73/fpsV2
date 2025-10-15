@@ -13,7 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->analyzer = new NetWorthAnalyzer();
+    $this->analyzer = new NetWorthAnalyzer;
     $this->user = User::factory()->create();
 });
 

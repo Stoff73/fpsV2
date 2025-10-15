@@ -15,7 +15,7 @@ class TrustService
      */
     public function calculateNextPeriodicChargeDate(Trust $trust): ?Carbon
     {
-        if (!$trust->isRelevantPropertyTrust()) {
+        if (! $trust->isRelevantPropertyTrust()) {
             return null;
         }
 
@@ -39,7 +39,7 @@ class TrustService
      */
     public function calculatePeriodicCharge(Trust $trust): array
     {
-        if (!$trust->isRelevantPropertyTrust()) {
+        if (! $trust->isRelevantPropertyTrust()) {
             return [
                 'charge_amount' => 0,
                 'effective_rate' => 0,
@@ -58,7 +58,7 @@ class TrustService
 
         // Effective rate calculation (simplified)
         $effectiveRate = min($config['periodic_charges']['max_rate'],
-                            ($excessOverNRB / $trustValue) * 0.06);
+            ($excessOverNRB / $trustValue) * 0.06);
 
         $chargeAmount = $trustValue * $effectiveRate;
 
@@ -137,7 +137,7 @@ class TrustService
             $recommendations[] = [
                 'trust_type' => 'life_insurance',
                 'priority' => 'high',
-                'reason' => "Cover IHT liability of £" . number_format($ihtLiability, 0) . " without depleting estate assets",
+                'reason' => 'Cover IHT liability of £'.number_format($ihtLiability, 0).' without depleting estate assets',
                 'description' => $trustTypes['life_insurance']['description'],
                 'benefits' => [
                     'Policy proceeds paid outside estate',

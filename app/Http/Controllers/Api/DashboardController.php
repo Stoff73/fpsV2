@@ -18,9 +18,6 @@ class DashboardController extends Controller
 
     /**
      * Get aggregated dashboard overview data from all modules
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
@@ -48,9 +45,6 @@ class DashboardController extends Controller
 
     /**
      * Get financial health score calculated from all module scores
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function financialHealthScore(Request $request): JsonResponse
     {
@@ -78,9 +72,6 @@ class DashboardController extends Controller
 
     /**
      * Get prioritized alerts from all modules
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function alerts(Request $request): JsonResponse
     {
@@ -108,10 +99,6 @@ class DashboardController extends Controller
 
     /**
      * Dismiss an alert
-     *
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function dismissAlert(Request $request, int $id): JsonResponse
     {
@@ -137,9 +124,6 @@ class DashboardController extends Controller
 
     /**
      * Invalidate dashboard cache (called after any module data update)
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function invalidateCache(Request $request): JsonResponse
     {

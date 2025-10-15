@@ -25,8 +25,7 @@ class SavingsController extends Controller
     public function __construct(
         private SavingsAgent $savingsAgent,
         private ISATracker $isaTracker
-    ) {
-    }
+    ) {}
 
     /**
      * Get all savings data for authenticated user
@@ -66,7 +65,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Analysis failed: ' . $e->getMessage(),
+                'message' => 'Analysis failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -89,7 +88,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate recommendations: ' . $e->getMessage(),
+                'message' => 'Failed to generate recommendations: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -111,7 +110,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to build scenarios: ' . $e->getMessage(),
+                'message' => 'Failed to build scenarios: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -133,7 +132,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get ISA allowance: ' . $e->getMessage(),
+                'message' => 'Failed to get ISA allowance: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -162,7 +161,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create account: ' . $e->getMessage(),
+                'message' => 'Failed to create account: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -197,7 +196,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update account: ' . $e->getMessage(),
+                'message' => 'Failed to update account: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -231,7 +230,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete account: ' . $e->getMessage(),
+                'message' => 'Failed to delete account: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -275,7 +274,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create goal: ' . $e->getMessage(),
+                'message' => 'Failed to create goal: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -310,7 +309,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update goal: ' . $e->getMessage(),
+                'message' => 'Failed to update goal: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -344,7 +343,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete goal: ' . $e->getMessage(),
+                'message' => 'Failed to delete goal: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -384,7 +383,7 @@ class SavingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update goal progress: ' . $e->getMessage(),
+                'message' => 'Failed to update goal progress: '.$e->getMessage(),
             ], 500);
         }
     }

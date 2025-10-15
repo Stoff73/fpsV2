@@ -103,7 +103,7 @@ class RateComparator
      */
     private function getFixedRateBenchmark(SavingsAccount $account, bool $isIsa): string
     {
-        if (!$account->maturity_date) {
+        if (! $account->maturity_date) {
             return $isIsa ? 'fixed_1_year_isa' : 'fixed_1_year';
         }
 

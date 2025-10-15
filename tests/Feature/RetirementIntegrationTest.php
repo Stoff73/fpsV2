@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\User;
-use App\Models\DCPension;
 use App\Models\DBPension;
-use App\Models\StatePension;
+use App\Models\DCPension;
 use App\Models\RetirementProfile;
+use App\Models\StatePension;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 
@@ -317,7 +317,7 @@ describe('Cache Behavior', function () {
         $response1->assertStatus(200);
 
         // Check cache was created
-        $cacheKey = 'retirement_analysis_' . $this->user->id . '_*';
+        $cacheKey = 'retirement_analysis_'.$this->user->id.'_*';
         expect(Cache::get($cacheKey))->not->toBeNull();
 
         // Second request - should use cache

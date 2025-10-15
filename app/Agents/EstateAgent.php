@@ -35,7 +35,7 @@ class EstateAgent extends BaseAgent
             $ihtProfile = IHTProfile::where('user_id', $userId)->first();
 
             // If no IHT profile exists, create a default one
-            if (!$ihtProfile) {
+            if (! $ihtProfile) {
                 $ihtProfile = new IHTProfile([
                     'marital_status' => 'single',
                     'has_spouse' => false,
@@ -111,7 +111,7 @@ class EstateAgent extends BaseAgent
             // Add specific gifting recommendations
             $giftingRec = $this->giftingStrategy->recommendOptimalGiftingStrategy(
                 $analysisData['net_worth']['total_assets'],
-                IHTProfile::where('user_id', $analysisData['net_worth']['statement_date'])->first() ?? new IHTProfile()
+                IHTProfile::where('user_id', $analysisData['net_worth']['statement_date'])->first() ?? new IHTProfile
             );
 
             foreach ($giftingRec['recommendations'] as $rec) {
@@ -127,7 +127,7 @@ class EstateAgent extends BaseAgent
         }
 
         // RNRB recommendations
-        if (!$analysisData['iht_liability']['rnrb_eligible']) {
+        if (! $analysisData['iht_liability']['rnrb_eligible']) {
             $recommendations[] = [
                 'category' => 'Residence Nil Rate Band',
                 'priority' => 'Medium',
@@ -197,7 +197,7 @@ class EstateAgent extends BaseAgent
     public function buildScenarios(int $userId, array $parameters): array
     {
         $assets = Asset::where('user_id', $userId)->get();
-        $ihtProfile = IHTProfile::where('user_id', $userId)->first() ?? new IHTProfile();
+        $ihtProfile = IHTProfile::where('user_id', $userId)->first() ?? new IHTProfile;
 
         $scenarios = [];
 
@@ -221,6 +221,7 @@ class EstateAgent extends BaseAgent
             $reducedAssets = $assets->map(function ($asset) use ($totalGifted, $assets) {
                 $proportion = $assets->sum('current_value') > 0 ? $asset->current_value / $assets->sum('current_value') : 0;
                 $asset->current_value = max(0, $asset->current_value - ($totalGifted * $proportion));
+
                 return $asset;
             });
 

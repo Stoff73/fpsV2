@@ -19,11 +19,10 @@ class DecumulationPlanner
      *
      * Tests 3%, 4%, and 5% withdrawal rates to determine portfolio sustainability.
      *
-     * @param float $portfolioValue Total DC pension pot value
-     * @param int $yearsInRetirement Expected years in retirement
-     * @param float $growthRate Expected annual growth rate
-     * @param float $inflationRate Expected annual inflation rate
-     * @return array
+     * @param  float  $portfolioValue  Total DC pension pot value
+     * @param  int  $yearsInRetirement  Expected years in retirement
+     * @param  float  $growthRate  Expected annual growth rate
+     * @param  float  $inflationRate  Expected annual inflation rate
      */
     public function calculateSustainableWithdrawalRate(
         float $portfolioValue,
@@ -63,10 +62,9 @@ class DecumulationPlanner
     /**
      * Compare annuity purchase vs flexible drawdown.
      *
-     * @param float $pensionPot DC pension pot value
-     * @param int $age Current age
-     * @param bool $spouse Whether to include spouse benefits
-     * @return array
+     * @param  float  $pensionPot  DC pension pot value
+     * @param  int  $age  Current age
+     * @param  bool  $spouse  Whether to include spouse benefits
      */
     public function compareAnnuityVsDrawdown(float $pensionPot, int $age, bool $spouse = false): array
     {
@@ -125,8 +123,7 @@ class DecumulationPlanner
      *
      * PCLS = 25% of pension value, tax-free.
      *
-     * @param float $pensionValue Total DC pension value
-     * @return array
+     * @param  float  $pensionValue  Total DC pension value
      */
     public function calculatePCLSStrategy(float $pensionValue): array
     {
@@ -156,9 +153,8 @@ class DecumulationPlanner
      *
      * Optimizes withdrawal order from multiple pension sources.
      *
-     * @param Collection $pensions All pension sources
-     * @param int $retirementAge Target retirement age
-     * @return array
+     * @param  Collection  $pensions  All pension sources
+     * @param  int  $retirementAge  Target retirement age
      */
     public function modelIncomePhasing(Collection $pensions, int $retirementAge): array
     {
@@ -212,13 +208,6 @@ class DecumulationPlanner
 
     /**
      * Simulate portfolio survival over retirement period.
-     *
-     * @param float $startingBalance
-     * @param float $initialWithdrawal
-     * @param int $years
-     * @param float $growthRate
-     * @param float $inflationRate
-     * @return array
      */
     private function simulatePortfolioSurvival(
         float $startingBalance,
@@ -261,14 +250,10 @@ class DecumulationPlanner
 
     /**
      * Get withdrawal rate recommendation based on simulation.
-     *
-     * @param float $rate
-     * @param array $analysis
-     * @return string
      */
     private function getWithdrawalRecommendation(float $rate, array $analysis): string
     {
-        if (!$analysis['survives']) {
+        if (! $analysis['survives']) {
             return 'Not sustainable - portfolio depleted';
         }
 
@@ -285,9 +270,6 @@ class DecumulationPlanner
 
     /**
      * Determine recommended withdrawal rate from scenarios.
-     *
-     * @param array $scenarios
-     * @return float
      */
     private function determineRecommendedRate(array $scenarios): float
     {
@@ -303,10 +285,6 @@ class DecumulationPlanner
 
     /**
      * Get annuity rate based on age and spouse benefits.
-     *
-     * @param int $age
-     * @param bool $spouse
-     * @return float
      */
     private function getAnnuityRate(int $age, bool $spouse): float
     {
@@ -329,10 +307,6 @@ class DecumulationPlanner
 
     /**
      * Get recommendation for annuity vs drawdown decision.
-     *
-     * @param float $pensionPot
-     * @param int $age
-     * @return string
      */
     private function getAnnuityVsDrawdownRecommendation(float $pensionPot, int $age): string
     {

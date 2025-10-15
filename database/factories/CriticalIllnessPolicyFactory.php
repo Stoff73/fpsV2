@@ -52,7 +52,7 @@ class CriticalIllnessPolicyFactory extends Factory
             'user_id' => User::factory(),
             'policy_type' => $this->faker->randomElement(['standalone', 'accelerated']),
             'provider' => $this->faker->randomElement($providers),
-            'policy_number' => 'CI' . $this->faker->unique()->numerify('######'),
+            'policy_number' => 'CI'.$this->faker->unique()->numerify('######'),
             'sum_assured' => $this->faker->numberBetween(50000, 500000),
             'premium_amount' => $this->faker->randomFloat(2, 30, 150),
             'premium_frequency' => $this->faker->randomElement(['monthly', 'quarterly', 'annually']),

@@ -26,7 +26,7 @@ return new class extends Migration
                 'hire_purchase',
                 'student_loan',
                 'business_loan',
-                'other'
+                'other',
             ])->after('user_id');
 
             // Add missing columns

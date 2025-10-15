@@ -45,7 +45,7 @@ class DisabilityPolicyFactory extends Factory
         return [
             'user_id' => User::factory(),
             'provider' => $this->faker->randomElement($providers),
-            'policy_number' => $hasPolicyNumber ? ('DP' . $this->faker->numerify('######')) : null,
+            'policy_number' => $hasPolicyNumber ? ('DP'.$this->faker->numerify('######')) : null,
             'benefit_amount' => $this->faker->numberBetween(1000, 4000),
             'benefit_frequency' => $this->faker->randomElement(['monthly', 'weekly']),
             'deferred_period_weeks' => $this->faker->randomElement([4, 8, 13, 26]),

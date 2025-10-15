@@ -6,11 +6,10 @@ use App\Models\ISAAllowanceTracking;
 use App\Models\SavingsAccount;
 use App\Models\User;
 use App\Services\Savings\ISATracker;
-use function Pest\Laravel\actingAs;
 
 describe('ISATracker', function () {
     beforeEach(function () {
-        $this->tracker = new ISATracker();
+        $this->tracker = new ISATracker;
         $this->user = User::factory()->create();
     });
 

@@ -11,11 +11,6 @@ class CoverageGapAnalyzer
 {
     /**
      * Calculate human capital value.
-     *
-     * @param float $income
-     * @param int $age
-     * @param int $retirementAge
-     * @return float
      */
     public function calculateHumanCapital(float $income, int $age, int $retirementAge): float
     {
@@ -28,9 +23,6 @@ class CoverageGapAnalyzer
 
     /**
      * Calculate debt protection need.
-     *
-     * @param ProtectionProfile $profile
-     * @return float
      */
     public function calculateDebtProtectionNeed(ProtectionProfile $profile): float
     {
@@ -39,10 +31,6 @@ class CoverageGapAnalyzer
 
     /**
      * Calculate education funding need.
-     *
-     * @param int $numChildren
-     * @param array $ages
-     * @return float
      */
     public function calculateEducationFunding(int $numChildren, array $ages): float
     {
@@ -60,8 +48,6 @@ class CoverageGapAnalyzer
 
     /**
      * Calculate final expenses.
-     *
-     * @return float
      */
     public function calculateFinalExpenses(): float
     {
@@ -70,13 +56,6 @@ class CoverageGapAnalyzer
 
     /**
      * Calculate total coverage from policies.
-     *
-     * @param Collection $lifePolicies
-     * @param Collection $criticalIllnessPolicies
-     * @param Collection $incomeProtectionPolicies
-     * @param Collection $disabilityPolicies
-     * @param Collection $sicknessIllnessPolicies
-     * @return array
      */
     public function calculateTotalCoverage(
         Collection $lifePolicies,
@@ -133,10 +112,6 @@ class CoverageGapAnalyzer
 
     /**
      * Calculate coverage gaps.
-     *
-     * @param array $needs
-     * @param array $coverage
-     * @return array
      */
     public function calculateCoverageGap(array $needs, array $coverage): array
     {
@@ -171,9 +146,6 @@ class CoverageGapAnalyzer
 
     /**
      * Calculate total protection needs.
-     *
-     * @param ProtectionProfile $profile
-     * @return array
      */
     public function calculateProtectionNeeds(ProtectionProfile $profile): array
     {

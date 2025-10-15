@@ -71,7 +71,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Analysis failed: ' . $e->getMessage(),
+                'message' => 'Analysis failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -94,7 +94,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate recommendations: ' . $e->getMessage(),
+                'message' => 'Failed to generate recommendations: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -116,7 +116,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to build scenarios: ' . $e->getMessage(),
+                'message' => 'Failed to build scenarios: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -135,7 +135,7 @@ class EstateController extends Controller
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
 
             // Create default profile if it doesn't exist
-            if (!$ihtProfile) {
+            if (! $ihtProfile) {
                 $ihtProfile = new IHTProfile([
                     'user_id' => $user->id,
                     'marital_status' => 'single',
@@ -155,7 +155,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to calculate IHT: ' . $e->getMessage(),
+                'message' => 'Failed to calculate IHT: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -177,7 +177,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to calculate net worth: ' . $e->getMessage(),
+                'message' => 'Failed to calculate net worth: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -200,7 +200,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to get cash flow: ' . $e->getMessage(),
+                'message' => 'Failed to get cash flow: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -244,7 +244,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create asset: ' . $e->getMessage(),
+                'message' => 'Failed to create asset: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -294,7 +294,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update asset: ' . $e->getMessage(),
+                'message' => 'Failed to update asset: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -328,7 +328,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete asset: ' . $e->getMessage(),
+                'message' => 'Failed to delete asset: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -371,7 +371,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create liability: ' . $e->getMessage(),
+                'message' => 'Failed to create liability: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -420,7 +420,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update liability: ' . $e->getMessage(),
+                'message' => 'Failed to update liability: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -454,7 +454,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete liability: ' . $e->getMessage(),
+                'message' => 'Failed to delete liability: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -493,7 +493,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create gift: ' . $e->getMessage(),
+                'message' => 'Failed to create gift: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -538,7 +538,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update gift: ' . $e->getMessage(),
+                'message' => 'Failed to update gift: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -572,7 +572,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete gift: ' . $e->getMessage(),
+                'message' => 'Failed to delete gift: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -614,7 +614,7 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to save IHT profile: ' . $e->getMessage(),
+                'message' => 'Failed to save IHT profile: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -766,7 +766,7 @@ class EstateController extends Controller
         $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
 
         // Create default profile if missing
-        if (!$ihtProfile) {
+        if (! $ihtProfile) {
             $ihtProfile = new IHTProfile([
                 'user_id' => $user->id,
                 'marital_status' => 'single',

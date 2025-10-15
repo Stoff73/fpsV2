@@ -63,7 +63,7 @@ class SicknessIllnessPolicyFactory extends Factory
         return [
             'user_id' => User::factory(),
             'provider' => $this->faker->randomElement($providers),
-            'policy_number' => $hasPolicyNumber ? ('SI' . $this->faker->numerify('######')) : null,
+            'policy_number' => $hasPolicyNumber ? ('SI'.$this->faker->numerify('######')) : null,
             'benefit_amount' => $this->faker->numberBetween(10000, 100000),
             'benefit_frequency' => $this->faker->randomElement(['monthly', 'weekly', 'lump_sum']),
             'deferred_period_weeks' => $hasDeferredPeriod ? $this->faker->numberBetween(0, 8) : null,

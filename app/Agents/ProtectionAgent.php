@@ -21,14 +21,10 @@ class ProtectionAgent extends BaseAgent
         private AdequacyScorer $adequacyScorer,
         private RecommendationEngine $recommendationEngine,
         private ScenarioBuilder $scenarioBuilder
-    ) {
-    }
+    ) {}
 
     /**
      * Analyze user's protection situation.
-     *
-     * @param int $userId
-     * @return array
      */
     public function analyze(int $userId): array
     {
@@ -44,7 +40,7 @@ class ProtectionAgent extends BaseAgent
                 'sicknessIllnessPolicies',
             ])->findOrFail($userId);
 
-            if (!$user->protectionProfile) {
+            if (! $user->protectionProfile) {
                 return $this->response(
                     false,
                     'Protection profile not found. Please create a protection profile first.',
@@ -102,7 +98,7 @@ class ProtectionAgent extends BaseAgent
                     'recommendations' => $recommendations,
                     'scenarios' => $scenarios,
                     'policies' => [
-                        'life_insurance' => $user->lifeInsurancePolicies->map(fn($p) => [
+                        'life_insurance' => $user->lifeInsurancePolicies->map(fn ($p) => [
                             'id' => $p->id,
                             'policy_type' => $p->policy_type,
                             'provider' => $p->provider,
@@ -110,7 +106,7 @@ class ProtectionAgent extends BaseAgent
                             'premium_amount' => (float) $p->premium_amount,
                             'premium_frequency' => $p->premium_frequency,
                         ]),
-                        'critical_illness' => $user->criticalIllnessPolicies->map(fn($p) => [
+                        'critical_illness' => $user->criticalIllnessPolicies->map(fn ($p) => [
                             'id' => $p->id,
                             'policy_type' => $p->policy_type,
                             'provider' => $p->provider,
@@ -118,14 +114,14 @@ class ProtectionAgent extends BaseAgent
                             'premium_amount' => (float) $p->premium_amount,
                             'premium_frequency' => $p->premium_frequency,
                         ]),
-                        'income_protection' => $user->incomeProtectionPolicies->map(fn($p) => [
+                        'income_protection' => $user->incomeProtectionPolicies->map(fn ($p) => [
                             'id' => $p->id,
                             'provider' => $p->provider,
                             'benefit_amount' => (float) $p->benefit_amount,
                             'benefit_frequency' => $p->benefit_frequency,
                             'deferred_period_weeks' => $p->deferred_period_weeks,
                         ]),
-                        'disability' => $user->disabilityPolicies->map(fn($p) => [
+                        'disability' => $user->disabilityPolicies->map(fn ($p) => [
                             'id' => $p->id,
                             'provider' => $p->provider,
                             'benefit_amount' => (float) $p->benefit_amount,
@@ -133,7 +129,7 @@ class ProtectionAgent extends BaseAgent
                             'deferred_period_weeks' => $p->deferred_period_weeks,
                             'coverage_type' => $p->coverage_type,
                         ]),
-                        'sickness_illness' => $user->sicknessIllnessPolicies->map(fn($p) => [
+                        'sickness_illness' => $user->sicknessIllnessPolicies->map(fn ($p) => [
                             'id' => $p->id,
                             'provider' => $p->provider,
                             'benefit_amount' => (float) $p->benefit_amount,
@@ -148,13 +144,10 @@ class ProtectionAgent extends BaseAgent
 
     /**
      * Generate personalized recommendations based on analysis.
-     *
-     * @param array $analysisData
-     * @return array
      */
     public function generateRecommendations(array $analysisData): array
     {
-        if (!isset($analysisData['data']['recommendations'])) {
+        if (! isset($analysisData['data']['recommendations'])) {
             return $this->response(
                 false,
                 'Analysis data is incomplete. Please run analysis first.',
@@ -173,10 +166,6 @@ class ProtectionAgent extends BaseAgent
 
     /**
      * Build what-if scenarios for user planning.
-     *
-     * @param int $userId
-     * @param array $parameters
-     * @return array
      */
     public function buildScenarios(int $userId, array $parameters): array
     {
@@ -189,7 +178,7 @@ class ProtectionAgent extends BaseAgent
             'sicknessIllnessPolicies',
         ])->findOrFail($userId);
 
-        if (!$user->protectionProfile) {
+        if (! $user->protectionProfile) {
             return $this->response(
                 false,
                 'Protection profile not found.',
@@ -242,9 +231,6 @@ class ProtectionAgent extends BaseAgent
 
     /**
      * Invalidate cache for user's protection analysis.
-     *
-     * @param int $userId
-     * @return void
      */
     public function invalidateCache(int $userId): void
     {

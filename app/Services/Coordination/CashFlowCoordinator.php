@@ -17,7 +17,6 @@ class CashFlowCoordinator
     /**
      * Calculate available monthly surplus
      *
-     * @param int $userId
      * @return float Monthly surplus after all expenses
      */
     public function calculateAvailableSurplus(int $userId): float
@@ -32,8 +31,8 @@ class CashFlowCoordinator
     /**
      * Optimize contribution allocation across all needs
      *
-     * @param float $surplus Available monthly surplus
-     * @param array $demands Contribution demands from all modules
+     * @param  float  $surplus  Available monthly surplus
+     * @param  array  $demands  Contribution demands from all modules
      * @return array Optimized allocation
      */
     public function optimizeContributionAllocation(float $surplus, array $demands): array
@@ -66,6 +65,7 @@ class CashFlowCoordinator
             if ($b['urgency'] >= 80 && $a['urgency'] < 80) {
                 return 1;
             }
+
             return $a['priority'] <=> $b['priority'];
         });
 
@@ -83,6 +83,7 @@ class CashFlowCoordinator
                     'shortfall' => $demand['amount'],
                     'percent_funded' => 0,
                 ];
+
                 continue;
             }
 
@@ -122,7 +123,7 @@ class CashFlowCoordinator
     /**
      * Identify cashflow shortfalls
      *
-     * @param array $allocation Allocation result
+     * @param  array  $allocation  Allocation result
      * @return array Shortfall analysis
      */
     public function identifyCashFlowShortfalls(array $allocation): array
@@ -162,7 +163,6 @@ class CashFlowCoordinator
     /**
      * Get current contributions across all modules
      *
-     * @param int $userId
      * @return float Total current monthly contributions
      */
     private function getCurrentContributions(int $userId): float
@@ -181,34 +181,30 @@ class CashFlowCoordinator
 
     /**
      * Generate recommendations to address shortfalls
-     *
-     * @param float $totalShortfall
-     * @param array $shortfalls
-     * @return array
      */
     private function generateShortfallRecommendations(float $totalShortfall, array $shortfalls): array
     {
         $recommendations = [];
 
         // Recommend income increase
-        $recommendations[] = "Consider increasing income by £" . number_format($totalShortfall, 2) . " per month to fully fund all recommendations.";
+        $recommendations[] = 'Consider increasing income by £'.number_format($totalShortfall, 2).' per month to fully fund all recommendations.';
 
         // Recommend expense reduction
-        $recommendations[] = "Review monthly expenses to identify £" . number_format($totalShortfall, 2) . " in potential savings.";
+        $recommendations[] = 'Review monthly expenses to identify £'.number_format($totalShortfall, 2).' in potential savings.';
 
         // Prioritize critical areas
         $criticalShortfalls = array_filter($shortfalls, fn ($s) => in_array($s['category'], ['emergency_fund', 'protection']));
         if (count($criticalShortfalls) > 0) {
-            $recommendations[] = "Priority should be given to funding critical areas: " . implode(', ', array_column($criticalShortfalls, 'category')) . ".";
+            $recommendations[] = 'Priority should be given to funding critical areas: '.implode(', ', array_column($criticalShortfalls, 'category')).'.';
         }
 
         // Phased approach
         if ($totalShortfall > 500) {
-            $recommendations[] = "Consider a phased approach: start with highest priority items and gradually increase contributions as income grows.";
+            $recommendations[] = 'Consider a phased approach: start with highest priority items and gradually increase contributions as income grows.';
         }
 
         // One-time windfall
-        $recommendations[] = "Use any bonuses, tax refunds, or windfalls to fund initial gaps or build reserves.";
+        $recommendations[] = 'Use any bonuses, tax refunds, or windfalls to fund initial gaps or build reserves.';
 
         return $recommendations;
     }
@@ -216,8 +212,6 @@ class CashFlowCoordinator
     /**
      * Create cashflow allocation chart data
      *
-     * @param int $userId
-     * @param array $allocation
      * @return array Chart data for ApexCharts
      */
     public function createCashFlowChartData(int $userId, array $allocation): array
@@ -265,10 +259,6 @@ class CashFlowCoordinator
      * Calculate sustainable contribution level
      *
      * Based on 50/30/20 rule: 50% needs, 30% wants, 20% savings/investments
-     *
-     * @param float $monthlyIncome
-     * @param float $monthlyExpenses
-     * @return array
      */
     public function calculateSustainableContributions(float $monthlyIncome, float $monthlyExpenses): array
     {

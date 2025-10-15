@@ -156,13 +156,13 @@ class InvestmentController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
-            \Log::error('Monte Carlo error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+            \Log::error('Monte Carlo error: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to start Monte Carlo simulation: ' . $e->getMessage(),
+                'message' => 'Failed to start Monte Carlo simulation: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -176,9 +176,9 @@ class InvestmentController extends Controller
 
         $status = Cache::get("monte_carlo_status_{$jobId}");
 
-        \Log::info("Monte Carlo status for {$jobId}: " . ($status ?? 'NULL'));
+        \Log::info("Monte Carlo status for {$jobId}: ".($status ?? 'NULL'));
 
-        if (!$status) {
+        if (! $status) {
             // List all cache keys to debug
             $allKeys = Cache::get('_all_monte_carlo_keys', []);
             \Log::warning("Job {$jobId} not found in cache. Status is NULL");
@@ -202,9 +202,10 @@ class InvestmentController extends Controller
 
         if ($status === 'failed') {
             $error = Cache::get("monte_carlo_error_{$jobId}", 'Unknown error');
+
             return response()->json([
                 'success' => false,
-                'message' => 'Simulation failed: ' . $error,
+                'message' => 'Simulation failed: '.$error,
             ], 500);
         }
 

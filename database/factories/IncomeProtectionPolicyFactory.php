@@ -42,7 +42,7 @@ class IncomeProtectionPolicyFactory extends Factory
         return [
             'user_id' => User::factory(),
             'provider' => $this->faker->randomElement($providers),
-            'policy_number' => 'IP' . $this->faker->unique()->numerify('######'),
+            'policy_number' => 'IP'.$this->faker->unique()->numerify('######'),
             'benefit_amount' => $this->faker->numberBetween(1000, 5000),
             'benefit_frequency' => $this->faker->randomElement(['monthly', 'weekly']),
             'deferred_period_weeks' => $this->faker->randomElement([4, 8, 13, 26, 52]),

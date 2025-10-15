@@ -9,12 +9,12 @@ class MonteCarloSimulator
     /**
      * Run Monte Carlo simulation
      *
-     * @param float $startValue Initial portfolio value
-     * @param float $monthlyContribution Monthly contribution amount
-     * @param float $expectedReturn Expected annual return (e.g., 0.07 for 7%)
-     * @param float $volatility Annual volatility/std deviation (e.g., 0.15 for 15%)
-     * @param int $years Number of years to simulate
-     * @param int $iterations Number of simulation runs (default 1000)
+     * @param  float  $startValue  Initial portfolio value
+     * @param  float  $monthlyContribution  Monthly contribution amount
+     * @param  float  $expectedReturn  Expected annual return (e.g., 0.07 for 7%)
+     * @param  float  $volatility  Annual volatility/std deviation (e.g., 0.15 for 15%)
+     * @param  int  $years  Number of years to simulate
+     * @param  int  $iterations  Number of simulation runs (default 1000)
      * @return array Simulation results with percentiles
      */
     public function simulate(
@@ -96,8 +96,8 @@ class MonteCarloSimulator
     /**
      * Generate random number from normal distribution using Box-Muller transform
      *
-     * @param float $mean Mean of the distribution
-     * @param float $stdDev Standard deviation
+     * @param  float  $mean  Mean of the distribution
+     * @param  float  $stdDev  Standard deviation
      * @return float Random value from normal distribution
      */
     public function generateNormalDistribution(float $mean, float $stdDev): float
@@ -120,7 +120,7 @@ class MonteCarloSimulator
     /**
      * Calculate percentiles from sorted array of values
      *
-     * @param array $sortedValues Array of values (must be sorted)
+     * @param  array  $sortedValues  Array of values (must be sorted)
      * @return array Percentiles (10th, 25th, 50th, 75th, 90th)
      */
     public function calculatePercentiles(array $sortedValues): array
@@ -155,8 +155,8 @@ class MonteCarloSimulator
     /**
      * Calculate probability of reaching a goal
      *
-     * @param array $finalValues Array of final portfolio values from simulation
-     * @param float $goalAmount Target amount
+     * @param  array  $finalValues  Array of final portfolio values from simulation
+     * @param  float  $goalAmount  Target amount
      * @return float Probability as percentage (0-100)
      */
     public function calculateGoalProbability(array $finalValues, float $goalAmount): float
@@ -166,6 +166,7 @@ class MonteCarloSimulator
         }
 
         $successCount = count(array_filter($finalValues, fn ($v) => $v >= $goalAmount));
+
         return round(($successCount / count($finalValues)) * 100, 2);
     }
 }

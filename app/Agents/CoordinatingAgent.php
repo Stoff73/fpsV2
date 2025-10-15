@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Agents;
 
-use App\Services\Coordination\ConflictResolver;
-use App\Services\Coordination\PriorityRanker;
-use App\Services\Coordination\HolisticPlanner;
 use App\Services\Coordination\CashFlowCoordinator;
+use App\Services\Coordination\ConflictResolver;
+use App\Services\Coordination\HolisticPlanner;
+use App\Services\Coordination\PriorityRanker;
 
 /**
  * CoordinatingAgent
@@ -26,9 +26,6 @@ class CoordinatingAgent extends BaseAgent
 
     /**
      * Analyze user data and generate insights (BaseAgent requirement)
-     *
-     * @param int $userId
-     * @return array
      */
     public function analyze(int $userId): array
     {
@@ -37,13 +34,11 @@ class CoordinatingAgent extends BaseAgent
 
     /**
      * Generate personalized recommendations (BaseAgent requirement)
-     *
-     * @param array $analysisData
-     * @return array
      */
     public function generateRecommendations(array $analysisData): array
     {
         $userContext = $this->getUserContext($analysisData['user_id'] ?? 0);
+
         return $this->priorityRanker->rankRecommendations(
             $this->extractRecommendations($analysisData),
             $userContext
@@ -52,10 +47,6 @@ class CoordinatingAgent extends BaseAgent
 
     /**
      * Build what-if scenarios (BaseAgent requirement)
-     *
-     * @param int $userId
-     * @param array $parameters
-     * @return array
      */
     public function buildScenarios(int $userId, array $parameters): array
     {
@@ -70,8 +61,7 @@ class CoordinatingAgent extends BaseAgent
     /**
      * Orchestrate comprehensive analysis across all modules
      *
-     * @param int $userId
-     * @param array|null $moduleAgents Optional array of instantiated module agents
+     * @param  array|null  $moduleAgents  Optional array of instantiated module agents
      * @return array Coordinated analysis results
      */
     public function orchestrateAnalysis(int $userId, ?array $moduleAgents = null): array
@@ -123,8 +113,7 @@ class CoordinatingAgent extends BaseAgent
     /**
      * Generate holistic financial plan
      *
-     * @param int $userId
-     * @param array|null $moduleAgents Optional array of instantiated module agents
+     * @param  array|null  $moduleAgents  Optional array of instantiated module agents
      * @return array Complete holistic plan
      */
     public function generateHolisticPlan(int $userId, ?array $moduleAgents = null): array
@@ -151,7 +140,6 @@ class CoordinatingAgent extends BaseAgent
     /**
      * Resolve conflicts between recommendations
      *
-     * @param array $allRecommendations
      * @return array Resolved recommendations
      */
     public function resolveConflicts(array $allRecommendations, array $conflicts): array
@@ -193,8 +181,6 @@ class CoordinatingAgent extends BaseAgent
     /**
      * Rank recommendations by priority
      *
-     * @param array $recommendations
-     * @param array $userContext
      * @return array Ranked recommendations
      */
     public function rankRecommendations(array $recommendations, array $userContext): array
@@ -204,10 +190,6 @@ class CoordinatingAgent extends BaseAgent
 
     /**
      * Collect analysis from all module agents
-     *
-     * @param int $userId
-     * @param array|null $moduleAgents
-     * @return array
      */
     private function collectModuleAnalysis(int $userId, ?array $moduleAgents): array
     {
@@ -261,9 +243,6 @@ class CoordinatingAgent extends BaseAgent
 
     /**
      * Extract recommendations from module analysis
-     *
-     * @param array $allAnalysis
-     * @return array
      */
     private function extractRecommendations(array $allAnalysis): array
     {
@@ -292,9 +271,6 @@ class CoordinatingAgent extends BaseAgent
 
     /**
      * Get user context for priority ranking
-     *
-     * @param int $userId
-     * @return array
      */
     private function getUserContext(int $userId): array
     {
@@ -312,16 +288,13 @@ class CoordinatingAgent extends BaseAgent
 
     /**
      * Extract contribution demands from recommendations
-     *
-     * @param array $recommendations
-     * @return array
      */
     private function extractDemands(array $recommendations): array
     {
         $demands = [];
 
         foreach ($recommendations as $rec) {
-            if (!isset($rec['module'])) {
+            if (! isset($rec['module'])) {
                 continue;
             }
 
@@ -334,7 +307,7 @@ class CoordinatingAgent extends BaseAgent
                 ?? 0;
 
             if ($amount > 0) {
-                if (!isset($demands[$category])) {
+                if (! isset($demands[$category])) {
                     $demands[$category] = [
                         'amount' => 0,
                         'urgency' => $rec['urgency_score'] ?? 50,
@@ -350,9 +323,6 @@ class CoordinatingAgent extends BaseAgent
 
     /**
      * Map module name to cashflow category
-     *
-     * @param string $module
-     * @return string
      */
     private function mapModuleToCategory(string $module): string
     {

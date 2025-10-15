@@ -30,14 +30,10 @@ class ProtectionController extends Controller
      */
     public function __construct(
         private ProtectionAgent $protectionAgent
-    ) {
-    }
+    ) {}
 
     /**
      * Get all protection data for authenticated user.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
@@ -45,7 +41,7 @@ class ProtectionController extends Controller
 
         // Auto-create protection profile if it doesn't exist
         $profile = $user->protectionProfile;
-        if (!$profile) {
+        if (! $profile) {
             $profile = ProtectionProfile::create([
                 'user_id' => $user->id,
                 'annual_income' => 0,
@@ -80,9 +76,6 @@ class ProtectionController extends Controller
 
     /**
      * Analyze protection coverage.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function analyze(Request $request): JsonResponse
     {
@@ -95,16 +88,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to analyze protection coverage: ' . $e->getMessage(),
+                'message' => 'Failed to analyze protection coverage: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Get recommendations.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function recommendations(Request $request): JsonResponse
     {
@@ -118,16 +108,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate recommendations: ' . $e->getMessage(),
+                'message' => 'Failed to generate recommendations: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Build scenarios.
-     *
-     * @param ScenarioRequest $request
-     * @return JsonResponse
      */
     public function scenarios(ScenarioRequest $request): JsonResponse
     {
@@ -141,16 +128,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to build scenarios: ' . $e->getMessage(),
+                'message' => 'Failed to build scenarios: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Store or update protection profile.
-     *
-     * @param StoreProtectionProfileRequest $request
-     * @return JsonResponse
      */
     public function storeProfile(StoreProtectionProfileRequest $request): JsonResponse
     {
@@ -175,16 +159,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to save protection profile: ' . $e->getMessage(),
+                'message' => 'Failed to save protection profile: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Store a new life insurance policy.
-     *
-     * @param StoreLifePolicyRequest $request
-     * @return JsonResponse
      */
     public function storeLifePolicy(StoreLifePolicyRequest $request): JsonResponse
     {
@@ -206,17 +187,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create life insurance policy: ' . $e->getMessage(),
+                'message' => 'Failed to create life insurance policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Update a life insurance policy.
-     *
-     * @param UpdateLifePolicyRequest $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function updateLifePolicy(UpdateLifePolicyRequest $request, int $id): JsonResponse
     {
@@ -244,17 +221,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update life insurance policy: ' . $e->getMessage(),
+                'message' => 'Failed to update life insurance policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Delete a life insurance policy.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function destroyLifePolicy(Request $request, int $id): JsonResponse
     {
@@ -281,16 +254,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete life insurance policy: ' . $e->getMessage(),
+                'message' => 'Failed to delete life insurance policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Store a new critical illness policy.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function storeCriticalIllnessPolicy(Request $request): JsonResponse
     {
@@ -324,17 +294,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create critical illness policy: ' . $e->getMessage(),
+                'message' => 'Failed to create critical illness policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Update a critical illness policy.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function updateCriticalIllnessPolicy(Request $request, int $id): JsonResponse
     {
@@ -374,17 +340,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update critical illness policy: ' . $e->getMessage(),
+                'message' => 'Failed to update critical illness policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Delete a critical illness policy.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function destroyCriticalIllnessPolicy(Request $request, int $id): JsonResponse
     {
@@ -411,16 +373,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete critical illness policy: ' . $e->getMessage(),
+                'message' => 'Failed to delete critical illness policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Store a new income protection policy.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function storeIncomeProtectionPolicy(Request $request): JsonResponse
     {
@@ -454,17 +413,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create income protection policy: ' . $e->getMessage(),
+                'message' => 'Failed to create income protection policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Update an income protection policy.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function updateIncomeProtectionPolicy(Request $request, int $id): JsonResponse
     {
@@ -504,17 +459,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update income protection policy: ' . $e->getMessage(),
+                'message' => 'Failed to update income protection policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Delete an income protection policy.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function destroyIncomeProtectionPolicy(Request $request, int $id): JsonResponse
     {
@@ -541,16 +492,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete income protection policy: ' . $e->getMessage(),
+                'message' => 'Failed to delete income protection policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Store a new disability policy.
-     *
-     * @param StoreDisabilityPolicyRequest $request
-     * @return JsonResponse
      */
     public function storeDisabilityPolicy(StoreDisabilityPolicyRequest $request): JsonResponse
     {
@@ -572,17 +520,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create disability policy: ' . $e->getMessage(),
+                'message' => 'Failed to create disability policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Update a disability policy.
-     *
-     * @param UpdateDisabilityPolicyRequest $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function updateDisabilityPolicy(UpdateDisabilityPolicyRequest $request, int $id): JsonResponse
     {
@@ -610,17 +554,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update disability policy: ' . $e->getMessage(),
+                'message' => 'Failed to update disability policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Delete a disability policy.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function destroyDisabilityPolicy(Request $request, int $id): JsonResponse
     {
@@ -647,16 +587,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete disability policy: ' . $e->getMessage(),
+                'message' => 'Failed to delete disability policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Store a new sickness/illness policy.
-     *
-     * @param StoreSicknessIllnessPolicyRequest $request
-     * @return JsonResponse
      */
     public function storeSicknessIllnessPolicy(StoreSicknessIllnessPolicyRequest $request): JsonResponse
     {
@@ -678,17 +615,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create sickness/illness policy: ' . $e->getMessage(),
+                'message' => 'Failed to create sickness/illness policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Update a sickness/illness policy.
-     *
-     * @param UpdateSicknessIllnessPolicyRequest $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function updateSicknessIllnessPolicy(UpdateSicknessIllnessPolicyRequest $request, int $id): JsonResponse
     {
@@ -716,17 +649,13 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update sickness/illness policy: ' . $e->getMessage(),
+                'message' => 'Failed to update sickness/illness policy: '.$e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Delete a sickness/illness policy.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function destroySicknessIllnessPolicy(Request $request, int $id): JsonResponse
     {
@@ -753,7 +682,7 @@ class ProtectionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete sickness/illness policy: ' . $e->getMessage(),
+                'message' => 'Failed to delete sickness/illness policy: '.$e->getMessage(),
             ], 500);
         }
     }

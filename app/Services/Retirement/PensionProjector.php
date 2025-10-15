@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Retirement;
 
-use App\Models\DCPension;
 use App\Models\DBPension;
+use App\Models\DCPension;
 use App\Models\StatePension;
-use Illuminate\Support\Collection;
 
 /**
  * Pension Projector Service
@@ -21,9 +20,7 @@ class PensionProjector
      *
      * Uses future value formula: FV = PV × (1+r)^n + PMT × [((1+r)^n - 1) / r]
      *
-     * @param DCPension $pension
-     * @param int $yearsToRetirement
-     * @param float $growthRate Annual growth rate (e.g., 0.05 for 5%)
+     * @param  float  $growthRate  Annual growth rate (e.g., 0.05 for 5%)
      * @return float Projected value at retirement
      */
     public function projectDCPension(DCPension $pension, int $yearsToRetirement, float $growthRate): float
@@ -55,7 +52,6 @@ class PensionProjector
      *
      * Uses accrued annual pension with revaluation method applied.
      *
-     * @param DBPension $pension
      * @return float Projected annual pension income
      */
     public function projectDBPension(DBPension $pension): float
@@ -69,7 +65,6 @@ class PensionProjector
     /**
      * Project State Pension annual income.
      *
-     * @param StatePension $statePension
      * @return float Projected annual state pension income
      */
     public function projectStatePension(StatePension $statePension): float
@@ -93,9 +88,6 @@ class PensionProjector
 
     /**
      * Project total retirement income from all pension sources.
-     *
-     * @param int $userId
-     * @return array
      */
     public function projectTotalRetirementIncome(int $userId): array
     {
@@ -156,8 +148,6 @@ class PensionProjector
     /**
      * Calculate income replacement ratio.
      *
-     * @param float $projectedIncome
-     * @param float $currentIncome
      * @return float Ratio as percentage
      */
     public function calculateIncomeReplacementRatio(float $projectedIncome, float $currentIncome): float
@@ -171,13 +161,11 @@ class PensionProjector
 
     /**
      * Get user's current age from retirement profile.
-     *
-     * @param int $userId
-     * @return int
      */
     private function getUserAge(int $userId): int
     {
         $profile = \App\Models\RetirementProfile::where('user_id', $userId)->first();
+
         return $profile ? $profile->current_age : 67; // Default to state pension age if no profile
     }
 }

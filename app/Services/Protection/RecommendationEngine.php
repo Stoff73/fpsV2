@@ -10,10 +10,6 @@ class RecommendationEngine
 {
     /**
      * Generate recommendations based on coverage gaps.
-     *
-     * @param array $gaps
-     * @param ProtectionProfile $profile
-     * @return array
      */
     public function generateRecommendations(array $gaps, ProtectionProfile $profile): array
     {
@@ -120,21 +116,13 @@ class RecommendationEngine
         }
 
         // Sort by priority
-        usort($recommendations, fn($a, $b) => $a['priority'] <=> $b['priority']);
+        usort($recommendations, fn ($a, $b) => $a['priority'] <=> $b['priority']);
 
         return $recommendations;
     }
 
     /**
      * Create a standardized recommendation array.
-     *
-     * @param int $priority
-     * @param string $category
-     * @param string $action
-     * @param string $rationale
-     * @param string $impact
-     * @param float $estimatedCost
-     * @return array
      */
     private function createRecommendation(
         int $priority,
@@ -156,10 +144,6 @@ class RecommendationEngine
 
     /**
      * Calculate recommendation priority.
-     *
-     * @param float $gap
-     * @param ProtectionProfile $profile
-     * @return int
      */
     private function calculatePriority(float $gap, ProtectionProfile $profile): int
     {
@@ -175,10 +159,6 @@ class RecommendationEngine
 
     /**
      * Estimate life insurance premium.
-     *
-     * @param float $sumAssured
-     * @param ProtectionProfile $profile
-     * @return float
      */
     private function estimateLifePremium(float $sumAssured, ProtectionProfile $profile): float
     {
@@ -205,22 +185,16 @@ class RecommendationEngine
 
     /**
      * Estimate debt protection premium.
-     *
-     * @param ProtectionProfile $profile
-     * @return float
      */
     private function estimateDebtProtectionPremium(ProtectionProfile $profile): float
     {
         $debtAmount = $profile->mortgage_balance + $profile->other_debts;
+
         return $this->estimateLifePremium($debtAmount, $profile) * 0.8; // Decreasing term is cheaper
     }
 
     /**
      * Estimate critical illness premium.
-     *
-     * @param float $sumAssured
-     * @param ProtectionProfile $profile
-     * @return float
      */
     private function estimateCriticalIllnessPremium(float $sumAssured, ProtectionProfile $profile): float
     {
@@ -230,10 +204,6 @@ class RecommendationEngine
 
     /**
      * Estimate income protection premium.
-     *
-     * @param float $annualBenefit
-     * @param ProtectionProfile $profile
-     * @return float
      */
     private function estimateIncomeProtectionPremium(float $annualBenefit, ProtectionProfile $profile): float
     {
@@ -249,22 +219,17 @@ class RecommendationEngine
 
     /**
      * Estimate family income benefit premium.
-     *
-     * @param ProtectionProfile $profile
-     * @return float
      */
     private function estimateFamilyIncomeBenefitPremium(ProtectionProfile $profile): float
     {
         // FIB is typically cheaper than level term
         $annualIncome = $profile->monthly_expenditure * 12;
+
         return $this->estimateLifePremium($annualIncome * 10, $profile) * 0.7;
     }
 
     /**
      * Calculate total current premiums.
-     *
-     * @param ProtectionProfile $profile
-     * @return float
      */
     private function calculateTotalPremiums(ProtectionProfile $profile): float
     {

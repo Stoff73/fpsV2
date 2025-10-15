@@ -17,6 +17,7 @@ class RunMonteCarloSimulation implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1;
+
     public $timeout = 300; // 5 minutes
 
     /**
@@ -71,7 +72,7 @@ class RunMonteCarloSimulation implements ShouldQueue
 
             \Log::info("Monte Carlo job {$this->jobId} completed successfully, status cached");
         } catch (\Exception $e) {
-            \Log::error("Monte Carlo job {$this->jobId} failed: " . $e->getMessage());
+            \Log::error("Monte Carlo job {$this->jobId} failed: ".$e->getMessage());
 
             // Mark job as failed
             Cache::put("monte_carlo_status_{$this->jobId}", 'failed', 3600);

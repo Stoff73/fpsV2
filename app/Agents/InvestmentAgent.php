@@ -86,6 +86,7 @@ class InvestmentAgent extends BaseAgent
                 'allocation_deviation' => $allocationDeviation,
                 'goals' => $goals->map(function ($goal) use ($totalValue) {
                     $progress = $totalValue > 0 ? ($totalValue / $goal->target_amount) * 100 : 0;
+
                     return [
                         'goal_name' => $goal->goal_name,
                         'target_amount' => $goal->target_amount,
@@ -112,7 +113,7 @@ class InvestmentAgent extends BaseAgent
                 'category' => 'Diversification',
                 'priority' => $priority++,
                 'title' => 'Improve Portfolio Diversification',
-                'description' => 'Your diversification score is ' . $analysis['diversification_score'] . '/100. Consider spreading investments across more asset types.',
+                'description' => 'Your diversification score is '.$analysis['diversification_score'].'/100. Consider spreading investments across more asset types.',
                 'action' => 'Review asset allocation and consider adding different asset classes',
             ];
         }
@@ -146,7 +147,7 @@ class InvestmentAgent extends BaseAgent
                 'category' => 'Tax Efficiency',
                 'priority' => $priority++,
                 'title' => 'Improve Tax Efficiency',
-                'description' => 'Your tax efficiency score is ' . $analysis['tax_efficiency']['efficiency_score'] . '/100',
+                'description' => 'Your tax efficiency score is '.$analysis['tax_efficiency']['efficiency_score'].'/100',
                 'action' => 'Consider using ISA allowance more effectively',
             ];
         }

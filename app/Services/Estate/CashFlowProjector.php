@@ -49,16 +49,16 @@ class CashFlowProjector
             'other_income' => $income[4]['amount'] ?? 0,
             // Flatten expenditure structure
             'essential_expenses' => array_sum(array_map(
-                fn($item) => $item['amount'],
-                array_filter($expenditure, fn($item) => $item['category'] === 'Essential')
+                fn ($item) => $item['amount'],
+                array_filter($expenditure, fn ($item) => $item['category'] === 'Essential')
             )),
             'lifestyle_expenses' => array_sum(array_map(
-                fn($item) => $item['amount'],
-                array_filter($expenditure, fn($item) => $item['category'] === 'Lifestyle')
+                fn ($item) => $item['amount'],
+                array_filter($expenditure, fn ($item) => $item['category'] === 'Lifestyle')
             )),
             'debt_servicing' => array_sum(array_map(
-                fn($item) => $item['amount'],
-                array_filter($expenditure, fn($item) => $item['category'] === 'Debt Servicing')
+                fn ($item) => $item['amount'],
+                array_filter($expenditure, fn ($item) => $item['category'] === 'Debt Servicing')
             )),
             'taxes' => 0, // Placeholder for tax calculation
             // Summary values
@@ -263,7 +263,7 @@ class CashFlowProjector
                     'severity' => 'Medium',
                     'year' => $year['year'],
                     'deficit' => abs($year['net_cash_flow']),
-                    'description' => "Year {$year['year']} shows deficit of £" . number_format(abs($year['net_cash_flow']), 2),
+                    'description' => "Year {$year['year']} shows deficit of £".number_format(abs($year['net_cash_flow']), 2),
                     'recommendation' => 'Plan for this deficit with savings or temporary income increase',
                 ];
             }
@@ -276,7 +276,7 @@ class CashFlowProjector
                 'type' => 'Negative Cumulative Cash Flow',
                 'severity' => 'High',
                 'cumulative_deficit' => abs($lastYear['cumulative_cash_flow']),
-                'description' => "Cumulative cash flow deficit of £" . number_format(abs($lastYear['cumulative_cash_flow']), 2),
+                'description' => 'Cumulative cash flow deficit of £'.number_format(abs($lastYear['cumulative_cash_flow']), 2),
                 'recommendation' => 'Significant restructuring needed - reduce expenditure or increase income substantially',
             ];
         }

@@ -6,7 +6,7 @@ use App\Models\Investment\RiskProfile;
 use App\Services\Investment\AssetAllocationOptimizer;
 
 beforeEach(function () {
-    $this->optimizer = new AssetAllocationOptimizer();
+    $this->optimizer = new AssetAllocationOptimizer;
 });
 
 describe('getTargetAllocation', function () {

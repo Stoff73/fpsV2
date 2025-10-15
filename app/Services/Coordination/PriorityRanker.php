@@ -18,8 +18,8 @@ class PriorityRanker
     /**
      * Rank all recommendations based on priority scoring
      *
-     * @param array $allRecommendations Recommendations from all modules
-     * @param array $userContext User profile and preferences
+     * @param  array  $allRecommendations  Recommendations from all modules
+     * @param  array  $userContext  User profile and preferences
      * @return array Ranked recommendations with scores
      */
     public function rankRecommendations(array $allRecommendations, array $userContext): array
@@ -31,7 +31,7 @@ class PriorityRanker
                 continue;
             }
 
-            if (!is_array($recommendations)) {
+            if (! is_array($recommendations)) {
                 continue;
             }
 
@@ -61,9 +61,9 @@ class PriorityRanker
      *
      * Formula: score = (urgency × 0.4) + (impact × 0.3) + (ease × 0.2) + (userPriority × 0.1)
      *
-     * @param array $recommendation Single recommendation
-     * @param string $module Module name
-     * @param array $userContext User preferences
+     * @param  array  $recommendation  Single recommendation
+     * @param  string  $module  Module name
+     * @param  array  $userContext  User preferences
      * @return array Detailed scores
      */
     public function calculateRecommendationScore(array $recommendation, string $module, array $userContext): array
@@ -87,7 +87,7 @@ class PriorityRanker
     /**
      * Group recommendations by category (module)
      *
-     * @param array $recommendations Scored recommendations
+     * @param  array  $recommendations  Scored recommendations
      * @return array Grouped by module
      */
     public function groupByCategory(array $recommendations): array
@@ -113,7 +113,7 @@ class PriorityRanker
     /**
      * Create action plan with timeline grouping
      *
-     * @param array $rankedRecommendations Ranked recommendations
+     * @param  array  $rankedRecommendations  Ranked recommendations
      * @return array Action plan grouped by timeline
      */
     public function createActionPlan(array $rankedRecommendations): array
@@ -149,10 +149,6 @@ class PriorityRanker
      * - Critical gaps (e.g., no life insurance with dependents) = high urgency
      * - Adequacy scores < 50 = high urgency
      * - Time-sensitive opportunities (e.g., tax year end) = high urgency
-     *
-     * @param array $recommendation
-     * @param string $module
-     * @return float
      */
     private function calculateUrgencyScore(array $recommendation, string $module): float
     {
@@ -248,10 +244,6 @@ class PriorityRanker
      * Calculate impact score (0-100)
      *
      * Financial benefit or risk reduction value
-     *
-     * @param array $recommendation
-     * @param string $module
-     * @return float
      */
     private function calculateImpactScore(array $recommendation, string $module): float
     {
@@ -346,10 +338,6 @@ class PriorityRanker
      * Calculate ease of implementation score (0-100)
      *
      * Higher score = easier to implement
-     *
-     * @param array $recommendation
-     * @param string $module
-     * @return float
      */
     private function calculateEaseScore(array $recommendation, string $module): float
     {
@@ -415,10 +403,6 @@ class PriorityRanker
 
     /**
      * Calculate user priority score based on stated preferences
-     *
-     * @param string $module
-     * @param array $userContext
-     * @return float
      */
     private function calculateUserPriorityScore(string $module, array $userContext): float
     {
@@ -438,9 +422,6 @@ class PriorityRanker
 
     /**
      * Determine timeline based on urgency score
-     *
-     * @param float $urgencyScore
-     * @return string
      */
     private function determineTimeline(float $urgencyScore): string
     {

@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Services\Protection\ScenarioBuilder;
 
 beforeEach(function () {
-    $this->builder = new ScenarioBuilder();
+    $this->builder = new ScenarioBuilder;
 });
 
 describe('modelDeathScenario', function () {

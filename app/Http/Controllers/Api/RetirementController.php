@@ -8,13 +8,13 @@ use App\Agents\RetirementAgent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Retirement\RetirementAnalysisRequest;
 use App\Http\Requests\Retirement\ScenarioRequest;
-use App\Http\Requests\Retirement\StoreDCPensionRequest;
 use App\Http\Requests\Retirement\StoreDBPensionRequest;
+use App\Http\Requests\Retirement\StoreDCPensionRequest;
 use App\Http\Requests\Retirement\UpdateStatePensionRequest;
-use App\Models\DCPension;
 use App\Models\DBPension;
-use App\Models\StatePension;
+use App\Models\DCPension;
 use App\Models\RetirementProfile;
+use App\Models\StatePension;
 use App\Services\Retirement\AnnualAllowanceChecker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,14 +31,10 @@ class RetirementController extends Controller
     public function __construct(
         private RetirementAgent $agent,
         private AnnualAllowanceChecker $allowanceChecker
-    ) {
-    }
+    ) {}
 
     /**
      * Get all retirement data for the authenticated user.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
@@ -60,9 +56,6 @@ class RetirementController extends Controller
 
     /**
      * Analyze user's retirement position.
-     *
-     * @param RetirementAnalysisRequest $request
-     * @return JsonResponse
      */
     public function analyze(RetirementAnalysisRequest $request): JsonResponse
     {
@@ -70,7 +63,7 @@ class RetirementController extends Controller
         $analysis = $this->agent->analyze($user->id);
 
         // If analysis failed, return as is
-        if (!$analysis['success']) {
+        if (! $analysis['success']) {
             return response()->json($analysis);
         }
 
@@ -106,9 +99,6 @@ class RetirementController extends Controller
 
     /**
      * Get retirement recommendations.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function recommendations(Request $request): JsonResponse
     {
@@ -117,7 +107,7 @@ class RetirementController extends Controller
         // First get the analysis
         $analysis = $this->agent->analyze($user->id);
 
-        if (!$analysis['success']) {
+        if (! $analysis['success']) {
             return response()->json($analysis);
         }
 
@@ -133,9 +123,6 @@ class RetirementController extends Controller
 
     /**
      * Build retirement scenarios.
-     *
-     * @param ScenarioRequest $request
-     * @return JsonResponse
      */
     public function scenarios(ScenarioRequest $request): JsonResponse
     {
@@ -145,7 +132,7 @@ class RetirementController extends Controller
         $result = $this->agent->buildScenarios($user->id, $parameters);
 
         // If failed, return as is
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json($result);
         }
 
@@ -186,10 +173,6 @@ class RetirementController extends Controller
 
     /**
      * Check annual allowance for a given tax year.
-     *
-     * @param Request $request
-     * @param string $taxYear
-     * @return JsonResponse
      */
     public function checkAnnualAllowance(Request $request, string $taxYear): JsonResponse
     {
@@ -209,9 +192,6 @@ class RetirementController extends Controller
 
     /**
      * Store a new DC pension.
-     *
-     * @param StoreDCPensionRequest $request
-     * @return JsonResponse
      */
     public function storeDCPension(StoreDCPensionRequest $request): JsonResponse
     {
@@ -233,10 +213,6 @@ class RetirementController extends Controller
 
     /**
      * Update a DC pension.
-     *
-     * @param StoreDCPensionRequest $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function updateDCPension(StoreDCPensionRequest $request, int $id): JsonResponse
     {
@@ -265,10 +241,6 @@ class RetirementController extends Controller
 
     /**
      * Delete a DC pension.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function destroyDCPension(Request $request, int $id): JsonResponse
     {
@@ -296,9 +268,6 @@ class RetirementController extends Controller
 
     /**
      * Store a new DB pension.
-     *
-     * @param StoreDBPensionRequest $request
-     * @return JsonResponse
      */
     public function storeDBPension(StoreDBPensionRequest $request): JsonResponse
     {
@@ -320,10 +289,6 @@ class RetirementController extends Controller
 
     /**
      * Update a DB pension.
-     *
-     * @param StoreDBPensionRequest $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function updateDBPension(StoreDBPensionRequest $request, int $id): JsonResponse
     {
@@ -352,10 +317,6 @@ class RetirementController extends Controller
 
     /**
      * Delete a DB pension.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse
      */
     public function destroyDBPension(Request $request, int $id): JsonResponse
     {
@@ -383,9 +344,6 @@ class RetirementController extends Controller
 
     /**
      * Update State Pension information.
-     *
-     * @param UpdateStatePensionRequest $request
-     * @return JsonResponse
      */
     public function updateStatePension(UpdateStatePensionRequest $request): JsonResponse
     {
@@ -409,9 +367,6 @@ class RetirementController extends Controller
 
     /**
      * Invalidate retirement-related cache for a user.
-     *
-     * @param int $userId
-     * @return void
      */
     private function invalidateRetirementCache(int $userId): void
     {

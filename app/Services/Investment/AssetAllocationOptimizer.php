@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\Investment;
 
 use App\Models\Investment\RiskProfile;
-use Illuminate\Support\Collection;
 
 class AssetAllocationOptimizer
 {

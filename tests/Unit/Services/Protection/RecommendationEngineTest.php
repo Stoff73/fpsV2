@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Services\Protection\RecommendationEngine;
 
 beforeEach(function () {
-    $this->engine = new RecommendationEngine();
+    $this->engine = new RecommendationEngine;
 });
 
 describe('generateRecommendations', function () {
@@ -60,7 +60,7 @@ describe('generateRecommendations', function () {
         $result = $this->engine->generateRecommendations($gaps, $profile);
 
         expect($result)->toBeArray();
-        $debtRec = collect($result)->first(fn($r) => str_contains($r['action'], 'debt'));
+        $debtRec = collect($result)->first(fn ($r) => str_contains($r['action'], 'debt'));
         expect($debtRec)->not->toBeNull();
         expect($debtRec['category'])->toBe('Life Insurance');
     });
@@ -84,7 +84,7 @@ describe('generateRecommendations', function () {
         $result = $this->engine->generateRecommendations($gaps, $profile);
 
         expect($result)->toBeArray();
-        $incomeRec = collect($result)->first(fn($r) => $r['category'] === 'Income Protection');
+        $incomeRec = collect($result)->first(fn ($r) => $r['category'] === 'Income Protection');
         expect($incomeRec)->not->toBeNull();
         expect($incomeRec['action'])->toContain('income protection');
     });

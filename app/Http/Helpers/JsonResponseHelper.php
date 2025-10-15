@@ -10,11 +10,6 @@ class JsonResponseHelper
 {
     /**
      * Success response.
-     *
-     * @param mixed $data
-     * @param string $message
-     * @param int $statusCode
-     * @return JsonResponse
      */
     public static function success(
         mixed $data = null,
@@ -30,11 +25,6 @@ class JsonResponseHelper
 
     /**
      * Error response.
-     *
-     * @param string $message
-     * @param int $statusCode
-     * @param mixed $errors
-     * @return JsonResponse
      */
     public static function error(
         string $message = 'Error',
@@ -55,10 +45,6 @@ class JsonResponseHelper
 
     /**
      * Validation error response.
-     *
-     * @param array $errors
-     * @param string $message
-     * @return JsonResponse
      */
     public static function validationError(
         array $errors,
@@ -69,9 +55,6 @@ class JsonResponseHelper
 
     /**
      * Not found response.
-     *
-     * @param string $message
-     * @return JsonResponse
      */
     public static function notFound(string $message = 'Resource not found'): JsonResponse
     {
@@ -80,9 +63,6 @@ class JsonResponseHelper
 
     /**
      * Unauthorized response.
-     *
-     * @param string $message
-     * @return JsonResponse
      */
     public static function unauthorized(string $message = 'Unauthorized'): JsonResponse
     {
@@ -91,9 +71,6 @@ class JsonResponseHelper
 
     /**
      * Forbidden response.
-     *
-     * @param string $message
-     * @return JsonResponse
      */
     public static function forbidden(string $message = 'Forbidden'): JsonResponse
     {
@@ -102,9 +79,6 @@ class JsonResponseHelper
 
     /**
      * Server error response.
-     *
-     * @param string $message
-     * @return JsonResponse
      */
     public static function serverError(string $message = 'Internal server error'): JsonResponse
     {

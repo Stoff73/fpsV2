@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\User;
-use App\Models\DCPension;
 use App\Models\DBPension;
-use App\Models\StatePension;
+use App\Models\DCPension;
 use App\Models\RetirementProfile;
+use App\Models\StatePension;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

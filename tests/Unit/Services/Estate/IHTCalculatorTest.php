@@ -7,10 +7,9 @@ use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Services\Estate\IHTCalculator;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 beforeEach(function () {
-    $this->calculator = new IHTCalculator();
+    $this->calculator = new IHTCalculator;
 });
 
 describe('calculateIHTLiability', function () {

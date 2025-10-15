@@ -18,7 +18,7 @@ class ConflictResolver
     /**
      * Identify conflicts between recommendations from different modules
      *
-     * @param array $recommendations All recommendations from all modules
+     * @param  array  $recommendations  All recommendations from all modules
      * @return array Array of identified conflicts
      */
     public function identifyConflicts(array $recommendations): array
@@ -49,7 +49,7 @@ class ConflictResolver
     /**
      * Resolve conflicts between Protection and Savings recommendations
      *
-     * @param array $recommendations All recommendations
+     * @param  array  $recommendations  All recommendations
      * @return array Resolved recommendations
      */
     public function resolveProtectionVsSavings(array $recommendations): array
@@ -96,8 +96,8 @@ class ConflictResolver
     /**
      * Resolve contribution conflicts when multiple modules demand contributions
      *
-     * @param float $availableSurplus Monthly surplus available for contributions
-     * @param array $demands Contribution demands from each module
+     * @param  float  $availableSurplus  Monthly surplus available for contributions
+     * @param  array  $demands  Contribution demands from each module
      * @return array Optimized allocation
      */
     public function resolveContributionConflicts(float $availableSurplus, array $demands): array
@@ -130,6 +130,7 @@ class ConflictResolver
         foreach ($sortedDemands as $demand) {
             if ($remaining <= 0) {
                 $allocation[$demand['category']] = 0;
+
                 continue;
             }
 
@@ -156,8 +157,8 @@ class ConflictResolver
     /**
      * Resolve ISA allowance conflicts between Cash ISA and Stocks & Shares ISA
      *
-     * @param float $isaAllowance Total ISA allowance (£20,000 for 2024/25)
-     * @param array $demands ISA demands from Savings and Investment modules
+     * @param  float  $isaAllowance  Total ISA allowance (£20,000 for 2024/25)
+     * @param  array  $demands  ISA demands from Savings and Investment modules
      * @return array Optimal ISA allocation
      */
     public function resolveISAAllocation(float $isaAllowance, array $demands): array
@@ -218,7 +219,6 @@ class ConflictResolver
     /**
      * Detect cashflow conflicts (total demands exceed surplus)
      *
-     * @param array $recommendations
      * @return array|null Conflict details or null
      */
     private function detectCashflowConflicts(array $recommendations): ?array
@@ -228,7 +228,7 @@ class ConflictResolver
 
         // Extract contribution demands from each module
         foreach ($recommendations as $module => $moduleRecs) {
-            if (!is_array($moduleRecs) || $module === 'module_scores') {
+            if (! is_array($moduleRecs) || $module === 'module_scores') {
                 continue;
             }
 
@@ -260,7 +260,6 @@ class ConflictResolver
     /**
      * Detect ISA allowance conflicts (demands exceed £20,000 allowance)
      *
-     * @param array $recommendations
      * @return array|null Conflict details or null
      */
     private function detectISAConflicts(array $recommendations): ?array
@@ -309,7 +308,6 @@ class ConflictResolver
     /**
      * Detect protection vs. savings conflicts
      *
-     * @param array $recommendations
      * @return array|null Conflict details or null
      */
     private function detectProtectionVsSavingsConflicts(array $recommendations): ?array
@@ -355,10 +353,6 @@ class ConflictResolver
 
     /**
      * Filter recommendations by module
-     *
-     * @param array $recommendations
-     * @param string $module
-     * @return array
      */
     private function filterByModule(array $recommendations, string $module): array
     {
@@ -367,9 +361,6 @@ class ConflictResolver
 
     /**
      * Map module name to contribution category
-     *
-     * @param string $module
-     * @return string
      */
     private function mapModuleToCategory(string $module): string
     {
@@ -386,10 +377,6 @@ class ConflictResolver
 
     /**
      * Calculate conflict severity
-     *
-     * @param float $demand
-     * @param float $available
-     * @return string
      */
     private function calculateConflictSeverity(float $demand, float $available): string
     {

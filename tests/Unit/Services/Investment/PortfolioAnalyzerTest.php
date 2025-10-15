@@ -6,10 +6,9 @@ use App\Models\Investment\Holding;
 use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\RiskProfile;
 use App\Services\Investment\PortfolioAnalyzer;
-use Illuminate\Support\Collection;
 
 beforeEach(function () {
-    $this->analyzer = new PortfolioAnalyzer();
+    $this->analyzer = new PortfolioAnalyzer;
 });
 
 describe('calculateTotalValue', function () {

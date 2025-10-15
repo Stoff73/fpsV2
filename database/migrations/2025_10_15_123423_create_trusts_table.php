@@ -24,7 +24,7 @@ return new class extends Migration
                 'discounted_gift',
                 'loan',
                 'mixed',
-                'settlor_interested'
+                'settlor_interested',
             ]);
             $table->date('trust_creation_date');
             $table->decimal('initial_value', 15, 2);

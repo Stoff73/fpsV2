@@ -10,10 +10,6 @@ class ScenarioBuilder
 {
     /**
      * Model death scenario.
-     *
-     * @param ProtectionProfile $profile
-     * @param array $coverage
-     * @return array
      */
     public function modelDeathScenario(ProtectionProfile $profile, array $coverage): array
     {
@@ -39,10 +35,6 @@ class ScenarioBuilder
 
     /**
      * Model critical illness scenario.
-     *
-     * @param ProtectionProfile $profile
-     * @param array $coverage
-     * @return array
      */
     public function modelCriticalIllnessScenario(ProtectionProfile $profile, array $coverage): array
     {
@@ -66,10 +58,6 @@ class ScenarioBuilder
 
     /**
      * Model disability scenario.
-     *
-     * @param ProtectionProfile $profile
-     * @param array $coverage
-     * @return array
      */
     public function modelDisabilityScenario(ProtectionProfile $profile, array $coverage): array
     {
@@ -93,10 +81,6 @@ class ScenarioBuilder
 
     /**
      * Model premium change scenario.
-     *
-     * @param array $coverage
-     * @param float $newCoverage
-     * @return array
      */
     public function modelPremiumChangeScenario(array $coverage, float $newCoverage): array
     {
@@ -121,10 +105,6 @@ class ScenarioBuilder
 
     /**
      * Assess scenario adequacy.
-     *
-     * @param float $funds
-     * @param ProtectionProfile $profile
-     * @return string
      */
     private function assessScenarioAdequacy(float $funds, ProtectionProfile $profile): string
     {
@@ -141,9 +121,6 @@ class ScenarioBuilder
 
     /**
      * Assess income protection adequacy.
-     *
-     * @param float $replacementRatio
-     * @return string
      */
     private function assessIncomeProtectionAdequacy(float $replacementRatio): string
     {
@@ -157,11 +134,6 @@ class ScenarioBuilder
 
     /**
      * Generate death scenario insights.
-     *
-     * @param float $remainingFunds
-     * @param float $monthsOfSupport
-     * @param ProtectionProfile $profile
-     * @return array
      */
     private function generateDeathScenarioInsights(
         float $remainingFunds,
@@ -204,10 +176,6 @@ class ScenarioBuilder
 
     /**
      * Generate critical illness insights.
-     *
-     * @param float $coverage
-     * @param float $monthsOfSupport
-     * @return array
      */
     private function generateCriticalIllnessInsights(float $coverage, float $monthsOfSupport): array
     {
@@ -239,10 +207,6 @@ class ScenarioBuilder
 
     /**
      * Generate disability scenario insights.
-     *
-     * @param float $replacementRatio
-     * @param float $shortfall
-     * @return array
      */
     private function generateDisabilityInsights(float $replacementRatio, float $shortfall): array
     {

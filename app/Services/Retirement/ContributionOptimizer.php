@@ -18,10 +18,6 @@ class ContributionOptimizer
 {
     /**
      * Optimize pension contributions based on retirement profile and goals.
-     *
-     * @param RetirementProfile $profile
-     * @param Collection $pensions
-     * @return array
      */
     public function optimizeContributions(RetirementProfile $profile, Collection $pensions): array
     {
@@ -31,7 +27,7 @@ class ContributionOptimizer
         foreach ($pensions as $pension) {
             if ($pension->scheme_type === 'workplace') {
                 $matchAnalysis = $this->checkEmployerMatch($pension);
-                if (!$matchAnalysis['is_maximized']) {
+                if (! $matchAnalysis['is_maximized']) {
                     $recommendations[] = [
                         'type' => 'employer_match',
                         'priority' => 'high',
@@ -90,9 +86,6 @@ class ContributionOptimizer
     /**
      * Calculate required annual contribution to meet retirement goal.
      *
-     * @param RetirementProfile $profile
-     * @param Collection $pensions
-     * @param int $yearsToRetirement
      * @return float Required annual contribution
      */
     public function calculateRequiredContribution(
@@ -127,9 +120,6 @@ class ContributionOptimizer
 
     /**
      * Check if user is maximizing employer pension match.
-     *
-     * @param DCPension $pension
-     * @return array
      */
     public function checkEmployerMatch(DCPension $pension): array
     {
@@ -144,7 +134,7 @@ class ContributionOptimizer
         $message = '';
         $potentialGain = 0.0;
 
-        if (!$isMaximized) {
+        if (! $isMaximized) {
             $additionalContribution = $typicalMatchThreshold - $employeeContribution;
             $message = sprintf(
                 'Increase your contribution by %s%% to maximize employer match. This is free money!',
@@ -169,8 +159,8 @@ class ContributionOptimizer
     /**
      * Calculate tax relief on pension contributions.
      *
-     * @param float $contribution Annual contribution
-     * @param float $income Annual income
+     * @param  float  $contribution  Annual contribution
+     * @param  float  $income  Annual income
      * @return float Tax relief amount
      */
     public function calculateTaxRelief(float $contribution, float $income): float
@@ -197,10 +187,6 @@ class ContributionOptimizer
 
     /**
      * Analyze tax relief optimization opportunities.
-     *
-     * @param RetirementProfile $profile
-     * @param Collection $pensions
-     * @return array
      */
     private function analyzeTaxRelief(RetirementProfile $profile, Collection $pensions): array
     {
@@ -236,9 +222,6 @@ class ContributionOptimizer
 
     /**
      * Calculate total current annual contributions across all pensions.
-     *
-     * @param Collection $pensions
-     * @return float
      */
     private function calculateTotalCurrentContributions(Collection $pensions): float
     {

@@ -6,7 +6,7 @@ use App\Services\Savings\EmergencyFundCalculator;
 
 describe('EmergencyFundCalculator', function () {
     beforeEach(function () {
-        $this->calculator = new EmergencyFundCalculator();
+        $this->calculator = new EmergencyFundCalculator;
     });
 
     describe('calculateRunway', function () {

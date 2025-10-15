@@ -4,7 +4,7 @@ use App\Services\Coordination\ConflictResolver;
 
 describe('ConflictResolver', function () {
     beforeEach(function () {
-        $this->resolver = new ConflictResolver();
+        $this->resolver = new ConflictResolver;
     });
 
     describe('identifyConflicts', function () {

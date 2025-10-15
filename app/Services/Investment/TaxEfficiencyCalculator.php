@@ -109,6 +109,7 @@ class TaxEfficiencyCalculator
         // Find holdings with losses that could be harvested
         $lossHoldings = $holdings->filter(function ($holding) {
             $gain = $holding->current_value - $holding->cost_basis;
+
             return $gain < -100; // Only significant losses worth harvesting
         })->map(function ($holding) {
             $loss = $holding->current_value - $holding->cost_basis;
@@ -160,6 +161,7 @@ class TaxEfficiencyCalculator
         $largeGainHoldings = $holdings->filter(function ($holding) {
             $gain = $holding->current_value - $holding->cost_basis;
             $gainPercent = $holding->cost_basis > 0 ? ($gain / $holding->cost_basis) * 100 : 0;
+
             return $gainPercent > 50;
         })->count();
 

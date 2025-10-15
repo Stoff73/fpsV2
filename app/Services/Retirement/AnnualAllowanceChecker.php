@@ -15,17 +15,19 @@ class AnnualAllowanceChecker
 {
     // 2024/25 UK pension allowances
     private const STANDARD_ANNUAL_ALLOWANCE = 60000;
+
     private const MINIMUM_TAPERED_ALLOWANCE = 10000;
+
     private const THRESHOLD_INCOME = 200000;
+
     private const ADJUSTED_INCOME_THRESHOLD = 260000;
+
     private const MPAA = 10000;
 
     /**
      * Check annual allowance for a user in a given tax year.
      *
-     * @param int $userId
-     * @param string $taxYear Tax year (e.g., '2024/25')
-     * @return array
+     * @param  string  $taxYear  Tax year (e.g., '2024/25')
      */
     public function checkAnnualAllowance(int $userId, string $taxYear): array
     {
@@ -84,8 +86,6 @@ class AnnualAllowanceChecker
      * Reduction: £1 for every £2 over adjusted income threshold.
      * Minimum allowance: £10,000
      *
-     * @param float $thresholdIncome
-     * @param float $adjustedIncome
      * @return float Tapered allowance
      */
     public function calculateTapering(float $thresholdIncome, float $adjustedIncome): float
@@ -100,6 +100,7 @@ class AnnualAllowanceChecker
 
         // Apply reduction but ensure minimum allowance
         $taperedAllowance = self::STANDARD_ANNUAL_ALLOWANCE - $reduction;
+
         return max(self::MINIMUM_TAPERED_ALLOWANCE, $taperedAllowance);
     }
 
@@ -109,8 +110,6 @@ class AnnualAllowanceChecker
      * Note: This is a simplified implementation. In reality, we would need to track
      * actual contributions and unused allowance for each of the previous 3 years.
      *
-     * @param int $userId
-     * @param string $taxYear
      * @return float Total carry forward available
      */
     public function getCarryForward(int $userId, string $taxYear): float
@@ -125,9 +124,6 @@ class AnnualAllowanceChecker
      * Check if user has triggered Money Purchase Annual Allowance (MPAA).
      *
      * MPAA is triggered when user has flexibly accessed a pension.
-     *
-     * @param int $userId
-     * @return array
      */
     public function checkMPAA(int $userId): array
     {
@@ -139,7 +135,7 @@ class AnnualAllowanceChecker
             'is_triggered' => $isTriggered,
             'mpaa_amount' => self::MPAA,
             'message' => $isTriggered
-                ? 'MPAA triggered - your annual allowance is reduced to £' . number_format(self::MPAA) . ' per year.'
+                ? 'MPAA triggered - your annual allowance is reduced to £'.number_format(self::MPAA).' per year.'
                 : 'MPAA not triggered - standard annual allowance applies.',
         ];
     }
@@ -147,8 +143,7 @@ class AnnualAllowanceChecker
     /**
      * Calculate total annual pension contributions from all DC pensions.
      *
-     * @param \Illuminate\Support\Collection $dcPensions
-     * @return float
+     * @param  \Illuminate\Support\Collection  $dcPensions
      */
     private function calculateTotalAnnualContributions($dcPensions): float
     {
@@ -164,13 +159,11 @@ class AnnualAllowanceChecker
 
     /**
      * Get user's annual income.
-     *
-     * @param int $userId
-     * @return float
      */
     private function getUserIncome(int $userId): float
     {
         $profile = \App\Models\RetirementProfile::where('user_id', $userId)->first();
+
         return $profile ? (float) $profile->current_annual_salary : 0.0;
     }
 }

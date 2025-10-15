@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\User;
-use Laravel\Sanctum\Sanctum;
 
 test('authenticated user can logout', function () {
     $user = User::factory()->create();

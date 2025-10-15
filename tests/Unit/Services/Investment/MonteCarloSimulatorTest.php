@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Services\Investment\MonteCarloSimulator;
 
 beforeEach(function () {
-    $this->simulator = new MonteCarloSimulator();
+    $this->simulator = new MonteCarloSimulator;
 });
 
 describe('simulate', function () {

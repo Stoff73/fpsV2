@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services\Dashboard;
 
-use App\Agents\ProtectionAgent;
-use App\Agents\SavingsAgent;
-use App\Agents\InvestmentAgent;
-use App\Agents\RetirementAgent;
 use App\Agents\EstateAgent;
+use App\Agents\InvestmentAgent;
+use App\Agents\ProtectionAgent;
+use App\Agents\RetirementAgent;
+use App\Agents\SavingsAgent;
 
 class DashboardAggregator
 {
@@ -22,9 +22,6 @@ class DashboardAggregator
 
     /**
      * Aggregate overview data from all modules
-     *
-     * @param int $userId
-     * @return array
      */
     public function aggregateOverviewData(int $userId): array
     {
@@ -38,16 +35,14 @@ class DashboardAggregator
             ];
         } catch (\Exception $e) {
             // Log error but don't fail entirely - return partial data
-            \Log::error('Failed to aggregate dashboard data: ' . $e->getMessage());
+            \Log::error('Failed to aggregate dashboard data: '.$e->getMessage());
+
             return [];
         }
     }
 
     /**
      * Calculate composite financial health score from all modules
-     *
-     * @param int $userId
-     * @return array
      */
     public function calculateFinancialHealthScore(int $userId): array
     {
@@ -101,7 +96,8 @@ class DashboardAggregator
                 'recommendation' => $this->getHealthRecommendation($compositeScore),
             ];
         } catch (\Exception $e) {
-            \Log::error('Failed to calculate financial health score: ' . $e->getMessage());
+            \Log::error('Failed to calculate financial health score: '.$e->getMessage());
+
             return [
                 'composite_score' => 0,
                 'breakdown' => [],
@@ -113,9 +109,6 @@ class DashboardAggregator
 
     /**
      * Aggregate and prioritize alerts from all modules
-     *
-     * @param int $userId
-     * @return array
      */
     public function aggregateAlerts(int $userId): array
     {
@@ -132,12 +125,14 @@ class DashboardAggregator
             // Sort by severity (critical > important > info)
             usort($alerts, function ($a, $b) {
                 $severityOrder = ['critical' => 0, 'important' => 1, 'info' => 2];
+
                 return ($severityOrder[$a['severity']] ?? 2) <=> ($severityOrder[$b['severity']] ?? 2);
             });
 
             return $alerts;
         } catch (\Exception $e) {
-            \Log::error('Failed to aggregate alerts: ' . $e->getMessage());
+            \Log::error('Failed to aggregate alerts: '.$e->getMessage());
+
             return [];
         }
     }
@@ -209,6 +204,7 @@ class DashboardAggregator
         // In real implementation, calculate from emergency fund runway
         // Target: 6 months = 100%
         $runway = 4; // months
+
         return min(100, ($runway / 6) * 100);
     }
 
@@ -301,9 +297,16 @@ class DashboardAggregator
 
     private function getHealthLabel(float $score): string
     {
-        if ($score >= 80) return 'Excellent';
-        if ($score >= 60) return 'Good';
-        if ($score >= 40) return 'Fair';
+        if ($score >= 80) {
+            return 'Excellent';
+        }
+        if ($score >= 60) {
+            return 'Good';
+        }
+        if ($score >= 40) {
+            return 'Fair';
+        }
+
         return 'Needs Improvement';
     }
 

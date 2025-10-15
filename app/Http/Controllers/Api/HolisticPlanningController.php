@@ -257,9 +257,6 @@ class HolisticPlanningController extends Controller
 
     /**
      * Store recommendations in tracking table
-     *
-     * @param int $userId
-     * @param array $recommendations
      */
     private function storeRecommendations(int $userId, array $recommendations): void
     {
@@ -285,8 +282,7 @@ class HolisticPlanningController extends Controller
     /**
      * Extract demands from recommendation tracking records
      *
-     * @param \Illuminate\Database\Eloquent\Collection $recommendations
-     * @return array
+     * @param  \Illuminate\Database\Eloquent\Collection  $recommendations
      */
     private function extractDemandsFromTracking($recommendations): array
     {
@@ -307,7 +303,7 @@ class HolisticPlanningController extends Controller
                 default => 0,
             };
 
-            if (!isset($demands[$category])) {
+            if (! isset($demands[$category])) {
                 $demands[$category] = [
                     'amount' => 0,
                     'urgency' => 50,
@@ -323,9 +319,6 @@ class HolisticPlanningController extends Controller
 
     /**
      * Map module to cashflow category
-     *
-     * @param string $module
-     * @return string
      */
     private function mapModuleToCategory(string $module): string
     {

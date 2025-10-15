@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Agents;
 
-use App\Models\DCPension;
 use App\Models\DBPension;
-use App\Models\StatePension;
+use App\Models\DCPension;
 use App\Models\RetirementProfile;
-use App\Services\Retirement\PensionProjector;
-use App\Services\Retirement\ReadinessScorer;
+use App\Models\StatePension;
 use App\Services\Retirement\AnnualAllowanceChecker;
 use App\Services\Retirement\ContributionOptimizer;
 use App\Services\Retirement\DecumulationPlanner;
+use App\Services\Retirement\PensionProjector;
+use App\Services\Retirement\ReadinessScorer;
 
 /**
  * Retirement Agent
@@ -30,14 +30,10 @@ class RetirementAgent extends BaseAgent
         private AnnualAllowanceChecker $allowanceChecker,
         private ContributionOptimizer $optimizer,
         private DecumulationPlanner $planner
-    ) {
-    }
+    ) {}
 
     /**
      * Analyze user's retirement position.
-     *
-     * @param int $userId
-     * @return array
      */
     public function analyze(int $userId): array
     {
@@ -50,7 +46,7 @@ class RetirementAgent extends BaseAgent
             $dbPensions = DBPension::where('user_id', $userId)->get();
             $statePension = StatePension::where('user_id', $userId)->first();
 
-            if (!$profile) {
+            if (! $profile) {
                 return $this->response(false, 'No retirement profile found', []);
             }
 
@@ -103,9 +99,6 @@ class RetirementAgent extends BaseAgent
 
     /**
      * Generate retirement recommendations.
-     *
-     * @param array $analysisData
-     * @return array
      */
     public function generateRecommendations(array $analysisData): array
     {
@@ -189,23 +182,19 @@ class RetirementAgent extends BaseAgent
         return [
             'recommendations' => $recommendations,
             'total_count' => count($recommendations),
-            'high_priority_count' => count(array_filter($recommendations, fn($r) => $r['priority'] <= 2)),
+            'high_priority_count' => count(array_filter($recommendations, fn ($r) => $r['priority'] <= 2)),
         ];
     }
 
     /**
      * Build what-if retirement scenarios.
-     *
-     * @param int $userId
-     * @param array $parameters
-     * @return array
      */
     public function buildScenarios(int $userId, array $parameters): array
     {
         $profile = RetirementProfile::where('user_id', $userId)->first();
         $dcPensions = DCPension::where('user_id', $userId)->get();
 
-        if (!$profile) {
+        if (! $profile) {
             return $this->response(false, 'No retirement profile found', []);
         }
 
@@ -434,7 +423,7 @@ class RetirementAgent extends BaseAgent
      */
     private function formatStatePension($statePension, array $incomeProjection): ?array
     {
-        if (!$statePension) {
+        if (! $statePension) {
             return null;
         }
 

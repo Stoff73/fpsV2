@@ -23,8 +23,7 @@ class SavingsAgent extends BaseAgent
         private GoalProgressCalculator $goalProgressCalculator,
         private LiquidityAnalyzer $liquidityAnalyzer,
         private RateComparator $rateComparator
-    ) {
-    }
+    ) {}
 
     /**
      * Analyze user's savings situation
@@ -257,6 +256,7 @@ class SavingsAgent extends BaseAgent
 
         if ($monthlyRate > 0) {
             $compoundFactor = pow(1 + $monthlyRate, $months);
+
             return $currentAmount * $compoundFactor
                 + $monthlyContribution * (($compoundFactor - 1) / $monthlyRate);
         }

@@ -52,7 +52,7 @@ class LiquidityAnalyzer
             $cumulative += (float) $account->current_balance;
             $ladder[] = [
                 'date' => $now->format('Y-m-d'),
-                'account' => $account->institution . ' - ' . $account->account_type,
+                'account' => $account->institution.' - '.$account->account_type,
                 'amount' => round((float) $account->current_balance, 2),
                 'cumulative' => round($cumulative, 2),
                 'days_from_now' => 0,
@@ -66,7 +66,7 @@ class LiquidityAnalyzer
             $cumulative += (float) $account->current_balance;
             $ladder[] = [
                 'date' => $availableDate->format('Y-m-d'),
-                'account' => $account->institution . ' - ' . $account->account_type,
+                'account' => $account->institution.' - '.$account->account_type,
                 'amount' => round((float) $account->current_balance, 2),
                 'cumulative' => round($cumulative, 2),
                 'days_from_now' => $account->notice_period_days ?? 0,
@@ -82,7 +82,7 @@ class LiquidityAnalyzer
                 $cumulative += (float) $account->current_balance;
                 $ladder[] = [
                     'date' => $maturityDate->format('Y-m-d'),
-                    'account' => $account->institution . ' - ' . $account->account_type,
+                    'account' => $account->institution.' - '.$account->account_type,
                     'amount' => round((float) $account->current_balance, 2),
                     'cumulative' => round($cumulative, 2),
                     'days_from_now' => (int) $daysFromNow,

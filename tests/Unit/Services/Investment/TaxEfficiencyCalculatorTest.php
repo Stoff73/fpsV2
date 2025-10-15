@@ -7,7 +7,7 @@ use App\Models\Investment\InvestmentAccount;
 use App\Services\Investment\TaxEfficiencyCalculator;
 
 beforeEach(function () {
-    $this->taxCalculator = new TaxEfficiencyCalculator();
+    $this->taxCalculator = new TaxEfficiencyCalculator;
 
     // Mock UK tax config
     config([

@@ -76,7 +76,7 @@ class Handler extends ExceptionHandler
         $message = $exception->getMessage() ?: 'An error occurred';
 
         // Don't expose internal errors in production
-        if ($statusCode === 500 && !config('app.debug')) {
+        if ($statusCode === 500 && ! config('app.debug')) {
             $message = 'Internal server error';
         }
 

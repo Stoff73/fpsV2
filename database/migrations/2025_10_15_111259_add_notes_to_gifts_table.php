@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('gifts', function (Blueprint $table) {
-            $table->text('notes')->nullable()->after('taper_relief_applicable');
+            if (! Schema::hasColumn('gifts', 'notes')) {
+                $table->text('notes')->nullable()->after('taper_relief_applicable');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('gifts', function (Blueprint $table) {
-            $table->dropColumn('notes');
+            if (Schema::hasColumn('gifts', 'notes')) {
+                $table->dropColumn('notes');
+            }
         });
     }
 };

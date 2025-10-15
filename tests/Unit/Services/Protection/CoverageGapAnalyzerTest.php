@@ -5,10 +5,9 @@ declare(strict_types=1);
 use App\Models\ProtectionProfile;
 use App\Models\User;
 use App\Services\Protection\CoverageGapAnalyzer;
-use Illuminate\Support\Collection;
 
 beforeEach(function () {
-    $this->analyzer = new CoverageGapAnalyzer();
+    $this->analyzer = new CoverageGapAnalyzer;
 });
 
 describe('calculateHumanCapital', function () {

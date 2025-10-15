@@ -1,14 +1,12 @@
 <?php
 
-use App\Models\DCPension;
 use App\Models\DBPension;
+use App\Models\DCPension;
 use App\Models\StatePension;
-use App\Models\RetirementProfile;
-use App\Models\User;
 use App\Services\Retirement\PensionProjector;
 
 beforeEach(function () {
-    $this->projector = new PensionProjector();
+    $this->projector = new PensionProjector;
 });
 
 test('projects DC pension value correctly', function () {

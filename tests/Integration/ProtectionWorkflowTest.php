@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
-use App\Models\ProtectionProfile;
-use App\Models\LifeInsurancePolicy;
 use App\Models\CriticalIllnessPolicy;
-use App\Models\IncomeProtectionPolicy;
 use App\Models\DisabilityPolicy;
+use App\Models\IncomeProtectionPolicy;
+use App\Models\LifeInsurancePolicy;
+use App\Models\ProtectionProfile;
 use App\Models\SicknessIllnessPolicy;
+use App\Models\User;
 
 describe('Protection Workflow Integration', function () {
     it('completes full protection planning journey', function () {

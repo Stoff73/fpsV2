@@ -22,6 +22,7 @@ class GiftingStrategy
         // Filter PETs within 7 years
         $activePETs = $gifts->filter(function ($gift) use ($yearsToExemption) {
             $yearsAgo = Carbon::now()->diffInYears($gift->gift_date);
+
             return $gift->gift_type === 'pet' && $yearsAgo < $yearsToExemption;
         })->sortBy('gift_date');
 
@@ -65,6 +66,7 @@ class GiftingStrategy
             if ($yearsAgo >= $tier['years'] - 1) {
                 // Calculate relief percentage (100% - effective rate)
                 $effectiveRate = $tier['rate'];
+
                 return (int) ((1 - ($effectiveRate / 0.40)) * 100);
             }
         }
@@ -84,7 +86,7 @@ class GiftingStrategy
         $carryForwardYears = $config['carry_forward_years'];
 
         // Get tax year dates
-        $taxYearStart = Carbon::createFromFormat('Y-m-d', $taxYear . '-04-06');
+        $taxYearStart = Carbon::createFromFormat('Y-m-d', $taxYear.'-04-06');
         $taxYearEnd = $taxYearStart->copy()->addYear()->subDay();
 
         // Get gifts made in current tax year
@@ -130,7 +132,8 @@ class GiftingStrategy
         // Group by recipient and tax year
         $byRecipient = $smallGifts->groupBy(function ($gift) {
             $taxYearStart = $gift->gift_date->month >= 4 ? $gift->gift_date->year : $gift->gift_date->year - 1;
-            return $gift->recipient . '_' . $taxYearStart;
+
+            return $gift->recipient.'_'.$taxYearStart;
         });
 
         $summary = [];
@@ -144,10 +147,10 @@ class GiftingStrategy
 
             $summary[] = [
                 'recipient' => $recipient,
-                'tax_year' => $taxYear . '/' . substr((string)($taxYear + 1), -2),
+                'tax_year' => $taxYear.'/'.substr((string) ($taxYear + 1), -2),
                 'total_value' => round($totalValue, 2),
                 'is_valid' => $isValid,
-                'warning' => !$isValid ? "Exceeds £{$smallGiftLimit} limit" : null,
+                'warning' => ! $isValid ? "Exceeds £{$smallGiftLimit} limit" : null,
             ];
         }
 

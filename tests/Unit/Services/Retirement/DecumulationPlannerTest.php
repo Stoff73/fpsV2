@@ -3,7 +3,7 @@
 use App\Services\Retirement\DecumulationPlanner;
 
 beforeEach(function () {
-    $this->planner = new DecumulationPlanner();
+    $this->planner = new DecumulationPlanner;
 });
 
 test('calculates sustainable withdrawal rate scenarios', function () {

@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
-use App\Models\ProtectionProfile;
-use App\Models\LifeInsurancePolicy;
 use App\Models\CriticalIllnessPolicy;
-use App\Models\IncomeProtectionPolicy;
 use App\Models\DisabilityPolicy;
+use App\Models\LifeInsurancePolicy;
+use App\Models\ProtectionProfile;
 use App\Models\SicknessIllnessPolicy;
+use App\Models\User;
 
 describe('Protection API - Authentication', function () {
     it('requires authentication for protection index', function () {
@@ -30,19 +29,19 @@ describe('Protection API - Index', function () {
         $response = $this->actingAs($user)->getJson('/api/protection');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'success',
-                    'data' => [
-                        'profile',
-                        'policies' => [
-                            'life_insurance',
-                            'critical_illness',
-                            'income_protection',
-                            'disability',
-                            'sickness_illness',
-                        ],
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'profile',
+                    'policies' => [
+                        'life_insurance',
+                        'critical_illness',
+                        'income_protection',
+                        'disability',
+                        'sickness_illness',
                     ],
-                ]);
+                ],
+            ]);
     });
 });
 
@@ -66,11 +65,11 @@ describe('Protection Profile', function () {
         $response = $this->actingAs($user)->postJson('/api/protection/profile', $data);
 
         $response->assertStatus(201)
-                ->assertJsonStructure([
-                    'success',
-                    'message',
-                    'data',
-                ]);
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data',
+            ]);
 
         $this->assertDatabaseHas('protection_profiles', [
             'user_id' => $user->id,
@@ -297,20 +296,20 @@ describe('Protection Analysis', function () {
         $response = $this->actingAs($user)->postJson('/api/protection/analyze');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'success',
-                    'message',
-                    'data' => [
-                        'profile',
-                        'needs',
-                        'coverage',
-                        'gaps',
-                        'adequacy_score',
-                        'recommendations',
-                        'scenarios',
-                        'policies',
-                    ],
-                ]);
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'profile',
+                    'needs',
+                    'coverage',
+                    'gaps',
+                    'adequacy_score',
+                    'recommendations',
+                    'scenarios',
+                    'policies',
+                ],
+            ]);
     });
 
     it('requires protection profile for analysis', function () {
@@ -319,9 +318,9 @@ describe('Protection Analysis', function () {
         $response = $this->actingAs($user)->postJson('/api/protection/analyze');
 
         $response->assertStatus(200)
-                ->assertJson([
-                    'success' => false,
-                ]);
+            ->assertJson([
+                'success' => false,
+            ]);
     });
 });
 
@@ -335,7 +334,7 @@ describe('Validation', function () {
         ]);
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['provider', 'sum_assured']);
+            ->assertJsonValidationErrors(['provider', 'sum_assured']);
     });
 
     it('validates protection profile creation', function () {
@@ -347,6 +346,6 @@ describe('Validation', function () {
         ]);
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['annual_income', 'number_of_dependents']);
+            ->assertJsonValidationErrors(['annual_income', 'number_of_dependents']);
     });
 });

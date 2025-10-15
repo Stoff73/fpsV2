@@ -3,7 +3,7 @@
 use App\Services\Retirement\AnnualAllowanceChecker;
 
 beforeEach(function () {
-    $this->checker = new AnnualAllowanceChecker();
+    $this->checker = new AnnualAllowanceChecker;
 });
 
 test('calculates tapering for high earners correctly', function () {

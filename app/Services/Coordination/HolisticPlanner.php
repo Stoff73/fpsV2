@@ -15,8 +15,7 @@ class HolisticPlanner
     /**
      * Create holistic financial plan
      *
-     * @param int $userId
-     * @param array $allAnalysis Analysis results from all 5 modules
+     * @param  array  $allAnalysis  Analysis results from all 5 modules
      * @return array Comprehensive plan
      */
     public function createHolisticPlan(int $userId, array $allAnalysis): array
@@ -40,7 +39,7 @@ class HolisticPlanner
     /**
      * Generate executive summary with key strengths, vulnerabilities, and priorities
      *
-     * @param array $plan Complete plan data
+     * @param  array  $plan  Complete plan data
      * @return array Executive summary
      */
     public function generateExecutiveSummary(array $plan): array
@@ -61,8 +60,8 @@ class HolisticPlanner
     /**
      * Project net worth trajectory over time
      *
-     * @param array $allData All module data
-     * @param int $years Number of years to project
+     * @param  array  $allData  All module data
+     * @param  int  $years  Number of years to project
      * @return array Net worth projection
      */
     public function projectNetWorthTrajectory(array $allData, int $years): array
@@ -88,7 +87,7 @@ class HolisticPlanner
     /**
      * Assess overall risk profile
      *
-     * @param array $allAnalysis All module analysis
+     * @param  array  $allAnalysis  All module analysis
      * @return array Risk assessment
      */
     public function assessOverallRisk(array $allAnalysis): array
@@ -177,9 +176,6 @@ class HolisticPlanner
 
     /**
      * Create current financial snapshot
-     *
-     * @param array $allAnalysis
-     * @return array
      */
     private function createFinancialSnapshot(array $allAnalysis): array
     {
@@ -198,9 +194,6 @@ class HolisticPlanner
 
     /**
      * Create module summaries
-     *
-     * @param array $allAnalysis
-     * @return array
      */
     private function createModuleSummaries(array $allAnalysis): array
     {
@@ -240,9 +233,6 @@ class HolisticPlanner
 
     /**
      * Identify key strengths
-     *
-     * @param array $plan
-     * @return array
      */
     private function identifyKeyStrengths(array $plan): array
     {
@@ -298,9 +288,6 @@ class HolisticPlanner
 
     /**
      * Identify key vulnerabilities
-     *
-     * @param array $plan
-     * @return array
      */
     private function identifyKeyVulnerabilities(array $plan): array
     {
@@ -361,10 +348,6 @@ class HolisticPlanner
 
     /**
      * Identify top priorities
-     *
-     * @param array $plan
-     * @param int $limit
-     * @return array
      */
     private function identifyTopPriorities(array $plan, int $limit): array
     {
@@ -404,9 +387,6 @@ class HolisticPlanner
 
     /**
      * Generate overview text
-     *
-     * @param array $plan
-     * @return string
      */
     private function generateOverviewText(array $plan): string
     {
@@ -414,21 +394,18 @@ class HolisticPlanner
         $overallScore = $this->calculateOverallScore($plan);
 
         if ($overallScore >= 80) {
-            return "Your overall financial position is strong with a net worth of £" . number_format($netWorth, 0) . ". Continue your current strategy with minor optimizations.";
+            return 'Your overall financial position is strong with a net worth of £'.number_format($netWorth, 0).'. Continue your current strategy with minor optimizations.';
         } elseif ($overallScore >= 60) {
-            return "Your financial position is generally good with a net worth of £" . number_format($netWorth, 0) . ", but there are areas for improvement.";
+            return 'Your financial position is generally good with a net worth of £'.number_format($netWorth, 0).', but there are areas for improvement.';
         } elseif ($overallScore >= 40) {
-            return "Your financial position needs attention. With a net worth of £" . number_format($netWorth, 0) . ", focus on addressing key vulnerabilities.";
+            return 'Your financial position needs attention. With a net worth of £'.number_format($netWorth, 0).', focus on addressing key vulnerabilities.';
         } else {
-            return "Your financial position requires immediate action. Priority should be given to protection and emergency fund.";
+            return 'Your financial position requires immediate action. Priority should be given to protection and emergency fund.';
         }
     }
 
     /**
      * Calculate overall financial health score
-     *
-     * @param array $plan
-     * @return float
      */
     private function calculateOverallScore(array $plan): float
     {
@@ -445,11 +422,6 @@ class HolisticPlanner
 
     /**
      * Project baseline net worth (current trajectory)
-     *
-     * @param array $allData
-     * @param int $years
-     * @param float $currentNetWorth
-     * @return array
      */
     private function projectBaseline(array $allData, int $years, float $currentNetWorth): array
     {
@@ -473,11 +445,6 @@ class HolisticPlanner
 
     /**
      * Project optimized net worth (with recommendations)
-     *
-     * @param array $allData
-     * @param int $years
-     * @param float $currentNetWorth
-     * @return array
      */
     private function projectOptimized(array $allData, int $years, float $currentNetWorth): array
     {
@@ -501,10 +468,6 @@ class HolisticPlanner
 
     /**
      * Calculate improvement percentage
-     *
-     * @param array $baseline
-     * @param array $optimized
-     * @return float
      */
     private function calculateImprovementPercent(array $baseline, array $optimized): float
     {
@@ -520,9 +483,6 @@ class HolisticPlanner
 
     /**
      * Calculate overall risk score
-     *
-     * @param array $allAnalysis
-     * @return float
      */
     private function calculateOverallRiskScore(array $allAnalysis): float
     {
@@ -538,9 +498,6 @@ class HolisticPlanner
 
     /**
      * Get risk level label
-     *
-     * @param float $score
-     * @return string
      */
     private function getRiskLevel(float $score): string
     {
@@ -557,9 +514,6 @@ class HolisticPlanner
 
     /**
      * Get module status
-     *
-     * @param float $score
-     * @return string
      */
     private function getModuleStatus(float $score): string
     {

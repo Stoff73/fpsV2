@@ -49,7 +49,7 @@ class ScenarioRequest extends FormRequest
                             $this->filled('withdrawal_rate') ||
                             $this->filled('scenario_type');
 
-            if (!$hasParameter) {
+            if (! $hasParameter) {
                 $validator->errors()->add('scenario', 'At least one scenario parameter is required.');
             }
         });
