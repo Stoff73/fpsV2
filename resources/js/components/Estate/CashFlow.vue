@@ -189,6 +189,8 @@ export default {
   data() {
     return {
       selectedTaxYear: '2024/25',
+      isLoading: false,
+      hasLoaded: false,
     };
   },
 
@@ -236,17 +238,30 @@ export default {
   },
 
   mounted() {
-    this.loadCashFlow();
+    // Only load once when component first mounts
+    if (!this.hasLoaded && !this.isLoading) {
+      this.loadCashFlow();
+    }
   },
 
   methods: {
     ...mapActions('estate', ['fetchCashFlow']),
 
     async loadCashFlow() {
+      // Prevent multiple simultaneous loads
+      if (this.isLoading) {
+        return;
+      }
+
+      this.isLoading = true;
+
       try {
         await this.fetchCashFlow(this.selectedTaxYear);
+        this.hasLoaded = true;
       } catch (error) {
         console.error('Failed to load cash flow:', error);
+      } finally {
+        this.isLoading = false;
       }
     },
 

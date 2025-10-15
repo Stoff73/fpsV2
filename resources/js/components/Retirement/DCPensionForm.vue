@@ -16,6 +16,28 @@
       <!-- Form -->
       <form @submit.prevent="handleSubmit" class="p-6">
         <div class="space-y-6">
+          <!-- Scheme Type -->
+          <div>
+            <label for="scheme_type" class="block text-sm font-medium text-gray-700 mb-2">
+              Pension Type <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="scheme_type"
+              v-model="formData.scheme_type"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              @change="handleSchemeTypeChange"
+            >
+              <option value="">Select pension type...</option>
+              <option value="workplace">Workplace Pension</option>
+              <option value="sipp">SIPP (Self-Invested Personal Pension)</option>
+              <option value="personal">Personal Pension</option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">
+              Workplace: employer scheme with % contributions. SIPP/Personal: fixed £ contributions
+            </p>
+          </div>
+
           <!-- Scheme Name -->
           <div>
             <label for="scheme_name" class="block text-sm font-medium text-gray-700 mb-2">
@@ -76,8 +98,26 @@
             />
           </div>
 
-          <!-- Contributions -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Workplace Pension: Annual Salary -->
+          <div v-if="isWorkplacePension">
+            <label for="annual_salary" class="block text-sm font-medium text-gray-700 mb-2">
+              Annual Salary (£) <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="annual_salary"
+              v-model.number="formData.annual_salary"
+              type="number"
+              step="0.01"
+              min="0"
+              :required="isWorkplacePension"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="e.g., 50000.00"
+            />
+            <p class="text-xs text-gray-500 mt-1">Required to calculate percentage contributions</p>
+          </div>
+
+          <!-- Workplace Pension: Percentage Contributions -->
+          <div v-if="isWorkplacePension" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="employee_contribution_percent" class="block text-sm font-medium text-gray-700 mb-2">
                 Employee Contribution (%)
@@ -88,10 +128,18 @@
                 type="number"
                 step="0.01"
                 min="0"
-                max="100"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                :class="{ 'border-red-500': validationErrors.employee_contribution_percent }"
                 placeholder="e.g., 5.00"
+                @blur="validateEmployeeContribution"
               />
+              <p v-if="validationErrors.employee_contribution_percent" class="text-xs text-red-500 mt-1">
+                {{ validationErrors.employee_contribution_percent }}
+              </p>
+              <p v-else-if="calculatedEmployeeContribution" class="text-xs text-gray-500 mt-1">
+                = £{{ calculatedEmployeeContribution.toLocaleString() }}/month
+              </p>
+              <p v-else class="text-xs text-gray-500 mt-1">Enter as percentage of salary (0-100)</p>
             </div>
             <div>
               <label for="employer_contribution_percent" class="block text-sm font-medium text-gray-700 mb-2">
@@ -103,11 +151,36 @@
                 type="number"
                 step="0.01"
                 min="0"
-                max="100"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                :class="{ 'border-red-500': validationErrors.employer_contribution_percent }"
                 placeholder="e.g., 3.00"
+                @blur="validateEmployerContribution"
               />
+              <p v-if="validationErrors.employer_contribution_percent" class="text-xs text-red-500 mt-1">
+                {{ validationErrors.employer_contribution_percent }}
+              </p>
+              <p v-else-if="calculatedEmployerContribution" class="text-xs text-gray-500 mt-1">
+                = £{{ calculatedEmployerContribution.toLocaleString() }}/month
+              </p>
+              <p v-else class="text-xs text-gray-500 mt-1">Enter as percentage of salary (0-100)</p>
             </div>
+          </div>
+
+          <!-- Personal/SIPP: Fixed Monthly Contribution -->
+          <div v-if="isPersonalPension">
+            <label for="monthly_contribution_amount" class="block text-sm font-medium text-gray-700 mb-2">
+              Monthly Contribution (£)
+            </label>
+            <input
+              id="monthly_contribution_amount"
+              v-model.number="formData.monthly_contribution_amount"
+              type="number"
+              step="0.01"
+              min="0"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="e.g., 500.00"
+            />
+            <p class="text-xs text-gray-500 mt-1">Fixed monthly contribution amount</p>
           </div>
 
           <!-- Expected Return and Retirement Age -->
@@ -211,18 +284,49 @@ export default {
   data() {
     return {
       formData: {
+        scheme_type: '',
         scheme_name: '',
         provider: '',
         policy_number: '',
         current_fund_value: null,
+        annual_salary: null,
         employee_contribution_percent: null,
         employer_contribution_percent: null,
+        monthly_contribution_amount: null,
         expected_return_percent: 5.0,
         retirement_age: 67,
         salary_sacrifice: false,
         notes: '',
       },
+      validationErrors: {
+        employee_contribution_percent: '',
+        employer_contribution_percent: '',
+      },
     };
+  },
+
+  computed: {
+    isWorkplacePension() {
+      return this.formData.scheme_type === 'workplace';
+    },
+
+    isPersonalPension() {
+      return this.formData.scheme_type === 'sipp' || this.formData.scheme_type === 'personal';
+    },
+
+    calculatedEmployeeContribution() {
+      if (!this.isWorkplacePension || !this.formData.annual_salary || !this.formData.employee_contribution_percent) {
+        return null;
+      }
+      return Math.round((this.formData.annual_salary * this.formData.employee_contribution_percent / 100) / 12);
+    },
+
+    calculatedEmployerContribution() {
+      if (!this.isWorkplacePension || !this.formData.annual_salary || !this.formData.employer_contribution_percent) {
+        return null;
+      }
+      return Math.round((this.formData.annual_salary * this.formData.employer_contribution_percent / 100) / 12);
+    },
   },
 
   mounted() {
@@ -232,15 +336,78 @@ export default {
   },
 
   methods: {
+    handleSchemeTypeChange() {
+      // Clear fields that don't apply to the selected pension type
+      if (this.isWorkplacePension) {
+        this.formData.monthly_contribution_amount = null;
+      } else {
+        this.formData.annual_salary = null;
+        this.formData.employee_contribution_percent = null;
+        this.formData.employer_contribution_percent = null;
+      }
+    },
+
+    validateEmployeeContribution() {
+      this.validationErrors.employee_contribution_percent = '';
+      const value = this.formData.employee_contribution_percent;
+
+      if (value !== null && value !== '') {
+        if (value < 0) {
+          this.validationErrors.employee_contribution_percent = 'Cannot be negative';
+        } else if (value > 100) {
+          this.validationErrors.employee_contribution_percent = 'Cannot exceed 100%';
+        }
+      }
+    },
+
+    validateEmployerContribution() {
+      this.validationErrors.employer_contribution_percent = '';
+      const value = this.formData.employer_contribution_percent;
+
+      if (value !== null && value !== '') {
+        if (value < 0) {
+          this.validationErrors.employer_contribution_percent = 'Cannot be negative';
+        } else if (value > 100) {
+          this.validationErrors.employer_contribution_percent = 'Cannot exceed 100%';
+        }
+      }
+    },
+
     handleSubmit() {
+      // Validate contributions before submitting
+      if (this.isWorkplacePension) {
+        this.validateEmployeeContribution();
+        this.validateEmployerContribution();
+
+        // Check if there are any validation errors
+        if (this.validationErrors.employee_contribution_percent || this.validationErrors.employer_contribution_percent) {
+          return;
+        }
+      }
+
       // Basic validation
+      if (!this.formData.scheme_type) {
+        alert('Please select a pension type');
+        return;
+      }
+
       if (!this.formData.scheme_name) {
         alert('Please enter a scheme name');
         return;
       }
 
+      if (!this.formData.provider) {
+        alert('Please enter a provider name');
+        return;
+      }
+
       if (!this.formData.current_fund_value || this.formData.current_fund_value < 0) {
         alert('Please enter a valid current fund value');
+        return;
+      }
+
+      if (this.isWorkplacePension && (!this.formData.annual_salary || this.formData.annual_salary <= 0)) {
+        alert('Please enter your annual salary for workplace pension');
         return;
       }
 

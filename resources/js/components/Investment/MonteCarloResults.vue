@@ -61,6 +61,7 @@
             <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
               <h4 class="text-lg font-semibold text-gray-900 mb-4">Portfolio Value Projections</h4>
               <apexchart
+                v-if="series && series.length > 0"
                 type="area"
                 :options="chartOptions"
                 :series="series"

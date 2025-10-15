@@ -14,6 +14,19 @@
     <div class="bg-white rounded-lg shadow p-6 mb-8">
       <h3 class="text-lg font-semibold text-gray-900 mb-6">Current Tax Year Contributions</h3>
 
+      <!-- Warning if using estimated salary -->
+      <div v-if="!profile?.current_income && dcPensions.length > 0" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex items-start">
+        <svg class="w-5 h-5 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <div>
+          <p class="text-sm font-bold text-amber-900">Estimated Contributions</p>
+          <p class="text-sm text-amber-800 mt-1">
+            Contribution amounts are estimated using a default salary of £50,000. For accurate calculations, please add your actual salary information.
+          </p>
+        </div>
+      </div>
+
       <div class="space-y-6">
         <!-- DC Pensions Contributions -->
         <div>
@@ -27,8 +40,16 @@
               <div>
                 <p class="font-medium text-gray-900">{{ pension.scheme_name }}</p>
                 <p class="text-sm text-gray-500">
-                  Employee: {{ parseFloat(pension.employee_contribution_percent || 0) }}% +
-                  Employer: {{ parseFloat(pension.employer_contribution_percent || 0) }}%
+                  <span v-if="pension.scheme_type === 'workplace'">
+                    Employee: {{ parseFloat(pension.employee_contribution_percent || 0) }}% +
+                    Employer: {{ parseFloat(pension.employer_contribution_percent || 0) }}%
+                  </span>
+                  <span v-else-if="pension.scheme_type === 'personal'">
+                    Personal Pension: £{{ parseFloat(pension.monthly_contribution_amount || 0).toLocaleString() }}/month
+                  </span>
+                  <span v-else-if="pension.scheme_type === 'sipp'">
+                    SIPP: £{{ parseFloat(pension.monthly_contribution_amount || 0).toLocaleString() }}/month
+                  </span>
                 </p>
               </div>
               <div class="text-right">
@@ -201,16 +222,20 @@ export default {
 
   methods: {
     calculateAnnualContribution(pension) {
-      // This is a simplified calculation
-      // In reality, you'd need the user's salary to calculate the actual contribution amount
-      // For now, we'll estimate based on fund value growth or return 0
+      // For personal/SIPP pensions, use the monthly contribution amount
+      if (pension.scheme_type === 'personal' || pension.scheme_type === 'sipp') {
+        const monthlyAmount = parseFloat(pension.monthly_contribution_amount || 0);
+        return monthlyAmount * 12; // Convert monthly to annual
+      }
+
+      // For workplace pensions, calculate based on percentage of salary
       const employeePercent = parseFloat(pension.employee_contribution_percent || 0);
       const employerPercent = parseFloat(pension.employer_contribution_percent || 0);
       const totalPercent = employeePercent + employerPercent;
 
-      // Estimate based on a typical salary (this would ideally come from user profile)
-      const estimatedSalary = this.profile?.current_income || 50000;
-      return (estimatedSalary * totalPercent) / 100;
+      // Use annual_salary if available, otherwise use profile income, otherwise estimate
+      const salary = parseFloat(pension.annual_salary || this.profile?.current_income || 50000);
+      return (salary * totalPercent) / 100;
     },
   },
 };

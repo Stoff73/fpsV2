@@ -199,4 +199,93 @@ class IHTCalculator
             'gifts' => $giftDetails,
         ];
     }
+
+    /**
+     * Calculate CLT (Chargeable Lifetime Transfer) liability
+     * CLTs require 14-year lookback for cumulative calculation
+     *
+     * @param Collection $gifts All gifts (includes CLTs to trusts, etc.)
+     * @return array CLT calculation details
+     */
+    public function calculateCLTLiability(Collection $gifts): array
+    {
+        $config = config('uk_tax_config.inheritance_tax');
+        $nrb = $config['nil_rate_band'];
+        $ihtRate = $config['rate'];
+
+        // Filter CLT gifts within 14 years (lookback period for cumulation)
+        $cltGifts = $gifts->filter(function ($gift) {
+            $yearsAgo = Carbon::now()->diffInYears($gift->gift_date);
+            return $yearsAgo < 14 && $gift->gift_type === 'clt';
+        })->sortBy('gift_date');
+
+        $totalCLTValue = $cltGifts->sum('gift_value');
+        $totalLiability = 0;
+        $cumulativeTotal = 0;
+
+        $cltDetails = [];
+
+        foreach ($cltGifts as $gift) {
+            // Add to cumulative total (14-year lookback)
+            $cumulativeTotal += $gift->gift_value;
+
+            // Calculate taxable amount (amount over NRB)
+            // CLTs use lifetime rate (20%) when made, or 40% on death within 7 years
+            $taxableAmount = max(0, $cumulativeTotal - $nrb);
+
+            if ($taxableAmount > 0) {
+                $yearsAgo = Carbon::now()->diffInYears($gift->gift_date);
+
+                // Lifetime CLT rate is 20% (half the death rate)
+                $lifetimeRate = 0.20;
+
+                // If donor dies within 7 years, additional tax may be due
+                // (difference between 40% death rate and 20% lifetime rate already paid)
+                $giftTax = $gift->gift_value * $lifetimeRate;
+
+                $totalLiability += $giftTax;
+
+                $cltDetails[] = [
+                    'gift_id' => $gift->id,
+                    'gift_date' => $gift->gift_date->format('Y-m-d'),
+                    'recipient' => $gift->recipient,
+                    'gift_value' => $gift->gift_value,
+                    'years_ago' => $yearsAgo,
+                    'cumulative_total' => round($cumulativeTotal, 2),
+                    'tax_liability' => round($giftTax, 2),
+                    'lifetime_rate_applied' => $lifetimeRate,
+                ];
+            }
+        }
+
+        return [
+            'total_clt_value' => round($totalCLTValue, 2),
+            'total_clt_liability' => round($totalLiability, 2),
+            'clt_count' => $cltGifts->count(),
+            'clts' => $cltDetails,
+            'lookback_period' => '14 years',
+            'note' => 'CLTs are cumulated over a 14-year period. Lifetime rate is 20%. If donor dies within 7 years, additional tax may be due.',
+        ];
+    }
+
+    /**
+     * Calculate total gifting liability (PETs + CLTs)
+     *
+     * @param Collection $gifts All gifts
+     * @return array Complete gifting liability breakdown
+     */
+    public function calculateGiftingLiability(Collection $gifts): array
+    {
+        $petLiability = $this->calculatePETLiability($gifts);
+        $cltLiability = $this->calculateCLTLiability($gifts);
+
+        return [
+            'pet_liability' => $petLiability,
+            'clt_liability' => $cltLiability,
+            'total_gifting_liability' => round(
+                $petLiability['total_pet_liability'] + $cltLiability['total_clt_liability'],
+                2
+            ),
+        ];
+    }
 }

@@ -110,6 +110,26 @@
         </small>
       </div>
 
+      <!-- Valuation Date -->
+      <div class="form-group">
+        <label for="valuation_date" class="required">Valuation Date</label>
+        <input
+          id="valuation_date"
+          v-model="formData.valuation_date"
+          type="date"
+          class="form-control"
+          :class="{ 'is-invalid': errors.valuation_date }"
+          :max="todayDate"
+          required
+        />
+        <span v-if="errors.valuation_date" class="error-message">
+          {{ errors.valuation_date }}
+        </span>
+        <small class="form-text">
+          Date when this asset was last valued
+        </small>
+      </div>
+
       <!-- IHT Exemption Status -->
       <div class="form-group">
         <div class="checkbox-group">
@@ -219,7 +239,7 @@ export default {
     },
   },
 
-  emits: ['submit', 'cancel'],
+  emits: ['save', 'cancel'],
 
   data() {
     return {
@@ -230,6 +250,7 @@ export default {
         ownership_type: '',
         beneficiary_designation: '',
         is_iht_exempt: false,
+        valuation_date: new Date().toISOString().split('T')[0], // Default to today
         // Property-specific
         property_address: '',
         mortgage_outstanding: null,
@@ -245,6 +266,10 @@ export default {
   computed: {
     isEditMode() {
       return this.mode === 'edit' && this.asset !== null;
+    },
+
+    todayDate() {
+      return new Date().toISOString().split('T')[0];
     },
 
     assetNamePlaceholder() {
@@ -302,6 +327,7 @@ export default {
         ownership_type: asset.ownership_type || '',
         beneficiary_designation: asset.beneficiary_designation || '',
         is_iht_exempt: asset.is_iht_exempt || false,
+        valuation_date: asset.valuation_date || new Date().toISOString().split('T')[0],
         property_address: asset.property_address || '',
         mortgage_outstanding: asset.mortgage_outstanding || null,
         is_main_residence: asset.is_main_residence || false,
@@ -362,7 +388,7 @@ export default {
           id: this.isEditMode ? this.asset.id : undefined,
         };
 
-        this.$emit('submit', payload);
+        this.$emit('save', payload);
 
         // Reset form if creating new asset
         if (!this.isEditMode) {
@@ -389,6 +415,7 @@ export default {
         ownership_type: '',
         beneficiary_designation: '',
         is_iht_exempt: false,
+        valuation_date: new Date().toISOString().split('T')[0],
         property_address: '',
         mortgage_outstanding: null,
         is_main_residence: false,

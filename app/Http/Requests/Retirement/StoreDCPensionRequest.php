@@ -35,12 +35,13 @@ class StoreDCPensionRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'scheme_name' => ['required', 'string', 'max:255'],
             'scheme_type' => ['required', 'in:workplace,sipp,personal'],
             'provider' => ['required', 'string', 'max:255'],
             'member_number' => ['nullable', 'string', 'max:255'],
             'current_fund_value' => ['required', 'numeric', 'min:0'],
+            'annual_salary' => ['nullable', 'numeric', 'min:0'],
             'employee_contribution_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'employer_contribution_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'monthly_contribution_amount' => ['nullable', 'numeric', 'min:0'],
@@ -49,6 +50,15 @@ class StoreDCPensionRequest extends FormRequest
             'retirement_age' => ['nullable', 'integer', 'min:55', 'max:75'],
             'projected_value_at_retirement' => ['nullable', 'numeric', 'min:0'],
         ];
+
+        // For workplace pensions, require annual_salary if percentage contributions are provided
+        if ($this->input('scheme_type') === 'workplace') {
+            if ($this->filled('employee_contribution_percent') || $this->filled('employer_contribution_percent')) {
+                $rules['annual_salary'][] = 'required';
+            }
+        }
+
+        return $rules;
     }
 
     /**
@@ -62,6 +72,7 @@ class StoreDCPensionRequest extends FormRequest
             'scheme_type.in' => 'Invalid scheme type. Must be workplace, SIPP, or personal.',
             'provider.required' => 'Please provide the pension provider name.',
             'current_fund_value.required' => 'Please enter the current fund value.',
+            'annual_salary.required' => 'Annual salary is required for workplace pensions with percentage contributions.',
             'retirement_age.min' => 'Minimum retirement age is 55.',
             'retirement_age.max' => 'Maximum retirement age is 75.',
         ];

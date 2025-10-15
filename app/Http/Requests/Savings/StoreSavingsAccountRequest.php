@@ -20,7 +20,7 @@ class StoreSavingsAccountRequest extends FormRequest
             'institution' => 'required|string|max:255',
             'account_number' => 'nullable|string|max:255',
             'current_balance' => 'required|numeric|min:0',
-            'interest_rate' => 'required|numeric|min:0|max:1',
+            'interest_rate' => 'required|numeric|min:0|max:20',
             'access_type' => 'required|in:immediate,notice,fixed',
             'notice_period_days' => 'nullable|integer|min:0',
             'maturity_date' => 'nullable|date|after:today',
@@ -34,7 +34,7 @@ class StoreSavingsAccountRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'interest_rate.max' => 'Interest rate must be expressed as a decimal (e.g., 0.05 for 5%)',
+            'interest_rate.max' => 'Interest rate cannot exceed 20% (please enter realistic values)',
             'isa_type.required_if' => 'ISA type is required when account is an ISA',
             'isa_subscription_year.required_if' => 'ISA subscription year is required when account is an ISA',
             'isa_subscription_amount.required_if' => 'ISA subscription amount is required when account is an ISA',

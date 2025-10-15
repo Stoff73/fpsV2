@@ -15,7 +15,7 @@
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
-    <div v-else-if="hasData" class="chart-container">
+    <div v-else-if="hasData && !loading && chartReady" class="chart-container">
       <apexchart
         type="bar"
         :options="chartOptions"
@@ -60,6 +60,12 @@ export default {
       type: Boolean,
       default: false,
     },
+  },
+
+  data() {
+    return {
+      chartReady: false,
+    };
   },
 
   computed: {
@@ -228,6 +234,15 @@ export default {
         maximumFractionDigits: 0,
       }).format(value || 0);
     },
+  },
+
+  mounted() {
+    this.$nextTick(() => {
+      // Delay chart rendering to ensure DOM is ready
+      setTimeout(() => {
+        this.chartReady = true;
+      }, 100);
+    });
   },
 };
 </script>

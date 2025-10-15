@@ -111,6 +111,8 @@
                 <option value="uk_equity">UK Equity</option>
                 <option value="us_equity">US Equity</option>
                 <option value="international_equity">International Equity</option>
+                <option value="fund">Fund</option>
+                <option value="etf">ETF</option>
                 <option value="bond">Bond</option>
                 <option value="cash">Cash</option>
                 <option value="alternative">Alternative</option>
@@ -340,7 +342,14 @@ export default {
           return;
         }
 
-        this.$emit('submit', { ...this.formData });
+        // Calculate current_value and cost_basis before submitting
+        const holdingData = {
+          ...this.formData,
+          current_value: this.formData.quantity * this.formData.current_price,
+          cost_basis: this.formData.quantity * this.formData.purchase_price
+        };
+
+        this.$emit('save', holdingData);
         this.closeModal();
       } catch (error) {
         console.error('Form submission error:', error);

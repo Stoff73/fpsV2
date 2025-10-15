@@ -45,17 +45,26 @@ export default {
 
   computed: {
     series() {
-      return [
-        this.premiums.life || 0,
-        this.premiums.criticalIllness || 0,
-        this.premiums.incomeProtection || 0,
-        this.premiums.disability || 0,
-        this.premiums.sicknessIllness || 0,
+      // Ensure premiums object exists and has valid structure
+      const validPremiums = this.premiums && typeof this.premiums === 'object' ? this.premiums : {};
+
+      // Extract values with proper validation
+      const values = [
+        this.validatePremiumValue(validPremiums.life),
+        this.validatePremiumValue(validPremiums.criticalIllness),
+        this.validatePremiumValue(validPremiums.incomeProtection),
+        this.validatePremiumValue(validPremiums.disability),
+        this.validatePremiumValue(validPremiums.sicknessIllness),
       ];
+
+      return values;
     },
 
     hasData() {
-      return this.series.some(value => value > 0);
+      // Check if series exists and has at least one valid positive value
+      return Array.isArray(this.series) && this.series.some(value =>
+        typeof value === 'number' && !isNaN(value) && value > 0
+      );
     },
 
     chartOptions() {
@@ -75,8 +84,16 @@ export default {
         dataLabels: {
           enabled: true,
           formatter: (val, opts) => {
-            const value = opts.w.config.series[opts.seriesIndex];
-            return `£${value.toFixed(2)}`;
+            try {
+              const value = opts.w.config.series[opts.seriesIndex];
+              if (typeof value !== 'number' || isNaN(value)) {
+                return '£0.00';
+              }
+              return `£${value.toFixed(2)}`;
+            } catch (error) {
+              console.error('Error formatting data label:', error);
+              return '£0.00';
+            }
           },
         },
         legend: {
@@ -119,6 +136,25 @@ export default {
           },
         ],
       };
+    },
+  },
+
+  methods: {
+    validatePremiumValue(value) {
+      // Validate and sanitize premium values
+      if (value === null || value === undefined) {
+        return 0;
+      }
+
+      const numValue = Number(value);
+
+      if (isNaN(numValue) || !isFinite(numValue)) {
+        console.warn('Invalid premium value:', value);
+        return 0;
+      }
+
+      // Ensure non-negative
+      return Math.max(0, numValue);
     },
   },
 };

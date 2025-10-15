@@ -43,7 +43,20 @@ class ProtectionController extends Controller
     {
         $user = $request->user();
 
+        // Auto-create protection profile if it doesn't exist
         $profile = $user->protectionProfile;
+        if (!$profile) {
+            $profile = ProtectionProfile::create([
+                'user_id' => $user->id,
+                'annual_income' => 0,
+                'monthly_expenditure' => 0,
+                'mortgage_balance' => 0,
+                'other_debts' => 0,
+                'number_of_dependents' => 0,
+                'retirement_age' => 67,
+            ]);
+        }
+
         $lifePolicies = $user->lifeInsurancePolicies;
         $criticalIllnessPolicies = $user->criticalIllnessPolicies;
         $incomeProtectionPolicies = $user->incomeProtectionPolicies;

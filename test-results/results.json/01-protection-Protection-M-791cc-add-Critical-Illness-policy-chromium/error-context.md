@@ -1,0 +1,52 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - heading "FPS" [level=1] [ref=e6]
+    - heading "Create your account" [level=2] [ref=e7]
+    - paragraph [ref=e8]:
+      - text: Or
+      - link "sign in to existing account" [ref=e9] [cursor=pointer]:
+        - /url: /login
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: Full Name
+        - textbox "Full Name" [ref=e14]:
+          - /placeholder: John Smith
+      - generic [ref=e15]:
+        - generic [ref=e16]: Email address
+        - textbox "Email address" [ref=e17]:
+          - /placeholder: you@example.com
+      - generic [ref=e18]:
+        - generic [ref=e19]: Password
+        - textbox "Password" [ref=e20]:
+          - /placeholder: ••••••••
+      - generic [ref=e21]:
+        - generic [ref=e22]: Confirm Password
+        - textbox "Confirm Password" [ref=e23]:
+          - /placeholder: ••••••••
+      - generic [ref=e24]:
+        - generic [ref=e25]: Date of Birth
+        - textbox "Date of Birth" [ref=e26]
+      - generic [ref=e27]:
+        - generic [ref=e28]: Gender
+        - combobox "Gender" [ref=e29]:
+          - option "Select gender" [selected]
+          - option "Male"
+          - option "Female"
+          - option "Other"
+          - option "Prefer not to say"
+      - generic [ref=e30]:
+        - generic [ref=e31]: Marital Status
+        - combobox "Marital Status" [ref=e32]:
+          - option "Select marital status" [selected]
+          - option "Single"
+          - option "Married"
+          - option "Civil Partnership"
+          - option "Divorced"
+          - option "Widowed"
+    - button "Create Account" [ref=e34] [cursor=pointer]
+    - paragraph [ref=e35]: By creating an account, you agree to our Terms of Service and Privacy Policy
+```

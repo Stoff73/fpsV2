@@ -1,5 +1,33 @@
 <template>
   <div class="assets-liabilities-tab">
+    <!-- Success Message -->
+    <div v-if="successMessage" class="mb-6 bg-green-50 border-l-4 border-green-500 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-green-700">{{ successMessage }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div v-if="errorMessage" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">{{ errorMessage }}</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-green-50 rounded-lg p-6">
@@ -187,30 +215,27 @@
       </div>
     </div>
 
-    <!-- Modals (placeholders) -->
-    <div v-if="showAssetForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 max-w-md w-full">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Add Asset</h3>
-        <p class="text-sm text-gray-600 mb-4">Asset form will be implemented here</p>
-        <button
-          @click="showAssetForm = false"
-          class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-        >
-          Close
-        </button>
+    <!-- Asset Form Modal -->
+    <div v-if="showAssetForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden">
+        <AssetForm
+          :asset="editingAsset"
+          :mode="editingAsset ? 'edit' : 'create'"
+          @save="handleAssetSave"
+          @cancel="closeAssetForm"
+        />
       </div>
     </div>
 
-    <div v-if="showLiabilityForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 max-w-md w-full">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Add Liability</h3>
-        <p class="text-sm text-gray-600 mb-4">Liability form will be implemented here</p>
-        <button
-          @click="showLiabilityForm = false"
-          class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-        >
-          Close
-        </button>
+    <!-- Liability Form Modal -->
+    <div v-if="showLiabilityForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden">
+        <LiabilityForm
+          :liability="editingLiability"
+          :mode="editingLiability ? 'edit' : 'create'"
+          @save="handleLiabilitySave"
+          @cancel="closeLiabilityForm"
+        />
       </div>
     </div>
   </div>
@@ -218,14 +243,25 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
+import AssetForm from './AssetForm.vue';
+import LiabilityForm from './LiabilityForm.vue';
 
 export default {
   name: 'AssetsLiabilities',
+
+  components: {
+    AssetForm,
+    LiabilityForm,
+  },
 
   data() {
     return {
       showAssetForm: false,
       showLiabilityForm: false,
+      editingAsset: null,
+      editingLiability: null,
+      successMessage: '',
+      errorMessage: '',
     };
   },
 
@@ -247,7 +283,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('estate', ['deleteAsset', 'deleteLiability']),
+    ...mapActions('estate', ['createAsset', 'updateAsset', 'deleteAsset', 'createLiability', 'updateLiability', 'deleteLiability']),
 
     formatCurrency(value) {
       return new Intl.NumberFormat('en-GB', {
@@ -258,32 +294,122 @@ export default {
       }).format(value);
     },
 
+    // Asset methods
     editAsset(asset) {
-      // Placeholder
-      console.log('Edit asset:', asset);
+      this.editingAsset = { ...asset };
+      this.showAssetForm = true;
+    },
+
+    async handleAssetSave(assetData) {
+      try {
+        if (assetData.id) {
+          // Update existing asset
+          await this.updateAsset({ id: assetData.id, assetData });
+          this.successMessage = 'Asset updated successfully';
+        } else {
+          // Create new asset
+          await this.createAsset(assetData);
+          this.successMessage = 'Asset created successfully';
+        }
+
+        this.closeAssetForm();
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+      } catch (error) {
+        this.errorMessage = error.message || 'Failed to save asset';
+        console.error('Failed to save asset:', error);
+
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 5000);
+      }
+    },
+
+    closeAssetForm() {
+      this.showAssetForm = false;
+      this.editingAsset = null;
     },
 
     async deleteAssetConfirm(id) {
       if (confirm('Are you sure you want to delete this asset?')) {
         try {
           await this.deleteAsset(id);
+          this.successMessage = 'Asset deleted successfully';
+
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 3000);
         } catch (error) {
+          this.errorMessage = error.message || 'Failed to delete asset';
           console.error('Failed to delete asset:', error);
+
+          setTimeout(() => {
+            this.errorMessage = '';
+          }, 5000);
         }
       }
     },
 
+    // Liability methods
     editLiability(liability) {
-      // Placeholder
-      console.log('Edit liability:', liability);
+      this.editingLiability = { ...liability };
+      this.showLiabilityForm = true;
+    },
+
+    async handleLiabilitySave(liabilityData) {
+      try {
+        if (liabilityData.id) {
+          // Update existing liability
+          await this.updateLiability({ id: liabilityData.id, liabilityData });
+          this.successMessage = 'Liability updated successfully';
+        } else {
+          // Create new liability
+          await this.createLiability(liabilityData);
+          this.successMessage = 'Liability created successfully';
+        }
+
+        this.closeLiabilityForm();
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+      } catch (error) {
+        this.errorMessage = error.message || 'Failed to save liability';
+        console.error('Failed to save liability:', error);
+
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 5000);
+      }
+    },
+
+    closeLiabilityForm() {
+      this.showLiabilityForm = false;
+      this.editingLiability = null;
     },
 
     async deleteLiabilityConfirm(id) {
       if (confirm('Are you sure you want to delete this liability?')) {
         try {
           await this.deleteLiability(id);
+          this.successMessage = 'Liability deleted successfully';
+
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 3000);
         } catch (error) {
+          this.errorMessage = error.message || 'Failed to delete liability';
           console.error('Failed to delete liability:', error);
+
+          setTimeout(() => {
+            this.errorMessage = '';
+          }, 5000);
         }
       }
     },

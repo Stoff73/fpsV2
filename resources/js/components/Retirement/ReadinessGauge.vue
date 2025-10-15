@@ -1,6 +1,8 @@
 <template>
   <div class="readiness-gauge">
     <apexchart
+      v-if="mounted"
+      ref="readinessChart"
       type="radialBar"
       :options="chartOptions"
       :series="series"
@@ -19,6 +21,19 @@ export default {
       required: true,
       validator: (value) => value >= 0 && value <= 100,
     },
+  },
+
+  data() {
+    return {
+      mounted: false,
+    };
+  },
+
+  mounted() {
+    // Ensure DOM is ready before rendering chart
+    this.$nextTick(() => {
+      this.mounted = true;
+    });
   },
 
   computed: {

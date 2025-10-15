@@ -56,6 +56,8 @@ api.interceptors.response.use(
         return Promise.reject({
           message: error.response.data.message || 'Validation failed',
           errors: error.response.data.errors || null,
+          status: error.response.status,
+          response: error.response,
         });
       }
 
@@ -63,6 +65,8 @@ api.interceptors.response.use(
       return Promise.reject({
         message: error.response.data.message || 'An error occurred',
         errors: error.response.data.errors || null,
+        status: error.response.status,
+        response: error.response,
       });
     }
 
@@ -70,6 +74,8 @@ api.interceptors.response.use(
     return Promise.reject({
       message: 'Network error. Please check your connection.',
       errors: null,
+      status: null,
+      response: null,
     });
   }
 );

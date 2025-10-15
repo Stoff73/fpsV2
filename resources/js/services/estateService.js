@@ -68,7 +68,9 @@ const estateService = {
      * @returns {Promise} Cash flow statement
      */
     async getCashFlow(taxYear) {
-        const response = await api.get(`/estate/cash-flow/${taxYear}`);
+        const response = await api.get('/estate/cash-flow', {
+            params: { taxYear }
+        });
         return response.data;
     },
 

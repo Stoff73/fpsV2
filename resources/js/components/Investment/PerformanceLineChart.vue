@@ -26,8 +26,9 @@
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
-    <div v-else-if="hasData" class="chart-container">
+    <div v-else-if="hasData && !loading" class="chart-container">
       <apexchart
+        v-if="hasData"
         type="line"
         :options="chartOptions"
         :series="series"

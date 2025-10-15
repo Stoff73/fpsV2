@@ -26,6 +26,7 @@ class DCPension extends Model
         'provider',
         'member_number',
         'current_fund_value',
+        'annual_salary',
         'employee_contribution_percent',
         'employer_contribution_percent',
         'monthly_contribution_amount',
@@ -37,6 +38,7 @@ class DCPension extends Model
 
     protected $casts = [
         'current_fund_value' => 'decimal:2',
+        'annual_salary' => 'decimal:2',
         'employee_contribution_percent' => 'decimal:2',
         'employer_contribution_percent' => 'decimal:2',
         'monthly_contribution_amount' => 'decimal:2',

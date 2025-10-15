@@ -165,6 +165,22 @@
               />
             </div>
 
+            <!-- Calculated End Date (for Life and Critical Illness) -->
+            <div v-if="showTermYears && calculatedEndDate">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Policy End Date (Calculated)
+              </label>
+              <input
+                :value="calculatedEndDate"
+                type="text"
+                readonly
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+              />
+              <p class="text-xs text-gray-500 mt-1">
+                Automatically calculated from start date + term years
+              </p>
+            </div>
+
             <!-- Benefit Frequency (for Income-based policies) -->
             <div v-if="showBenefitFrequency">
               <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -328,6 +344,31 @@ export default {
       const type = this.formData.policyType || this.policy?.policy_type;
       return type === 'disability';
     },
+
+    calculatedEndDate() {
+      if (!this.formData.start_date || !this.formData.term_years) {
+        return null;
+      }
+
+      try {
+        const startDate = new Date(this.formData.start_date);
+        if (isNaN(startDate.getTime())) {
+          return null;
+        }
+
+        const endDate = new Date(startDate);
+        endDate.setFullYear(endDate.getFullYear() + this.formData.term_years);
+
+        // Format as readable date
+        return endDate.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        });
+      } catch (error) {
+        return null;
+      }
+    },
   },
 
   mounted() {
@@ -379,13 +420,19 @@ export default {
       };
 
       // Add coverage amount with correct field name
-      if (type === 'life' || type === 'criticalIllness') {
+      if (type === 'life') {
         data.policy_type = 'term'; // Default to term life insurance
         data.sum_assured = this.formData.coverage_amount;
         data.policy_term_years = this.formData.term_years || 20; // Default to 20 years if not provided
         data.policy_start_date = this.formData.start_date || new Date().toISOString().split('T')[0];
         data.in_trust = false; // Default to false
         data.beneficiaries = this.formData.notes || null;
+      } else if (type === 'criticalIllness') {
+        data.policy_type = 'standalone'; // Default to standalone critical illness
+        data.sum_assured = this.formData.coverage_amount;
+        data.policy_term_years = this.formData.term_years || 20; // Default to 20 years if not provided
+        data.policy_start_date = this.formData.start_date || new Date().toISOString().split('T')[0];
+        data.conditions_covered = []; // Empty array for conditions covered
       } else {
         data.benefit_amount = this.formData.coverage_amount;
         data.benefit_frequency = this.formData.benefit_frequency;

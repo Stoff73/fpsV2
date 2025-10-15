@@ -72,7 +72,7 @@
     <AccountForm
       :show="showModal"
       :account="selectedAccount"
-      @submit="handleSubmit"
+      @save="handleSubmit"
       @close="closeModal"
     />
 
@@ -199,6 +199,9 @@ export default {
           await this.createAccount(formData);
           this.successMessage = 'Account added successfully';
         }
+
+        // Close modal on success
+        this.closeModal();
 
         // Refresh data and analysis
         await this.fetchInvestmentData();

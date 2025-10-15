@@ -19,7 +19,11 @@
     <!-- Net Worth Waterfall Chart -->
     <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Net Worth Breakdown</h3>
-      <NetWorthWaterfallChart :assets="assets" :liabilities="liabilities" />
+      <!-- Chart temporarily disabled to fix navigation issues -->
+      <div class="text-center py-8 text-gray-500">
+        Chart visualization coming soon
+      </div>
+      <!-- <NetWorthWaterfallChart :assets="assets" :liabilities="liabilities" /> -->
     </div>
 
     <!-- Asset Composition -->

@@ -86,6 +86,64 @@ Application Layer (Laravel Controllers + Agents + Services)
 Data Layer (MySQL + Memcached)
 ```
 
+### Project Structure
+
+**Backend (Laravel):**
+```
+app/
+├── Agents/              # Business logic agents (one per module)
+├── Http/
+│   ├── Controllers/Api/ # RESTful API controllers
+│   ├── Requests/        # Form request validation classes
+│   └── Middleware/      # Custom middleware
+├── Models/              # Eloquent models (organized by module)
+│   ├── Estate/
+│   └── Investment/
+├── Services/            # Reusable service classes for calculations
+│   ├── Dashboard/
+│   ├── Estate/
+│   ├── Investment/
+│   ├── Protection/
+│   ├── Retirement/
+│   └── Savings/
+└── Jobs/                # Queue jobs (e.g., Monte Carlo simulations)
+```
+
+**Frontend (Vue.js 3):**
+```
+resources/js/
+├── components/          # Vue components (organized by module)
+│   ├── Common/          # Shared UI components
+│   ├── Dashboard/
+│   ├── Estate/
+│   ├── Investment/
+│   ├── Protection/
+│   ├── Retirement/
+│   ├── Savings/
+│   └── Shared/          # Cross-module components
+├── layouts/             # App layouts (AppLayout.vue)
+├── router/              # Vue Router configuration
+├── services/            # API service layer (axios wrappers)
+├── store/               # Vuex state management
+│   └── modules/         # Module-specific stores
+├── utils/               # Utility functions
+├── views/               # Page-level components (routed)
+│   ├── Dashboard/
+│   ├── Estate/
+│   ├── Investment/
+│   ├── Protection/
+│   ├── Retirement/
+│   └── Savings/
+├── app.js               # Main Vue app entry point
+└── bootstrap.js         # Axios configuration
+```
+
+**API Structure:**
+- All API routes are prefixed with `/api` (defined in `routes/api.php`)
+- Authentication uses Laravel Sanctum (token-based)
+- API endpoints follow RESTful conventions
+- Frontend services (e.g., `resources/js/services/investmentService.js`) wrap API calls
+
 ## Key Implementation Details
 
 ### Centralized Tax Configuration
@@ -240,40 +298,109 @@ Process flow diagrams are located in the root directory with `.md` extension:
 - **designStyleGuide.md**: Complete design system and component specifications
 - **design/*.html**: UI mockups and prototypes
 
-## Development Workflow (When Implementation Begins)
+## Development Workflow
 
-### Setup Commands (Future)
+### Initial Setup
 ```bash
 # Install dependencies
 composer install
 npm install
 
+# Environment setup
+cp .env.example .env
+php artisan key:generate
+
 # Database setup
 php artisan migrate
 php artisan db:seed --class=TaxConfigurationSeeder
-
-# Development server
-php artisan serve
-npm run dev
-
-# Queue worker (for Monte Carlo jobs)
-php artisan queue:work database
-
-# Testing
-./vendor/bin/pest
-npm run test
 ```
 
-### Build Commands (Future)
+### Development Commands
 ```bash
-# Production build
-composer install --optimize-autoloader --no-dev
-npm run build
+# Start Laravel development server (port 8000)
+php artisan serve
 
-# Cache optimization
+# Start Vite dev server with HMR (separate terminal)
+npm run dev
+
+# Queue worker for background jobs (separate terminal, if needed for Monte Carlo)
+php artisan queue:work database
+```
+
+### Testing Commands
+
+**Backend (Pest/PHPUnit):**
+```bash
+# Run all tests
+./vendor/bin/pest
+
+# Run specific test suite
+./vendor/bin/pest --testsuite=Unit
+./vendor/bin/pest --testsuite=Feature
+./vendor/bin/pest --testsuite=Architecture
+
+# Run specific test file
+./vendor/bin/pest tests/Unit/Services/Protection/AdequacyScorerTest.php
+
+# Run tests with coverage
+./vendor/bin/pest --coverage
+
+# Run tests in parallel (faster)
+./vendor/bin/pest --parallel
+```
+
+**Frontend (Vitest):**
+```bash
+# Run all frontend tests
+npm run test
+
+# Run tests in watch mode (interactive)
+npm run test
+
+# Run tests once and exit
+npm run test:run
+
+# Run tests with UI
+npm run test:ui
+```
+
+### Database Commands
+```bash
+# Run migrations
+php artisan migrate
+
+# Rollback last migration
+php artisan migrate:rollback
+
+# Fresh migration (drops all tables and re-migrates)
+php artisan migrate:fresh
+
+# Seed database
+php artisan db:seed
+php artisan db:seed --class=TaxConfigurationSeeder
+```
+
+### Cache Commands
+```bash
+# Clear all caches
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Optimize for production
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+```
+
+### Production Build
+```bash
+# Install production dependencies
+composer install --optimize-autoloader --no-dev
+
+# Build frontend assets
+npm run build
 ```
 
 ## Coding Standards
@@ -416,6 +543,67 @@ Follow [Vue.js Style Guide](https://v2.vuejs.org/v2/style-guide/) (Priority A & 
 
 - Use consistent order for component options: name → components → props → data → computed → methods → lifecycle hooks
 - Prefix base/single-instance components: `BaseButton`, `TheNavbar`
+
+**IMPORTANT: Form Modal Event Naming:**
+
+When creating form modal components, **NEVER** use `@submit` as the event name for custom events. This causes conflicts with native HTML form submit events, resulting in double submissions and validation errors.
+
+**Correct Pattern:**
+
+```vue
+<!-- In the Form Modal Component -->
+<template>
+  <form @submit.prevent="submitForm">
+    <!-- form fields -->
+  </form>
+</template>
+
+<script>
+methods: {
+  submitForm() {
+    // Validate form
+    if (!this.validateForm()) {
+      this.submitting = false;
+      return;
+    }
+
+    // Emit 'save' event (NOT 'submit')
+    this.$emit('save', formData);
+  }
+}
+</script>
+```
+
+```vue
+<!-- In the Parent Component -->
+<template>
+  <FormModal
+    @save="handleSubmit"  <!-- Use @save NOT @submit -->
+    @close="closeModal"
+  />
+</template>
+
+<script>
+methods: {
+  async handleSubmit(formData) {
+    try {
+      await this.saveData(formData);
+      this.closeModal(); // Close modal AFTER successful save
+      this.successMessage = 'Saved successfully';
+    } catch (error) {
+      this.error = error.message;
+      // Modal stays open on error
+    }
+  }
+}
+</script>
+```
+
+**Why this matters:**
+- `@submit` catches BOTH custom Vue events AND native form submit events
+- This causes double API calls: first with correct data, second with SubmitEvent object
+- Second call fails with 422 validation errors
+- Using `@save` avoids this conflict entirely
 
 **Example:**
 

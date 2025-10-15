@@ -38,7 +38,7 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center items-center py-12">
+      <div v-if="initialLoading" class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
 
@@ -146,6 +146,7 @@ export default {
   data() {
     return {
       activeTab: 'networth',
+      initialLoading: true,
       tabs: [
         { id: 'networth', label: 'Net Worth' },
         { id: 'iht', label: 'IHT Planning' },
@@ -159,7 +160,7 @@ export default {
   },
 
   computed: {
-    ...mapState('estate', ['loading', 'error']),
+    ...mapState('estate', ['error']),
   },
 
   mounted() {
@@ -174,6 +175,8 @@ export default {
         await this.fetchEstateData();
       } catch (error) {
         console.error('Failed to load estate data:', error);
+      } finally {
+        this.initialLoading = false;
       }
     },
   },

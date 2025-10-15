@@ -9,6 +9,7 @@ const state = {
     recommendations: [],
     monteCarloResults: {},      // Keyed by jobId
     monteCarloStatus: {},        // Keyed by jobId
+    monteCarloResultsByGoal: {}, // Keyed by goalId
     scenarios: null,
     loading: false,
     error: null,
@@ -17,6 +18,9 @@ const state = {
 const getters = {
     // Get accounts
     accounts: (state) => state.accounts,
+
+    // Get goals
+    goals: (state) => state.goals,
 
     // Get total portfolio value across all accounts
     totalPortfolioValue: (state) => {
@@ -484,6 +488,17 @@ const mutations = {
         state.monteCarloStatus = {
             ...state.monteCarloStatus,
             [jobId]: status
+        };
+    },
+
+    SET_MONTE_CARLO_RESULT(state, { goalId, result }) {
+        // Store Monte Carlo results keyed by goal ID
+        if (!state.monteCarloResultsByGoal) {
+            state.monteCarloResultsByGoal = {};
+        }
+        state.monteCarloResultsByGoal = {
+            ...state.monteCarloResultsByGoal,
+            [goalId]: result
         };
     },
 

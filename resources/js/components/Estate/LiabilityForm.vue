@@ -262,7 +262,7 @@ export default {
     },
   },
 
-  emits: ['submit', 'cancel'],
+  emits: ['save', 'cancel'],
 
   data() {
     return {
@@ -458,7 +458,7 @@ export default {
           id: this.isEditMode ? this.liability.id : undefined,
         };
 
-        this.$emit('submit', payload);
+        this.$emit('save', payload);
 
         // Reset form if creating new liability
         if (!this.isEditMode) {

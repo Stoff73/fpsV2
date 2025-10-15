@@ -21,6 +21,11 @@ class Liability extends Model
         'monthly_payment',
         'interest_rate',
         'maturity_date',
+        'secured_against',
+        'is_priority_debt',
+        'mortgage_type',
+        'fixed_until',
+        'notes',
     ];
 
     protected $casts = [
@@ -28,6 +33,8 @@ class Liability extends Model
         'monthly_payment' => 'float',
         'interest_rate' => 'float',
         'maturity_date' => 'date',
+        'is_priority_debt' => 'boolean',
+        'fixed_until' => 'date',
     ];
 
     /**

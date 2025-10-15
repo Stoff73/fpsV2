@@ -1,5 +1,11 @@
 import retirementService from '../../services/retirementService';
 
+// Track ongoing requests to prevent duplicates
+const ongoingRequests = {
+    fetchRecommendations: null,
+    fetchAnnualAllowance: null,
+};
+
 const state = {
     dcPensions: [],
     dbPensions: [],
@@ -39,7 +45,10 @@ const mutations = {
         state.scenarios = scenarios;
     },
     SET_LOADING(state, loading) {
-        state.loading = loading;
+        // Guard to prevent unnecessary mutations if value hasn't changed
+        if (state.loading !== loading) {
+            state.loading = loading;
+        }
     },
     SET_ERROR(state, error) {
         state.error = error;
@@ -104,17 +113,28 @@ const actions = {
     },
 
     async fetchRecommendations({ commit }) {
-        commit('SET_LOADING', true);
-        commit('SET_ERROR', null);
-        try {
-            const response = await retirementService.getRecommendations();
-            commit('SET_RECOMMENDATIONS', response.data);
-        } catch (error) {
-            commit('SET_ERROR', error.response?.data?.message || 'Failed to fetch recommendations');
-            throw error;
-        } finally {
-            commit('SET_LOADING', false);
+        // If request is already ongoing, return that promise
+        if (ongoingRequests.fetchRecommendations) {
+            return ongoingRequests.fetchRecommendations;
         }
+
+        // DO NOT set loading - causes infinite loop
+        commit('SET_ERROR', null);
+
+        ongoingRequests.fetchRecommendations = retirementService.getRecommendations()
+            .then(response => {
+                commit('SET_RECOMMENDATIONS', response.data);
+                return response;
+            })
+            .catch(error => {
+                commit('SET_ERROR', error.response?.data?.message || 'Failed to fetch recommendations');
+                throw error;
+            })
+            .finally(() => {
+                ongoingRequests.fetchRecommendations = null;
+            });
+
+        return ongoingRequests.fetchRecommendations;
     },
 
     async runScenario({ commit }, scenarioData) {
@@ -133,17 +153,29 @@ const actions = {
     },
 
     async fetchAnnualAllowance({ commit }, taxYear) {
-        commit('SET_LOADING', true);
-        commit('SET_ERROR', null);
-        try {
-            const response = await retirementService.getAnnualAllowance(taxYear);
-            commit('SET_ANNUAL_ALLOWANCE', response.data);
-        } catch (error) {
-            commit('SET_ERROR', error.response?.data?.message || 'Failed to fetch annual allowance');
-            throw error;
-        } finally {
-            commit('SET_LOADING', false);
+        // If request is already ongoing for this tax year, return that promise
+        const requestKey = `fetchAnnualAllowance_${taxYear}`;
+        if (ongoingRequests[requestKey]) {
+            return ongoingRequests[requestKey];
         }
+
+        // DO NOT set loading - causes infinite loop
+        commit('SET_ERROR', null);
+
+        ongoingRequests[requestKey] = retirementService.getAnnualAllowance(taxYear)
+            .then(response => {
+                commit('SET_ANNUAL_ALLOWANCE', response.data);
+                return response;
+            })
+            .catch(error => {
+                commit('SET_ERROR', error.response?.data?.message || 'Failed to fetch annual allowance');
+                throw error;
+            })
+            .finally(() => {
+                ongoingRequests[requestKey] = null;
+            });
+
+        return ongoingRequests[requestKey];
     },
 
     async createDCPension({ commit, dispatch }, pensionData) {

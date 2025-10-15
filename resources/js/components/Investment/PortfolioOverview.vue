@@ -26,18 +26,20 @@
     </div>
 
     <!-- Asset Allocation Chart -->
-    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+    <div v-if="!loading" class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
       <AssetAllocationChart
+        :key="`allocation-${accountsCount}`"
         :allocation="allocationForChart"
-        :loading="loading"
+        :loading="false"
       />
     </div>
 
     <!-- Geographic Allocation Map -->
-    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+    <div v-if="!loading" class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
       <GeographicAllocationMap
+        :key="`geographic-${accountsCount}`"
         :allocation="geographicAllocationForChart"
-        :loading="loading"
+        :loading="false"
       />
     </div>
 

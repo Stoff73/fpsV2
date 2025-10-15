@@ -7,6 +7,7 @@
 
     <div v-if="gifts && gifts.length > 0" class="chart-container">
       <apexchart
+        v-if="mounted"
         type="rangeBar"
         height="400"
         :options="chartOptions"
@@ -93,6 +94,22 @@ export default {
       required: true,
       default: () => [],
     },
+  },
+
+  data() {
+    return {
+      mounted: false,
+    };
+  },
+
+  mounted() {
+    this.$nextTick(() => {
+      this.mounted = true;
+    });
+  },
+
+  beforeUnmount() {
+    this.mounted = false;
   },
 
   computed: {

@@ -24,12 +24,21 @@ class InvestmentAccount extends Model
         'contributions_ytd',
         'tax_year',
         'platform_fee_percent',
+        'isa_type',
+        'isa_subscription_current_year',
     ];
 
     protected $casts = [
         'current_value' => 'float',
         'contributions_ytd' => 'float',
         'platform_fee_percent' => 'float',
+        'isa_subscription_current_year' => 'float',
+    ];
+
+    protected $attributes = [
+        'contributions_ytd' => 0,
+        'platform_fee_percent' => 0,
+        'isa_subscription_current_year' => 0,
     ];
 
     /**

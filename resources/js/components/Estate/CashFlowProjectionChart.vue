@@ -39,6 +39,7 @@
 
     <div v-if="hasData" class="chart-container">
       <apexchart
+        v-if="mounted"
         type="bar"
         height="400"
         :options="chartOptions"
@@ -114,7 +115,18 @@ export default {
     return {
       projectionYears: 10,
       growthRate: 3,
+      mounted: false,
     };
+  },
+
+  mounted() {
+    this.$nextTick(() => {
+      this.mounted = true;
+    });
+  },
+
+  beforeUnmount() {
+    this.mounted = false;
   },
 
   computed: {

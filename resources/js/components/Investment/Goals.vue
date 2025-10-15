@@ -68,7 +68,7 @@
     <GoalForm
       :show="showModal"
       :goal="selectedGoal"
-      @submit="handleSubmit"
+      @save="handleSubmit"
       @close="closeModal"
     />
 
@@ -264,17 +264,26 @@ export default {
 
       try {
         // Start Monte Carlo simulation
-        const response = await investmentService.startMonteCarlo({
-          goal_id: goal.id,
-          initial_value: goal.initial_value || this.totalPortfolioValue,
-          monthly_contribution: goal.monthly_contribution || 0,
-          time_horizon_years: this.calculateYears(goal.target_date),
-          expected_return: goal.expected_return || 7.0,
-          volatility: this.getVolatilityForRisk(goal.risk_level),
+        const params = {
+          start_value: this.totalPortfolioValue,
+          monthly_contribution: 0,
+          years: this.calculateYears(goal.target_date),
+          expected_return: 0.07,
+          volatility: 0.15,
           iterations: 1000,
-        });
+          goal_amount: goal.target_amount,
+        };
 
-        const jobId = response.job_id;
+        console.log('Starting Monte Carlo with params:', params);
+        const response = await investmentService.startMonteCarlo(params);
+        console.log('Monte Carlo response:', response);
+
+        const jobId = response.data?.job_id || response.job_id;
+        console.log('Job ID:', jobId);
+
+        if (!jobId) {
+          throw new Error('No job ID received from server');
+        }
 
         // Poll for results
         const results = await pollMonteCarloJob(

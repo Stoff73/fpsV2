@@ -41,7 +41,7 @@
       :show="showModal"
       :holding="selectedHolding"
       :accounts="accounts"
-      @submit="handleSubmit"
+      @save="handleSubmit"
       @close="closeModal"
     />
 

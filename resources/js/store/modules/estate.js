@@ -221,10 +221,12 @@ const actions = {
 
         try {
             const response = await estateService.getCashFlow(taxYear);
+            // response is already response.data from the service
+            // which is { success: true, data: {...} }
             commit('setCashFlow', response.data);
             return response;
         } catch (error) {
-            const errorMessage = error.message || 'Failed to fetch cash flow';
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch cash flow';
             commit('setError', errorMessage);
             throw error;
         } finally {
@@ -239,7 +241,7 @@ const actions = {
 
         try {
             const response = await estateService.createAsset(assetData);
-            commit('addAsset', response.data.asset);
+            commit('addAsset', response.data.data);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create asset';
@@ -256,7 +258,7 @@ const actions = {
 
         try {
             const response = await estateService.updateAsset(id, assetData);
-            commit('updateAsset', response.data.asset);
+            commit('updateAsset', response.data.data);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update asset';
@@ -291,7 +293,7 @@ const actions = {
 
         try {
             const response = await estateService.createLiability(liabilityData);
-            commit('addLiability', response.data.liability);
+            commit('addLiability', response.data.data);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create liability';
@@ -308,7 +310,7 @@ const actions = {
 
         try {
             const response = await estateService.updateLiability(id, liabilityData);
-            commit('updateLiability', response.data.liability);
+            commit('updateLiability', response.data.data);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update liability';
@@ -343,7 +345,7 @@ const actions = {
 
         try {
             const response = await estateService.createGift(giftData);
-            commit('addGift', response.data.gift);
+            commit('addGift', response.data.data);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create gift';
@@ -360,7 +362,7 @@ const actions = {
 
         try {
             const response = await estateService.updateGift(id, giftData);
-            commit('updateGift', response.data.gift);
+            commit('updateGift', response.data.data);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update gift';

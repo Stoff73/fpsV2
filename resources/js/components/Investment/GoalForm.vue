@@ -28,33 +28,19 @@
           <div class="bg-white px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
             <!-- Goal Name -->
             <div>
-              <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+              <label for="goal_name" class="block text-sm font-medium text-gray-700 mb-1">
                 Goal Name <span class="text-red-500">*</span>
               </label>
               <input
-                id="name"
-                v-model="formData.name"
+                id="goal_name"
+                v-model="formData.goal_name"
                 type="text"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                :class="{ 'border-red-500': errors.name }"
+                :class="{ 'border-red-500': errors.goal_name }"
                 placeholder="e.g., Retirement Fund, House Deposit, Children's Education"
                 required
               />
-              <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
-            </div>
-
-            <!-- Description -->
-            <div>
-              <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                id="description"
-                v-model="formData.description"
-                rows="2"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Brief description of this goal (optional)"
-              ></textarea>
+              <p v-if="errors.goal_name" class="mt-1 text-sm text-red-600">{{ errors.goal_name }}</p>
             </div>
 
             <!-- Target Amount and Date -->
@@ -93,95 +79,25 @@
               </div>
             </div>
 
-            <!-- Monthly Contribution and Initial Value -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label for="monthly_contribution" class="block text-sm font-medium text-gray-700 mb-1">
-                  Monthly Contribution (£)
-                </label>
-                <input
-                  id="monthly_contribution"
-                  v-model.number="formData.monthly_contribution"
-                  type="number"
-                  step="10"
-                  min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., 500"
-                />
-                <p class="mt-1 text-xs text-gray-500">How much you plan to contribute each month</p>
-              </div>
-              <div>
-                <label for="initial_value" class="block text-sm font-medium text-gray-700 mb-1">
-                  Initial Value (£)
-                </label>
-                <input
-                  id="initial_value"
-                  v-model.number="formData.initial_value"
-                  type="number"
-                  step="100"
-                  min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., 10000"
-                />
-                <p class="mt-1 text-xs text-gray-500">Current amount already saved for this goal</p>
-              </div>
-            </div>
-
-            <!-- Expected Return and Risk Level -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label for="expected_return" class="block text-sm font-medium text-gray-700 mb-1">
-                  Expected Annual Return (%)
-                </label>
-                <input
-                  id="expected_return"
-                  v-model.number="formData.expected_return"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="20"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., 7.0"
-                />
-                <p class="mt-1 text-xs text-gray-500">Assumed average annual return (default: 7%)</p>
-              </div>
-              <div>
-                <label for="risk_level" class="block text-sm font-medium text-gray-700 mb-1">
-                  Risk Level
-                </label>
-                <select
-                  id="risk_level"
-                  v-model="formData.risk_level"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select risk level</option>
-                  <option value="conservative">Conservative</option>
-                  <option value="moderate">Moderate</option>
-                  <option value="balanced">Balanced</option>
-                  <option value="growth">Growth</option>
-                  <option value="aggressive">Aggressive</option>
-                </select>
-                <p class="mt-1 text-xs text-gray-500">Investment risk tolerance for this goal</p>
-              </div>
-            </div>
-
             <!-- Goal Type -->
             <div>
               <label for="goal_type" class="block text-sm font-medium text-gray-700 mb-1">
-                Goal Type
+                Goal Type <span class="text-red-500">*</span>
               </label>
               <select
                 id="goal_type"
                 v-model="formData.goal_type"
                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :class="{ 'border-red-500': errors.goal_type }"
+                required
               >
                 <option value="">Select goal type</option>
                 <option value="retirement">Retirement</option>
-                <option value="property">Property Purchase</option>
+                <option value="home">Home Purchase</option>
                 <option value="education">Education</option>
-                <option value="emergency">Emergency Fund</option>
-                <option value="other">Other</option>
+                <option value="wealth">Wealth Accumulation</option>
               </select>
+              <p v-if="errors.goal_type" class="mt-1 text-sm text-red-600">{{ errors.goal_type }}</p>
             </div>
 
             <!-- Priority -->
@@ -200,22 +116,17 @@
               </select>
             </div>
 
-            <!-- Calculation Preview -->
-            <div v-if="formData.target_amount && formData.target_date" class="bg-blue-50 border border-blue-200 rounded-md p-4">
-              <h4 class="text-sm font-semibold text-blue-900 mb-2">Quick Estimate</h4>
-              <div class="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <span class="text-blue-700">Time Horizon:</span>
-                  <span class="ml-2 font-medium text-blue-900">{{ timeHorizon }}</span>
-                </div>
-                <div>
-                  <span class="text-blue-700">Required Monthly:</span>
-                  <span class="ml-2 font-medium text-blue-900">{{ formatCurrency(requiredMonthly) }}</span>
-                </div>
-              </div>
-              <p class="text-xs text-blue-700 mt-2">
-                * Based on {{ formData.expected_return || 7 }}% annual return, starting from {{ formatCurrency(formData.initial_value || 0) }}
-              </p>
+            <!-- Is Essential -->
+            <div>
+              <label class="flex items-center">
+                <input
+                  type="checkbox"
+                  v-model="formData.is_essential"
+                  class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+                <span class="ml-2 text-sm text-gray-700">Mark as Essential Goal</span>
+              </label>
+              <p class="mt-1 text-xs text-gray-500">Essential goals are prioritized in financial planning recommendations</p>
             </div>
           </div>
 
@@ -260,16 +171,13 @@ export default {
   data() {
     return {
       formData: {
-        name: '',
-        description: '',
+        goal_name: '',
         target_amount: null,
         target_date: '',
-        monthly_contribution: null,
-        initial_value: null,
-        expected_return: 7.0,
-        risk_level: 'moderate',
         goal_type: '',
         priority: 'medium',
+        is_essential: false,
+        linked_account_ids: [],
       },
       errors: {},
       submitting: false,
@@ -285,47 +193,6 @@ export default {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       return tomorrow.toISOString().split('T')[0];
-    },
-
-    timeHorizon() {
-      if (!this.formData.target_date) return 'N/A';
-      const target = new Date(this.formData.target_date);
-      const now = new Date();
-      const diffTime = target - now;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      if (diffDays < 365) {
-        const months = Math.round(diffDays / 30);
-        return `${months} ${months === 1 ? 'month' : 'months'}`;
-      }
-      const years = Math.floor(diffDays / 365);
-      const months = Math.round((diffDays % 365) / 30);
-      if (months === 0) return `${years} ${years === 1 ? 'year' : 'years'}`;
-      return `${years}y ${months}m`;
-    },
-
-    requiredMonthly() {
-      if (!this.formData.target_amount || !this.formData.target_date) return 0;
-
-      const target = this.formData.target_amount;
-      const initial = this.formData.initial_value || 0;
-      const rate = (this.formData.expected_return || 7) / 100 / 12; // Monthly rate
-      const targetDate = new Date(this.formData.target_date);
-      const now = new Date();
-      const months = Math.max(1, Math.round((targetDate - now) / (1000 * 60 * 60 * 24 * 30)));
-
-      // Future Value of Initial Investment
-      const fvInitial = initial * Math.pow(1 + rate, months);
-
-      // Required Future Value from contributions
-      const fvRequired = target - fvInitial;
-
-      if (fvRequired <= 0) return 0;
-
-      // PMT formula: FV = PMT * [((1 + r)^n - 1) / r]
-      const monthlyPayment = fvRequired / (((Math.pow(1 + rate, months) - 1) / rate));
-
-      return Math.max(0, monthlyPayment);
     },
   },
 
@@ -359,7 +226,7 @@ export default {
           return;
         }
 
-        this.$emit('submit', { ...this.formData });
+        this.$emit('save', { ...this.formData });
         this.closeModal();
       } catch (error) {
         console.error('Form submission error:', error);
@@ -374,8 +241,13 @@ export default {
     validateForm() {
       let isValid = true;
 
-      if (!this.formData.name || this.formData.name.trim().length === 0) {
-        this.errors.name = 'Goal name is required';
+      if (!this.formData.goal_name || this.formData.goal_name.trim().length === 0) {
+        this.errors.goal_name = 'Goal name is required';
+        isValid = false;
+      }
+
+      if (!this.formData.goal_type) {
+        this.errors.goal_type = 'Goal type is required';
         isValid = false;
       }
 
@@ -406,27 +278,15 @@ export default {
 
     resetForm() {
       this.formData = {
-        name: '',
-        description: '',
+        goal_name: '',
         target_amount: null,
         target_date: '',
-        monthly_contribution: null,
-        initial_value: null,
-        expected_return: 7.0,
-        risk_level: 'moderate',
         goal_type: '',
         priority: 'medium',
+        is_essential: false,
+        linked_account_ids: [],
       };
       this.errors = {};
-    },
-
-    formatCurrency(value) {
-      return new Intl.NumberFormat('en-GB', {
-        style: 'currency',
-        currency: 'GBP',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(value || 0);
     },
   },
 };

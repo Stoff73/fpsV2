@@ -152,7 +152,7 @@ export default {
   },
 
   computed: {
-    ...mapState('retirement', ['annualAllowance']),
+    ...mapState('retirement', ['annualAllowance', 'dcPensions', 'profile']),
 
     currentAllowance() {
       // Check if MPAA triggered
@@ -167,8 +167,29 @@ export default {
       return 60000;
     },
 
+    calculatedContributions() {
+      // Calculate total annual contributions from all DC pensions
+      return this.dcPensions.reduce((total, pension) => {
+        // For personal/SIPP pensions, use the monthly contribution amount
+        if (pension.scheme_type === 'personal' || pension.scheme_type === 'sipp') {
+          const monthlyAmount = parseFloat(pension.monthly_contribution_amount || 0);
+          return total + (monthlyAmount * 12);
+        }
+
+        // For workplace pensions, calculate based on percentage of salary
+        const employeePercent = parseFloat(pension.employee_contribution_percent || 0);
+        const employerPercent = parseFloat(pension.employer_contribution_percent || 0);
+        const totalPercent = employeePercent + employerPercent;
+
+        // Use annual_salary if available, otherwise use profile income, otherwise estimate
+        const salary = parseFloat(pension.annual_salary || this.profile?.current_income || 50000);
+        return total + ((salary * totalPercent) / 100);
+      }, 0);
+    },
+
     contributionsUsed() {
-      return this.annualAllowance?.contributions_used || 0;
+      // Use backend data if available, otherwise calculate from dcPensions
+      return this.annualAllowance?.contributions_used || this.calculatedContributions;
     },
 
     remainingAllowance() {
@@ -230,14 +251,10 @@ export default {
 
   methods: {
     getHistoricalContributions(taxYear) {
-      // In a real app, this would come from the backend
-      // For now, return placeholder values
-      const contributions = {
-        '2023/24': 25000,
-        '2022/23': 30000,
-        '2021/22': 22000,
-      };
-      return contributions[taxYear] || 0;
+      // TODO: This should come from the backend API
+      // For now, return 0 to avoid showing fake data
+      // Users should only see their actual contributions
+      return 0;
     },
 
     getHistoricalUnused(taxYear) {

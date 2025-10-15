@@ -113,39 +113,58 @@ class InvestmentController extends Controller
      */
     public function startMonteCarlo(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'start_value' => 'required|numeric|min:0',
-            'monthly_contribution' => 'required|numeric|min:0',
-            'expected_return' => 'required|numeric|min:0|max:0.5',
-            'volatility' => 'required|numeric|min:0|max:1',
-            'years' => 'required|integer|min:1|max:50',
-            'iterations' => 'nullable|integer|min:100|max:10000',
-            'goal_amount' => 'nullable|numeric|min:0',
-        ]);
+        \Log::info('Monte Carlo request data:', $request->all());
 
-        // Generate unique job ID
-        $jobId = Str::uuid()->toString();
+        try {
+            $validated = $request->validate([
+                'start_value' => 'required|numeric|min:0',
+                'monthly_contribution' => 'required|numeric|min:0',
+                'expected_return' => 'required|numeric|min:0|max:0.5',
+                'volatility' => 'required|numeric|min:0|max:1',
+                'years' => 'required|integer|min:1|max:50',
+                'iterations' => 'nullable|integer|min:100|max:10000',
+                'goal_amount' => 'nullable|numeric|min:0',
+            ]);
 
-        // Dispatch job
-        RunMonteCarloSimulation::dispatch(
-            $jobId,
-            $validated['start_value'],
-            $validated['monthly_contribution'],
-            $validated['expected_return'],
-            $validated['volatility'],
-            $validated['years'],
-            $validated['iterations'] ?? 1000,
-            $validated['goal_amount'] ?? null
-        );
+            \Log::info('Monte Carlo validation passed', $validated);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'job_id' => $jobId,
-                'status' => 'queued',
-                'message' => 'Monte Carlo simulation started',
-            ],
-        ]);
+            // Generate unique job ID
+            $jobId = Str::uuid()->toString();
+
+            \Log::info('Generated job ID:', ['job_id' => $jobId]);
+
+            // Dispatch job
+            RunMonteCarloSimulation::dispatch(
+                $jobId,
+                $validated['start_value'],
+                $validated['monthly_contribution'],
+                $validated['expected_return'],
+                $validated['volatility'],
+                $validated['years'],
+                $validated['iterations'] ?? 1000,
+                $validated['goal_amount'] ?? null
+            );
+
+            \Log::info('Monte Carlo job dispatched successfully', ['job_id' => $jobId]);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'job_id' => $jobId,
+                    'status' => 'queued',
+                    'message' => 'Monte Carlo simulation started',
+                ],
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Monte Carlo error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to start Monte Carlo simulation: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -153,9 +172,17 @@ class InvestmentController extends Controller
      */
     public function getMonteCarloResults(string $jobId): JsonResponse
     {
+        \Log::info("Checking Monte Carlo results for job: {$jobId}");
+
         $status = Cache::get("monte_carlo_status_{$jobId}");
 
+        \Log::info("Monte Carlo status for {$jobId}: " . ($status ?? 'NULL'));
+
         if (!$status) {
+            // List all cache keys to debug
+            $allKeys = Cache::get('_all_monte_carlo_keys', []);
+            \Log::warning("Job {$jobId} not found in cache. Status is NULL");
+
             return response()->json([
                 'success' => false,
                 'message' => 'Job not found',
@@ -210,6 +237,8 @@ class InvestmentController extends Controller
             'contributions_ytd' => 'nullable|numeric|min:0',
             'tax_year' => 'required|string|max:10',
             'platform_fee_percent' => 'nullable|numeric|min:0|max:100',
+            'isa_type' => ['nullable', Rule::in(['stocks_and_shares', 'lifetime', 'innovative_finance'])],
+            'isa_subscription_current_year' => 'nullable|numeric|min:0|max:20000',
         ]);
 
         $user = $request->user();
@@ -243,6 +272,8 @@ class InvestmentController extends Controller
             'contributions_ytd' => 'nullable|numeric|min:0',
             'tax_year' => 'nullable|string|max:10',
             'platform_fee_percent' => 'nullable|numeric|min:0|max:100',
+            'isa_type' => ['nullable', Rule::in(['stocks_and_shares', 'lifetime', 'innovative_finance'])],
+            'isa_subscription_current_year' => 'nullable|numeric|min:0|max:20000',
         ]);
 
         $account->update($validated);
@@ -284,9 +315,11 @@ class InvestmentController extends Controller
     {
         $user = $request->user();
 
+        \Log::info('Holding creation request data:', $request->all());
+
         $validated = $request->validate([
             'investment_account_id' => 'required|exists:investment_accounts,id',
-            'asset_type' => ['required', Rule::in(['equity', 'bond', 'fund', 'etf', 'alternative'])],
+            'asset_type' => ['required', Rule::in(['equity', 'bond', 'fund', 'etf', 'alternative', 'uk_equity', 'us_equity', 'international_equity', 'cash', 'property'])],
             'security_name' => 'required|string|max:255',
             'ticker' => 'nullable|string|max:50',
             'isin' => 'nullable|string|max:50',
@@ -329,7 +362,7 @@ class InvestmentController extends Controller
         })->findOrFail($id);
 
         $validated = $request->validate([
-            'asset_type' => ['nullable', Rule::in(['equity', 'bond', 'fund', 'etf', 'alternative'])],
+            'asset_type' => ['nullable', Rule::in(['equity', 'bond', 'fund', 'etf', 'alternative', 'uk_equity', 'us_equity', 'international_equity', 'cash', 'property'])],
             'security_name' => 'nullable|string|max:255',
             'ticker' => 'nullable|string|max:50',
             'isin' => 'nullable|string|max:50',
@@ -383,6 +416,8 @@ class InvestmentController extends Controller
      */
     public function storeGoal(Request $request): JsonResponse
     {
+        \Log::info('Goal creation request data:', $request->all());
+
         $validated = $request->validate([
             'goal_name' => 'required|string|max:255',
             'goal_type' => ['required', Rule::in(['retirement', 'education', 'wealth', 'home'])],

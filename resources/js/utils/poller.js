@@ -63,7 +63,37 @@ export async function poll(fetchFunction, options = {}) {
                 await sleep(interval);
             }
         } catch (error) {
-            // On error, reject immediately
+            // Log full error structure to debug
+            console.log(`Poll attempt ${attempt}: Caught error`, {
+                errorType: typeof error,
+                hasResponse: !!error.response,
+                responseStatus: error.response?.status,
+                status: error.status,
+                statusCode: error.statusCode,
+                errorKeys: Object.keys(error),
+                attempt,
+                maxAttempts
+            });
+
+            // Check multiple possible locations for status code
+            const statusCode = error.response?.status || error.status || error.statusCode;
+            const is404 = statusCode === 404;
+
+            console.log(`Poll attempt ${attempt}: Status check`, {
+                statusCode,
+                is404,
+                willRetry: is404 && attempt < maxAttempts
+            });
+
+            // If it's a 404, job might not be ready yet - continue polling
+            if (is404 && attempt < maxAttempts) {
+                console.log(`Poll attempt ${attempt}: Job not found yet (404), will retry in ${interval}ms...`);
+                await sleep(interval);
+                continue;
+            }
+
+            // Other errors - reject immediately
+            console.error(`Poll attempt ${attempt}: Fatal error, stopping poll`, error);
             throw new Error(`Polling failed: ${error.message}`);
         }
     }
@@ -91,9 +121,12 @@ export async function poll(fetchFunction, options = {}) {
  * );
  */
 export async function pollMonteCarloJob(fetchFunction, options = {}) {
+    // Add initial delay to allow job to start processing
+    await sleep(500);
+
     return poll(fetchFunction, {
-        interval: 3000,        // Poll every 3 seconds
-        maxAttempts: 100,      // Max 5 minutes (3s * 100 = 300s)
+        interval: 2000,        // Poll every 2 seconds
+        maxAttempts: 100,      // Max ~3 minutes (2s * 100 = 200s)
         shouldContinue: (response) => {
             // Continue polling while status is 'running' or 'queued'
             const status = response?.data?.data?.status;

@@ -277,7 +277,7 @@ export default {
           id: this.isEditMode ? this.gift.id : undefined,
         };
 
-        this.$emit('submit', payload);
+        this.$emit('save', payload);
 
         // Reset form if creating new gift
         if (!this.isEditMode) {

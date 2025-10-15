@@ -230,8 +230,8 @@ const actions = {
             const response = await protectionService.createLifePolicy(policyData);
             // Backend returns: { success: true, message: "...", data: { policy object } }
             // Service returns response.data, so response = { success, message, data }
-            // The actual policy is in response.data
-            const policy = response.data;
+            // The actual policy is in response.data.data
+            const policy = response.data || response;
             commit('addPolicy', { type: 'life', policy });
             return response;
         } catch (error) {
@@ -249,7 +249,8 @@ const actions = {
 
         try {
             const response = await protectionService.updateLifePolicy(id, policyData);
-            commit('updatePolicy', { type: 'life', policy: response.data.policy });
+            const policy = response.data || response;
+            commit('updatePolicy', { type: 'life', policy });
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update life insurance policy';
@@ -284,7 +285,8 @@ const actions = {
 
         try {
             const response = await protectionService.createCriticalIllnessPolicy(policyData);
-            commit('addPolicy', { type: 'criticalIllness', policy: response.data.policy });
+            const policy = response.data || response;
+            commit('addPolicy', { type: 'criticalIllness', policy });
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create critical illness policy';
@@ -301,7 +303,8 @@ const actions = {
 
         try {
             const response = await protectionService.updateCriticalIllnessPolicy(id, policyData);
-            commit('updatePolicy', { type: 'criticalIllness', policy: response.data.policy });
+            const policy = response.data || response;
+            commit('updatePolicy', { type: 'criticalIllness', policy });
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update critical illness policy';
@@ -336,7 +339,8 @@ const actions = {
 
         try {
             const response = await protectionService.createIncomeProtectionPolicy(policyData);
-            commit('addPolicy', { type: 'incomeProtection', policy: response.data.policy });
+            const policy = response.data || response;
+            commit('addPolicy', { type: 'incomeProtection', policy });
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create income protection policy';
@@ -353,7 +357,8 @@ const actions = {
 
         try {
             const response = await protectionService.updateIncomeProtectionPolicy(id, policyData);
-            commit('updatePolicy', { type: 'incomeProtection', policy: response.data.policy });
+            const policy = response.data || response;
+            commit('updatePolicy', { type: 'incomeProtection', policy });
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update income protection policy';
@@ -388,7 +393,8 @@ const actions = {
 
         try {
             const response = await protectionService.createDisabilityPolicy(policyData);
-            commit('addPolicy', { type: 'disability', policy: response.data.policy });
+            const policy = response.data || response;
+            commit('addPolicy', { type: 'disability', policy });
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create disability policy';
@@ -405,7 +411,8 @@ const actions = {
 
         try {
             const response = await protectionService.updateDisabilityPolicy(id, policyData);
-            commit('updatePolicy', { type: 'disability', policy: response.data.policy });
+            const policy = response.data || response;
+            commit('updatePolicy', { type: 'disability', policy });
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update disability policy';
@@ -440,7 +447,8 @@ const actions = {
 
         try {
             const response = await protectionService.createSicknessIllnessPolicy(policyData);
-            commit('addPolicy', { type: 'sicknessIllness', policy: response.data.policy });
+            const policy = response.data || response;
+            commit('addPolicy', { type: 'sicknessIllness', policy });
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create sickness/illness policy';
@@ -457,7 +465,8 @@ const actions = {
 
         try {
             const response = await protectionService.updateSicknessIllnessPolicy(id, policyData);
-            commit('updatePolicy', { type: 'sicknessIllness', policy: response.data.policy });
+            const policy = response.data || response;
+            commit('updatePolicy', { type: 'sicknessIllness', policy });
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update sickness/illness policy';

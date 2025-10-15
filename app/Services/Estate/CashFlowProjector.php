@@ -17,8 +17,13 @@ class CashFlowProjector
     {
         $user = User::findOrFail($userId);
 
-        // Get tax year dates
-        $taxYearStart = Carbon::createFromFormat('Y-m-d', $taxYear . '-04-06');
+        // Parse tax year format (e.g., "2024/25")
+        // Extract the first year
+        $yearParts = explode('/', $taxYear);
+        $startYear = (int) $yearParts[0];
+
+        // Get tax year dates (6 April to 5 April next year)
+        $taxYearStart = Carbon::createFromDate($startYear, 4, 6);
         $taxYearEnd = $taxYearStart->copy()->addYear()->subDay();
 
         // In a full implementation, you would have income and expenditure tables
@@ -31,18 +36,34 @@ class CashFlowProjector
         $totalExpenditure = array_sum(array_column($expenditure, 'amount'));
         $netSurplusDeficit = $totalIncome - $totalExpenditure;
 
+        // Structure to match CashFlow.vue component expectations
         return [
-            'tax_year' => $taxYear . '/' . substr((string)($taxYear + 1), -2),
+            'tax_year' => $taxYear,
             'period_start' => $taxYearStart->format('Y-m-d'),
             'period_end' => $taxYearEnd->format('Y-m-d'),
-            'income' => [
-                'items' => $income,
-                'total' => round($totalIncome, 2),
-            ],
-            'expenditure' => [
-                'items' => $expenditure,
-                'total' => round($totalExpenditure, 2),
-            ],
+            // Flatten income structure
+            'employment_income' => $income[0]['amount'] ?? 0,
+            'dividend_income' => $income[1]['amount'] ?? 0,
+            'interest_income' => $income[2]['amount'] ?? 0,
+            'rental_income' => $income[3]['amount'] ?? 0,
+            'other_income' => $income[4]['amount'] ?? 0,
+            // Flatten expenditure structure
+            'essential_expenses' => array_sum(array_map(
+                fn($item) => $item['amount'],
+                array_filter($expenditure, fn($item) => $item['category'] === 'Essential')
+            )),
+            'lifestyle_expenses' => array_sum(array_map(
+                fn($item) => $item['amount'],
+                array_filter($expenditure, fn($item) => $item['category'] === 'Lifestyle')
+            )),
+            'debt_servicing' => array_sum(array_map(
+                fn($item) => $item['amount'],
+                array_filter($expenditure, fn($item) => $item['category'] === 'Debt Servicing')
+            )),
+            'taxes' => 0, // Placeholder for tax calculation
+            // Summary values
+            'total_income' => round($totalIncome, 2),
+            'total_expenditure' => round($totalExpenditure, 2),
             'net_surplus_deficit' => round($netSurplusDeficit, 2),
             'status' => $netSurplusDeficit >= 0 ? 'Surplus' : 'Deficit',
         ];

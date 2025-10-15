@@ -15,7 +15,7 @@
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
-    <div v-else-if="hasData" class="chart-container">
+    <div v-else-if="hasData && !loading && chartReady" class="chart-container">
       <apexchart
         type="donut"
         :options="chartOptions"
@@ -25,13 +25,31 @@
     </div>
 
     <div v-else class="flex items-center justify-center h-64 text-gray-500">
-      <div class="text-center">
-        <svg class="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="text-center max-w-md p-6">
+        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
         </svg>
-        <p>No allocation data available</p>
-        <p class="text-sm mt-1">Add holdings to see your asset allocation</p>
+        <h4 class="text-lg font-semibold text-gray-900 mb-2">No Asset Allocation Data</h4>
+        <p class="text-sm text-gray-600 mb-4">
+          Add your investment holdings to see a breakdown of your asset allocation across different asset classes.
+        </p>
+        <button
+          @click="$emit('add-holding')"
+          class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Add Your First Holding
+        </button>
+        <div class="mt-6 text-left bg-gray-50 rounded-lg p-4">
+          <p class="text-xs font-medium text-gray-700 mb-2">Typical Asset Classes:</p>
+          <ul class="text-xs text-gray-600 space-y-1">
+            <li>• UK Equities (Stocks)</li>
+            <li>• International Equities</li>
+            <li>• Bonds (Fixed Income)</li>
+            <li>• Cash & Money Market</li>
+            <li>• Property & Alternatives</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -61,6 +79,12 @@ export default {
       type: Boolean,
       default: false,
     },
+  },
+
+  data() {
+    return {
+      chartReady: false,
+    };
   },
 
   computed: {
@@ -182,6 +206,15 @@ export default {
         ],
       };
     },
+  },
+
+  mounted() {
+    this.$nextTick(() => {
+      // Delay chart rendering to ensure DOM is ready
+      setTimeout(() => {
+        this.chartReady = true;
+      }, 100);
+    });
   },
 };
 </script>

@@ -362,14 +362,13 @@ export default {
           delete submitData.isa_subscription_current_year;
         }
 
-        this.$emit('submit', submitData);
-        this.closeModal();
+        // Emit save event - parent will close modal after successful save
+        this.$emit('save', submitData);
       } catch (error) {
         console.error('Form submission error:', error);
         if (error.response?.data?.errors) {
           this.errors = error.response.data.errors;
         }
-      } finally {
         this.submitting = false;
       }
     },

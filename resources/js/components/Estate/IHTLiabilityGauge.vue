@@ -7,6 +7,7 @@
 
     <div class="gauge-container">
       <apexchart
+        v-if="mounted"
         type="radialBar"
         height="300"
         :options="chartOptions"
@@ -59,6 +60,22 @@ export default {
       required: true,
       default: 0,
     },
+  },
+
+  data() {
+    return {
+      mounted: false,
+    };
+  },
+
+  mounted() {
+    this.$nextTick(() => {
+      this.mounted = true;
+    });
+  },
+
+  beforeUnmount() {
+    this.mounted = false;
   },
 
   computed: {

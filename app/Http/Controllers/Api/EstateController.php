@@ -173,9 +173,10 @@ class EstateController extends Controller
     /**
      * Get cash flow for a tax year
      */
-    public function getCashFlow(Request $request, string $taxYear): JsonResponse
+    public function getCashFlow(Request $request): JsonResponse
     {
         $user = $request->user();
+        $taxYear = $request->query('taxYear', '2024/25');
 
         try {
             $cashFlow = $this->cashFlowProjector->createPersonalPL($user->id, $taxYear);
@@ -202,14 +203,18 @@ class EstateController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'asset_type' => 'required|in:property,pension,investment,business,other',
+            'asset_type' => 'required|in:property,pension,investment,savings,business,life_insurance,personal,other',
             'asset_name' => 'required|string|max:255',
             'current_value' => 'required|numeric|min:0',
-            'ownership_type' => 'required|in:sole,joint,trust',
+            'ownership_type' => 'required|in:sole,joint_tenants,tenants_in_common,trust',
             'beneficiary_designation' => 'nullable|string|max:255',
             'is_iht_exempt' => 'boolean',
             'exemption_reason' => 'nullable|string|max:255',
             'valuation_date' => 'required|date',
+            'property_address' => 'nullable|string|max:500',
+            'mortgage_outstanding' => 'nullable|numeric|min:0',
+            'is_main_residence' => 'boolean',
+            'notes' => 'nullable|string',
         ]);
 
         try {
@@ -240,14 +245,18 @@ class EstateController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'asset_type' => 'sometimes|in:property,pension,investment,business,other',
+            'asset_type' => 'sometimes|in:property,pension,investment,savings,business,life_insurance,personal,other',
             'asset_name' => 'sometimes|string|max:255',
             'current_value' => 'sometimes|numeric|min:0',
-            'ownership_type' => 'sometimes|in:sole,joint,trust',
+            'ownership_type' => 'sometimes|in:sole,joint_tenants,tenants_in_common,trust',
             'beneficiary_designation' => 'nullable|string|max:255',
             'is_iht_exempt' => 'boolean',
             'exemption_reason' => 'nullable|string|max:255',
             'valuation_date' => 'sometimes|date',
+            'property_address' => 'nullable|string|max:500',
+            'mortgage_outstanding' => 'nullable|numeric|min:0',
+            'is_main_residence' => 'boolean',
+            'notes' => 'nullable|string',
         ]);
 
         try {
@@ -322,12 +331,17 @@ class EstateController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'liability_type' => 'required|in:mortgage,loan,credit_card,other',
+            'liability_type' => 'required|in:mortgage,secured_loan,personal_loan,credit_card,overdraft,hire_purchase,student_loan,business_loan,other',
             'liability_name' => 'required|string|max:255',
             'current_balance' => 'required|numeric|min:0',
             'monthly_payment' => 'nullable|numeric|min:0',
-            'interest_rate' => 'nullable|numeric|min:0|max:1',
+            'interest_rate' => 'nullable|numeric|min:0|max:100',
             'maturity_date' => 'nullable|date',
+            'secured_against' => 'nullable|string|max:255',
+            'is_priority_debt' => 'boolean',
+            'mortgage_type' => 'nullable|string|max:50',
+            'fixed_until' => 'nullable|date',
+            'notes' => 'nullable|string',
         ]);
 
         try {
@@ -358,12 +372,17 @@ class EstateController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'liability_type' => 'sometimes|in:mortgage,loan,credit_card,other',
+            'liability_type' => 'sometimes|in:mortgage,secured_loan,personal_loan,credit_card,overdraft,hire_purchase,student_loan,business_loan,other',
             'liability_name' => 'sometimes|string|max:255',
             'current_balance' => 'sometimes|numeric|min:0',
             'monthly_payment' => 'nullable|numeric|min:0',
-            'interest_rate' => 'nullable|numeric|min:0|max:1',
+            'interest_rate' => 'nullable|numeric|min:0|max:100',
             'maturity_date' => 'nullable|date',
+            'secured_against' => 'nullable|string|max:255',
+            'is_priority_debt' => 'boolean',
+            'mortgage_type' => 'nullable|string|max:50',
+            'fixed_until' => 'nullable|date',
+            'notes' => 'nullable|string',
         ]);
 
         try {

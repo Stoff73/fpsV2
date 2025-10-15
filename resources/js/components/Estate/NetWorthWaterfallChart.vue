@@ -1,7 +1,8 @@
 <template>
   <div class="net-worth-waterfall-chart">
     <apexchart
-      v-if="chartOptions"
+      v-if="chartOptions && mounted"
+      ref="chart"
       type="bar"
       height="350"
       :options="chartOptions"
@@ -28,6 +29,26 @@ export default {
       required: true,
       default: () => [],
     },
+  },
+
+  data() {
+    return {
+      mounted: false,
+    };
+  },
+
+  mounted() {
+    // Wait for next tick to ensure DOM is ready
+    // Use setTimeout to give ApexCharts extra time
+    this.$nextTick(() => {
+      setTimeout(() => {
+        this.mounted = true;
+      }, 100);
+    });
+  },
+
+  beforeUnmount() {
+    this.mounted = false;
   },
 
   computed: {

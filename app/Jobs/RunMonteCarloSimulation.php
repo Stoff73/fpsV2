@@ -38,6 +38,8 @@ class RunMonteCarloSimulation implements ShouldQueue
      */
     public function handle(MonteCarloSimulator $simulator): void
     {
+        \Log::info("Monte Carlo job {$this->jobId} starting");
+
         // Mark job as running
         Cache::put("monte_carlo_status_{$this->jobId}", 'running', 3600);
 
@@ -52,6 +54,8 @@ class RunMonteCarloSimulation implements ShouldQueue
                 $this->iterations
             );
 
+            \Log::info("Monte Carlo simulation completed for job {$this->jobId}");
+
             // Calculate goal probability if goal is provided
             if ($this->goalAmount) {
                 $finalValues = array_map(fn ($r) => $r['final_value'], $results['year_by_year'][$this->years - 1]['percentiles']);
@@ -64,7 +68,11 @@ class RunMonteCarloSimulation implements ShouldQueue
             // Store results in cache (24 hours)
             Cache::put("monte_carlo_results_{$this->jobId}", $results, 86400);
             Cache::put("monte_carlo_status_{$this->jobId}", 'completed', 3600);
+
+            \Log::info("Monte Carlo job {$this->jobId} completed successfully, status cached");
         } catch (\Exception $e) {
+            \Log::error("Monte Carlo job {$this->jobId} failed: " . $e->getMessage());
+
             // Mark job as failed
             Cache::put("monte_carlo_status_{$this->jobId}", 'failed', 3600);
             Cache::put("monte_carlo_error_{$this->jobId}", $e->getMessage(), 3600);
