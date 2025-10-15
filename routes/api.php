@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EstateController;
+use App\Http\Controllers\Api\HolisticPlanningController;
 use App\Http\Controllers\Api\InvestmentController;
 use App\Http\Controllers\Api\ProtectionController;
 use App\Http\Controllers\Api\RetirementController;
@@ -230,4 +231,20 @@ Route::middleware('auth:sanctum')->prefix('retirement')->group(function () {
 
     // State pension
     Route::post('/state-pension', [RetirementController::class, 'updateStatePension']);
+});
+
+// Holistic Planning routes (coordinating agent)
+Route::middleware('auth:sanctum')->prefix('holistic')->group(function () {
+    // Main holistic analysis and plan
+    Route::post('/analyze', [HolisticPlanningController::class, 'analyze']);
+    Route::post('/plan', [HolisticPlanningController::class, 'plan']);
+    Route::get('/recommendations', [HolisticPlanningController::class, 'recommendations']);
+    Route::get('/cash-flow-analysis', [HolisticPlanningController::class, 'cashFlowAnalysis']);
+
+    // Recommendation tracking
+    Route::post('/recommendations/{id}/mark-done', [HolisticPlanningController::class, 'markRecommendationDone']);
+    Route::post('/recommendations/{id}/in-progress', [HolisticPlanningController::class, 'markRecommendationInProgress']);
+    Route::post('/recommendations/{id}/dismiss', [HolisticPlanningController::class, 'dismissRecommendation']);
+    Route::get('/recommendations/completed', [HolisticPlanningController::class, 'completedRecommendations']);
+    Route::patch('/recommendations/{id}/notes', [HolisticPlanningController::class, 'updateRecommendationNotes']);
 });

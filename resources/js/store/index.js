@@ -7,6 +7,7 @@ import savings from './modules/savings';
 import investment from './modules/investment';
 import retirement from './modules/retirement';
 import estate from './modules/estate';
+import holistic from './modules/holistic';
 
 const store = createStore({
   modules: {
@@ -18,6 +19,7 @@ const store = createStore({
     investment,
     retirement,
     estate,
+    holistic,
   },
   strict: process.env.NODE_ENV !== 'production',
 });
