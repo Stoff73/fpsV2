@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 // Create axios instance with default config
+// Use environment-specific base URL (production or local development)
+const apiBaseURL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: `${apiBaseURL}/api`,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
