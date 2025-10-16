@@ -14,7 +14,10 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * This ensures cookies (including the session cookie) are sent with every request
  */
 window.axios.defaults.withCredentials = true;
-window.axios.defaults.baseURL = 'http://127.0.0.1:8000';
+
+// Use environment-specific base URL (production or local development)
+const apiBaseURL = import.meta.env.VITE_API_BASE_URL || window.location.origin;
+window.axios.defaults.baseURL = apiBaseURL;
 
 // Add CSRF token from meta tag to all requests
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]');

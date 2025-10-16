@@ -1,15 +1,18 @@
 # FPS Deployment Guide for SiteGround
 
-This guide provides step-by-step instructions for deploying the Financial Planning System (FPS) to your SiteGround hosting account.
+This guide provides step-by-step instructions for deploying the Financial Planning System (FPS) to your SiteGround hosting account using **Site Tools** (their modern control panel).
 
 ## Deployment Overview
 
 - **URL**: https://csjones.co/fps
 - **Server**: SiteGround.co.uk
+- **Control Panel**: Site Tools (https://tools.siteground.com)
 - **Installation Path**: `public_html/fps/`
 - **Laravel Version**: 10.x
 - **PHP Version Required**: 8.2+
 - **Database**: MySQL 8.0+
+
+> **Note**: SiteGround uses **Site Tools** as their proprietary hosting management system. This guide has been updated to reflect Site Tools instead of cPanel.
 
 ---
 
@@ -38,7 +41,7 @@ This guide provides step-by-step instructions for deploying the Financial Planni
 
 Before deploying, ensure you have:
 
-- [ ] SiteGround account credentials (cPanel access)
+- [ ] SiteGround account credentials (Site Tools access)
 - [ ] SSH access enabled (SiteGround supports SSH)
 - [ ] FTP/SFTP credentials (or use File Manager)
 - [ ] Database credentials ready
@@ -46,6 +49,134 @@ Before deploying, ensure you have:
 - [ ] Local application tested and working
 - [ ] All tests passing (`./vendor/bin/pest`)
 - [ ] Frontend built for production (`npm run build`)
+
+---
+
+## How to SSH Into Your SiteGround Server
+
+SSH access is required for most deployment tasks. Follow these steps to set up SSH on your Mac.
+
+### Step 1: Enable SSH in Site Tools
+
+1. Log in to **Site Tools** at https://tools.siteground.com
+2. Navigate to **Devs** → **SSH Keys Manager**
+3. Click **Generate New Key**
+4. Enter a **key name** (e.g., "my-macbook")
+5. Either generate a random passphrase or enter your own (save this passphrase securely!)
+6. Click **Generate**
+
+### Step 2: Download Your Private Key
+
+1. In **SSH Keys Manager**, find your newly created key
+2. Click the **three dots (⋮)** next to it → **Private Key**
+3. Copy the entire private key content (including the `-----BEGIN` and `-----END` lines)
+4. On your Mac, open Terminal and create the SSH directory if it doesn't exist:
+   ```bash
+   mkdir -p ~/.ssh
+   ```
+5. Create the private key file:
+   ```bash
+   touch ~/.ssh/siteground_key
+   ```
+6. Open the file in a text editor:
+   ```bash
+   open -e ~/.ssh/siteground_key
+   ```
+7. Paste the private key content into the file that opens in TextEdit
+8. Save and close TextEdit
+
+> **Note**: If you get a "cannot open file for writing" error with `nano`, use `open -e` (TextEdit) instead, or use `vim` if you're familiar with it.
+
+### Step 3: Set Correct Permissions
+
+```bash
+chmod 600 ~/.ssh/siteground_key
+```
+
+This ensures your private key is only readable by you (required for SSH security).
+
+### Step 4: Get Your SSH Credentials
+
+1. Back in **Site Tools** → **SSH Keys Manager**
+2. Click the **three dots (⋮)** next to your key → **SSH Credentials**
+3. You'll see:
+   - **Username** (e.g., `uXXXXXXX`)
+   - **Host** (your server hostname, e.g., `sg2-xx.siteground.biz`)
+   - **Port** (usually `18765` for SiteGround)
+
+### Step 5: Connect via SSH
+
+Open Terminal on your Mac and run:
+
+```bash
+ssh -i ~/.ssh/siteground_key -p 18765 USERNAME@HOST
+```
+
+Replace:
+- `USERNAME` with your SSH username from Site Tools
+- `HOST` with your server hostname from Site Tools
+
+**Example:**
+```bash
+ssh -i ~/.ssh/siteground_key -p 18765 u123456789@sg2-xx.siteground.biz
+```
+
+### Step 6: Enter Your Passphrase
+
+When prompted, enter the passphrase you created when generating the SSH key.
+
+You should now be connected to your server! You'll see a command prompt like:
+
+```
+[u123456789@sgXX ~]$
+```
+
+### Optional: Create an SSH Alias (Recommended)
+
+To avoid typing the long SSH command every time, create an alias:
+
+1. Open (or create) your SSH config file:
+   ```bash
+   open -e ~/.ssh/config
+   ```
+
+2. Add this configuration (replace with your actual credentials):
+   ```
+   Host siteground
+       HostName sg2-xx.siteground.biz
+       User u123456789
+       Port 18765
+       IdentityFile ~/.ssh/siteground_key
+   ```
+
+3. Save and close TextEdit
+
+Now you can connect with just:
+```bash
+ssh siteground
+```
+
+### Common SSH Commands Once Connected
+
+```bash
+# Navigate to your FPS project
+cd ~/public_html/fps
+
+# Check current directory
+pwd
+
+# List files
+ls -la
+
+# Check PHP version
+php -v
+
+# Run artisan commands
+php artisan --version
+
+# Exit SSH session
+exit
+```
 
 ---
 
@@ -84,7 +215,32 @@ Verify your SiteGround server meets these requirements:
 
 ## Step 1: Prepare Your Local Application
 
-### 1.1 Build Frontend Assets
+### 1.1 Configure Vite for Subdirectory Deployment
+
+**IMPORTANT:** Before building assets, ensure `vite.config.js` is configured for subdirectory deployment.
+
+Your [vite.config.js](vite.config.js) should have:
+
+```javascript
+export default defineConfig({
+    // For subdirectory deployment (e.g., https://csjones.co/fps)
+    // The base path must include /build/ for proper asset resolution
+    base: '/fps/build/',
+    plugins: [
+        laravel({
+            input: ['resources/css/app.css', 'resources/js/app.js'],
+            refresh: true,
+            buildDirectory: 'build',
+        }),
+        vue(),
+    ],
+    // ... rest of config
+});
+```
+
+This is **critical** for assets to load correctly on the server.
+
+### 1.2 Build Frontend Assets
 
 ```bash
 # Navigate to your project directory
@@ -101,21 +257,21 @@ npm run build
 
 This creates optimized assets in `public/build/`.
 
-### 1.2 Optimize Composer Dependencies
+### 1.3 Optimize Composer Dependencies
 
 ```bash
 # Install production dependencies only (no dev packages)
 composer install --optimize-autoloader --no-dev
 ```
 
-### 1.3 Run Tests (Optional but Recommended)
+### 1.4 Run Tests (Optional but Recommended)
 
 ```bash
 # Ensure all tests pass before deployment
 ./vendor/bin/pest
 ```
 
-### 1.4 Create Deployment Archive (Optional)
+### 1.5 Create Deployment Archive (Optional)
 
 You can create a zip file excluding unnecessary files:
 
@@ -139,14 +295,14 @@ zip -r fps-deployment.zip . \
 
 ### 2.1 Enable SSH Access
 
-1. Log in to SiteGround cPanel
+1. Log in to SiteGround Site Tools
 2. Go to **SSH Access** (under Advanced)
 3. Enable SSH access
 4. Note your SSH username and port (usually 18765)
 
 ### 2.2 Verify PHP Version
 
-1. In cPanel, go to **Select PHP Version**
+1. In Site Tools, go to **Select PHP Version**
 2. Select **PHP 8.2** or higher
 3. Enable required extensions (see Server Requirements above)
 4. Click **Save**
@@ -189,9 +345,9 @@ cd fps
 
 **Important**: Upload the entire project, including hidden files like `.htaccess`
 
-### Option C: cPanel File Manager
+### Option C: Site Tools File Manager
 
-1. Log in to cPanel
+1. Log in to Site Tools
 2. Open **File Manager**
 3. Navigate to `public_html/`
 4. Create new folder: `fps`
@@ -204,7 +360,7 @@ cd fps
 
 ### 4.1 Create MySQL Database
 
-1. In cPanel, go to **MySQL Databases**
+1. In Site Tools, go to **MySQL Databases**
 2. Create a new database: `csjones_fps` (or your preferred name)
 3. Create a new MySQL user: `csjones_fpsuser`
 4. Set a strong password (save it securely)
@@ -420,7 +576,7 @@ For cleaner URLs, consider creating a subdomain:
 - Subdomain: `fps.csjones.co`
 - Document root: `public_html/fps/public/`
 
-This avoids the `/fps` path but requires DNS/subdomain setup in cPanel.
+This avoids the `/fps` path but requires DNS/subdomain setup in Site Tools.
 
 ---
 
@@ -621,31 +777,72 @@ If connection fails, verify:
 - Password is correct
 - Host is correct (usually `localhost`)
 
-### Issue 3: CSS/JS Assets Not Loading
+### Issue 3: CSS/JS Assets Not Loading (MIME Type Error)
 
-**Symptoms:** Page loads but has no styling, JavaScript errors in console
+**Symptoms:**
+- Page loads but has no styling or JavaScript errors in console
+- Browser console shows: `Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html"`
+- Files like `Login-CHtZ5lY7.js` cannot be loaded
 
-**Cause:** Asset paths incorrect for subfolder deployment
+**Cause:** Asset paths are incorrect for subfolder deployment. Vite needs to know the base path where assets will be served.
 
 **Solutions:**
 
-1. Verify `ASSET_URL` in `.env`:
+1. **Update `vite.config.js`** (most important):
+```javascript
+export default defineConfig({
+    // For subdirectory deployment (e.g., https://csjones.co/fps)
+    // The base path must include /build/ for proper asset resolution
+    base: '/fps/build/',
+    plugins: [
+        laravel({
+            input: ['resources/css/app.css', 'resources/js/app.js'],
+            refresh: true,
+            buildDirectory: 'build',
+        }),
+        vue(),
+    ],
+    // ... rest of config
+});
+```
+
+2. **Rebuild assets locally** with the updated configuration:
+```bash
+# On your local machine
+cd /Users/CSJ/Desktop/fpsV2
+npm run build
+```
+
+3. **Upload the new build files** to the server:
+```bash
+# Via SSH/SFTP, upload the entire public/build/ directory
+# Or use git to commit and pull on server
+```
+
+4. **Verify `ASSET_URL` in server `.env`**:
 ```env
 ASSET_URL=https://csjones.co/fps
 ```
 
-2. Clear config cache:
+5. **Clear config cache on server**:
 ```bash
 php artisan config:clear
 php artisan config:cache
 ```
 
-3. Check `public/build/manifest.json` exists:
+6. **Verify build directory exists on server**:
 ```bash
 ls -la ~/public_html/fps/public/build/
+# Should show: assets/, .vite/, manifest.json
 ```
 
-4. Verify `.htaccess` rewrite rules (see Step 8)
+7. **Check `.htaccess` rewrite rules** (see Step 8)
+
+**Important Notes:**
+- The `base: '/fps/build/'` in `vite.config.js` tells Vite where assets will be served from
+- The `ASSET_URL` in `.env` tells Laravel where to find assets
+- Both must match your deployment structure
+- Always rebuild assets after changing `vite.config.js`
 
 ### Issue 4: 404 on Routes
 
@@ -792,7 +989,7 @@ php artisan tinker
 
 ---
 
-### Option 2: Drop and Recreate Database via cPanel (Production Safe)
+### Option 2: Drop and Recreate Database via Site Tools (Production Safe)
 
 This method allows you to backup first and is safer for production environments.
 
@@ -812,11 +1009,11 @@ mysqldump -u csjones_fpsuser -p csjones_fps > ~/backups/fps_backup_$(date +%Y%m%
 ls -lh ~/backups/
 ```
 
-**Save this backup file!** Download it via FTP/SFTP or cPanel File Manager.
+**Save this backup file!** Download it via FTP/SFTP or Site Tools File Manager.
 
-#### Step 2: Drop Database via cPanel
+#### Step 2: Drop Database via Site Tools
 
-1. Log in to **SiteGround cPanel**
+1. Log in to **SiteGround Site Tools**
 2. Go to **MySQL Databases**
 3. Scroll to **Current Databases**
 4. Find `csjones_fps` database
@@ -824,7 +1021,7 @@ ls -lh ~/backups/
 
 #### Step 3: Recreate Database
 
-1. Still in **MySQL Databases** in cPanel
+1. Still in **MySQL Databases** in Site Tools
 2. Under **Create New Database**:
    - Database Name: `fps` (will become `csjones_fps`)
    - Click **Create Database**
@@ -934,8 +1131,8 @@ If you need to restore a previous database state:
 # SSH into server
 ssh username@csjones.co -p 18765
 
-# Drop current database (via cPanel or MySQL command line)
-# Then recreate empty database (via cPanel)
+# Drop current database (via Site Tools or MySQL command line)
+# Then recreate empty database (via Site Tools)
 
 # Restore from backup file
 mysql -u csjones_fpsuser -p csjones_fps < ~/backups/fps_backup_20251016_120000.sql
@@ -1097,8 +1294,8 @@ EXIT;
 **Error:** `SQLSTATE[HY000] [1049] Unknown database 'csjones_fps'`
 
 **Solution:**
-- Verify database was actually created in cPanel
-- Check database name in `.env` matches cPanel database name
+- Verify database was actually created in Site Tools
+- Check database name in `.env` matches Site Tools database name
 - Test connection: `php artisan tinker` → `\DB::connection()->getPdo()`
 
 #### Issue 4: Seeder Class Not Found
@@ -1163,9 +1360,9 @@ npm run build
 
 ### Backup Database
 
-Set up automated backups via cPanel:
+Set up automated backups via Site Tools:
 
-1. Go to **Backup Wizard** in cPanel
+1. Go to **Backup Wizard** in Site Tools
 2. Choose **Backup** → **Full Backup**
 3. Set up automated daily backups
 4. Download backups regularly
