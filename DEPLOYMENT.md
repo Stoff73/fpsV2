@@ -90,12 +90,14 @@ Verify your SiteGround server meets these requirements:
 # Navigate to your project directory
 cd /Users/CSJ/Desktop/fpsV2
 
-# Install production dependencies
-npm ci --production
+# Install all dependencies (including dev dependencies needed for build)
+npm install
 
 # Build for production
 npm run build
 ```
+
+**Note:** You must use `npm install` (not `npm ci --production`) because build tools like `vite` and `laravel-vite-plugin` are dev dependencies required for building.
 
 This creates optimized assets in `public/build/`.
 
