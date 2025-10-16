@@ -16,6 +16,8 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.axios.defaults.withCredentials = true;
 
 // Use environment-specific base URL (production or local development)
+// In production with subfolder deployment, VITE_API_BASE_URL should be set to the full path (e.g., https://csjones.co/fps)
+// In local development, it defaults to window.location.origin
 const apiBaseURL = import.meta.env.VITE_API_BASE_URL || window.location.origin;
 window.axios.defaults.baseURL = apiBaseURL;
 
