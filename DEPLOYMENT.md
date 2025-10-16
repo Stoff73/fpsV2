@@ -7,33 +7,39 @@ This guide provides step-by-step instructions for deploying the Financial Planni
 - **URL**: https://csjones.co/fps
 - **Server**: SiteGround.co.uk
 - **Control Panel**: Site Tools (https://tools.siteground.com)
-- **Installation Path**: `public_html/fps/`
+- **Installation Path**: `public_html/fps_laravel/` (Laravel application root)
+- **Web Access Path**: `public_html/fps` → symlink to `fps_laravel/public`
 - **Laravel Version**: 10.x
 - **PHP Version Required**: 8.2+
 - **Database**: MySQL 8.0+
 
-> **Note**: SiteGround uses **Site Tools** as their proprietary hosting management system. This guide has been updated to reflect Site Tools instead of cPanel.
+> **Note**: This guide uses a **symlink setup** where `fps/` is a symbolic link to `fps_laravel/public/`. This is the recommended secure approach for Laravel subdirectory deployment, keeping application code outside the web root.
+>
+> SiteGround uses **Site Tools** as their proprietary hosting management system. This guide has been updated to reflect Site Tools instead of cPanel.
 
 ---
 
 ## Table of Contents
 
 1. [Pre-Deployment Checklist](#pre-deployment-checklist)
-2. [Server Requirements](#server-requirements)
-3. [Step 1: Prepare Your Local Application](#step-1-prepare-your-local-application)
-4. [Step 2: Configure SiteGround Server](#step-2-configure-siteground-server)
-5. [Step 3: Upload Application Files](#step-3-upload-application-files)
-6. [Step 4: Configure Database](#step-4-configure-database)
-7. [Step 5: Configure Environment Variables](#step-5-configure-environment-variables)
-8. [Step 6: Set Up Directory Structure](#step-6-set-up-directory-structure)
-9. [Step 7: Install Dependencies](#step-7-install-dependencies)
-10. [Step 8: Configure Web Server](#step-8-configure-web-server)
-11. [Step 9: Run Migrations and Seeders](#step-9-run-migrations-and-seeders)
-12. [Step 10: Optimize for Production](#step-10-optimize-for-production)
-13. [Step 11: Set File Permissions](#step-11-set-file-permissions)
-14. [Step 12: Test Deployment](#step-12-test-deployment)
-15. [Troubleshooting](#troubleshooting)
-16. [Post-Deployment Maintenance](#post-deployment-maintenance)
+2. [How to SSH Into Your SiteGround Server](#how-to-ssh-into-your-siteground-server)
+3. [Server Requirements](#server-requirements)
+4. [Step 1: Prepare Your Local Application](#step-1-prepare-your-local-application)
+5. [Step 2: Configure SiteGround Server](#step-2-configure-siteground-server)
+6. [Step 3: Upload Application Files](#step-3-upload-application-files)
+7. [Step 4: Configure Database](#step-4-configure-database)
+8. [Step 5: Configure Environment Variables](#step-5-configure-environment-variables)
+9. [Step 6: Set Up Directory Structure with Symlink](#step-6-set-up-directory-structure-with-symlink)
+10. [Step 7: Install Dependencies](#step-7-install-dependencies)
+11. [Step 8: Upload Production Build Files](#step-8-upload-production-build-files)
+12. [Step 9: Configure Web Server](#step-9-configure-web-server)
+13. [Step 10: Run Migrations and Seeders](#step-10-run-migrations-and-seeders)
+14. [Step 11: Optimize for Production](#step-11-optimize-for-production)
+15. [Step 12: Set File Permissions](#step-12-set-file-permissions)
+16. [Step 13: Test Deployment](#step-13-test-deployment)
+17. [Troubleshooting](#troubleshooting)
+18. [Recreating the Database on the Server](#recreating-the-database-on-the-server)
+19. [Post-Deployment Maintenance](#post-deployment-maintenance)
 
 ---
 
@@ -322,26 +328,26 @@ If Composer is not installed, contact SiteGround support or install it manually.
 
 ## Step 3: Upload Application Files
 
-You have three options for uploading files:
+**Important:** With the symlink setup, you'll upload files to `fps_laravel/` and create a symlink at `fps/`.
 
 ### Option A: Git Clone (Recommended)
 
 SSH into your server:
 
 ```bash
-ssh username@csjones.co -p 18765
-cd public_html
-git clone https://github.com/Stoff73/fpsV2.git fps
-cd fps
+ssh -i ~/.ssh/siteground_key -p 18765 u163-ptanegf9edny@uk71.siteground.eu
+cd ~/www/csjones.co/public_html
+git clone https://github.com/Stoff73/fpsV2.git fps_laravel
+cd fps_laravel
 ```
 
 ### Option B: FTP/SFTP Upload
 
 1. Use an FTP client (FileZilla, Cyberduck, etc.)
 2. Connect to your SiteGround server via SFTP
-3. Navigate to `public_html/`
-4. Create `fps` folder
-5. Upload all files from your local project to `public_html/fps/`
+3. Navigate to `~/www/csjones.co/public_html/`
+4. Create `fps_laravel` folder
+5. Upload all files from your local project to `public_html/fps_laravel/`
 
 **Important**: Upload the entire project, including hidden files like `.htaccess`
 
@@ -349,8 +355,8 @@ cd fps
 
 1. Log in to Site Tools
 2. Open **File Manager**
-3. Navigate to `public_html/`
-4. Create new folder: `fps`
+3. Navigate to `~/www/csjones.co/public_html/`
+4. Create new folder: `fps_laravel`
 5. Upload `fps-deployment.zip` (if you created it)
 6. Extract the archive
 
@@ -387,7 +393,7 @@ DB_PASSWORD=your_secure_password
 SSH into your server:
 
 ```bash
-cd ~/public_html/fps
+cd ~/www/csjones.co/public_html/fps_laravel
 cp .env.example .env
 nano .env
 ```
@@ -445,7 +451,7 @@ Save and exit (`Ctrl+X`, then `Y`, then `Enter`).
 ### 5.3 Generate Application Key
 
 ```bash
-cd ~/public_html/fps
+cd ~/www/csjones.co/public_html/fps_laravel
 php artisan key:generate
 ```
 
@@ -453,37 +459,60 @@ This will update the `APP_KEY` in your `.env` file.
 
 ---
 
-## Step 6: Set Up Directory Structure
+## Step 6: Set Up Directory Structure with Symlink
 
 ### 6.1 Verify Directory Structure
 
-Your directory structure should look like this:
+Your directory structure should look like this with the **symlink setup**:
 
 ```
-public_html/fps/
-├── app/
-├── bootstrap/
-├── config/
-├── database/
-├── public/          # Laravel's public directory
-│   ├── build/       # Compiled Vue.js assets
-│   ├── index.php    # Laravel entry point
-│   └── .htaccess
-├── resources/
-├── routes/
-├── storage/
-│   ├── app/
-│   ├── framework/
-│   └── logs/
-├── vendor/
-├── .env
-├── artisan
-└── composer.json
+~/www/csjones.co/public_html/
+├── fps → fps_laravel/public  # Symbolic link (web-accessible)
+└── fps_laravel/               # Laravel application root (NOT web-accessible)
+    ├── app/
+    ├── bootstrap/
+    ├── config/
+    ├── database/
+    ├── public/                # Laravel's public directory
+    │   ├── build/             # Compiled Vue.js assets
+    │   │   ├── .vite/
+    │   │   │   └── manifest.json
+    │   │   ├── assets/
+    │   │   └── manifest.json  # Symlink to .vite/manifest.json
+    │   ├── index.php          # Laravel entry point
+    │   └── .htaccess
+    ├── resources/
+    ├── routes/
+    ├── storage/
+    │   ├── app/
+    │   ├── framework/
+    │   └── logs/
+    ├── vendor/
+    ├── .env
+    ├── artisan
+    └── composer.json
 ```
 
-### 6.2 Create Symbolic Link (Important)
+### 6.2 Create Symbolic Link (CRITICAL)
 
-Laravel's public directory needs to be accessible at `/fps`. We'll configure this in Step 8.
+This is the **most important step** for secure Laravel subdirectory deployment. The symlink makes only the `public` directory web-accessible while keeping application code secure.
+
+```bash
+cd ~/www/csjones.co/public_html
+
+# Create the symlink (if it doesn't already exist)
+ln -s fps_laravel/public fps
+
+# Verify the symlink was created correctly
+ls -la fps
+# Should show: fps -> fps_laravel/public
+
+# Verify the symlink works
+ls -la fps/
+# Should show contents of fps_laravel/public/ (index.php, .htaccess, etc.)
+```
+
+**Important:** If the `fps` symlink already exists and points to the correct location, you don't need to recreate it.
 
 ---
 
@@ -492,7 +521,7 @@ Laravel's public directory needs to be accessible at `/fps`. We'll configure thi
 ### 7.1 Install PHP Dependencies
 
 ```bash
-cd ~/public_html/fps
+cd ~/www/csjones.co/public_html/fps_laravel
 composer install --optimize-autoloader --no-dev
 ```
 
@@ -508,90 +537,127 @@ You should see: `Laravel Framework 10.x.x`
 
 ---
 
-## Step 8: Configure Web Server
+## Step 8: Upload Production Build Files
 
-Since you're accessing the app at `https://csjones.co/fps`, we need to configure the web server to point to Laravel's `public` directory.
+After building assets locally with the correct Vite configuration, you need to upload them to the server.
 
-### Option A: .htaccess in fps folder (Recommended)
+### 8.1 Build Assets Locally (if not already done)
 
-Create an `.htaccess` file in `public_html/fps/`:
-
-```bash
-cd ~/public_html/fps
-nano .htaccess
-```
-
-Add this content:
-
-```apache
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-
-    # Redirect all requests to the public subfolder
-    RewriteCond %{REQUEST_URI} !^/fps/public/
-    RewriteRule ^(.*)$ /fps/public/$1 [L]
-</IfModule>
-```
-
-Save and exit.
-
-### Option B: Update Laravel's public/.htaccess
-
-Edit `public_html/fps/public/.htaccess`:
+On your **local machine**:
 
 ```bash
-nano ~/public_html/fps/public/.htaccess
+cd /Users/CSJ/Desktop/fpsV2
+
+# Ensure vite.config.js has base: '/fps/build/'
+# Then build production assets
+npm run build
 ```
 
-Update the rewrite base:
+This creates the `public/build/` directory with all compiled assets.
 
-```apache
-<IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
+### 8.2 Upload Build Files to Server
 
-    RewriteEngine On
-    RewriteBase /fps/
+**Option A: SFTP/FTP (Recommended - Fastest)**
 
-    # Handle Authorization Header
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+Using FileZilla, Cyberduck, or any FTP client:
 
-    # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
+1. Connect to your server via SFTP
+2. Navigate to remote: `~/www/csjones.co/public_html/fps_laravel/public/`
+3. **Delete** the existing `build/` directory on the server (if it exists)
+4. **Upload** your local `public/build/` directory to the server
 
-    # Send Requests To Front Controller...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
-</IfModule>
+**Option B: Commit and Push via Git**
+
+On your **local machine**:
+
+```bash
+git add public/build/
+git commit -m "build: Add production assets"
+git push origin main
 ```
 
-### Option C: Subdomain Configuration (Alternative Approach)
+Then on the **server**:
 
-For cleaner URLs, consider creating a subdomain:
-- Subdomain: `fps.csjones.co`
-- Document root: `public_html/fps/public/`
+```bash
+cd ~/www/csjones.co/public_html/fps_laravel
+git pull origin main
+```
 
-This avoids the `/fps` path but requires DNS/subdomain setup in Site Tools.
+### 8.3 Create Manifest Symlink (CRITICAL)
+
+Laravel's Vite integration expects `manifest.json` at `public/build/manifest.json`, but Vite creates it at `public/build/.vite/manifest.json`. We need to create a symlink:
+
+```bash
+cd ~/www/csjones.co/public_html/fps_laravel
+
+# Create symlink so Laravel can find the manifest
+ln -s .vite/manifest.json public/build/manifest.json
+
+# Verify the symlink was created
+ls -la public/build/manifest.json
+# Should show: manifest.json -> .vite/manifest.json
+
+# Verify the symlink works
+cat public/build/manifest.json | head -5
+# Should show JSON content
+```
+
+**This step is essential** - without it, you'll get a "Vite manifest not found" error.
+
+### 8.4 Verify Build Files
+
+```bash
+# Check build directory structure
+ls -la public/build/
+# Should show: .vite/, assets/, manifest.json (symlink)
+
+# Check assets were uploaded
+ls -la public/build/assets/ | head -10
+# Should show .js and .css files with recent timestamps
+
+# Verify accessible via web symlink
+ls -la ~/www/csjones.co/public_html/fps/build/
+# Should show the same files (accessed through the fps symlink)
+```
 
 ---
 
-## Step 9: Run Migrations and Seeders
+## Step 9: Configure Web Server
 
-### 9.1 Run Database Migrations
+With the symlink setup, **no additional web server configuration is needed!** The `fps` symlink points directly to `fps_laravel/public`, which is Laravel's public directory.
+
+### Verify Web Server Configuration
+
+The existing `.htaccess` in `fps_laravel/public/.htaccess` should handle all routing automatically.
 
 ```bash
-cd ~/public_html/fps
+# Verify .htaccess exists and is readable
+cat ~/www/csjones.co/public_html/fps_laravel/public/.htaccess | head -20
+```
+
+You should see Laravel's default `.htaccess` with mod_rewrite rules. **No changes needed** - the symlink handles everything.
+
+### Why This Works
+
+- URL `https://csjones.co/fps/` → symlink `fps/` → actual directory `fps_laravel/public/`
+- URL `https://csjones.co/fps/build/assets/app.js` → `fps_laravel/public/build/assets/app.js`
+- Laravel's `.htaccess` in `public/` handles all routing
+- Application code in `fps_laravel/` remains secure (not web-accessible)
+
+---
+
+## Step 10: Run Migrations and Seeders
+
+### 10.1 Run Database Migrations
+
+```bash
+cd ~/www/csjones.co/public_html/fps_laravel
 php artisan migrate --force
 ```
 
 The `--force` flag is required in production environments.
 
-### 9.2 Seed Tax Configuration
+### 10.2 Seed Tax Configuration
 
 ```bash
 php artisan db:seed --class=TaxConfigurationSeeder --force
@@ -599,7 +665,7 @@ php artisan db:seed --class=TaxConfigurationSeeder --force
 
 This populates UK tax rules (NRB, RNRB, ISA allowances, etc.).
 
-### 9.3 (Optional) Seed Demo User
+### 10.3 (Optional) Seed Demo User
 
 For testing purposes, you can create a demo user with sample data:
 
@@ -609,7 +675,7 @@ php artisan db:seed --class=DemoUserSeeder --force
 
 This creates a demo user (`demo@example.com` / `password`) with sample data across all modules.
 
-### 9.4 Verify Database
+### 10.4 Verify Database
 
 Check that tables were created:
 
@@ -623,12 +689,12 @@ You should see all FPS tables (users, investments, trusts, gifts, etc.).
 
 ---
 
-## Step 10: Optimize for Production
+## Step 11: Optimize for Production
 
-### 10.1 Cache Configuration
+### 11.1 Cache Configuration
 
 ```bash
-cd ~/public_html/fps
+cd ~/www/csjones.co/public_html/fps_laravel
 
 # Cache config files
 php artisan config:cache
@@ -640,13 +706,13 @@ php artisan route:cache
 php artisan view:cache
 ```
 
-### 10.2 Optimize Autoloader
+### 11.2 Optimize Autoloader
 
 ```bash
 composer dump-autoload --optimize
 ```
 
-### 10.3 Clear Old Caches (if redeploying)
+### 11.3 Clear Old Caches (if redeploying)
 
 ```bash
 php artisan cache:clear
@@ -657,21 +723,21 @@ php artisan view:clear
 
 ---
 
-## Step 11: Set File Permissions
+## Step 12: Set File Permissions
 
 Proper file permissions are critical for security and functionality.
 
-### 11.1 Set Ownership (if you have sudo access)
+### 12.1 Set Ownership (if you have sudo access)
 
 ```bash
 # Set web server user as owner (usually 'nobody' or 'www-data' on SiteGround)
-chown -R $USER:$USER ~/public_html/fps
+chown -R $USER:$USER ~/www/csjones.co/public_html/fps_laravel
 ```
 
-### 11.2 Set Directory Permissions
+### 12.2 Set Directory Permissions
 
 ```bash
-cd ~/public_html/fps
+cd ~/www/csjones.co/public_html/fps_laravel
 
 # Set general permissions
 find . -type f -exec chmod 644 {} \;
@@ -684,7 +750,7 @@ chmod 755 artisan
 chmod -R 775 storage bootstrap/cache
 ```
 
-### 11.3 Protect Sensitive Files
+### 12.3 Protect Sensitive Files
 
 ```bash
 # Protect .env file
@@ -696,35 +762,42 @@ chmod 600 .env
 
 ---
 
-## Step 12: Test Deployment
+## Step 13: Test Deployment
 
-### 12.1 Access the Application
+### 13.1 Access the Application
 
 Visit: **https://csjones.co/fps**
 
-You should see the FPS login/register page.
+You should see the FPS login/register page with proper styling and no console errors.
 
-### 12.2 Register a Test User
+### 13.2 Verify Assets Load Correctly
+
+1. Open browser DevTools (F12)
+2. Go to **Console** tab - should be no MIME type errors
+3. Go to **Network** tab - verify all `.js` and `.css` files load with status 200
+4. Check that paths look like: `https://csjones.co/fps/build/assets/app-xxx.js`
+
+### 13.3 Register a Test User
 
 1. Click **Register**
 2. Create a test account
 3. Verify email functionality (if configured)
 4. Log in
 
-### 12.3 Test Key Features
+### 13.4 Test Key Features
 
-- [ ] Dashboard loads correctly
-- [ ] Navigation works (Protection, Savings, Investment, Retirement, Estate)
+- [ ] Dashboard loads correctly with charts
+- [ ] Navigation works (Protection, Savings, Investment, Retirement, Estate, UK Taxes)
 - [ ] Create test data in each module
 - [ ] Verify calculations (IHT, Monte Carlo, etc.)
 - [ ] Check trust creation and IHT planning
 - [ ] Verify charts render correctly (ApexCharts)
 - [ ] Test responsive design on mobile
 
-### 12.4 Check Logs for Errors
+### 13.5 Check Logs for Errors
 
 ```bash
-tail -f ~/public_html/fps/storage/logs/laravel.log
+tail -f ~/www/csjones.co/public_html/fps_laravel/storage/logs/laravel.log
 ```
 
 If you see errors, troubleshoot using the guide below.
@@ -733,38 +806,70 @@ If you see errors, troubleshoot using the guide below.
 
 ## Troubleshooting
 
-### Issue 1: 500 Internal Server Error
+### Issue 1: Vite Manifest Not Found (500 Error)
+
+**Error:** `Vite manifest not found at: /home/customer/www/csjones.co/public_html/fps_laravel/public/build/manifest.json`
+
+**Cause:** Laravel's Vite integration expects `manifest.json` at `public/build/manifest.json`, but Vite creates it at `public/build/.vite/manifest.json`.
+
+**Solution:**
+
+```bash
+cd ~/www/csjones.co/public_html/fps_laravel
+
+# Create symlink so Laravel can find the manifest
+ln -s .vite/manifest.json public/build/manifest.json
+
+# Verify the symlink was created
+ls -la public/build/manifest.json
+# Should show: manifest.json -> .vite/manifest.json
+
+# Clear view cache
+php artisan view:clear
+
+# Test the app
+```
+
+This is the **most common issue** with the symlink deployment setup.
+
+### Issue 2: 500 Internal Server Error (General)
 
 **Possible Causes:**
 - `.env` file missing or misconfigured
 - File permissions incorrect
 - PHP extensions missing
-- `.htaccess` misconfigured
+- Symlink not created correctly
 
 **Solutions:**
 ```bash
 # Check Laravel logs
-tail -100 ~/public_html/fps/storage/logs/laravel.log
+tail -100 ~/www/csjones.co/public_html/fps_laravel/storage/logs/laravel.log
 
 # Verify .env exists
-ls -la ~/public_html/fps/.env
+ls -la ~/www/csjones.co/public_html/fps_laravel/.env
+
+# Verify symlink exists
+ls -la ~/www/csjones.co/public_html/fps
+# Should show: fps -> fps_laravel/public
 
 # Check file permissions
-ls -la ~/public_html/fps/storage
+ls -la ~/www/csjones.co/public_html/fps_laravel/storage
 
 # Test PHP
 php -v
 php -m  # List installed modules
 ```
 
-### Issue 2: Database Connection Error
+### Issue 3: Database Connection Error
 
 **Error:** `SQLSTATE[HY000] [1045] Access denied`
 
 **Solutions:**
 ```bash
+cd ~/www/csjones.co/public_html/fps_laravel
+
 # Verify database credentials in .env
-cat ~/public_html/fps/.env | grep DB_
+cat .env | grep DB_
 
 # Test database connection
 php artisan tinker
@@ -777,7 +882,7 @@ If connection fails, verify:
 - Password is correct
 - Host is correct (usually `localhost`)
 
-### Issue 3: CSS/JS Assets Not Loading (MIME Type Error)
+### Issue 4: CSS/JS Assets Not Loading (MIME Type Error)
 
 **Symptoms:**
 - Page loads but has no styling or JavaScript errors in console
