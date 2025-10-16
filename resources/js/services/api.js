@@ -41,7 +41,9 @@ api.interceptors.response.use(
           // Clear token and redirect to login for protected routes
           localStorage.removeItem('auth_token');
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          // Get the base path from the current location to handle subfolder deployments
+          const basePath = window.location.pathname.includes('/fps/') ? '/fps' : '';
+          window.location.href = `${basePath}/login`;
         } else {
           // For auth endpoints, return the error to be handled by the component
           return Promise.reject({

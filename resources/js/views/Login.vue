@@ -128,8 +128,8 @@ export default {
           password: form.value.password,
         });
 
-        // Use full page navigation to ensure auth state is properly loaded
-        window.location.href = '/dashboard';
+        // Redirect to dashboard after successful login
+        router.push({ name: 'Dashboard' });
       } catch (error) {
         if (error.errors) {
           errors.value = error.errors;

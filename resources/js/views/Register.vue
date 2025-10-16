@@ -206,8 +206,8 @@ export default {
 
       try {
         await store.dispatch('auth/register', form.value);
-        // Use full page navigation to ensure auth state is properly loaded
-        window.location.href = '/dashboard';
+        // Redirect to dashboard after successful registration
+        router.push({ name: 'Dashboard' });
       } catch (error) {
         if (error.errors) {
           errors.value = error.errors;

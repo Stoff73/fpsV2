@@ -174,11 +174,11 @@ export default {
       loading.value = true;
       try {
         await store.dispatch('auth/logout');
-        window.location.href = '/login';
+        router.push({ name: 'Login' });
       } catch (error) {
         console.error('Sign out error:', error);
         // Force logout even if API call fails
-        window.location.href = '/login';
+        router.push({ name: 'Login' });
       }
     };
 
