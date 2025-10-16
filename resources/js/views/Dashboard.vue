@@ -163,14 +163,8 @@
           :priority-recommendations="estateData.priorityRecommendations"
         />
 
-        <!-- User Profile Card (static) -->
-        <div class="card">
-          <h3 class="text-h4 text-gray-900 mb-2">User Profile</h3>
-          <p class="text-body text-gray-600 mb-4">
-            Manage your personal information and preferences.
-          </p>
-          <span class="badge-info">Coming Soon</span>
-        </div>
+        <!-- UK Taxes & Allowances Card -->
+        <UKTaxesOverviewCard />
       </div>
     </div>
   </AppLayout>
@@ -184,6 +178,7 @@ import SavingsOverviewCard from '@/components/Savings/SavingsOverviewCard.vue';
 import InvestmentOverviewCard from '@/components/Investment/InvestmentOverviewCard.vue';
 import RetirementOverviewCard from '@/components/Retirement/RetirementOverviewCard.vue';
 import EstateOverviewCard from '@/components/Estate/EstateOverviewCard.vue';
+import UKTaxesOverviewCard from '@/components/Dashboard/UKTaxesOverviewCard.vue';
 
 export default {
   name: 'Dashboard',
@@ -195,6 +190,7 @@ export default {
     InvestmentOverviewCard,
     RetirementOverviewCard,
     EstateOverviewCard,
+    UKTaxesOverviewCard,
   },
 
   data() {

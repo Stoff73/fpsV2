@@ -121,27 +121,33 @@
               <p v-if="errors.asset_type" class="mt-1 text-sm text-red-600">{{ errors.asset_type }}</p>
             </div>
 
-            <!-- Quantity and Purchase Price -->
+            <!-- Allocation Percentage and Purchase Price (Optional) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">
-                  Quantity <span class="text-red-500">*</span>
+                <label for="allocation_percent" class="block text-sm font-medium text-gray-700 mb-1">
+                  Allocation % of Account <span class="text-red-500">*</span>
                 </label>
-                <input
-                  id="quantity"
-                  v-model.number="formData.quantity"
-                  type="number"
-                  step="0.0001"
-                  min="0"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  :class="{ 'border-red-500': errors.quantity }"
-                  required
-                />
-                <p v-if="errors.quantity" class="mt-1 text-sm text-red-600">{{ errors.quantity }}</p>
+                <div class="relative">
+                  <input
+                    id="allocation_percent"
+                    v-model.number="formData.allocation_percent"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8"
+                    :class="{ 'border-red-500': errors.allocation_percent }"
+                    placeholder="e.g., 25.5"
+                    required
+                  />
+                  <span class="absolute right-3 top-2.5 text-gray-500">%</span>
+                </div>
+                <p v-if="errors.allocation_percent" class="mt-1 text-sm text-red-600">{{ errors.allocation_percent }}</p>
+                <p class="mt-1 text-xs text-gray-500">Percentage of this account's total value</p>
               </div>
               <div>
                 <label for="purchase_price" class="block text-sm font-medium text-gray-700 mb-1">
-                  Purchase Price (£) <span class="text-red-500">*</span>
+                  Purchase Price (£) <span class="text-gray-400 text-xs">(Optional)</span>
                 </label>
                 <input
                   id="purchase_price"
@@ -151,32 +157,17 @@
                   min="0"
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   :class="{ 'border-red-500': errors.purchase_price }"
-                  required
+                  placeholder="0.00"
                 />
                 <p v-if="errors.purchase_price" class="mt-1 text-sm text-red-600">{{ errors.purchase_price }}</p>
               </div>
             </div>
 
-            <!-- Purchase Date and Current Price -->
+            <!-- Current Price (Optional) and Purchase Date -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label for="purchase_date" class="block text-sm font-medium text-gray-700 mb-1">
-                  Purchase Date <span class="text-red-500">*</span>
-                </label>
-                <input
-                  id="purchase_date"
-                  v-model="formData.purchase_date"
-                  type="date"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  :class="{ 'border-red-500': errors.purchase_date }"
-                  :max="today"
-                  required
-                />
-                <p v-if="errors.purchase_date" class="mt-1 text-sm text-red-600">{{ errors.purchase_date }}</p>
-              </div>
-              <div>
                 <label for="current_price" class="block text-sm font-medium text-gray-700 mb-1">
-                  Current Price (£) <span class="text-red-500">*</span>
+                  Current Price (£) <span class="text-gray-400 text-xs">(Optional)</span>
                 </label>
                 <input
                   id="current_price"
@@ -186,9 +177,23 @@
                   min="0"
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   :class="{ 'border-red-500': errors.current_price }"
-                  required
+                  placeholder="0.00"
                 />
                 <p v-if="errors.current_price" class="mt-1 text-sm text-red-600">{{ errors.current_price }}</p>
+              </div>
+              <div>
+                <label for="purchase_date" class="block text-sm font-medium text-gray-700 mb-1">
+                  Purchase Date <span class="text-gray-400 text-xs">(Optional)</span>
+                </label>
+                <input
+                  id="purchase_date"
+                  v-model="formData.purchase_date"
+                  type="date"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  :class="{ 'border-red-500': errors.purchase_date }"
+                  :max="today"
+                />
+                <p v-if="errors.purchase_date" class="mt-1 text-sm text-red-600">{{ errors.purchase_date }}</p>
               </div>
             </div>
 
@@ -211,15 +216,19 @@
             </div>
 
             <!-- Calculated Fields Display -->
-            <div v-if="formData.quantity && formData.current_price" class="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div v-if="selectedAccount && formData.allocation_percent" class="bg-blue-50 border border-blue-200 rounded-md p-4">
               <h4 class="text-sm font-semibold text-blue-900 mb-2">Calculated Values</h4>
               <div class="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span class="text-blue-700">Current Value:</span>
-                  <span class="ml-2 font-medium text-blue-900">{{ formatCurrency(currentValue) }}</span>
+                  <span class="text-blue-700">Account Value:</span>
+                  <span class="ml-2 font-medium text-blue-900">{{ formatCurrency(selectedAccount.current_value) }}</span>
                 </div>
-                <div v-if="formData.purchase_price">
-                  <span class="text-blue-700">Return:</span>
+                <div>
+                  <span class="text-blue-700">Holding Value:</span>
+                  <span class="ml-2 font-medium text-blue-900">{{ formatCurrency(calculatedHoldingValue) }}</span>
+                </div>
+                <div v-if="formData.purchase_price && formData.current_price">
+                  <span class="text-blue-700">Price Return:</span>
                   <span class="ml-2 font-medium" :class="returnClass">{{ formatReturn(returnPercent) }}</span>
                 </div>
               </div>
@@ -276,7 +285,7 @@ export default {
         ticker: '',
         isin: '',
         asset_type: '',
-        quantity: null,
+        allocation_percent: null,
         purchase_price: null,
         purchase_date: '',
         current_price: null,
@@ -296,8 +305,14 @@ export default {
       return new Date().toISOString().split('T')[0];
     },
 
-    currentValue() {
-      return (this.formData.quantity || 0) * (this.formData.current_price || 0);
+    selectedAccount() {
+      if (!this.formData.investment_account_id) return null;
+      return this.accounts.find(acc => acc.id === this.formData.investment_account_id);
+    },
+
+    calculatedHoldingValue() {
+      if (!this.selectedAccount || !this.formData.allocation_percent) return 0;
+      return (this.selectedAccount.current_value * this.formData.allocation_percent) / 100;
     },
 
     returnPercent() {
@@ -342,11 +357,11 @@ export default {
           return;
         }
 
-        // Calculate current_value and cost_basis before submitting
+        // Calculate current_value based on allocation percentage
         const holdingData = {
           ...this.formData,
-          current_value: this.formData.quantity * this.formData.current_price,
-          cost_basis: this.formData.quantity * this.formData.purchase_price
+          current_value: this.calculatedHoldingValue,
+          // cost_basis will be calculated on backend if purchase price is provided
         };
 
         this.$emit('save', holdingData);
@@ -379,23 +394,25 @@ export default {
         isValid = false;
       }
 
-      if (!this.formData.quantity || this.formData.quantity <= 0) {
-        this.errors.quantity = 'Quantity must be greater than 0';
+      if (!this.formData.allocation_percent || this.formData.allocation_percent <= 0) {
+        this.errors.allocation_percent = 'Allocation percentage must be greater than 0';
         isValid = false;
       }
 
-      if (!this.formData.purchase_price || this.formData.purchase_price <= 0) {
-        this.errors.purchase_price = 'Purchase price must be greater than 0';
+      if (this.formData.allocation_percent > 100) {
+        this.errors.allocation_percent = 'Allocation percentage cannot exceed 100%';
         isValid = false;
       }
 
-      if (!this.formData.purchase_date) {
-        this.errors.purchase_date = 'Purchase date is required';
+      // Optional validation: if purchase price is provided, it must be > 0
+      if (this.formData.purchase_price !== null && this.formData.purchase_price !== '' && this.formData.purchase_price <= 0) {
+        this.errors.purchase_price = 'Purchase price must be greater than 0 if provided';
         isValid = false;
       }
 
-      if (!this.formData.current_price || this.formData.current_price <= 0) {
-        this.errors.current_price = 'Current price must be greater than 0';
+      // Optional validation: if current price is provided, it must be > 0
+      if (this.formData.current_price !== null && this.formData.current_price !== '' && this.formData.current_price <= 0) {
+        this.errors.current_price = 'Current price must be greater than 0 if provided';
         isValid = false;
       }
 
@@ -414,7 +431,7 @@ export default {
         ticker: '',
         isin: '',
         asset_type: '',
-        quantity: null,
+        allocation_percent: null,
         purchase_price: null,
         purchase_date: '',
         current_price: null,

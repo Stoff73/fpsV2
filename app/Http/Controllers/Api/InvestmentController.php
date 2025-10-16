@@ -247,12 +247,28 @@ class InvestmentController extends Controller
 
         $account = InvestmentAccount::create($validated);
 
+        // Automatically create a Cash holding for 100% of the account value
+        // This will be reduced as users add other holdings
+        Holding::create([
+            'investment_account_id' => $account->id,
+            'asset_type' => 'cash',
+            'security_name' => 'Cash',
+            'allocation_percent' => 100.00,
+            'current_value' => $account->current_value,
+            'quantity' => null,
+            'purchase_price' => null,
+            'purchase_date' => null,
+            'current_price' => null,
+            'cost_basis' => null,
+            'ocf_percent' => 0.00,
+        ]);
+
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
 
         return response()->json([
             'success' => true,
-            'data' => $account,
+            'data' => $account->load('holdings'), // Include the cash holding in response
         ], 201);
     }
 
@@ -324,12 +340,11 @@ class InvestmentController extends Controller
             'security_name' => 'required|string|max:255',
             'ticker' => 'nullable|string|max:50',
             'isin' => 'nullable|string|max:50',
-            'quantity' => 'required|numeric|min:0',
-            'purchase_price' => 'required|numeric|min:0',
-            'purchase_date' => 'required|date',
-            'current_price' => 'required|numeric|min:0',
+            'allocation_percent' => 'required|numeric|min:0|max:100',
+            'purchase_price' => 'nullable|numeric|min:0',
+            'purchase_date' => 'nullable|date',
+            'current_price' => 'nullable|numeric|min:0',
             'current_value' => 'required|numeric|min:0',
-            'cost_basis' => 'required|numeric|min:0',
             'dividend_yield' => 'nullable|numeric|min:0|max:100',
             'ocf_percent' => 'nullable|numeric|min:0|max:100',
         ]);
@@ -339,7 +354,21 @@ class InvestmentController extends Controller
             ->where('user_id', $user->id)
             ->firstOrFail();
 
+        // Calculate cost_basis if purchase price is provided
+        if (isset($validated['purchase_price']) && isset($validated['current_price'])) {
+            // Calculate quantity from current value and price if both prices are provided
+            $validated['quantity'] = $validated['current_value'] / $validated['current_price'];
+            $validated['cost_basis'] = $validated['quantity'] * $validated['purchase_price'];
+        } else {
+            // No price data, set quantity and cost_basis to null
+            $validated['quantity'] = null;
+            $validated['cost_basis'] = null;
+        }
+
         $holding = Holding::create($validated);
+
+        // Auto-adjust Cash holding allocation
+        $this->adjustCashHolding($account);
 
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
@@ -348,6 +377,35 @@ class InvestmentController extends Controller
             'success' => true,
             'data' => $holding,
         ], 201);
+    }
+
+    /**
+     * Automatically adjust the Cash holding allocation based on other holdings
+     */
+    private function adjustCashHolding(InvestmentAccount $account): void
+    {
+        // Find the cash holding for this account
+        $cashHolding = Holding::where('investment_account_id', $account->id)
+            ->where('asset_type', 'cash')
+            ->first();
+
+        if (! $cashHolding) {
+            return; // No cash holding to adjust
+        }
+
+        // Calculate total allocation of non-cash holdings
+        $nonCashAllocation = Holding::where('investment_account_id', $account->id)
+            ->where('asset_type', '!=', 'cash')
+            ->sum('allocation_percent');
+
+        // Cash holding is the remaining allocation
+        $cashAllocation = max(0, 100 - $nonCashAllocation);
+
+        // Update cash holding
+        $cashHolding->update([
+            'allocation_percent' => $cashAllocation,
+            'current_value' => ($account->current_value * $cashAllocation) / 100,
+        ]);
     }
 
     /**
@@ -367,17 +425,30 @@ class InvestmentController extends Controller
             'security_name' => 'nullable|string|max:255',
             'ticker' => 'nullable|string|max:50',
             'isin' => 'nullable|string|max:50',
-            'quantity' => 'nullable|numeric|min:0',
+            'allocation_percent' => 'nullable|numeric|min:0|max:100',
             'purchase_price' => 'nullable|numeric|min:0',
             'purchase_date' => 'nullable|date',
             'current_price' => 'nullable|numeric|min:0',
             'current_value' => 'nullable|numeric|min:0',
-            'cost_basis' => 'nullable|numeric|min:0',
             'dividend_yield' => 'nullable|numeric|min:0|max:100',
             'ocf_percent' => 'nullable|numeric|min:0|max:100',
         ]);
 
+        // Recalculate quantity and cost_basis if prices are provided
+        if (isset($validated['current_value']) && isset($validated['current_price']) && $validated['current_price'] > 0) {
+            $validated['quantity'] = $validated['current_value'] / $validated['current_price'];
+
+            if (isset($validated['purchase_price'])) {
+                $validated['cost_basis'] = $validated['quantity'] * $validated['purchase_price'];
+            }
+        }
+
         $holding->update($validated);
+
+        // Auto-adjust Cash holding allocation if allocation changed
+        if (isset($validated['allocation_percent'])) {
+            $this->adjustCashHolding($holding->investmentAccount);
+        }
 
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
@@ -399,7 +470,13 @@ class InvestmentController extends Controller
             $query->where('user_id', $user->id);
         })->findOrFail($id);
 
+        // Store the account before deleting holding
+        $account = $holding->investmentAccount;
+
         $holding->delete();
+
+        // Auto-adjust Cash holding allocation after deletion
+        $this->adjustCashHolding($account);
 
         // Clear cache
         $this->investmentAgent->clearCache($user->id);

@@ -223,18 +223,27 @@ npm run dev
 npm run build
 ```
 
-### 7. Start Development Server
+### 7. Start Development Servers
 
+**⚠️ IMPORTANT**: You must run **BOTH** servers simultaneously in separate terminals:
+
+**Terminal 1 - Laravel Backend:**
 ```bash
-# Start Laravel development server
 php artisan serve
+```
+This starts the Laravel development server on `http://localhost:8000`
 
-# In a separate terminal, start Vite (if running dev build)
+**Terminal 2 - Vite Frontend:**
+```bash
 npm run dev
+```
+This starts the Vite dev server with HMR on `http://localhost:5173`
 
-# (Optional) Start queue worker for background jobs
+**Terminal 3 (Optional) - Queue Worker:**
+```bash
 php artisan queue:work database
 ```
+This runs background jobs for Monte Carlo simulations
 
 ### 8. Access the Application
 
@@ -284,16 +293,28 @@ QUEUE_CONNECTION=database
 
 ### Development Commands
 
+**⚠️ CRITICAL**: For the application to work, you must run **BOTH** servers simultaneously in separate terminal windows/tabs:
+
+**Terminal 1 - Laravel Backend:**
 ```bash
-# Start Laravel development server (port 8000)
 php artisan serve
+```
 
-# Start Vite dev server with HMR (separate terminal)
+**Terminal 2 - Vite Frontend:**
+```bash
 npm run dev
+```
 
-# Queue worker for background jobs (separate terminal)
+**Terminal 3 (Optional) - Queue Worker:**
+```bash
 php artisan queue:work database
 ```
+
+**Why both servers?**
+- **Laravel (port 8000)**: Serves the backend API and pages
+- **Vite (port 5173)**: Serves frontend assets with hot module replacement
+- Without Laravel running, you'll get "unable to reach" errors
+- Without Vite running (in dev), frontend assets won't load correctly
 
 ### Code Quality
 

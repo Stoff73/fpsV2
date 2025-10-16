@@ -2,6 +2,7 @@ import estateService from '@/services/estateService';
 
 const state = {
     assets: [],
+    investmentAccounts: [], // Investment accounts from Investment module
     liabilities: [],
     gifts: [],
     trusts: [],
@@ -15,9 +16,19 @@ const state = {
 };
 
 const getters = {
-    // Total assets value
-    totalAssets: (state) => {
-        return state.assets.reduce((sum, asset) => sum + parseFloat(asset.current_value || 0), 0);
+    // All assets (manual + investment accounts)
+    allAssets: (state) => {
+        const manualAssets = Array.isArray(state.assets) ? state.assets : [];
+        const investmentAssets = Array.isArray(state.investmentAccounts) ? state.investmentAccounts : [];
+        return [...manualAssets, ...investmentAssets].filter(asset => asset != null);
+    },
+
+    // Total assets value (including investment accounts)
+    totalAssets: (state, getters) => {
+        return getters.allAssets.reduce((sum, asset) => {
+            if (!asset || asset.current_value === undefined) return sum;
+            return sum + parseFloat(asset.current_value || 0);
+        }, 0);
     },
 
     // Total liabilities value
@@ -51,10 +62,10 @@ const getters = {
         return getters.giftsWithin7Years.reduce((sum, gift) => sum + parseFloat(gift.gift_value || 0), 0);
     },
 
-    // Assets by type
-    assetsByType: (state) => {
+    // Assets by type (including investment accounts)
+    assetsByType: (state, getters) => {
         const byType = {};
-        state.assets.forEach(asset => {
+        getters.allAssets.forEach(asset => {
             const type = asset.asset_type || 'Other';
             if (!byType[type]) {
                 byType[type] = [];
@@ -77,9 +88,9 @@ const getters = {
         return byType;
     },
 
-    // IHT exempt assets
-    ihtExemptAssets: (state) => {
-        return state.assets.filter(asset => asset.is_iht_exempt);
+    // IHT exempt assets (including investment accounts)
+    ihtExemptAssets: (state, getters) => {
+        return getters.allAssets.filter(asset => asset.is_iht_exempt);
     },
 
     // High priority recommendations
@@ -131,6 +142,7 @@ const actions = {
         try {
             const response = await estateService.getEstateData();
             commit('setAssets', response.data.assets || []);
+            commit('setInvestmentAccounts', response.data.investment_accounts || []);
             commit('setLiabilities', response.data.liabilities || []);
             commit('setGifts', response.data.gifts || []);
             commit('setTrusts', response.data.trusts || []);
@@ -465,6 +477,10 @@ const actions = {
 const mutations = {
     setAssets(state, assets) {
         state.assets = assets;
+    },
+
+    setInvestmentAccounts(state, investmentAccounts) {
+        state.investmentAccounts = investmentAccounts;
     },
 
     setLiabilities(state, liabilities) {

@@ -12,6 +12,7 @@ const InvestmentDashboard = () => import('@/views/Investment/InvestmentDashboard
 const RetirementDashboard = () => import('@/views/Retirement/RetirementDashboard.vue');
 const EstateDashboard = () => import('@/views/Estate/EstateDashboard.vue');
 const HolisticPlan = () => import('@/views/HolisticPlan.vue');
+const UKTaxesDashboard = () => import('@/views/UKTaxes/UKTaxesDashboard.vue');
 
 const routes = [
   {
@@ -111,6 +112,18 @@ const routes = [
       breadcrumb: [
         { label: 'Home', path: '/dashboard' },
         { label: 'Holistic Plan', path: '/holistic-plan' },
+      ],
+    },
+  },
+  {
+    path: '/uk-taxes',
+    name: 'UKTaxes',
+    component: UKTaxesDashboard,
+    meta: {
+      requiresAuth: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'UK Taxes & Allowances', path: '/uk-taxes' },
       ],
     },
   },

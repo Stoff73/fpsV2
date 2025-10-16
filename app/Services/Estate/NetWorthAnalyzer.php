@@ -7,6 +7,7 @@ namespace App\Services\Estate;
 use App\Models\Estate\Asset;
 use App\Models\Estate\Liability;
 use App\Models\Estate\NetWorthStatement;
+use App\Models\Investment\InvestmentAccount;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -17,9 +18,25 @@ class NetWorthAnalyzer
      */
     public function calculateNetWorth(int $userId): array
     {
-        // Get all assets
-        $assets = Asset::where('user_id', $userId)->get();
-        $totalAssets = $assets->sum('current_value');
+        // Get all manually entered assets
+        $manualAssets = Asset::where('user_id', $userId)->get();
+
+        // Get investment accounts from Investment module
+        $investmentAccounts = InvestmentAccount::where('user_id', $userId)->get();
+        $investmentTotalValue = $investmentAccounts->sum('current_value');
+
+        // Convert investment accounts to asset format for composition analysis
+        $investmentAssets = $investmentAccounts->map(function ($account) {
+            return (object) [
+                'asset_type' => 'investment',
+                'current_value' => $account->current_value,
+                'asset_name' => $account->provider . ' - ' . strtoupper($account->account_type),
+            ];
+        });
+
+        // Merge all assets
+        $allAssets = $manualAssets->concat($investmentAssets);
+        $totalAssets = $allAssets->sum('current_value');
 
         // Get all liabilities
         $liabilities = Liability::where('user_id', $userId)->get();
@@ -29,7 +46,7 @@ class NetWorthAnalyzer
         $netWorth = $totalAssets - $totalLiabilities;
 
         // Analyze asset composition
-        $assetComposition = $this->analyzeAssetComposition($assets);
+        $assetComposition = $this->analyzeAssetComposition($allAssets);
 
         // Analyze liability composition
         $liabilityComposition = $this->analyzeLiabilityComposition($liabilities);
@@ -40,6 +57,8 @@ class NetWorthAnalyzer
 
         return [
             'total_assets' => round($totalAssets, 2),
+            'total_manual_assets' => round($manualAssets->sum('current_value'), 2),
+            'total_investment_assets' => round($investmentTotalValue, 2),
             'total_liabilities' => round($totalLiabilities, 2),
             'net_worth' => round($netWorth, 2),
             'debt_to_asset_ratio' => round($debtToAssetRatio, 4),

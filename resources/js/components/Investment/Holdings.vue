@@ -75,7 +75,7 @@
               Cancel
             </button>
             <button
-              @click="deleteHolding"
+              @click="handleDelete"
               :disabled="deleting"
               class="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -155,18 +155,18 @@ export default {
 
       try {
         if (formData.id) {
-          // Update existing holding
+          // Update existing holding (store action handles analysis)
           await this.updateHolding({ id: formData.id, data: formData });
           this.successMessage = 'Holding updated successfully';
         } else {
-          // Create new holding
+          // Create new holding (store action handles analysis)
           await this.createHolding(formData);
           this.successMessage = 'Holding added successfully';
         }
 
-        // Refresh data and analysis
+        // Refresh data to get latest from server
+        // Note: analyzeInvestment() is already called by the store actions above
         await this.fetchInvestmentData();
-        await this.analyzeInvestment();
 
         // Auto-hide success message after 5 seconds
         setTimeout(() => {
@@ -184,7 +184,7 @@ export default {
       this.clearMessages();
     },
 
-    async deleteHolding() {
+    async handleDelete() {
       if (!this.holdingToDelete) return;
 
       this.deleting = true;
@@ -196,9 +196,8 @@ export default {
         this.showDeleteModal = false;
         this.holdingToDelete = null;
 
-        // Refresh data and analysis
+        // Refresh data (store action already handles analysis)
         await this.fetchInvestmentData();
-        await this.analyzeInvestment();
 
         // Auto-hide success message after 5 seconds
         setTimeout(() => {

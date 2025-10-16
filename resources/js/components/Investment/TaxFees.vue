@@ -38,16 +38,16 @@
     <!-- Fee Breakdown -->
     <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Fee Breakdown</h3>
-      <div v-if="feeBreakdown" class="space-y-4">
-        <div v-for="(fee, category) in feeBreakdown" :key="category" class="border-b border-gray-200 pb-3 last:border-b-0">
+      <div v-if="feeBreakdown && feeBreakdown.length > 0" class="space-y-4">
+        <div v-for="(fee, index) in feeBreakdown" :key="index" class="border-b border-gray-200 pb-3 last:border-b-0">
           <div class="flex justify-between items-center mb-2">
-            <span class="text-sm font-medium text-gray-700 capitalize">{{ formatCategory(category) }}</span>
-            <span class="text-sm font-semibold text-gray-900">{{ formatCurrency(fee) }}</span>
+            <span class="text-sm font-medium text-gray-700">{{ fee.type }}</span>
+            <span class="text-sm font-semibold text-gray-900">{{ formatCurrency(fee.amount) }}</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2">
             <div
               class="bg-blue-600 h-2 rounded-full"
-              :style="{ width: (fee / totalFees * 100) + '%' }"
+              :style="{ width: (fee.amount / totalFees * 100) + '%' }"
             ></div>
           </div>
         </div>
@@ -173,12 +173,6 @@ export default {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }).format(value || 0);
-    },
-
-    formatCategory(category) {
-      return category.split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
     },
 
     calculateCGT(unrealizedGain) {

@@ -11,6 +11,7 @@ use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Liability;
 use App\Models\Estate\Trust;
+use App\Models\Investment\InvestmentAccount;
 use App\Services\Estate\CashFlowProjector;
 use App\Services\Estate\IHTCalculator;
 use App\Services\Estate\NetWorthAnalyzer;
@@ -42,10 +43,41 @@ class EstateController extends Controller
         $trusts = Trust::where('user_id', $user->id)->get();
         $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
 
+        // Pull investment accounts and categorize for IHT
+        $investmentAccounts = InvestmentAccount::where('user_id', $user->id)->get();
+        $investmentAccountsFormatted = $investmentAccounts->map(function ($account) {
+            // Determine IHT exemption status based on account type
+            // VCT and EIS may qualify for Business Relief if held 2+ years
+            // For now, we'll mark them as potentially exempt with a note
+            $isIhtExempt = false;
+            $exemptionReason = null;
+
+            if (in_array($account->account_type, ['vct', 'eis'])) {
+                $exemptionReason = 'May qualify for Business Relief if held for 2+ years (manual verification required)';
+            }
+
+            return [
+                'id' => 'investment_' . $account->id,
+                'source' => 'investment_module',
+                'investment_account_id' => $account->id,
+                'asset_type' => 'investment',
+                'asset_name' => $account->provider . ' - ' . strtoupper($account->account_type) . ($account->platform ? ' (' . $account->platform . ')' : ''),
+                'account_type' => $account->account_type,
+                'current_value' => $account->current_value,
+                'is_iht_exempt' => $isIhtExempt,
+                'exemption_reason' => $exemptionReason,
+                'valuation_date' => $account->updated_at->format('Y-m-d'),
+                'ownership_type' => 'sole', // Default, user can change if joint
+                'provider' => $account->provider,
+                'platform' => $account->platform,
+            ];
+        });
+
         return response()->json([
             'success' => true,
             'data' => [
                 'assets' => $assets,
+                'investment_accounts' => $investmentAccountsFormatted,
                 'liabilities' => $liabilities,
                 'gifts' => $gifts,
                 'trusts' => $trusts,
@@ -130,6 +162,31 @@ class EstateController extends Controller
 
         try {
             $assets = Asset::where('user_id', $user->id)->get();
+
+            // Include investment accounts in estate calculation
+            $investmentAccounts = InvestmentAccount::where('user_id', $user->id)->get();
+
+            // Convert investment accounts to asset-compatible format for IHT calculation
+            $investmentAssets = $investmentAccounts->map(function ($account) {
+                return (object) [
+                    'current_value' => $account->current_value,
+                    'is_iht_exempt' => false, // All investment accounts are IHT taxable (ISAs, GIAs, bonds, etc.)
+                ];
+            });
+
+            // Merge manual assets and investment accounts
+            $allAssets = $assets->concat($investmentAssets);
+
+            // Debug logging
+            \Log::info('IHT Calculation Debug:', [
+                'manual_assets_count' => $assets->count(),
+                'manual_assets_total' => $assets->sum('current_value'),
+                'investment_accounts_count' => $investmentAccounts->count(),
+                'investment_accounts_total' => $investmentAccounts->sum('current_value'),
+                'total_assets_count' => $allAssets->count(),
+                'total_assets_value' => $allAssets->sum('current_value'),
+            ]);
+
             $gifts = Gift::where('user_id', $user->id)->get();
             $trusts = Trust::where('user_id', $user->id)->where('is_active', true)->get();
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
@@ -146,7 +203,7 @@ class EstateController extends Controller
                 ]);
             }
 
-            $ihtLiability = $this->ihtCalculator->calculateIHTLiability($assets, $ihtProfile, $gifts, $trusts);
+            $ihtLiability = $this->ihtCalculator->calculateIHTLiability($allAssets, $ihtProfile, $gifts, $trusts);
 
             return response()->json([
                 'success' => true,

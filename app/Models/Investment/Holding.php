@@ -15,6 +15,7 @@ class Holding extends Model
     protected $fillable = [
         'investment_account_id',
         'asset_type',
+        'allocation_percent',
         'security_name',
         'ticker',
         'isin',
@@ -29,6 +30,7 @@ class Holding extends Model
     ];
 
     protected $casts = [
+        'allocation_percent' => 'float',
         'quantity' => 'float',
         'purchase_price' => 'float',
         'purchase_date' => 'date',

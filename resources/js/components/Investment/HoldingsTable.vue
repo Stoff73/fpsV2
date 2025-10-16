@@ -61,10 +61,10 @@
             <th
               scope="col"
               class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              @click="sortBy('quantity')"
+              @click="sortBy('allocation_percent')"
             >
-              Quantity
-              <span v-if="sortField === 'quantity'" class="ml-1">
+              Allocation %
+              <span v-if="sortField === 'allocation_percent'" class="ml-1">
                 {{ sortDirection === 'asc' ? '↑' : '↓' }}
               </span>
             </th>
@@ -139,7 +139,7 @@
               </span>
             </td>
             <td class="px-4 py-3 text-sm text-right text-gray-900">
-              {{ formatNumber(holding.quantity) }}
+              {{ (holding.allocation_percent || 0).toFixed(2) }}%
             </td>
             <td class="px-4 py-3 text-sm text-right text-gray-900">
               {{ formatCurrency(holding.purchase_price) }}

@@ -25,12 +25,12 @@
     <!-- IHT Summary -->
     <div v-else-if="ihtData" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-purple-50 rounded-lg p-6">
-        <p class="text-sm text-purple-600 font-medium mb-2">Taxable Estate</p>
+        <p class="text-sm text-purple-600 font-medium mb-2">Gross Taxable Estate</p>
         <p class="text-3xl font-bold text-gray-900">{{ formattedTaxableEstate }}</p>
       </div>
       <div class="bg-green-50 rounded-lg p-6">
-        <p class="text-sm text-green-600 font-medium mb-2">Available Allowances</p>
-        <p class="text-3xl font-bold text-gray-900">{{ formattedAllowances }}</p>
+        <p class="text-sm text-green-600 font-medium mb-2">NRB Remaining</p>
+        <p class="text-3xl font-bold text-gray-900">{{ formattedNRBRemaining }}</p>
       </div>
       <div class="bg-red-50 rounded-lg p-6">
         <p class="text-sm text-red-600 font-medium mb-2">Total IHT Liability (if death now)</p>
@@ -47,7 +47,7 @@
         <h4 class="text-sm font-semibold text-gray-700 mb-3">Estate Calculation</h4>
         <div class="flex justify-between items-center py-2 border-b border-gray-200">
           <span class="text-sm text-gray-600">Total Estate Value (Assets)</span>
-          <span class="text-sm font-medium text-gray-900">{{ formattedNetWorth }}</span>
+          <span class="text-sm font-medium text-gray-900">{{ formatCurrency(ihtData?.gross_estate_value || 0) }}</span>
         </div>
 
         <!-- Trust Value in Estate -->
@@ -88,20 +88,24 @@
           <span class="text-sm text-amber-700">Less: NRB used by gifts (within 7 years)</span>
           <span class="text-sm font-medium text-amber-700">-{{ formatCurrency(ihtData?.nrb_used_by_gifts || 0) }}</span>
         </div>
-        <div class="flex justify-between items-center py-2 border-b border-gray-200 bg-green-50">
-          <span class="text-sm font-medium text-green-800">NRB Available for Estate</span>
-          <span class="text-sm font-semibold text-green-800">{{ formatCurrency(ihtData?.nrb_available_for_estate || 325000) }}</span>
+        <div class="flex justify-between items-center py-2 border-b border-gray-200 bg-purple-50">
+          <span class="text-sm font-medium text-purple-800">Gross Taxable Estate</span>
+          <span class="text-sm font-semibold text-purple-800">{{ formatCurrency(ihtData?.gross_estate_value || 0) }}</span>
         </div>
         <div class="flex justify-between items-center py-2 border-b border-gray-200 bg-green-50">
-          <span class="text-sm font-medium text-green-800">Plus: Residence Nil Rate Band (RNRB)</span>
-          <span class="text-sm font-semibold text-green-800">+{{ formatCurrency(ihtData?.rnrb || 175000) }}</span>
+          <span class="text-sm font-medium text-green-800">Less: NRB Available for Estate</span>
+          <span class="text-sm font-semibold text-green-800">-{{ formatCurrency(ihtData?.nrb_available_for_estate || 325000) }}</span>
+        </div>
+        <div v-if="ihtData?.rnrb_eligible" class="flex justify-between items-center py-2 border-b border-gray-200 bg-green-50">
+          <span class="text-sm font-medium text-green-800">Less: Residence Nil Rate Band (RNRB)</span>
+          <span class="text-sm font-semibold text-green-800">-{{ formatCurrency(ihtData?.rnrb || 0) }}</span>
         </div>
         <div class="flex justify-between items-center py-3 border-b border-gray-300 bg-green-100">
-          <span class="text-base font-bold text-green-900">Total Estate Allowances</span>
-          <span class="text-base font-bold text-green-900">{{ formatCurrency(ihtData?.total_allowance || 500000) }}</span>
+          <span class="text-base font-bold text-green-900">NRB Remaining</span>
+          <span class="text-base font-bold text-green-900">{{ formatCurrency(nrbRemaining) }}</span>
         </div>
         <div class="flex justify-between items-center py-3 bg-gray-50 rounded">
-          <span class="text-base font-semibold text-gray-900">Taxable Estate</span>
+          <span class="text-base font-semibold text-gray-900">Taxable Estate (After Allowances)</span>
           <span class="text-base font-bold text-gray-900">{{ formatCurrency(ihtData?.taxable_estate || 0) }}</span>
         </div>
         <div class="flex justify-between items-center py-3 bg-red-50 rounded">
@@ -318,11 +322,16 @@ export default {
     ...mapGetters('estate', ['netWorthValue', 'ihtLiability', 'ihtExemptAssets']),
 
     taxableEstate() {
-      return this.ihtData?.taxable_estate || 0;
+      // Show gross estate value (before allowances)
+      return this.ihtData?.gross_estate_value || 0;
     },
 
-    allowances() {
-      return this.ihtData?.total_allowance || (325000 + 175000);
+    nrbRemaining() {
+      // NRB Remaining = NRB Available for Estate - Gross Taxable Estate
+      // If result is negative, set to 0
+      const nrbAvailable = this.ihtData?.nrb_available_for_estate || 0;
+      const grossEstate = this.ihtData?.gross_estate_value || 0;
+      return Math.max(0, nrbAvailable - grossEstate);
     },
 
     formattedNetWorth() {
@@ -333,8 +342,8 @@ export default {
       return this.formatCurrency(this.taxableEstate);
     },
 
-    formattedAllowances() {
-      return this.formatCurrency(this.allowances);
+    formattedNRBRemaining() {
+      return this.formatCurrency(this.nrbRemaining);
     },
 
     formattedIHTLiability() {

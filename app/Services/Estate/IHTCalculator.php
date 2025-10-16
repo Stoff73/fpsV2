@@ -117,21 +117,27 @@ class IHTCalculator
      */
     public function checkRNRBEligibility(IHTProfile $profile, Collection $assets): bool
     {
-        // Must own a home
-        if (! $profile->own_home) {
-            return false;
+        // Check if there's a property asset in the assets list
+        $hasPropertyAsset = $assets->contains(function ($asset) {
+            return isset($asset->asset_type) &&
+                   in_array(strtolower($asset->asset_type), ['property', 'residential_property', 'main_residence', 'home']);
+        });
+
+        // If there's a property asset, RNRB is available
+        if ($hasPropertyAsset) {
+            return true;
         }
 
-        // Home value must be > 0
-        if ($profile->home_value <= 0) {
-            return false;
+        // Fallback: Check IHT profile settings
+        if ($profile->own_home && $profile->home_value > 0) {
+            return true;
         }
 
         // Must have direct descendants (simplified check - in real system would check will)
         // For now, we assume if they own a home, they qualify
         // In production, you'd check beneficiary designation for direct descendants
 
-        return true;
+        return false;
     }
 
     /**

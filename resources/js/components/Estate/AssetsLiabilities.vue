@@ -33,7 +33,12 @@
       <div class="bg-green-50 rounded-lg p-6">
         <p class="text-sm text-green-600 font-medium mb-2">Total Assets</p>
         <p class="text-3xl font-bold text-gray-900">{{ formattedTotalAssets }}</p>
-        <p class="text-sm text-gray-600 mt-1">{{ assets.length }} items</p>
+        <p class="text-sm text-gray-600 mt-1">
+          {{ assets.length }} items
+          <span v-if="investmentAccountsCount > 0" class="text-xs">
+            ({{ investmentAccountsCount }} from investments)
+          </span>
+        </p>
       </div>
       <div class="bg-red-50 rounded-lg p-6">
         <p class="text-sm text-red-600 font-medium mb-2">Total Liabilities</p>
@@ -94,9 +99,14 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="asset in assets" :key="asset.id">
+            <tr v-for="asset in assets" :key="asset.id" :class="{'bg-blue-50': asset.source === 'investment_module'}">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ asset.asset_type }}
+                <div class="flex items-center">
+                  {{ asset.asset_type }}
+                  <span v-if="asset.source === 'investment_module'" class="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded">
+                    Investment Module
+                  </span>
+                </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {{ asset.asset_name }}
@@ -113,20 +123,27 @@
                 >
                   {{ asset.is_iht_exempt ? 'Exempt' : 'Taxable' }}
                 </span>
+                <span v-if="asset.exemption_reason" class="ml-2 text-xs text-gray-500" :title="asset.exemption_reason">ℹ️</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                <button
-                  @click="editAsset(asset)"
-                  class="text-blue-600 hover:text-blue-900 mr-3"
-                >
-                  Edit
-                </button>
-                <button
-                  @click="deleteAssetConfirm(asset.id)"
-                  class="text-red-600 hover:text-red-900"
-                >
-                  Delete
-                </button>
+                <!-- Investment module assets are read-only -->
+                <span v-if="asset.source === 'investment_module'" class="text-gray-400 text-xs">
+                  Managed in Investment Module
+                </span>
+                <template v-else>
+                  <button
+                    @click="editAsset(asset)"
+                    class="text-blue-600 hover:text-blue-900 mr-3"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    @click="deleteAssetConfirm(asset.id)"
+                    class="text-red-600 hover:text-red-900"
+                  >
+                    Delete
+                  </button>
+                </template>
               </td>
             </tr>
           </tbody>
@@ -266,8 +283,18 @@ export default {
   },
 
   computed: {
-    ...mapState('estate', ['assets', 'liabilities']),
-    ...mapGetters('estate', ['totalAssets', 'totalLiabilities', 'netWorthValue']),
+    ...mapState('estate', ['liabilities']),
+    ...mapGetters('estate', ['allAssets', 'totalAssets', 'totalLiabilities', 'netWorthValue']),
+
+    // Use allAssets instead of just assets
+    assets() {
+      return this.allAssets;
+    },
+
+    investmentAccountsCount() {
+      if (!Array.isArray(this.assets)) return 0;
+      return this.assets.filter(asset => asset && asset.source === 'investment_module').length;
+    },
 
     formattedTotalAssets() {
       return this.formatCurrency(this.totalAssets);

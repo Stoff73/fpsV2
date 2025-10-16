@@ -14,6 +14,11 @@ class TaxEfficiencyCalculator
     public function calculateUnrealizedGains(Collection $holdings): array
     {
         $gains = $holdings->map(function ($holding) {
+            // Skip holdings without cost_basis (no price data provided)
+            if ($holding->cost_basis === null || $holding->cost_basis === 0) {
+                return null;
+            }
+
             $gain = $holding->current_value - $holding->cost_basis;
             $gainPercent = $holding->cost_basis > 0
                 ? ($gain / $holding->cost_basis) * 100
@@ -26,7 +31,7 @@ class TaxEfficiencyCalculator
                 'unrealized_gain' => round($gain, 2),
                 'gain_percent' => round($gainPercent, 2),
             ];
-        })->filter(fn ($h) => $h['unrealized_gain'] > 0);
+        })->filter(fn ($h) => $h !== null && $h['unrealized_gain'] > 0);
 
         $totalGain = $gains->sum('unrealized_gain');
 
@@ -108,6 +113,11 @@ class TaxEfficiencyCalculator
     {
         // Find holdings with losses that could be harvested
         $lossHoldings = $holdings->filter(function ($holding) {
+            // Skip holdings without cost_basis
+            if ($holding->cost_basis === null || $holding->cost_basis === 0) {
+                return false;
+            }
+
             $gain = $holding->current_value - $holding->cost_basis;
 
             return $gain < -100; // Only significant losses worth harvesting
