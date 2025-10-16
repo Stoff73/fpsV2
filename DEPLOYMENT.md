@@ -441,7 +441,17 @@ php artisan db:seed --class=TaxConfigurationSeeder --force
 
 This populates UK tax rules (NRB, RNRB, ISA allowances, etc.).
 
-### 9.3 Verify Database
+### 9.3 (Optional) Seed Demo User
+
+For testing purposes, you can create a demo user with sample data:
+
+```bash
+php artisan db:seed --class=DemoUserSeeder --force
+```
+
+This creates a demo user (`demo@example.com` / `password`) with sample data across all modules.
+
+### 9.4 Verify Database
 
 Check that tables were created:
 
@@ -744,6 +754,366 @@ max_execution_time = 120
 
 ---
 
+## Recreating the Database on the Server
+
+If you need to completely rebuild the database (e.g., after schema changes, corrupted data, or fresh deployment), follow these steps carefully.
+
+### Option 1: Fresh Migration (Recommended for Development/Testing)
+
+This will **DROP ALL TABLES** and recreate them from scratch. **WARNING: All data will be lost!**
+
+```bash
+# SSH into server
+ssh username@csjones.co -p 18765
+cd ~/public_html/fps
+
+# Drop all tables and re-migrate
+php artisan migrate:fresh --force
+
+# Seed tax configuration
+php artisan db:seed --class=TaxConfigurationSeeder --force
+
+# (Optional) Seed demo user with sample data
+php artisan db:seed --class=DemoUserSeeder --force
+
+# Verify tables were created
+php artisan tinker
+>>> \DB::select('SHOW TABLES');
+>>> exit
+```
+
+**When to use this:**
+- Fresh deployment
+- Development/staging environment
+- Testing database schema changes
+- **NEVER use on production with live user data**
+
+---
+
+### Option 2: Drop and Recreate Database via cPanel (Production Safe)
+
+This method allows you to backup first and is safer for production environments.
+
+#### Step 1: Backup Existing Database
+
+```bash
+# SSH into server
+ssh username@csjones.co -p 18765
+
+# Create backup directory if it doesn't exist
+mkdir -p ~/backups
+
+# Create database backup with timestamp
+mysqldump -u csjones_fpsuser -p csjones_fps > ~/backups/fps_backup_$(date +%Y%m%d_%H%M%S).sql
+
+# Verify backup was created
+ls -lh ~/backups/
+```
+
+**Save this backup file!** Download it via FTP/SFTP or cPanel File Manager.
+
+#### Step 2: Drop Database via cPanel
+
+1. Log in to **SiteGround cPanel**
+2. Go to **MySQL Databases**
+3. Scroll to **Current Databases**
+4. Find `csjones_fps` database
+5. Click **Delete** (confirm deletion)
+
+#### Step 3: Recreate Database
+
+1. Still in **MySQL Databases** in cPanel
+2. Under **Create New Database**:
+   - Database Name: `fps` (will become `csjones_fps`)
+   - Click **Create Database**
+3. Go back to **MySQL Databases**
+4. Under **Add User to Database**:
+   - User: Select `csjones_fpsuser`
+   - Database: Select `csjones_fps`
+   - Click **Add**
+5. On the **Manage User Privileges** page:
+   - Check **ALL PRIVILEGES**
+   - Click **Make Changes**
+
+#### Step 4: Run Fresh Migrations
+
+```bash
+# SSH into server
+ssh username@csjones.co -p 18765
+cd ~/public_html/fps
+
+# Verify database connection
+php artisan tinker
+>>> \DB::connection()->getPdo();
+>>> exit
+
+# Run fresh migrations
+php artisan migrate --force
+
+# Seed tax configuration
+php artisan db:seed --class=TaxConfigurationSeeder --force
+
+# (Optional) Seed demo user
+php artisan db:seed --class=DemoUserSeeder --force
+```
+
+#### Step 5: Verify Database
+
+```bash
+# Check tables were created
+php artisan tinker
+>>> \DB::select('SHOW TABLES');
+>>> \App\Models\User::count();  # Should be 0 (or 1 if you seeded demo user)
+>>> exit
+```
+
+---
+
+### Option 3: Drop and Recreate via Command Line (Advanced)
+
+For users comfortable with MySQL command line:
+
+#### Step 1: Backup Database
+
+```bash
+# Create backup
+mysqldump -u csjones_fpsuser -p csjones_fps > ~/backups/fps_backup_$(date +%Y%m%d_%H%M%S).sql
+```
+
+#### Step 2: Drop All Tables
+
+```bash
+# Connect to MySQL
+mysql -u csjones_fpsuser -p
+
+# Select database
+USE csjones_fps;
+
+# Disable foreign key checks
+SET FOREIGN_KEY_CHECKS = 0;
+
+# Generate DROP TABLE statements for all tables
+SELECT CONCAT('DROP TABLE IF EXISTS `', table_name, '`;')
+FROM information_schema.tables
+WHERE table_schema = 'csjones_fps';
+
+# Copy the output and execute each DROP TABLE statement
+# Example:
+# DROP TABLE IF EXISTS `users`;
+# DROP TABLE IF EXISTS `dc_pensions`;
+# ... (repeat for all tables)
+
+# Re-enable foreign key checks
+SET FOREIGN_KEY_CHECKS = 1;
+
+# Exit MySQL
+EXIT;
+```
+
+#### Step 3: Run Fresh Migrations
+
+```bash
+cd ~/public_html/fps
+
+# Run migrations
+php artisan migrate --force
+
+# Seed tax configuration
+php artisan db:seed --class=TaxConfigurationSeeder --force
+```
+
+---
+
+### Option 4: Restore from Backup
+
+If you need to restore a previous database state:
+
+```bash
+# SSH into server
+ssh username@csjones.co -p 18765
+
+# Drop current database (via cPanel or MySQL command line)
+# Then recreate empty database (via cPanel)
+
+# Restore from backup file
+mysql -u csjones_fpsuser -p csjones_fps < ~/backups/fps_backup_20251016_120000.sql
+
+# Verify restoration
+mysql -u csjones_fpsuser -p
+USE csjones_fps;
+SHOW TABLES;
+SELECT COUNT(*) FROM users;
+EXIT;
+```
+
+---
+
+### Option 5: Automated Database Recreation Script
+
+Create a shell script for quick database recreation (useful for frequent rebuilds):
+
+```bash
+# Create script
+nano ~/recreate_fps_db.sh
+```
+
+Add this content:
+
+```bash
+#!/bin/bash
+
+# Configuration
+DB_NAME="csjones_fps"
+DB_USER="csjones_fpsuser"
+PROJECT_DIR="$HOME/public_html/fps"
+BACKUP_DIR="$HOME/backups"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo -e "${YELLOW}FPS Database Recreation Script${NC}"
+echo "========================================"
+
+# Ask for confirmation
+read -p "This will DROP ALL DATA in $DB_NAME. Are you sure? (yes/no): " confirm
+if [ "$confirm" != "yes" ]; then
+    echo -e "${RED}Aborted.${NC}"
+    exit 1
+fi
+
+# Create backup directory
+mkdir -p "$BACKUP_DIR"
+
+# Backup existing database
+echo -e "${YELLOW}Creating backup...${NC}"
+BACKUP_FILE="$BACKUP_DIR/fps_backup_$(date +%Y%m%d_%H%M%S).sql"
+mysqldump -u "$DB_USER" -p "$DB_NAME" > "$BACKUP_FILE"
+echo -e "${GREEN}Backup created: $BACKUP_FILE${NC}"
+
+# Navigate to project
+cd "$PROJECT_DIR" || exit
+
+# Run fresh migration
+echo -e "${YELLOW}Running fresh migrations...${NC}"
+php artisan migrate:fresh --force
+
+# Seed tax configuration
+echo -e "${YELLOW}Seeding tax configuration...${NC}"
+php artisan db:seed --class=TaxConfigurationSeeder --force
+
+# Ask about demo user
+read -p "Seed demo user with sample data? (yes/no): " seed_demo
+if [ "$seed_demo" == "yes" ]; then
+    php artisan db:seed --class=DemoUserSeeder --force
+    echo -e "${GREEN}Demo user seeded.${NC}"
+fi
+
+# Clear caches
+echo -e "${YELLOW}Clearing caches...${NC}"
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Rebuild caches
+echo -e "${YELLOW}Building caches...${NC}"
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+echo -e "${GREEN}Database recreation complete!${NC}"
+echo "========================================"
+echo "Backup saved to: $BACKUP_FILE"
+echo "Tables created: $(php artisan tinker --execute="\DB::select('SHOW TABLES')" | wc -l)"
+echo "Ready to use!"
+```
+
+Make it executable and run:
+
+```bash
+# Make script executable
+chmod +x ~/recreate_fps_db.sh
+
+# Run the script
+~/recreate_fps_db.sh
+```
+
+---
+
+### Database Recreation Checklist
+
+Use this checklist when recreating the database:
+
+- [ ] **Backup current database** (if any data exists)
+- [ ] **Download backup file** to local machine (for safety)
+- [ ] **Verify backup file** is not empty/corrupt
+- [ ] **Drop all tables** or delete database
+- [ ] **Recreate database** with same name
+- [ ] **Re-add database user** with ALL PRIVILEGES
+- [ ] **Test database connection** (`php artisan tinker`)
+- [ ] **Run migrations** (`php artisan migrate --force`)
+- [ ] **Seed tax configuration** (`db:seed --class=TaxConfigurationSeeder`)
+- [ ] **Verify tables created** (`SHOW TABLES`)
+- [ ] **Test application login/register**
+- [ ] **Clear all caches** (config, route, view)
+- [ ] **Test all modules** (Protection, Savings, Investment, Retirement, Estate, UK Taxes)
+
+---
+
+### Common Database Recreation Issues
+
+#### Issue 1: Foreign Key Constraint Errors
+
+**Error:** `Cannot drop table 'users' referenced by a foreign key constraint`
+
+**Solution:**
+```bash
+# In MySQL console
+SET FOREIGN_KEY_CHECKS = 0;
+# Drop tables
+SET FOREIGN_KEY_CHECKS = 1;
+```
+
+#### Issue 2: Migration Already Run
+
+**Error:** `Migration already ran: 2024_01_01_000000_create_users_table`
+
+**Solution:**
+```bash
+# Clear migration records
+php artisan migrate:fresh --force
+# Or manually truncate migrations table
+mysql -u csjones_fpsuser -p
+TRUNCATE migrations;
+EXIT;
+```
+
+#### Issue 3: Database Connection After Recreation
+
+**Error:** `SQLSTATE[HY000] [1049] Unknown database 'csjones_fps'`
+
+**Solution:**
+- Verify database was actually created in cPanel
+- Check database name in `.env` matches cPanel database name
+- Test connection: `php artisan tinker` → `\DB::connection()->getPdo()`
+
+#### Issue 4: Seeder Class Not Found
+
+**Error:** `Target class [TaxConfigurationSeeder] does not exist`
+
+**Solution:**
+```bash
+# Regenerate autoload files
+composer dump-autoload
+
+# Run seeder again
+php artisan db:seed --class=TaxConfigurationSeeder --force
+```
+
+---
+
 ## Post-Deployment Maintenance
 
 ### Update Application
@@ -919,5 +1289,15 @@ Your FPS application should now be successfully deployed to SiteGround and acces
 
 For questions or issues, refer to the Troubleshooting section or contact support.
 
-**Last Updated**: October 15, 2025
-**Version**: 1.0.0
+**Last Updated**: October 16, 2025
+**Version**: 1.1.0
+
+## Recent Updates (v1.1.0)
+
+- Added comprehensive database recreation instructions (5 different methods)
+- Added automated database recreation script
+- Added database recreation checklist
+- Added troubleshooting for common database recreation issues
+- Updated migration and seeder instructions with DemoUserSeeder option
+- Added UK Taxes & Allowances module deployment notes
+- Added investment holdings percentage-based allocation migration notes
