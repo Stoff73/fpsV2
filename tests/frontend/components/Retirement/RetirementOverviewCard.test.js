@@ -4,125 +4,12 @@ import RetirementOverviewCard from '@/components/Retirement/RetirementOverviewCa
 
 describe('RetirementOverviewCard', () => {
   const defaultProps = {
-    readinessScore: 75,
+    totalPensionValue: 250000,
     projectedIncome: 25000,
-    targetIncome: 30000,
     yearsToRetirement: 20,
-    totalWealth: 200000,
   };
 
   it('renders with all props', () => {
-    const wrapper = mount(RetirementOverviewCard, {
-      props: defaultProps,
-    });
-
-    expect(wrapper.exists()).toBe(true);
-  });
-
-  it('displays readiness score', () => {
-    const wrapper = mount(RetirementOverviewCard, {
-      props: defaultProps,
-    });
-
-    const html = wrapper.html();
-    expect(html).toContain('75');
-  });
-
-  it('displays projected income formatted', () => {
-    const wrapper = mount(RetirementOverviewCard, {
-      props: defaultProps,
-    });
-
-    const html = wrapper.html();
-    // Should display formatted income (£25,000 or similar)
-    expect(html).toMatch(/25,?000|£25,?000/);
-  });
-
-  it('displays income information', () => {
-    const wrapper = mount(RetirementOverviewCard, {
-      props: defaultProps,
-    });
-
-    const html = wrapper.html();
-    // Should show projected income of £25,000 and gap of £5,000
-    expect(html).toMatch(/25,?000|£25,?000/);
-    expect(html).toMatch(/5,?000|£5,?000/);
-  });
-
-  it('displays years to retirement', () => {
-    const wrapper = mount(RetirementOverviewCard, {
-      props: defaultProps,
-    });
-
-    const html = wrapper.html();
-    expect(html).toContain('20');
-    expect(html).toMatch(/years?/i);
-  });
-
-  it('displays total wealth', () => {
-    const wrapper = mount(RetirementOverviewCard, {
-      props: defaultProps,
-    });
-
-    const html = wrapper.html();
-    expect(html).toMatch(/200,?000|£200,?000/);
-  });
-
-  it('shows income gap when projected < target', () => {
-    const wrapper = mount(RetirementOverviewCard, {
-      props: {
-        ...defaultProps,
-        projectedIncome: 25000,
-        targetIncome: 30000,
-      },
-    });
-
-    const html = wrapper.html();
-    // Should show gap of £5,000
-    expect(html).toMatch(/gap|shortfall|deficit/i);
-  });
-
-  it('shows income surplus when projected > target', () => {
-    const wrapper = mount(RetirementOverviewCard, {
-      props: {
-        ...defaultProps,
-        projectedIncome: 35000,
-        targetIncome: 30000,
-      },
-    });
-
-    const html = wrapper.html();
-    // Should show surplus of £5,000
-    expect(html).toMatch(/surplus|excess|above/i);
-  });
-
-  it('applies correct color coding for high readiness', () => {
-    const wrapper = mount(RetirementOverviewCard, {
-      props: {
-        ...defaultProps,
-        readinessScore: 95,
-      },
-    });
-
-    const html = wrapper.html();
-    // Should have green color classes
-    expect(html).toMatch(/green|success/i);
-  });
-
-  it('applies correct color coding for low readiness', () => {
-    const wrapper = mount(RetirementOverviewCard, {
-      props: {
-        ...defaultProps,
-        readinessScore: 30,
-      },
-    });
-
-    const html = wrapper.html();
-    // Should have red/warning color classes
-    expect(html).toMatch(/red|danger|warning/i);
-  });
-
-  it('is clickable and navigates to detail view', () => {
     const wrapper = mount(RetirementOverviewCard, {
       props: defaultProps,
       global: {
@@ -134,8 +21,181 @@ describe('RetirementOverviewCard', () => {
       },
     });
 
-    // Should have cursor-pointer class for clickability
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it('displays total pension value', () => {
+    const wrapper = mount(RetirementOverviewCard, {
+      props: defaultProps,
+      global: {
+        mocks: {
+          $router: {
+            push: () => {},
+          },
+        },
+      },
+    });
+
+    const html = wrapper.html();
+    expect(html).toMatch(/£250,000|250,000/);
+    expect(html).toMatch(/Total Pension Value/i);
+  });
+
+  it('displays projected income formatted', () => {
+    const wrapper = mount(RetirementOverviewCard, {
+      props: defaultProps,
+      global: {
+        mocks: {
+          $router: {
+            push: () => {},
+          },
+        },
+      },
+    });
+
+    const html = wrapper.html();
+    expect(html).toMatch(/£25,000|25,000/);
+    expect(html).toMatch(/Projected Income/i);
+  });
+
+  it('displays years to retirement', () => {
+    const wrapper = mount(RetirementOverviewCard, {
+      props: defaultProps,
+      global: {
+        mocks: {
+          $router: {
+            push: () => {},
+          },
+        },
+      },
+    });
+
+    const html = wrapper.html();
+    expect(html).toContain('20');
+    expect(html).toMatch(/years/i);
+  });
+
+  it('handles zero pension value', () => {
+    const wrapper = mount(RetirementOverviewCard, {
+      props: {
+        totalPensionValue: 0,
+        projectedIncome: 0,
+        yearsToRetirement: 25,
+      },
+      global: {
+        mocks: {
+          $router: {
+            push: () => {},
+          },
+        },
+      },
+    });
+
+    expect(wrapper.vm.totalPensionValue).toBe(0);
+    const html = wrapper.html();
+    expect(html).toMatch(/£0|0/);
+  });
+
+  it('handles large pension values', () => {
+    const wrapper = mount(RetirementOverviewCard, {
+      props: {
+        totalPensionValue: 1500000,
+        projectedIncome: 60000,
+        yearsToRetirement: 10,
+      },
+      global: {
+        mocks: {
+          $router: {
+            push: () => {},
+          },
+        },
+      },
+    });
+
+    const html = wrapper.html();
+    expect(html).toMatch(/1,500,000/);
+    expect(html).toMatch(/60,000/);
+  });
+
+  it('displays retirement planning card title', () => {
+    const wrapper = mount(RetirementOverviewCard, {
+      props: defaultProps,
+      global: {
+        mocks: {
+          $router: {
+            push: () => {},
+          },
+        },
+      },
+    });
+
+    const html = wrapper.html();
+    expect(html).toMatch(/Retirement Planning/i);
+  });
+
+  it('has primary metric section with pension value', () => {
+    const wrapper = mount(RetirementOverviewCard, {
+      props: defaultProps,
+      global: {
+        mocks: {
+          $router: {
+            push: () => {},
+          },
+        },
+      },
+    });
+
+    const html = wrapper.html();
+    expect(html).toMatch(/bg-indigo-50/);
+    expect(html).toMatch(/text-3xl/);
+  });
+
+  it('is clickable and has cursor-pointer class', () => {
+    const wrapper = mount(RetirementOverviewCard, {
+      props: defaultProps,
+      global: {
+        mocks: {
+          $router: {
+            push: () => {},
+          },
+        },
+      },
+    });
+
     const html = wrapper.html();
     expect(html).toMatch(/cursor-pointer/);
+  });
+
+  it('shows View Full Analysis link', () => {
+    const wrapper = mount(RetirementOverviewCard, {
+      props: defaultProps,
+      global: {
+        mocks: {
+          $router: {
+            push: () => {},
+          },
+        },
+      },
+    });
+
+    const html = wrapper.html();
+    expect(html).toMatch(/View Full Analysis/i);
+  });
+
+  it('navigates to retirement page when clicked', async () => {
+    const mockPush = vi.fn();
+    const wrapper = mount(RetirementOverviewCard, {
+      props: defaultProps,
+      global: {
+        mocks: {
+          $router: {
+            push: mockPush,
+          },
+        },
+      },
+    });
+
+    await wrapper.trigger('click');
+    expect(mockPush).toHaveBeenCalledWith('/retirement');
   });
 });

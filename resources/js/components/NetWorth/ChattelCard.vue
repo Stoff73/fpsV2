@@ -1,0 +1,222 @@
+<template>
+  <div class="chattel-card" @click="viewDetails">
+    <div class="card-header">
+      <span class="chattel-type-badge" :class="typeClass">
+        {{ chattelTypeLabel }}
+      </span>
+      <span v-if="isJoint" class="ownership-badge">
+        {{ chattel.ownership_percentage }}%
+      </span>
+    </div>
+
+    <div class="card-content">
+      <h3 class="chattel-name">{{ chattel.chattel_name }}</h3>
+
+      <div v-if="isVehicle" class="vehicle-details">
+        <p class="vehicle-info">{{ vehicleDescription }}</p>
+      </div>
+
+      <div class="chattel-details">
+        <div class="detail-row">
+          <span class="detail-label">Current Value</span>
+          <span class="detail-value">{{ formatCurrency(chattel.current_value) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'ChattelCard',
+
+  props: {
+    chattel: {
+      type: Object,
+      required: true,
+    },
+  },
+
+  computed: {
+    chattelTypeLabel() {
+      const labels = {
+        vehicle: 'Vehicle',
+        art: 'Art',
+        antique: 'Antique',
+        jewelry: 'Jewelry',
+        collectible: 'Collectible',
+        other: 'Other',
+      };
+      return labels[this.chattel.chattel_type] || this.chattel.chattel_type;
+    },
+
+    typeClass() {
+      return `type-${this.chattel.chattel_type}`;
+    },
+
+    isJoint() {
+      return this.chattel.ownership_percentage < 100;
+    },
+
+    isVehicle() {
+      return this.chattel.chattel_type === 'vehicle';
+    },
+
+    vehicleDescription() {
+      const parts = [];
+      if (this.chattel.vehicle_year) parts.push(this.chattel.vehicle_year);
+      if (this.chattel.vehicle_make) parts.push(this.chattel.vehicle_make);
+      if (this.chattel.vehicle_model) parts.push(this.chattel.vehicle_model);
+      if (this.chattel.vehicle_registration) parts.push(`(${this.chattel.vehicle_registration})`);
+      return parts.join(' ');
+    },
+  },
+
+  methods: {
+    formatCurrency(value) {
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    },
+
+    viewDetails() {
+      // Navigate to chattel detail (Phase 4)
+      // this.$router.push(`/net-worth/chattels/${this.chattel.id}`);
+    },
+  },
+};
+</script>
+
+<style scoped>
+.chattel-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chattel-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-color: #ec4899;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chattel-type-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.type-vehicle {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.type-art {
+  background: #fce7f3;
+  color: #9f1239;
+}
+
+.type-antique {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.type-jewelry {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.type-collectible {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.type-other {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.ownership-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chattel-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.vehicle-details {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.vehicle-info {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.chattel-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.detail-label {
+  color: #6b7280;
+}
+
+.detail-value {
+  color: #111827;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .chattel-card {
+    padding: 16px;
+  }
+
+  .chattel-name {
+    font-size: 16px;
+  }
+}
+</style>

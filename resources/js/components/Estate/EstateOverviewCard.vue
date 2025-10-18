@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <!-- Net Worth -->
+    <!-- Net Worth (from NetWorth module) -->
     <div class="mb-6">
       <div class="flex items-baseline mb-2">
         <span class="text-4xl font-bold text-blue-600">
@@ -33,7 +33,7 @@
       <p class="text-sm text-gray-600">Total Net Worth</p>
     </div>
 
-    <!-- IHT Liability & Taxable Estate -->
+    <!-- IHT Liability & Probate Readiness -->
     <div class="grid grid-cols-2 gap-4 mb-4">
       <div>
         <p class="text-sm text-gray-600 mb-1">IHT Liability</p>
@@ -45,9 +45,9 @@
         </p>
       </div>
       <div>
-        <p class="text-sm text-gray-600 mb-1">Taxable Estate</p>
-        <p class="text-lg font-semibold text-gray-800">
-          {{ formattedTaxableEstate }}
+        <p class="text-sm text-gray-600 mb-1">Probate Readiness</p>
+        <p class="text-lg font-semibold" :class="probateReadinessColor">
+          {{ probateReadiness }}%
         </p>
       </div>
     </div>
@@ -70,7 +70,7 @@
         />
       </svg>
       <span class="text-sm font-medium text-amber-800">
-        IHT liability identified - {{ priorityRecommendations }} {{ priorityRecommendations === 1 ? 'recommendation' : 'recommendations' }}
+        IHT planning recommended
       </span>
     </div>
 
@@ -112,12 +112,7 @@ export default {
       required: true,
       default: 0,
     },
-    taxableEstate: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    priorityRecommendations: {
+    probateReadiness: {
       type: Number,
       required: true,
       default: 0,
@@ -143,19 +138,20 @@ export default {
       }).format(this.ihtLiability);
     },
 
-    formattedTaxableEstate() {
-      return new Intl.NumberFormat('en-GB', {
-        style: 'currency',
-        currency: 'GBP',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(this.taxableEstate);
-    },
-
     ihtLiabilityColor() {
       if (this.ihtLiability === 0) {
         return 'text-green-600';
       } else if (this.ihtLiability < 100000) {
+        return 'text-amber-600';
+      } else {
+        return 'text-red-600';
+      }
+    },
+
+    probateReadinessColor() {
+      if (this.probateReadiness >= 80) {
+        return 'text-green-600';
+      } else if (this.probateReadiness >= 50) {
         return 'text-amber-600';
       } else {
         return 'text-red-600';

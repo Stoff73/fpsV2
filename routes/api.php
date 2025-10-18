@@ -3,11 +3,19 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EstateController;
+use App\Http\Controllers\Api\FamilyMembersController;
 use App\Http\Controllers\Api\HolisticPlanningController;
 use App\Http\Controllers\Api\InvestmentController;
+use App\Http\Controllers\Api\MortgageController;
+use App\Http\Controllers\Api\NetWorthController;
+use App\Http\Controllers\Api\PersonalAccountsController;
+use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\ProtectionController;
+use App\Http\Controllers\Api\RecommendationsController;
 use App\Http\Controllers\Api\RetirementController;
 use App\Http\Controllers\Api\SavingsController;
+use App\Http\Controllers\Api\UKTaxesController;
+use App\Http\Controllers\Api\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,6 +38,72 @@ Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/user', [AuthController::class, 'user']);
     });
+});
+
+// User Profile routes (Phase 2)
+Route::middleware('auth:sanctum')->prefix('user')->group(function () {
+    // Profile endpoints
+    Route::get('/profile', [UserProfileController::class, 'getProfile']);
+    Route::put('/profile/personal', [UserProfileController::class, 'updatePersonalInfo']);
+    Route::put('/profile/income-occupation', [UserProfileController::class, 'updateIncomeOccupation']);
+
+    // Family Members CRUD
+    Route::prefix('family-members')->group(function () {
+        Route::get('/', [FamilyMembersController::class, 'index']);
+        Route::post('/', [FamilyMembersController::class, 'store']);
+        Route::get('/{id}', [FamilyMembersController::class, 'show']);
+        Route::put('/{id}', [FamilyMembersController::class, 'update']);
+        Route::delete('/{id}', [FamilyMembersController::class, 'destroy']);
+    });
+
+    // Personal Accounts (P&L, Cashflow, Balance Sheet)
+    Route::prefix('personal-accounts')->group(function () {
+        Route::get('/', [PersonalAccountsController::class, 'index']);
+        Route::post('/calculate', [PersonalAccountsController::class, 'calculate']);
+        Route::post('/line-item', [PersonalAccountsController::class, 'storeLineItem']);
+        Route::put('/line-item/{id}', [PersonalAccountsController::class, 'updateLineItem']);
+        Route::delete('/line-item/{id}', [PersonalAccountsController::class, 'deleteLineItem']);
+    });
+});
+
+// Net Worth routes (Phase 3)
+Route::middleware('auth:sanctum')->prefix('net-worth')->group(function () {
+    Route::get('/overview', [NetWorthController::class, 'getOverview']);
+    Route::get('/breakdown', [NetWorthController::class, 'getBreakdown']);
+    Route::get('/trend', [NetWorthController::class, 'getTrend']);
+    Route::get('/assets-summary', [NetWorthController::class, 'getAssetsSummary']);
+    Route::get('/joint-assets', [NetWorthController::class, 'getJointAssets']);
+    Route::post('/refresh', [NetWorthController::class, 'refresh']);
+});
+
+// Property routes (Phase 4)
+Route::middleware('auth:sanctum')->prefix('properties')->group(function () {
+    // Property CRUD
+    Route::get('/', [PropertyController::class, 'index']);
+    Route::post('/', [PropertyController::class, 'store']);
+    Route::get('/{id}', [PropertyController::class, 'show']);
+    Route::put('/{id}', [PropertyController::class, 'update']);
+    Route::delete('/{id}', [PropertyController::class, 'destroy']);
+
+    // Tax calculations
+    Route::post('/calculate-sdlt', [PropertyController::class, 'calculateSDLT']);
+    Route::post('/{id}/calculate-cgt', [PropertyController::class, 'calculateCGT']);
+    Route::post('/{id}/rental-income-tax', [PropertyController::class, 'calculateRentalIncomeTax']);
+
+    // Mortgages for a property
+    Route::prefix('{propertyId}/mortgages')->group(function () {
+        Route::get('/', [MortgageController::class, 'index']);
+        Route::post('/', [MortgageController::class, 'store']);
+    });
+});
+
+// Mortgage routes (Phase 4)
+Route::middleware('auth:sanctum')->prefix('mortgages')->group(function () {
+    Route::get('/{id}', [MortgageController::class, 'show']);
+    Route::put('/{id}', [MortgageController::class, 'update']);
+    Route::delete('/{id}', [MortgageController::class, 'destroy']);
+    Route::get('/{id}/amortization-schedule', [MortgageController::class, 'amortizationSchedule']);
+    Route::post('/calculate-payment', [MortgageController::class, 'calculatePayment']);
 });
 
 // Dashboard routes (aggregated data from all modules)
@@ -197,10 +271,13 @@ Route::middleware('auth:sanctum')->prefix('estate')->group(function () {
         Route::put('/{id}', [EstateController::class, 'updateTrust']);
         Route::delete('/{id}', [EstateController::class, 'deleteTrust']);
         Route::get('/{id}/analyze', [EstateController::class, 'analyzeTrust']);
+        Route::get('/{id}/assets', [EstateController::class, 'getTrustAssets']);
+        Route::post('/{id}/calculate-iht-impact', [EstateController::class, 'calculateTrustIHTImpact']);
     });
 
-    // Trust planning
+    // Trust planning and tax returns
     Route::get('/trust-recommendations', [EstateController::class, 'getTrustRecommendations']);
+    Route::get('/trusts/upcoming-tax-returns', [EstateController::class, 'getUpcomingTaxReturns']);
     Route::post('/calculate-discount', [EstateController::class, 'calculateDiscountedGiftDiscount']);
 });
 
@@ -247,4 +324,24 @@ Route::middleware('auth:sanctum')->prefix('holistic')->group(function () {
     Route::post('/recommendations/{id}/dismiss', [HolisticPlanningController::class, 'dismissRecommendation']);
     Route::get('/recommendations/completed', [HolisticPlanningController::class, 'completedRecommendations']);
     Route::patch('/recommendations/{id}/notes', [HolisticPlanningController::class, 'updateRecommendationNotes']);
+});
+
+// Unified Recommendations routes (Phase 5)
+Route::middleware('auth:sanctum')->prefix('recommendations')->group(function () {
+    // Main recommendations endpoints
+    Route::get('/', [RecommendationsController::class, 'index']);
+    Route::get('/summary', [RecommendationsController::class, 'summary']);
+    Route::get('/top', [RecommendationsController::class, 'top']);
+    Route::get('/completed', [RecommendationsController::class, 'completed']);
+
+    // Recommendation tracking actions
+    Route::post('/{id}/mark-done', [RecommendationsController::class, 'markDone']);
+    Route::post('/{id}/in-progress', [RecommendationsController::class, 'markInProgress']);
+    Route::post('/{id}/dismiss', [RecommendationsController::class, 'dismiss']);
+    Route::patch('/{id}/notes', [RecommendationsController::class, 'updateNotes']);
+});
+
+// UK Taxes & Allowances routes (Admin only)
+Route::middleware(['auth:sanctum', 'admin'])->prefix('uk-taxes')->group(function () {
+    Route::get('/', [UKTaxesController::class, 'index']);
 });

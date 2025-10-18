@@ -17,6 +17,8 @@ class InvestmentAccountFactory extends Factory
 
     public function definition(): array
     {
+        $ownershipType = $this->faker->randomElement(['individual', 'joint']);
+
         return [
             'user_id' => User::factory(),
             'account_type' => $this->faker->randomElement(['isa', 'gia', 'onshore_bond', 'offshore_bond', 'vct', 'eis']),
@@ -27,6 +29,8 @@ class InvestmentAccountFactory extends Factory
             'contributions_ytd' => $this->faker->randomFloat(2, 0, 20000),
             'tax_year' => $this->faker->randomElement(['2023/24', '2024/25']),
             'platform_fee_percent' => $this->faker->randomFloat(4, 0.10, 0.45),
+            'ownership_type' => $ownershipType,
+            'ownership_percentage' => $ownershipType === 'joint' ? 50.00 : 100.00,
         ];
     }
 

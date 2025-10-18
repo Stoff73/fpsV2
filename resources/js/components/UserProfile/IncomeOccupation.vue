@@ -1,0 +1,379 @@
+<template>
+  <div>
+    <div class="mb-6">
+      <h2 class="text-h4 font-semibold text-gray-900">Income & Occupation</h2>
+      <p class="mt-1 text-body-sm text-gray-600">
+        Update your employment and income information
+      </p>
+    </div>
+
+    <!-- Success Message -->
+    <div v-if="successMessage" class="rounded-md bg-success-50 p-4 mb-6">
+      <div class="flex">
+        <div class="ml-3">
+          <p class="text-body-sm font-medium text-success-800">
+            {{ successMessage }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div v-if="errorMessage" class="rounded-md bg-error-50 p-4 mb-6">
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-body-sm font-medium text-error-800">Error updating information</h3>
+          <div class="mt-2 text-body-sm text-error-700">
+            <p>{{ errorMessage }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- Employment Information -->
+      <div class="card p-6">
+        <h3 class="text-h5 font-semibold text-gray-900 mb-4">Employment Information</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Occupation -->
+          <div>
+            <label for="occupation" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Occupation
+            </label>
+            <input
+              id="occupation"
+              v-model="form.occupation"
+              type="text"
+              class="form-input"
+              :disabled="!isEditing"
+              placeholder="e.g., Software Engineer"
+            />
+          </div>
+
+          <!-- Employer -->
+          <div>
+            <label for="employer" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Employer
+            </label>
+            <input
+              id="employer"
+              v-model="form.employer"
+              type="text"
+              class="form-input"
+              :disabled="!isEditing"
+              placeholder="e.g., Tech Corp Ltd"
+            />
+          </div>
+
+          <!-- Industry -->
+          <div>
+            <label for="industry" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Industry
+            </label>
+            <input
+              id="industry"
+              v-model="form.industry"
+              type="text"
+              class="form-input"
+              :disabled="!isEditing"
+              placeholder="e.g., Technology"
+            />
+          </div>
+
+          <!-- Employment Status -->
+          <div>
+            <label for="employment_status" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Employment Status
+            </label>
+            <select
+              id="employment_status"
+              v-model="form.employment_status"
+              class="form-select"
+              :disabled="!isEditing"
+            >
+              <option value="">Select status</option>
+              <option value="employed">Employed</option>
+              <option value="self_employed">Self-Employed</option>
+              <option value="retired">Retired</option>
+              <option value="unemployed">Unemployed</option>
+              <option value="student">Student</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Income Information -->
+      <div class="card p-6">
+        <h3 class="text-h5 font-semibold text-gray-900 mb-4">Annual Income</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Annual Employment Income -->
+          <div>
+            <label for="annual_employment_income" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Employment Income
+            </label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">£</span>
+              </div>
+              <input
+                id="annual_employment_income"
+                v-model.number="form.annual_employment_income"
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-input pl-7"
+                :disabled="!isEditing"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <!-- Annual Self-Employment Income -->
+          <div>
+            <label for="annual_self_employment_income" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Self-Employment Income
+            </label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">£</span>
+              </div>
+              <input
+                id="annual_self_employment_income"
+                v-model.number="form.annual_self_employment_income"
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-input pl-7"
+                :disabled="!isEditing"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <!-- Annual Rental Income -->
+          <div>
+            <label for="annual_rental_income" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Rental Income
+            </label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">£</span>
+              </div>
+              <input
+                id="annual_rental_income"
+                v-model.number="form.annual_rental_income"
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-input pl-7"
+                :disabled="!isEditing"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <!-- Annual Dividend Income -->
+          <div>
+            <label for="annual_dividend_income" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Dividend Income
+            </label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">£</span>
+              </div>
+              <input
+                id="annual_dividend_income"
+                v-model.number="form.annual_dividend_income"
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-input pl-7"
+                :disabled="!isEditing"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <!-- Annual Other Income -->
+          <div>
+            <label for="annual_other_income" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Other Income
+            </label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">£</span>
+              </div>
+              <input
+                id="annual_other_income"
+                v-model.number="form.annual_other_income"
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-input pl-7"
+                :disabled="!isEditing"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <!-- Total Annual Income (Calculated) -->
+          <div>
+            <label class="block text-body-sm font-medium text-gray-700 mb-1">
+              Total Annual Income
+            </label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">£</span>
+              </div>
+              <input
+                :value="totalIncome"
+                type="text"
+                class="form-input pl-7 bg-gray-50"
+                disabled
+              />
+            </div>
+            <p class="mt-1 text-body-xs text-gray-500">Automatically calculated from all income sources</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end space-x-4">
+        <button
+          v-if="!isEditing"
+          type="button"
+          @click="isEditing = true"
+          class="btn-primary"
+        >
+          Edit Information
+        </button>
+        <template v-else>
+          <button
+            type="button"
+            @click="handleCancel"
+            class="btn-secondary"
+            :disabled="submitting"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn-primary"
+            :disabled="submitting"
+          >
+            <span v-if="!submitting">Save Changes</span>
+            <span v-else>Saving...</span>
+          </button>
+        </template>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script>
+import { ref, computed, watch } from 'vue';
+import { useStore } from 'vuex';
+
+export default {
+  name: 'IncomeOccupation',
+
+  setup() {
+    const store = useStore();
+    const isEditing = ref(false);
+    const submitting = ref(false);
+    const successMessage = ref('');
+    const errorMessage = ref('');
+
+    const incomeOccupation = computed(() => store.getters['userProfile/incomeOccupation']);
+
+    const form = ref({
+      occupation: '',
+      employer: '',
+      industry: '',
+      employment_status: '',
+      annual_employment_income: 0,
+      annual_self_employment_income: 0,
+      annual_rental_income: 0,
+      annual_dividend_income: 0,
+      annual_other_income: 0,
+    });
+
+    const totalIncome = computed(() => {
+      const total =
+        (form.value.annual_employment_income || 0) +
+        (form.value.annual_self_employment_income || 0) +
+        (form.value.annual_rental_income || 0) +
+        (form.value.annual_dividend_income || 0) +
+        (form.value.annual_other_income || 0);
+
+      return new Intl.NumberFormat('en-GB', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(total);
+    });
+
+    // Initialize form from incomeOccupation
+    const initializeForm = () => {
+      if (incomeOccupation.value) {
+        form.value = {
+          occupation: incomeOccupation.value.occupation || '',
+          employer: incomeOccupation.value.employer || '',
+          industry: incomeOccupation.value.industry || '',
+          employment_status: incomeOccupation.value.employment_status || '',
+          annual_employment_income: incomeOccupation.value.annual_employment_income || 0,
+          annual_self_employment_income: incomeOccupation.value.annual_self_employment_income || 0,
+          annual_rental_income: incomeOccupation.value.annual_rental_income || 0,
+          annual_dividend_income: incomeOccupation.value.annual_dividend_income || 0,
+          annual_other_income: incomeOccupation.value.annual_other_income || 0,
+        };
+      }
+    };
+
+    // Watch for changes in incomeOccupation and reinitialize form
+    watch(incomeOccupation, () => {
+      initializeForm();
+    }, { immediate: true });
+
+    const handleSubmit = async () => {
+      submitting.value = true;
+      successMessage.value = '';
+      errorMessage.value = '';
+
+      try {
+        await store.dispatch('userProfile/updateIncomeOccupation', form.value);
+        successMessage.value = 'Income and occupation information updated successfully!';
+        isEditing.value = false;
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          successMessage.value = '';
+        }, 3000);
+      } catch (error) {
+        errorMessage.value = error.response?.data?.message || 'Failed to update income and occupation';
+      } finally {
+        submitting.value = false;
+      }
+    };
+
+    const handleCancel = () => {
+      initializeForm();
+      isEditing.value = false;
+      errorMessage.value = '';
+    };
+
+    return {
+      form,
+      isEditing,
+      submitting,
+      successMessage,
+      errorMessage,
+      totalIncome,
+      handleSubmit,
+      handleCancel,
+    };
+  },
+};
+</script>

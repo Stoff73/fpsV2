@@ -111,17 +111,23 @@ class ConflictResolver
             'estate' => 5,
         ];
 
-        // Sort demands by priority
+        // Sort demands by priority (handle both array and scalar amount formats)
         $sortedDemands = [];
-        foreach ($demands as $category => $amount) {
+        foreach ($demands as $category => $demandData) {
+            // Extract amount from either array format ['amount' => X, 'urgency' => Y] or scalar format
+            $amount = is_array($demandData) ? ($demandData['amount'] ?? 0) : $demandData;
+            $urgency = is_array($demandData) ? ($demandData['urgency'] ?? 50) : 50;
+
             $sortedDemands[] = [
                 'category' => $category,
                 'amount' => $amount,
+                'urgency' => $urgency,
                 'priority' => $priorityOrder[$category] ?? 999,
             ];
         }
 
-        usort($sortedDemands, fn ($a, $b) => $a['priority'] <=> $b['priority']);
+        // Sort by priority first, then by urgency within same priority
+        usort($sortedDemands, fn ($a, $b) => $a['priority'] <=> $b['priority'] ?: $b['urgency'] <=> $a['urgency']);
 
         // Allocate surplus in priority order
         $allocation = [];
@@ -129,28 +135,30 @@ class ConflictResolver
 
         foreach ($sortedDemands as $demand) {
             if ($remaining <= 0) {
-                $allocation[$demand['category']] = 0;
+                $allocation[$demand['category']] = 0.0;
 
                 continue;
             }
 
             if ($remaining >= $demand['amount']) {
                 // Fully fund this demand
-                $allocation[$demand['category']] = $demand['amount'];
+                $allocation[$demand['category']] = (float) $demand['amount'];
                 $remaining -= $demand['amount'];
             } else {
                 // Partially fund with remaining surplus
-                $allocation[$demand['category']] = $remaining;
+                $allocation[$demand['category']] = (float) $remaining;
                 $remaining = 0;
             }
         }
 
+        $totalDemand = array_sum(array_column($sortedDemands, 'amount'));
+
         return [
-            'total_demand' => array_sum(array_column($sortedDemands, 'amount')),
+            'total_demand' => (float) $totalDemand,
             'available_surplus' => $availableSurplus,
             'allocation' => $allocation,
-            'shortfall' => max(0, array_sum(array_column($sortedDemands, 'amount')) - $availableSurplus),
-            'surplus_remaining' => max(0, $remaining),
+            'shortfall' => (float) max(0, $totalDemand - $availableSurplus),
+            'surplus_remaining' => (float) max(0, $remaining),
         ];
     }
 
@@ -233,10 +241,13 @@ class ConflictResolver
             }
 
             foreach ($moduleRecs as $rec) {
-                if (isset($rec['recommended_monthly_contribution'])) {
+                // Check for both contribution and premium (protection uses premium)
+                $amount = $rec['recommended_monthly_contribution'] ?? $rec['recommended_monthly_premium'] ?? 0;
+
+                if ($amount > 0) {
                     $category = $this->mapModuleToCategory($module);
-                    $demands[$category] = ($demands[$category] ?? 0) + $rec['recommended_monthly_contribution'];
-                    $totalDemand += $rec['recommended_monthly_contribution'];
+                    $demands[$category] = ($demands[$category] ?? 0) + $amount;
+                    $totalDemand += $amount;
                 }
             }
         }

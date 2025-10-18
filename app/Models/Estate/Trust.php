@@ -2,6 +2,7 @@
 
 namespace App\Models\Estate;
 
+use App\Models\Household;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,7 @@ class Trust extends Model
 
     protected $fillable = [
         'user_id',
+        'household_id',
         'trust_name',
         'trust_type',
         'trust_creation_date',
@@ -28,6 +30,9 @@ class Trust extends Model
         'is_relevant_property_trust',
         'last_periodic_charge_date',
         'last_periodic_charge_amount',
+        'last_valuation_date',
+        'next_tax_return_due',
+        'total_asset_value',
         'beneficiaries',
         'trustees',
         'purpose',
@@ -38,6 +43,8 @@ class Trust extends Model
     protected $casts = [
         'trust_creation_date' => 'date',
         'last_periodic_charge_date' => 'date',
+        'last_valuation_date' => 'date',
+        'next_tax_return_due' => 'date',
         'initial_value' => 'decimal:2',
         'current_value' => 'decimal:2',
         'discount_amount' => 'decimal:2',
@@ -47,6 +54,7 @@ class Trust extends Model
         'sum_assured' => 'decimal:2',
         'annual_premium' => 'decimal:2',
         'last_periodic_charge_amount' => 'decimal:2',
+        'total_asset_value' => 'decimal:2',
         'loan_interest_bearing' => 'boolean',
         'is_relevant_property_trust' => 'boolean',
         'is_active' => 'boolean',
@@ -55,6 +63,14 @@ class Trust extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the household this trust belongs to.
+     */
+    public function household(): BelongsTo
+    {
+        return $this->belongsTo(Household::class);
     }
 
     /**

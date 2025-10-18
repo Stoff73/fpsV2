@@ -31,7 +31,60 @@
       </div>
 
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <!-- Protection Card -->
+        <!-- Card 1: Net Worth (Phase 3) -->
+        <NetWorthOverviewCard />
+
+        <!-- Card 2: Retirement Planning -->
+        <div v-if="loading.retirement" class="card animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+          <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
+          <div class="h-3 bg-gray-200 rounded w-full"></div>
+        </div>
+        <div v-else-if="errors.retirement" class="card border-2 border-red-300 bg-red-50">
+          <h3 class="text-h4 text-red-900 mb-2">Retirement Module</h3>
+          <p class="text-body text-red-700 mb-4">
+            Failed to load retirement data. {{ errors.retirement }}
+          </p>
+          <button
+            @click="retryLoadModule('retirement')"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+        <RetirementOverviewCard
+          v-else
+          :total-pension-value="retirementData.totalPensionValue"
+          :projected-income="retirementData.projectedIncome"
+          :years-to-retirement="retirementData.yearsToRetirement"
+        />
+
+        <!-- Card 3: Estate Planning -->
+        <div v-if="loading.estate" class="card animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+          <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
+          <div class="h-3 bg-gray-200 rounded w-full"></div>
+        </div>
+        <div v-else-if="errors.estate" class="card border-2 border-red-300 bg-red-50">
+          <h3 class="text-h4 text-red-900 mb-2">Estate Module</h3>
+          <p class="text-body text-red-700 mb-4">
+            Failed to load estate data. {{ errors.estate }}
+          </p>
+          <button
+            @click="retryLoadModule('estate')"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+        <EstateOverviewCard
+          v-else
+          :net-worth="netWorthData.netWorth"
+          :iht-liability="estateData.ihtLiability"
+          :probate-readiness="estateData.probateReadiness"
+        />
+
+        <!-- Card 4: Protection -->
         <div v-if="loading.protection" class="card animate-pulse">
           <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
           <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
@@ -57,114 +110,14 @@
           :critical-gaps="protectionData.criticalGaps"
         />
 
-        <!-- Savings Card -->
-        <div v-if="loading.savings" class="card animate-pulse">
-          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-          <div class="h-3 bg-gray-200 rounded w-full"></div>
-        </div>
-        <div v-else-if="errors.savings" class="card border-2 border-red-300 bg-red-50">
-          <h3 class="text-h4 text-red-900 mb-2">Savings Module</h3>
-          <p class="text-body text-red-700 mb-4">
-            Failed to load savings data. {{ errors.savings }}
-          </p>
-          <button
-            @click="retryLoadModule('savings')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-        <SavingsOverviewCard
-          v-else
-          :emergency-fund-runway="savingsData.emergencyFundRunway"
-          :total-savings="savingsData.totalSavings"
-          :isa-usage-percent="savingsData.isaUsagePercent"
-          :goals-status="savingsData.goalsStatus"
-        />
+        <!-- Card 5: Actions & Recommendations (Phase 5) -->
+        <QuickActions />
 
-        <!-- Investment Card -->
-        <div v-if="loading.investment" class="card animate-pulse">
-          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-          <div class="h-3 bg-gray-200 rounded w-full"></div>
-        </div>
-        <div v-else-if="errors.investment" class="card border-2 border-red-300 bg-red-50">
-          <h3 class="text-h4 text-red-900 mb-2">Investment Module</h3>
-          <p class="text-body text-red-700 mb-4">
-            Failed to load investment data. {{ errors.investment }}
-          </p>
-          <button
-            @click="retryLoadModule('investment')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-        <InvestmentOverviewCard
-          v-else
-          :portfolio-value="investmentData.portfolioValue"
-          :ytd-return="investmentData.ytdReturn"
-          :holdings-count="investmentData.holdingsCount"
-          :needs-rebalancing="investmentData.needsRebalancing"
-        />
+        <!-- Card 6: Trusts (Phase 6) -->
+        <TrustsOverviewCard />
 
-        <!-- Retirement Card -->
-        <div v-if="loading.retirement" class="card animate-pulse">
-          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-          <div class="h-3 bg-gray-200 rounded w-full"></div>
-        </div>
-        <div v-else-if="errors.retirement" class="card border-2 border-red-300 bg-red-50">
-          <h3 class="text-h4 text-red-900 mb-2">Retirement Module</h3>
-          <p class="text-body text-red-700 mb-4">
-            Failed to load retirement data. {{ errors.retirement }}
-          </p>
-          <button
-            @click="retryLoadModule('retirement')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-        <RetirementOverviewCard
-          v-else
-          :readiness-score="retirementData.readinessScore"
-          :projected-income="retirementData.projectedIncome"
-          :target-income="retirementData.targetIncome"
-          :years-to-retirement="retirementData.yearsToRetirement"
-          :total-wealth="retirementData.totalWealth"
-        />
-
-        <!-- Estate Card -->
-        <div v-if="loading.estate" class="card animate-pulse">
-          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-          <div class="h-3 bg-gray-200 rounded w-full"></div>
-        </div>
-        <div v-else-if="errors.estate" class="card border-2 border-red-300 bg-red-50">
-          <h3 class="text-h4 text-red-900 mb-2">Estate Module</h3>
-          <p class="text-body text-red-700 mb-4">
-            Failed to load estate data. {{ errors.estate }}
-          </p>
-          <button
-            @click="retryLoadModule('estate')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-        <EstateOverviewCard
-          v-else
-          :net-worth="estateData.netWorth"
-          :iht-liability="estateData.ihtLiability"
-          :probate-readiness="estateData.probateReadiness"
-          :taxable-estate="estateData.taxableEstate"
-          :priority-recommendations="estateData.priorityRecommendations"
-        />
-
-        <!-- UK Taxes & Allowances Card -->
-        <UKTaxesOverviewCard />
+        <!-- Card 7: UK Taxes & Allowances (Admin Only) -->
+        <UKTaxesOverviewCard v-if="isAdmin" />
       </div>
     </div>
   </AppLayout>
@@ -173,11 +126,12 @@
 <script>
 import { mapGetters } from 'vuex';
 import AppLayout from '@/layouts/AppLayout.vue';
+import NetWorthOverviewCard from '@/components/Dashboard/NetWorthOverviewCard.vue';
 import ProtectionOverviewCard from '@/components/Protection/ProtectionOverviewCard.vue';
-import SavingsOverviewCard from '@/components/Savings/SavingsOverviewCard.vue';
-import InvestmentOverviewCard from '@/components/Investment/InvestmentOverviewCard.vue';
 import RetirementOverviewCard from '@/components/Retirement/RetirementOverviewCard.vue';
 import EstateOverviewCard from '@/components/Estate/EstateOverviewCard.vue';
+import QuickActions from '@/components/Dashboard/QuickActions.vue';
+import TrustsOverviewCard from '@/components/Trusts/TrustsOverviewCard.vue';
 import UKTaxesOverviewCard from '@/components/Dashboard/UKTaxesOverviewCard.vue';
 
 export default {
@@ -185,11 +139,12 @@ export default {
 
   components: {
     AppLayout,
+    NetWorthOverviewCard,
     ProtectionOverviewCard,
-    SavingsOverviewCard,
-    InvestmentOverviewCard,
     RetirementOverviewCard,
     EstateOverviewCard,
+    QuickActions,
+    TrustsOverviewCard,
     UKTaxesOverviewCard,
   },
 
@@ -197,15 +152,11 @@ export default {
     return {
       loading: {
         protection: false,
-        savings: false,
-        investment: false,
         retirement: false,
         estate: false,
       },
       errors: {
         protection: null,
-        savings: null,
-        investment: null,
         retirement: null,
         estate: null,
       },
@@ -214,38 +165,35 @@ export default {
   },
 
   computed: {
+    ...mapGetters('auth', ['isAdmin']),
+    ...mapGetters('netWorth', {
+      netWorthValue: 'netWorth',
+      netWorthAssets: 'totalAssets',
+      netWorthLiabilities: 'totalLiabilities',
+    }),
     ...mapGetters('protection', {
       protectionAdequacyScore: 'adequacyScore',
       protectionTotalCoverage: 'totalCoverage',
       protectionTotalPremium: 'totalPremium',
       protectionCoverageGaps: 'coverageGaps',
     }),
-    ...mapGetters('savings', {
-      savingsTotalSavings: 'totalSavings',
-      savingsEmergencyFundRunway: 'emergencyFundRunway',
-      savingsISAUsagePercent: 'isaUsagePercent',
-      savingsGoalsOnTrack: 'goalsOnTrack',
-    }),
-    ...mapGetters('investment', {
-      investmentPortfolioValue: 'totalPortfolioValue',
-      investmentYtdReturn: 'ytdReturn',
-      investmentHoldingsCount: 'holdingsCount',
-      investmentNeedsRebalancing: 'needsRebalancing',
-    }),
     ...mapGetters('retirement', {
-      retirementReadinessScore: 'retirementReadinessScore',
+      retirementTotalPensionValue: 'totalPensionWealth',
       retirementProjectedIncome: 'projectedIncome',
-      retirementTargetIncome: 'targetIncome',
       retirementYearsToRetirement: 'yearsToRetirement',
-      retirementTotalWealth: 'totalPensionWealth',
     }),
     ...mapGetters('estate', {
-      estateNetWorth: 'netWorth',
       estateIHTLiability: 'ihtLiability',
       estateProbateReadiness: 'probateReadiness',
-      estateTaxableEstate: 'taxableEstate',
-      estatePriorityRecommendations: 'priorityRecommendations',
     }),
+
+    netWorthData() {
+      return {
+        netWorth: this.netWorthValue || 0,
+        totalAssets: this.netWorthAssets || 0,
+        totalLiabilities: this.netWorthLiabilities || 0,
+      };
+    },
 
     protectionData() {
       return {
@@ -256,45 +204,18 @@ export default {
       };
     },
 
-    savingsData() {
-      const goals = this.$store.state.savings.goals || [];
-      return {
-        emergencyFundRunway: this.savingsEmergencyFundRunway || 0,
-        totalSavings: this.savingsTotalSavings || 0,
-        isaUsagePercent: this.savingsISAUsagePercent || 0,
-        goalsStatus: {
-          onTrack: this.savingsGoalsOnTrack?.length || 0,
-          total: goals.length,
-        },
-      };
-    },
-
-    investmentData() {
-      return {
-        portfolioValue: this.investmentPortfolioValue || 0,
-        ytdReturn: this.investmentYtdReturn || 0,
-        holdingsCount: this.investmentHoldingsCount || 0,
-        needsRebalancing: this.investmentNeedsRebalancing || false,
-      };
-    },
-
     retirementData() {
       return {
-        readinessScore: this.retirementReadinessScore || 0,
+        totalPensionValue: this.retirementTotalPensionValue || 0,
         projectedIncome: this.retirementProjectedIncome || 0,
-        targetIncome: this.retirementTargetIncome || 0,
         yearsToRetirement: this.retirementYearsToRetirement || 0,
-        totalWealth: this.retirementTotalWealth || 0,
       };
     },
 
     estateData() {
       return {
-        netWorth: this.estateNetWorth || 0,
         ihtLiability: this.estateIHTLiability || 0,
         probateReadiness: this.estateProbateReadiness || 0,
-        taxableEstate: this.estateTaxableEstate || 0,
-        priorityRecommendations: this.estatePriorityRecommendations?.length || 0,
       };
     },
   },
@@ -303,13 +224,13 @@ export default {
     async loadAllData() {
       // Load all module data in parallel with Promise.allSettled
       const moduleLoaders = [
+        { name: 'netWorth', action: 'netWorth/fetchOverview' },
         { name: 'protection', action: 'protection/fetchProtectionData' },
-        { name: 'savings', action: 'savings/fetchSavingsData' },
-        { name: 'investment', action: 'investment/fetchInvestmentData' },
-        { name: 'investment', action: 'investment/analyzeInvestment' },
         { name: 'retirement', action: 'retirement/fetchRetirementData' },
         { name: 'retirement', action: 'retirement/analyzeRetirement' },
         { name: 'estate', action: 'estate/fetchEstateData' },
+        { name: 'recommendations', action: 'recommendations/fetchRecommendations' },
+        { name: 'trusts', action: 'trusts/fetchTrusts' },
       ];
 
       // Set all modules to loading
@@ -336,10 +257,12 @@ export default {
       results.forEach(result => {
         if (result.status === 'fulfilled') {
           const { module, success, error } = result.value;
-          if (!success) {
+          if (!success && this.loading.hasOwnProperty(module)) {
             this.errors[module] = error;
           }
-          this.loading[module] = false;
+          if (this.loading.hasOwnProperty(module)) {
+            this.loading[module] = false;
+          }
         } else {
           // Promise was rejected
           console.error('Failed to load module:', result.reason);
@@ -353,8 +276,6 @@ export default {
 
       const actions = {
         protection: ['protection/fetchProtectionData'],
-        savings: ['savings/fetchSavingsData'],
-        investment: ['investment/fetchInvestmentData', 'investment/analyzeInvestment'],
         retirement: ['retirement/fetchRetirementData', 'retirement/analyzeRetirement'],
         estate: ['estate/fetchEstateData'],
       };

@@ -3,9 +3,14 @@ import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
-    // For subdirectory deployment (e.g., https://csjones.co/fps)
-    // The base path must include /build/ for proper asset resolution
-    base: '/fps/build/',
+    // Development: use root path
+    // Production: use '/fps/build/' for subdirectory deployment
+    base: '/',
+    server: {
+        host: '127.0.0.1',
+        port: 5173,
+        strictPort: true,
+    },
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],

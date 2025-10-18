@@ -1,0 +1,311 @@
+<template>
+  <div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
+
+      <!-- Center modal -->
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+      <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+        <div>
+          <div class="mb-4">
+            <h3 class="text-h4 font-semibold text-gray-900" id="modal-title">
+              {{ isEditing ? 'Edit Family Member' : 'Add Family Member' }}
+            </h3>
+          </div>
+
+          <form @submit.prevent="handleSubmit" class="space-y-4">
+            <!-- Relationship -->
+            <div>
+              <label for="relationship" class="block text-body-sm font-medium text-gray-700 mb-1">
+                Relationship <span class="text-error-600">*</span>
+              </label>
+              <select
+                id="relationship"
+                v-model="form.relationship"
+                required
+                class="form-select"
+              >
+                <option value="">Select relationship</option>
+                <option value="spouse">Spouse</option>
+                <option value="child">Child</option>
+                <option value="parent">Parent</option>
+                <option value="other_dependent">Other Dependent</option>
+              </select>
+              <p v-if="form.relationship === 'spouse'" class="mt-1 text-body-xs text-amber-600">
+                Note: Spouse should be a registered user. This will link their account.
+              </p>
+            </div>
+
+            <!-- Name -->
+            <div>
+              <label for="name" class="block text-body-sm font-medium text-gray-700 mb-1">
+                Full Name <span class="text-error-600">*</span>
+              </label>
+              <input
+                id="name"
+                v-model="form.name"
+                type="text"
+                required
+                class="form-input"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Date of Birth -->
+              <div>
+                <label for="date_of_birth" class="block text-body-sm font-medium text-gray-700 mb-1">
+                  Date of Birth
+                </label>
+                <input
+                  id="date_of_birth"
+                  v-model="form.date_of_birth"
+                  type="date"
+                  class="form-input"
+                />
+              </div>
+
+              <!-- Gender -->
+              <div>
+                <label for="gender" class="block text-body-sm font-medium text-gray-700 mb-1">
+                  Gender
+                </label>
+                <select
+                  id="gender"
+                  v-model="form.gender"
+                  class="form-select"
+                >
+                  <option value="">Select gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                  <option value="prefer_not_to_say">Prefer not to say</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- National Insurance Number -->
+              <div>
+                <label for="national_insurance_number" class="block text-body-sm font-medium text-gray-700 mb-1">
+                  National Insurance Number
+                </label>
+                <input
+                  id="national_insurance_number"
+                  v-model="form.national_insurance_number"
+                  type="text"
+                  placeholder="AB123456C"
+                  maxlength="9"
+                  class="form-input uppercase"
+                />
+              </div>
+
+              <!-- Annual Income -->
+              <div>
+                <label for="annual_income" class="block text-body-sm font-medium text-gray-700 mb-1">
+                  Annual Income
+                </label>
+                <div class="relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span class="text-gray-500 sm:text-sm">£</span>
+                  </div>
+                  <input
+                    id="annual_income"
+                    v-model.number="form.annual_income"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    class="form-input pl-7"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Is Dependent -->
+            <div class="flex items-start">
+              <div class="flex items-center h-5">
+                <input
+                  id="is_dependent"
+                  v-model="form.is_dependent"
+                  type="checkbox"
+                  class="form-checkbox"
+                />
+              </div>
+              <div class="ml-3 text-sm">
+                <label for="is_dependent" class="font-medium text-gray-700">
+                  Is this person financially dependent on you?
+                </label>
+                <p class="text-gray-500">
+                  Check this if they rely on you for financial support
+                </p>
+              </div>
+            </div>
+
+            <!-- Education Status (if child) -->
+            <div v-if="form.relationship === 'child'">
+              <label for="education_status" class="block text-body-sm font-medium text-gray-700 mb-1">
+                Education Status
+              </label>
+              <select
+                id="education_status"
+                v-model="form.education_status"
+                class="form-select"
+              >
+                <option value="">Select status</option>
+                <option value="nursery">Nursery</option>
+                <option value="primary_school">Primary School</option>
+                <option value="secondary_school">Secondary School</option>
+                <option value="sixth_form">Sixth Form</option>
+                <option value="university">University</option>
+                <option value="postgraduate">Postgraduate</option>
+                <option value="not_in_education">Not in Education</option>
+              </select>
+            </div>
+
+            <!-- Notes -->
+            <div>
+              <label for="notes" class="block text-body-sm font-medium text-gray-700 mb-1">
+                Notes
+              </label>
+              <textarea
+                id="notes"
+                v-model="form.notes"
+                rows="3"
+                class="form-textarea"
+                placeholder="Any additional information..."
+              ></textarea>
+            </div>
+
+            <!-- Error Message -->
+            <div v-if="errorMessage" class="rounded-md bg-error-50 p-4">
+              <div class="flex">
+                <div class="ml-3">
+                  <h3 class="text-body-sm font-medium text-error-800">Error</h3>
+                  <div class="mt-2 text-body-sm text-error-700">
+                    <p>{{ errorMessage }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+              <button
+                type="submit"
+                :disabled="submitting"
+                class="btn-primary w-full sm:col-start-2"
+              >
+                <span v-if="!submitting">{{ isEditing ? 'Update' : 'Add' }} Family Member</span>
+                <span v-else>{{ isEditing ? 'Updating...' : 'Adding...' }}</span>
+              </button>
+              <button
+                type="button"
+                @click="$emit('close')"
+                :disabled="submitting"
+                class="btn-secondary w-full mt-3 sm:mt-0 sm:col-start-1"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref, computed, watch } from 'vue';
+
+export default {
+  name: 'FamilyMemberFormModal',
+
+  props: {
+    member: {
+      type: Object,
+      default: null,
+    },
+  },
+
+  emits: ['save', 'close'],
+
+  setup(props, { emit }) {
+    const submitting = ref(false);
+    const errorMessage = ref('');
+
+    const isEditing = computed(() => !!props.member);
+
+    const form = ref({
+      relationship: '',
+      name: '',
+      date_of_birth: '',
+      gender: '',
+      national_insurance_number: '',
+      annual_income: null,
+      is_dependent: false,
+      education_status: '',
+      notes: '',
+    });
+
+    // Initialize form when member prop changes
+    watch(() => props.member, (member) => {
+      if (member) {
+        form.value = {
+          relationship: member.relationship || '',
+          name: member.name || '',
+          date_of_birth: member.date_of_birth || '',
+          gender: member.gender || '',
+          national_insurance_number: member.national_insurance_number || '',
+          annual_income: member.annual_income || null,
+          is_dependent: member.is_dependent || false,
+          education_status: member.education_status || '',
+          notes: member.notes || '',
+        };
+      } else {
+        // Reset form for new member
+        form.value = {
+          relationship: '',
+          name: '',
+          date_of_birth: '',
+          gender: '',
+          national_insurance_number: '',
+          annual_income: null,
+          is_dependent: false,
+          education_status: '',
+          notes: '',
+        };
+      }
+    }, { immediate: true });
+
+    const handleSubmit = async () => {
+      submitting.value = true;
+      errorMessage.value = '';
+
+      try {
+        // Clean up form data - remove empty strings
+        const formData = { ...form.value };
+        Object.keys(formData).forEach(key => {
+          if (formData[key] === '' || formData[key] === null) {
+            delete formData[key];
+          }
+        });
+
+        emit('save', formData);
+      } catch (error) {
+        errorMessage.value = error.response?.data?.message || 'Failed to save family member';
+        submitting.value = false;
+      }
+    };
+
+    return {
+      form,
+      isEditing,
+      submitting,
+      errorMessage,
+      handleSubmit,
+    };
+  },
+};
+</script>

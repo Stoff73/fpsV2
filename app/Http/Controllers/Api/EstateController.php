@@ -16,6 +16,8 @@ use App\Services\Estate\CashFlowProjector;
 use App\Services\Estate\IHTCalculator;
 use App\Services\Estate\NetWorthAnalyzer;
 use App\Services\Estate\TrustService;
+use App\Services\Trust\IHTPeriodicChargeCalculator;
+use App\Services\Trust\TrustAssetAggregatorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -27,7 +29,9 @@ class EstateController extends Controller
         private IHTCalculator $ihtCalculator,
         private NetWorthAnalyzer $netWorthAnalyzer,
         private CashFlowProjector $cashFlowProjector,
-        private TrustService $trustService
+        private TrustService $trustService,
+        private TrustAssetAggregatorService $trustAssetAggregator,
+        private IHTPeriodicChargeCalculator $periodicChargeCalculator
     ) {}
 
     /**
@@ -877,6 +881,93 @@ class EstateController extends Controller
         return response()->json([
             'success' => true,
             'data' => $estimate,
+        ]);
+    }
+
+    /**
+     * Get all assets held in a specific trust
+     */
+    public function getTrustAssets(Request $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+        $trust = Trust::where('user_id', $user->id)->findOrFail($id);
+
+        $aggregation = $this->trustAssetAggregator->aggregateAssetsForTrust($trust);
+
+        return response()->json([
+            'success' => true,
+            'data' => $aggregation,
+        ]);
+    }
+
+    /**
+     * Calculate IHT periodic charges for a trust
+     */
+    public function calculateTrustIHTImpact(Request $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+        $trust = Trust::where('user_id', $user->id)->findOrFail($id);
+
+        // Get aggregated asset value
+        $aggregation = $this->trustAssetAggregator->aggregateAssetsForTrust($trust);
+
+        // Update trust's total asset value
+        $trust->update(['total_asset_value' => $aggregation['total_value']]);
+
+        // Calculate periodic charge
+        $periodicCharge = $this->periodicChargeCalculator->calculatePeriodicCharge($trust);
+
+        // Calculate next tax return due date
+        $taxReturn = $this->periodicChargeCalculator->calculateTaxReturnDueDates($trust);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'trust' => $trust->fresh(),
+                'total_asset_value' => $aggregation['total_value'],
+                'periodic_charge' => $periodicCharge,
+                'tax_return' => $taxReturn,
+                'is_relevant_property_trust' => $trust->isRelevantPropertyTrust(),
+            ],
+        ]);
+    }
+
+    /**
+     * Get upcoming tax returns for all user's trusts
+     */
+    public function getUpcomingTaxReturns(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $monthsAhead = $request->input('months_ahead', 12);
+
+        // Get upcoming periodic charges
+        $upcomingCharges = $this->periodicChargeCalculator->getUpcomingCharges($user->id, $monthsAhead);
+
+        // Get all active trusts with tax return due dates
+        $trusts = Trust::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->get();
+
+        $taxReturns = $trusts->map(function ($trust) {
+            $taxReturn = $this->periodicChargeCalculator->calculateTaxReturnDueDates($trust);
+
+            return [
+                'trust_id' => $trust->id,
+                'trust_name' => $trust->trust_name,
+                'trust_type' => $trust->trust_type,
+                'tax_year_end' => $taxReturn['tax_year_end'],
+                'return_due_date' => $taxReturn['return_due_date'],
+                'days_until_due' => $taxReturn['days_until_due'],
+                'is_overdue' => $taxReturn['is_overdue'],
+            ];
+        })->sortBy('return_due_date');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'upcoming_periodic_charges' => $upcomingCharges,
+                'tax_returns' => $taxReturns->values(),
+            ],
         ]);
     }
 }

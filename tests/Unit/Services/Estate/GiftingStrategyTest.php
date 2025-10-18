@@ -198,10 +198,12 @@ describe('recommendOptimalGiftingStrategy', function () {
 
         $result = $this->strategy->recommendOptimalGiftingStrategy(600000, $profile);
 
-        expect($result['current_iht_liability'])->toBe(110000.0)
-            ->and($result['recommendations'])->toContainEqual(
-                expect()->toHaveKey('strategy', 'Annual Exemption')
-            );
+        expect($result['current_iht_liability'])->toBe(110000.0);
+
+        $hasAnnualExemption = collect($result['recommendations'])
+            ->contains(fn ($rec) => str_contains($rec['strategy'], 'Annual Exemption'));
+
+        expect($hasAnnualExemption)->toBeTrue();
     });
 
     it('recommends charitable giving when below 10%', function () {

@@ -8,6 +8,10 @@ import investment from './modules/investment';
 import retirement from './modules/retirement';
 import estate from './modules/estate';
 import holistic from './modules/holistic';
+import userProfile from './modules/userProfile';
+import netWorth from './modules/netWorth';
+import trusts from './modules/trusts';
+import recommendations from './modules/recommendations';
 
 const store = createStore({
   modules: {
@@ -20,6 +24,10 @@ const store = createStore({
     retirement,
     estate,
     holistic,
+    userProfile,
+    netWorth,
+    trusts,
+    recommendations,
   },
   strict: process.env.NODE_ENV !== 'production',
 });

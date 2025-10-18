@@ -43,7 +43,7 @@ describe('createPersonalPL', function () {
 
         Liability::create([
             'user_id' => $this->user->id,
-            'liability_type' => 'loan',
+            'liability_type' => 'personal_loan',
             'liability_name' => 'Car Loan',
             'current_balance' => 15000,
             'monthly_payment' => 300,

@@ -33,7 +33,7 @@
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Estate Planning</h1>
         <p class="text-gray-600">
-          Manage your estate, calculate IHT liability, and plan your gifting strategy
+          Plan your estate with IHT calculations, gifting strategies, trust planning, and cash flow projections
         </p>
       </div>
 
@@ -91,11 +91,8 @@
 
         <!-- Tab Content -->
         <div class="p-6">
-          <!-- Net Worth Tab -->
-          <NetWorth v-if="activeTab === 'networth'" />
-
           <!-- IHT Planning Tab -->
-          <IHTPlanning v-else-if="activeTab === 'iht'" />
+          <IHTPlanning v-if="activeTab === 'iht'" />
 
           <!-- Gifting Strategy Tab -->
           <GiftingStrategy v-else-if="activeTab === 'gifting'" />
@@ -105,9 +102,6 @@
 
           <!-- Cash Flow Tab -->
           <CashFlow v-else-if="activeTab === 'cashflow'" />
-
-          <!-- Assets & Liabilities Tab -->
-          <AssetsLiabilities v-else-if="activeTab === 'assets'" />
 
           <!-- Recommendations Tab -->
           <Recommendations v-else-if="activeTab === 'recommendations'" />
@@ -124,12 +118,10 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import AppLayout from '@/layouts/AppLayout.vue';
-import NetWorth from '@/components/Estate/NetWorth.vue';
 import IHTPlanning from '@/components/Estate/IHTPlanning.vue';
 import GiftingStrategy from '@/components/Estate/GiftingStrategy.vue';
 import TrustPlanning from '@/components/Estate/TrustPlanning.vue';
 import CashFlow from '@/components/Estate/CashFlow.vue';
-import AssetsLiabilities from '@/components/Estate/AssetsLiabilities.vue';
 import Recommendations from '@/components/Estate/Recommendations.vue';
 import WhatIfScenarios from '@/components/Estate/WhatIfScenarios.vue';
 
@@ -138,27 +130,23 @@ export default {
 
   components: {
     AppLayout,
-    NetWorth,
     IHTPlanning,
     GiftingStrategy,
     TrustPlanning,
     CashFlow,
-    AssetsLiabilities,
     Recommendations,
     WhatIfScenarios,
   },
 
   data() {
     return {
-      activeTab: 'networth',
+      activeTab: 'iht',
       initialLoading: true,
       tabs: [
-        { id: 'networth', label: 'Net Worth' },
         { id: 'iht', label: 'IHT Planning' },
         { id: 'gifting', label: 'Gifting Strategy' },
         { id: 'trusts', label: 'Trust Planning' },
         { id: 'cashflow', label: 'Cash Flow' },
-        { id: 'assets', label: 'Assets & Liabilities' },
         { id: 'recommendations', label: 'Recommendations' },
         { id: 'scenarios', label: 'What-If Scenarios' },
       ],

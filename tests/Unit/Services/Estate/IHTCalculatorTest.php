@@ -262,25 +262,27 @@ describe('calculatePETLiability', function () {
         $gifts = collect([
             new Gift([
                 'id' => 1,
-                'gift_date' => Carbon::now()->subYears(2),
+                'gift_date' => Carbon::now()->subYears(4),
                 'recipient' => 'Child 1',
                 'gift_type' => 'pet',
-                'gift_value' => 100000,
+                'gift_value' => 200000,
             ]),
             new Gift([
                 'id' => 2,
-                'gift_date' => Carbon::now()->subYears(4),
+                'gift_date' => Carbon::now()->subYears(2),
                 'recipient' => 'Child 2',
                 'gift_type' => 'pet',
-                'gift_value' => 50000,
+                'gift_value' => 200000,
             ]),
         ]);
 
         $result = $this->calculator->calculatePETLiability($gifts);
 
-        expect($result['total_gift_value'])->toBe(150000.0)
+        // With gifts sorted by date (oldest first): £200k + £200k = £400k
+        // Only the second gift pushes running total over £325k NRB
+        expect($result['total_gift_value'])->toBe(400000.0)
             ->and($result['gift_count'])->toBe(2)
-            ->and($result['gifts'])->toHaveCount(1); // Only one exceeds NRB
+            ->and($result['gifts'])->toHaveCount(1); // Only the gift that exceeds NRB threshold
     });
 
     it('filters out gifts older than 7 years', function () {

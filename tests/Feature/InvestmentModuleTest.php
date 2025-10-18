@@ -136,6 +136,7 @@ describe('Holdings Management', function () {
             'cost_basis' => 35000.00,
             'dividend_yield' => 1.50,
             'ocf_percent' => 0.03,
+            'allocation_percent' => 100.00,
         ]);
 
         $response->assertStatus(201)

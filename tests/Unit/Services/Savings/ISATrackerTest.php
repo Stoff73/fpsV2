@@ -8,21 +8,18 @@ use App\Models\User;
 use App\Services\Savings\ISATracker;
 
 describe('ISATracker', function () {
-    beforeEach(function () {
-        $this->tracker = new ISATracker;
-        $this->user = User::factory()->create();
-    });
-
     describe('getCurrentTaxYear', function () {
         it('returns correct tax year format', function () {
-            $taxYear = $this->tracker->getCurrentTaxYear();
+            $tracker = new ISATracker;
+            $taxYear = $tracker->getCurrentTaxYear();
             expect($taxYear)->toMatch('/^\d{4}\/\d{2}$/');
         });
 
         it('returns correct tax year based on date', function () {
             // This test assumes we're in 2024/25 tax year (after April 6, 2024)
             // In production, this would be more dynamic
-            $taxYear = $this->tracker->getCurrentTaxYear();
+            $tracker = new ISATracker;
+            $taxYear = $tracker->getCurrentTaxYear();
             expect($taxYear)->toBeString();
             expect(strlen($taxYear))->toBe(7);
         });
@@ -30,21 +27,25 @@ describe('ISATracker', function () {
 
     describe('getTotalAllowance', function () {
         it('returns correct ISA allowance from config', function () {
-            $allowance = $this->tracker->getTotalAllowance('2024/25');
+            $tracker = new ISATracker;
+            $allowance = $tracker->getTotalAllowance('2024/25');
             expect($allowance)->toBe(20000.0);
         });
     });
 
     describe('getLISAAllowance', function () {
         it('returns correct LISA allowance from config', function () {
-            $allowance = $this->tracker->getLISAAllowance();
+            $tracker = new ISATracker;
+            $allowance = $tracker->getLISAAllowance();
             expect($allowance)->toBe(4000.0);
         });
     });
 
     describe('getISAAllowanceStatus', function () {
         it('creates tracking record if not exists', function () {
-            $status = $this->tracker->getISAAllowanceStatus($this->user->id, '2024/25');
+            $tracker = new ISATracker;
+            $user = User::factory()->create();
+            $status = $tracker->getISAAllowanceStatus($user->id, '2024/25');
 
             expect($status)->toHaveKeys([
                 'cash_isa_used',
@@ -62,9 +63,12 @@ describe('ISATracker', function () {
         });
 
         it('calculates ISA usage from savings accounts', function () {
+            $tracker = new ISATracker;
+            $user = User::factory()->create();
+
             // Create cash ISA account
             SavingsAccount::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user->id,
                 'is_isa' => true,
                 'isa_type' => 'cash',
                 'isa_subscription_year' => '2024/25',
@@ -73,14 +77,14 @@ describe('ISATracker', function () {
 
             // Create LISA account
             SavingsAccount::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user->id,
                 'is_isa' => true,
                 'isa_type' => 'LISA',
                 'isa_subscription_year' => '2024/25',
                 'isa_subscription_amount' => 4000,
             ]);
 
-            $status = $this->tracker->getISAAllowanceStatus($this->user->id, '2024/25');
+            $status = $tracker->getISAAllowanceStatus($user->id, '2024/25');
 
             expect($status['cash_isa_used'])->toBe(5000.0);
             expect($status['lisa_used'])->toBe(4000.0);
@@ -90,9 +94,12 @@ describe('ISATracker', function () {
         });
 
         it('only counts ISAs for the specified tax year', function () {
+            $tracker = new ISATracker;
+            $user = User::factory()->create();
+
             // Create ISA for 2024/25
             SavingsAccount::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user->id,
                 'is_isa' => true,
                 'isa_type' => 'cash',
                 'isa_subscription_year' => '2024/25',
@@ -101,14 +108,14 @@ describe('ISATracker', function () {
 
             // Create ISA for 2023/24 (should not be counted)
             SavingsAccount::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user->id,
                 'is_isa' => true,
                 'isa_type' => 'cash',
                 'isa_subscription_year' => '2023/24',
                 'isa_subscription_amount' => 10000,
             ]);
 
-            $status = $this->tracker->getISAAllowanceStatus($this->user->id, '2024/25');
+            $status = $tracker->getISAAllowanceStatus($user->id, '2024/25');
 
             expect($status['cash_isa_used'])->toBe(5000.0);
             expect($status['total_used'])->toBe(5000.0);
@@ -117,10 +124,13 @@ describe('ISATracker', function () {
 
     describe('updateISAUsage', function () {
         it('updates ISA usage for a specific type', function () {
-            $this->tracker->updateISAUsage($this->user->id, 'stocks_shares', 10000);
+            $tracker = new ISATracker;
+            $user = User::factory()->create();
 
-            $tracking = ISAAllowanceTracking::where('user_id', $this->user->id)
-                ->where('tax_year', $this->tracker->getCurrentTaxYear())
+            $tracker->updateISAUsage($user->id, 'stocks_shares', 10000);
+
+            $tracking = ISAAllowanceTracking::where('user_id', $user->id)
+                ->where('tax_year', $tracker->getCurrentTaxYear())
                 ->first();
 
             expect($tracking->stocks_shares_isa_used)->toBe('10000.00');
@@ -128,11 +138,14 @@ describe('ISATracker', function () {
         });
 
         it('updates total when multiple types are used', function () {
-            $this->tracker->updateISAUsage($this->user->id, 'stocks_shares', 10000);
-            $this->tracker->updateISAUsage($this->user->id, 'cash', 5000);
+            $tracker = new ISATracker;
+            $user = User::factory()->create();
 
-            $tracking = ISAAllowanceTracking::where('user_id', $this->user->id)
-                ->where('tax_year', $this->tracker->getCurrentTaxYear())
+            $tracker->updateISAUsage($user->id, 'stocks_shares', 10000);
+            $tracker->updateISAUsage($user->id, 'cash', 5000);
+
+            $tracking = ISAAllowanceTracking::where('user_id', $user->id)
+                ->where('tax_year', $tracker->getCurrentTaxYear())
                 ->first();
 
             expect($tracking->total_used)->toBe('15000.00');

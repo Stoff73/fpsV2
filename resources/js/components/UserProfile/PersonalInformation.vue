@@ -1,0 +1,356 @@
+<template>
+  <div>
+    <div class="mb-6">
+      <h2 class="text-h4 font-semibold text-gray-900">Personal Information</h2>
+      <p class="mt-1 text-body-sm text-gray-600">
+        Update your personal details and contact information
+      </p>
+    </div>
+
+    <!-- Success Message -->
+    <div v-if="successMessage" class="rounded-md bg-success-50 p-4 mb-6">
+      <div class="flex">
+        <div class="ml-3">
+          <p class="text-body-sm font-medium text-success-800">
+            {{ successMessage }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div v-if="errorMessage" class="rounded-md bg-error-50 p-4 mb-6">
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-body-sm font-medium text-error-800">Error updating information</h3>
+          <div class="mt-2 text-body-sm text-error-700">
+            <p>{{ errorMessage }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Name -->
+        <div>
+          <label for="name" class="block text-body-sm font-medium text-gray-700 mb-1">
+            Full Name <span class="text-error-600">*</span>
+          </label>
+          <input
+            id="name"
+            v-model="form.name"
+            type="text"
+            required
+            class="form-input"
+            :disabled="!isEditing"
+          />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-body-sm font-medium text-gray-700 mb-1">
+            Email Address <span class="text-error-600">*</span>
+          </label>
+          <input
+            id="email"
+            v-model="form.email"
+            type="email"
+            required
+            class="form-input"
+            :disabled="!isEditing"
+          />
+        </div>
+
+        <!-- Date of Birth -->
+        <div>
+          <label for="date_of_birth" class="block text-body-sm font-medium text-gray-700 mb-1">
+            Date of Birth
+          </label>
+          <input
+            id="date_of_birth"
+            v-model="form.date_of_birth"
+            type="date"
+            class="form-input"
+            :disabled="!isEditing"
+          />
+        </div>
+
+        <!-- Gender -->
+        <div>
+          <label for="gender" class="block text-body-sm font-medium text-gray-700 mb-1">
+            Gender
+          </label>
+          <select
+            id="gender"
+            v-model="form.gender"
+            class="form-select"
+            :disabled="!isEditing"
+          >
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+            <option value="prefer_not_to_say">Prefer not to say</option>
+          </select>
+        </div>
+
+        <!-- Marital Status -->
+        <div>
+          <label for="marital_status" class="block text-body-sm font-medium text-gray-700 mb-1">
+            Marital Status
+          </label>
+          <select
+            id="marital_status"
+            v-model="form.marital_status"
+            class="form-select"
+            :disabled="!isEditing"
+          >
+            <option value="">Select status</option>
+            <option value="single">Single</option>
+            <option value="married">Married</option>
+            <option value="divorced">Divorced</option>
+            <option value="widowed">Widowed</option>
+            <option value="civil_partnership">Civil Partnership</option>
+            <option value="separated">Separated</option>
+          </select>
+        </div>
+
+        <!-- National Insurance Number -->
+        <div>
+          <label for="national_insurance_number" class="block text-body-sm font-medium text-gray-700 mb-1">
+            National Insurance Number
+          </label>
+          <input
+            id="national_insurance_number"
+            v-model="form.national_insurance_number"
+            type="text"
+            placeholder="AB123456C"
+            maxlength="9"
+            class="form-input uppercase"
+            :disabled="!isEditing"
+          />
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <label for="phone" class="block text-body-sm font-medium text-gray-700 mb-1">
+            Phone Number
+          </label>
+          <input
+            id="phone"
+            v-model="form.phone"
+            type="tel"
+            placeholder="+44 or 0"
+            class="form-input"
+            :disabled="!isEditing"
+          />
+        </div>
+      </div>
+
+      <!-- Address Section -->
+      <div class="border-t border-gray-200 pt-6">
+        <h3 class="text-h5 font-semibold text-gray-900 mb-4">Address</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Address Line 1 -->
+          <div class="md:col-span-2">
+            <label for="address_line_1" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Address Line 1
+            </label>
+            <input
+              id="address_line_1"
+              v-model="form.address_line_1"
+              type="text"
+              class="form-input"
+              :disabled="!isEditing"
+            />
+          </div>
+
+          <!-- Address Line 2 -->
+          <div class="md:col-span-2">
+            <label for="address_line_2" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Address Line 2
+            </label>
+            <input
+              id="address_line_2"
+              v-model="form.address_line_2"
+              type="text"
+              class="form-input"
+              :disabled="!isEditing"
+            />
+          </div>
+
+          <!-- City -->
+          <div>
+            <label for="city" class="block text-body-sm font-medium text-gray-700 mb-1">
+              City
+            </label>
+            <input
+              id="city"
+              v-model="form.city"
+              type="text"
+              class="form-input"
+              :disabled="!isEditing"
+            />
+          </div>
+
+          <!-- County -->
+          <div>
+            <label for="county" class="block text-body-sm font-medium text-gray-700 mb-1">
+              County
+            </label>
+            <input
+              id="county"
+              v-model="form.county"
+              type="text"
+              class="form-input"
+              :disabled="!isEditing"
+            />
+          </div>
+
+          <!-- Postcode -->
+          <div>
+            <label for="postcode" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Postcode
+            </label>
+            <input
+              id="postcode"
+              v-model="form.postcode"
+              type="text"
+              placeholder="SW1A 1AA"
+              class="form-input uppercase"
+              :disabled="!isEditing"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+        <button
+          v-if="!isEditing"
+          type="button"
+          @click="isEditing = true"
+          class="btn-primary"
+        >
+          Edit Information
+        </button>
+        <template v-else>
+          <button
+            type="button"
+            @click="handleCancel"
+            class="btn-secondary"
+            :disabled="submitting"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn-primary"
+            :disabled="submitting"
+          >
+            <span v-if="!submitting">Save Changes</span>
+            <span v-else>Saving...</span>
+          </button>
+        </template>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script>
+import { ref, computed, watch } from 'vue';
+import { useStore } from 'vuex';
+
+export default {
+  name: 'PersonalInformation',
+
+  setup() {
+    const store = useStore();
+    const isEditing = ref(false);
+    const submitting = ref(false);
+    const successMessage = ref('');
+    const errorMessage = ref('');
+
+    const profile = computed(() => store.getters['userProfile/profile']);
+    const personalInfo = computed(() => store.getters['userProfile/personalInfo']);
+
+    const form = ref({
+      name: '',
+      email: '',
+      date_of_birth: '',
+      gender: '',
+      marital_status: '',
+      national_insurance_number: '',
+      phone: '',
+      address_line_1: '',
+      address_line_2: '',
+      city: '',
+      county: '',
+      postcode: '',
+    });
+
+    // Initialize form from personalInfo
+    const initializeForm = () => {
+      if (personalInfo.value) {
+        form.value = {
+          name: personalInfo.value.name || '',
+          email: personalInfo.value.email || '',
+          date_of_birth: personalInfo.value.date_of_birth || '',
+          gender: personalInfo.value.gender || '',
+          marital_status: personalInfo.value.marital_status || '',
+          national_insurance_number: personalInfo.value.national_insurance_number || '',
+          phone: personalInfo.value.phone || '',
+          address_line_1: personalInfo.value.address?.line_1 || '',
+          address_line_2: personalInfo.value.address?.line_2 || '',
+          city: personalInfo.value.address?.city || '',
+          county: personalInfo.value.address?.county || '',
+          postcode: personalInfo.value.address?.postcode || '',
+        };
+      }
+    };
+
+    // Watch for changes in personalInfo and reinitialize form
+    watch(personalInfo, () => {
+      initializeForm();
+    }, { immediate: true });
+
+    const handleSubmit = async () => {
+      submitting.value = true;
+      successMessage.value = '';
+      errorMessage.value = '';
+
+      try {
+        await store.dispatch('userProfile/updatePersonalInfo', form.value);
+        successMessage.value = 'Personal information updated successfully!';
+        isEditing.value = false;
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          successMessage.value = '';
+        }, 3000);
+      } catch (error) {
+        errorMessage.value = error.response?.data?.message || 'Failed to update personal information';
+      } finally {
+        submitting.value = false;
+      }
+    };
+
+    const handleCancel = () => {
+      initializeForm();
+      isEditing.value = false;
+      errorMessage.value = '';
+    };
+
+    return {
+      form,
+      isEditing,
+      submitting,
+      successMessage,
+      errorMessage,
+      handleSubmit,
+      handleCancel,
+    };
+  },
+};
+</script>

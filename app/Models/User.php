@@ -6,6 +6,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -28,6 +29,26 @@ class User extends Authenticatable
         'date_of_birth',
         'gender',
         'marital_status',
+        'spouse_id',
+        'household_id',
+        'is_primary_account',
+        'role',
+        'national_insurance_number',
+        'address_line_1',
+        'address_line_2',
+        'city',
+        'county',
+        'postcode',
+        'phone',
+        'occupation',
+        'employer',
+        'industry',
+        'employment_status',
+        'annual_employment_income',
+        'annual_self_employment_income',
+        'annual_rental_income',
+        'annual_dividend_income',
+        'annual_other_income',
     ];
 
     /**
@@ -49,6 +70,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'date_of_birth' => 'date',
+        'is_primary_account' => 'boolean',
+        'annual_employment_income' => 'decimal:2',
+        'annual_self_employment_income' => 'decimal:2',
+        'annual_rental_income' => 'decimal:2',
+        'annual_dividend_income' => 'decimal:2',
+        'annual_other_income' => 'decimal:2',
     ];
 
     /**
@@ -97,5 +124,109 @@ class User extends Authenticatable
     public function sicknessIllnessPolicies(): HasMany
     {
         return $this->hasMany(SicknessIllnessPolicy::class);
+    }
+
+    /**
+     * Get the household this user belongs to.
+     */
+    public function household(): BelongsTo
+    {
+        return $this->belongsTo(Household::class);
+    }
+
+    /**
+     * Get the user's spouse.
+     */
+    public function spouse(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'spouse_id');
+    }
+
+    /**
+     * Get the user's family members.
+     */
+    public function familyMembers(): HasMany
+    {
+        return $this->hasMany(FamilyMember::class);
+    }
+
+    /**
+     * Get the user's properties.
+     */
+    public function properties(): HasMany
+    {
+        return $this->hasMany(Property::class);
+    }
+
+    /**
+     * Get the user's mortgages.
+     */
+    public function mortgages(): HasMany
+    {
+        return $this->hasMany(Mortgage::class);
+    }
+
+    /**
+     * Get the user's business interests.
+     */
+    public function businessInterests(): HasMany
+    {
+        return $this->hasMany(BusinessInterest::class);
+    }
+
+    /**
+     * Get the user's chattels.
+     */
+    public function chattels(): HasMany
+    {
+        return $this->hasMany(Chattel::class);
+    }
+
+    /**
+     * Get the user's cash accounts.
+     */
+    public function cashAccounts(): HasMany
+    {
+        return $this->hasMany(CashAccount::class);
+    }
+
+    /**
+     * Get the user's personal account entries.
+     */
+    public function personalAccounts(): HasMany
+    {
+        return $this->hasMany(PersonalAccount::class);
+    }
+
+    /**
+     * Get the user's investment accounts.
+     */
+    public function investmentAccounts(): HasMany
+    {
+        return $this->hasMany(\App\Models\Investment\InvestmentAccount::class);
+    }
+
+    /**
+     * Get the user's DC (Defined Contribution) pensions.
+     */
+    public function dcPensions(): HasMany
+    {
+        return $this->hasMany(DCPension::class);
+    }
+
+    /**
+     * Get the user's DB (Defined Benefit) pensions.
+     */
+    public function dbPensions(): HasMany
+    {
+        return $this->hasMany(DBPension::class);
+    }
+
+    /**
+     * Get the user's state pension.
+     */
+    public function statePension(): HasOne
+    {
+        return $this->hasOne(StatePension::class);
     }
 }

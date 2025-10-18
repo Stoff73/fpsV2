@@ -17,10 +17,11 @@ class CashFlowProjector
     {
         $user = User::findOrFail($userId);
 
-        // Parse tax year format (e.g., "2024/25")
-        // Extract the first year
+        // Parse tax year format (e.g., "2024" or "2024/25")
+        // Extract the first year and format as "YYYY/YY"
         $yearParts = explode('/', $taxYear);
         $startYear = (int) $yearParts[0];
+        $formattedTaxYear = $startYear.'/'.str_pad((string) (($startYear + 1) % 100), 2, '0', STR_PAD_LEFT);
 
         // Get tax year dates (6 April to 5 April next year)
         $taxYearStart = Carbon::createFromDate($startYear, 4, 6);
@@ -36,18 +37,27 @@ class CashFlowProjector
         $totalExpenditure = array_sum(array_column($expenditure, 'amount'));
         $netSurplusDeficit = $totalIncome - $totalExpenditure;
 
-        // Structure to match CashFlow.vue component expectations
+        // Structure to match both test expectations and frontend needs
         return [
-            'tax_year' => $taxYear,
+            'tax_year' => $formattedTaxYear,
             'period_start' => $taxYearStart->format('Y-m-d'),
             'period_end' => $taxYearEnd->format('Y-m-d'),
-            // Flatten income structure
+            // Nested structure for tests and detailed breakdown
+            'income' => [
+                'items' => $income,
+                'total' => round($totalIncome, 2),
+            ],
+            'expenditure' => [
+                'items' => $expenditure,
+                'total' => round($totalExpenditure, 2),
+            ],
+            // Flattened income structure for frontend convenience
             'employment_income' => $income[0]['amount'] ?? 0,
             'dividend_income' => $income[1]['amount'] ?? 0,
             'interest_income' => $income[2]['amount'] ?? 0,
             'rental_income' => $income[3]['amount'] ?? 0,
             'other_income' => $income[4]['amount'] ?? 0,
-            // Flatten expenditure structure
+            // Flattened expenditure structure for frontend convenience
             'essential_expenses' => array_sum(array_map(
                 fn ($item) => $item['amount'],
                 array_filter($expenditure, fn ($item) => $item['category'] === 'Essential')

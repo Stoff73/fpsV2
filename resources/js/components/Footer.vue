@@ -4,6 +4,8 @@
       <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
         <div class="text-body-sm text-gray-500">
           &copy; {{ currentYear }} FPS - Financial Planning System. For demonstration purposes only.
+          <span class="ml-2 text-gray-400">|</span>
+          <span class="ml-2 font-semibold">v0.1</span>
         </div>
         <div class="flex space-x-6">
           <a href="#" class="text-body-sm text-gray-500 hover:text-gray-700">
@@ -12,9 +14,9 @@
           <a href="#" class="text-body-sm text-gray-500 hover:text-gray-700">
             Terms of Service
           </a>
-          <a href="#" class="text-body-sm text-gray-500 hover:text-gray-700">
+          <router-link to="/version" class="text-body-sm text-gray-500 hover:text-gray-700">
             Help
-          </a>
+          </router-link>
         </div>
       </div>
       <div class="mt-4 text-center">

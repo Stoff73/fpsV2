@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models\Investment;
 
+use App\Models\Household;
+use App\Models\Trust;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +18,10 @@ class InvestmentAccount extends Model
 
     protected $fillable = [
         'user_id',
+        'household_id',
+        'trust_id',
+        'ownership_type',
+        'ownership_percentage',
         'account_type',
         'provider',
         'account_number',
@@ -33,6 +39,7 @@ class InvestmentAccount extends Model
         'contributions_ytd' => 'float',
         'platform_fee_percent' => 'float',
         'isa_subscription_current_year' => 'float',
+        'ownership_percentage' => 'decimal:2',
     ];
 
     protected $attributes = [
@@ -55,5 +62,21 @@ class InvestmentAccount extends Model
     public function holdings(): HasMany
     {
         return $this->hasMany(Holding::class);
+    }
+
+    /**
+     * Get the household this investment account belongs to (for joint ownership).
+     */
+    public function household(): BelongsTo
+    {
+        return $this->belongsTo(Household::class);
+    }
+
+    /**
+     * Get the trust that holds this investment account (if applicable).
+     */
+    public function trust(): BelongsTo
+    {
+        return $this->belongsTo(Trust::class);
     }
 }
