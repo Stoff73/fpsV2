@@ -5,16 +5,13 @@
         "dev": "vite",
         "build": "vite build",
         "test": "vitest",
-        "test:ui": "vitest --ui",
         "test:run": "vitest run"
     },
     "devDependencies": {
         "@playwright/test": "^1.56.0",
-        "@vitest/ui": "^3.2.4",
         "@vue/test-utils": "^2.4.6",
         "autoprefixer": "^10.4.21",
         "axios": "^1.6.4",
-        "happy-dom": "^20.0.5",
         "jsdom": "^27.0.1",
         "laravel-vite-plugin": "^1.0.0",
         "postcss": "^8.5.6",
