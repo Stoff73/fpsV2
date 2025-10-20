@@ -94,8 +94,7 @@ export default {
     },
 
     viewDetails() {
-      // Navigate to property detail (Phase 4)
-      // this.$router.push(`/net-worth/property/${this.property.id}`);
+      this.$router.push(`/property/${this.property.id}`);
     },
   },
 };
