@@ -67,6 +67,7 @@
             <AssetsOverview v-show="activeTab === 'assets'" />
             <LiabilitiesOverview v-show="activeTab === 'liabilities'" />
             <PersonalAccounts v-show="activeTab === 'accounts'" />
+            <Settings v-show="activeTab === 'settings'" />
           </div>
         </div>
       </div>
@@ -84,6 +85,7 @@ import IncomeOccupation from '@/components/UserProfile/IncomeOccupation.vue';
 import AssetsOverview from '@/components/UserProfile/AssetsOverview.vue';
 import LiabilitiesOverview from '@/components/UserProfile/LiabilitiesOverview.vue';
 import PersonalAccounts from '@/components/UserProfile/PersonalAccounts.vue';
+import Settings from '@/components/UserProfile/Settings.vue';
 
 export default {
   name: 'UserProfile',
@@ -96,6 +98,7 @@ export default {
     AssetsOverview,
     LiabilitiesOverview,
     PersonalAccounts,
+    Settings,
   },
 
   setup() {
@@ -109,6 +112,7 @@ export default {
       { id: 'assets', label: 'Assets' },
       { id: 'liabilities', label: 'Liabilities' },
       { id: 'accounts', label: 'Personal Accounts' },
+      { id: 'settings', label: 'Settings' },
     ];
 
     const loading = computed(() => store.getters['userProfile/loading']);

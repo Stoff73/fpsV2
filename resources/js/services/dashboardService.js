@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api';
 
 const API_BASE_URL = '/api/dashboard';
 
@@ -14,7 +14,7 @@ const dashboardService = {
      */
     async getDashboardData() {
         try {
-            const response = await axios.get(API_BASE_URL);
+            const response = await api.get(API_BASE_URL);
             return response.data;
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
@@ -28,7 +28,7 @@ const dashboardService = {
      */
     async getFinancialHealthScore() {
         try {
-            const response = await axios.get(`${API_BASE_URL}/financial-health-score`);
+            const response = await api.get(`${API_BASE_URL}/financial-health-score`);
             return response.data;
         } catch (error) {
             console.error('Failed to fetch financial health score:', error);
@@ -42,7 +42,7 @@ const dashboardService = {
      */
     async getAlerts() {
         try {
-            const response = await axios.get(`${API_BASE_URL}/alerts`);
+            const response = await api.get(`${API_BASE_URL}/alerts`);
             return response.data;
         } catch (error) {
             console.error('Failed to fetch alerts:', error);
@@ -57,7 +57,7 @@ const dashboardService = {
      */
     async dismissAlert(alertId) {
         try {
-            const response = await axios.post(`${API_BASE_URL}/alerts/${alertId}/dismiss`);
+            const response = await api.post(`${API_BASE_URL}/alerts/${alertId}/dismiss`);
             return response.data;
         } catch (error) {
             console.error('Failed to dismiss alert:', error);

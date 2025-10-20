@@ -19,9 +19,20 @@ const getters = {
         }, 0);
     },
 
+    // Get total emergency fund (only accounts marked as emergency fund)
+    emergencyFundTotal: (state) => {
+        return state.accounts
+            .filter(account => account.is_emergency_fund)
+            .reduce((sum, account) => {
+                return sum + parseFloat(account.current_balance || 0);
+            }, 0);
+    },
+
     // Get emergency fund runway in months
-    emergencyFundRunway: (state) => {
-        return state.analysis?.emergency_fund_runway || 0;
+    emergencyFundRunway: (state, getters) => {
+        const monthlyExpenditure = getters.monthlyExpenditure;
+        if (monthlyExpenditure === 0) return 0;
+        return getters.emergencyFundTotal / monthlyExpenditure;
     },
 
     // Get ISA allowance remaining
@@ -96,7 +107,7 @@ const getters = {
 
     // Get monthly expenditure from profile
     monthlyExpenditure: (state) => {
-        return state.expenditureProfile?.monthly_total || 0;
+        return state.expenditureProfile?.total_monthly_expenditure || 0;
     },
 
     loading: (state) => state.loading,

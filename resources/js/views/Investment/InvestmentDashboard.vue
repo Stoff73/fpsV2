@@ -1,9 +1,9 @@
 <template>
-  <AppLayout>
+  <component :is="isEmbedded ? 'div' : 'AppLayout'">
     <div class="investment-dashboard py-6">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Breadcrumb -->
-      <nav class="mb-6" aria-label="Breadcrumb">
+      <!-- Breadcrumb (only show when not embedded) -->
+      <nav v-if="!isEmbedded" class="mb-6" aria-label="Breadcrumb">
         <ol class="flex items-center space-x-2 text-sm">
           <li>
             <router-link to="/dashboard" class="text-gray-500 hover:text-gray-700">
@@ -29,8 +29,8 @@
         </ol>
       </nav>
 
-      <!-- Header -->
-      <div class="mb-8">
+      <!-- Header (only show when not embedded) -->
+      <div v-if="!isEmbedded" class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Investment Portfolio</h1>
         <p class="text-gray-600">
           Monitor your portfolio performance, analyze holdings, and optimize your investment strategy
@@ -92,13 +92,24 @@
         <!-- Tab Content -->
         <div class="p-6">
           <!-- Portfolio Overview Tab -->
-          <PortfolioOverview v-if="activeTab === 'overview'" />
+          <PortfolioOverview
+            v-if="activeTab === 'overview'"
+            @open-add-account-modal="openAddAccountModal"
+          />
 
           <!-- Accounts Tab -->
-          <Accounts v-else-if="activeTab === 'accounts'" />
+          <Accounts
+            v-else-if="activeTab === 'accounts'"
+            ref="accountsComponent"
+            @view-holdings="handleViewHoldings"
+          />
 
           <!-- Holdings Tab -->
-          <Holdings v-else-if="activeTab === 'holdings'" />
+          <Holdings
+            v-else-if="activeTab === 'holdings'"
+            :selected-account-id="selectedAccountId"
+            @clear-filter="clearAccountFilter"
+          />
 
           <!-- Performance Tab -->
           <Performance v-else-if="activeTab === 'performance'" />
@@ -118,7 +129,7 @@
       </div>
       </div>
     </div>
-  </AppLayout>
+  </component>
 </template>
 
 <script>
@@ -151,6 +162,7 @@ export default {
   data() {
     return {
       activeTab: 'overview',
+      selectedAccountId: null,
       tabs: [
         { id: 'overview', label: 'Portfolio Overview' },
         { id: 'accounts', label: 'Accounts' },
@@ -166,6 +178,11 @@ export default {
 
   computed: {
     ...mapState('investment', ['loading', 'error']),
+
+    // Check if this component is embedded in another page (like Net Worth)
+    isEmbedded() {
+      return this.$route.path.startsWith('/net-worth/');
+    },
   },
 
   mounted() {
@@ -182,6 +199,29 @@ export default {
       } catch (error) {
         console.error('Failed to load investment data:', error);
       }
+    },
+
+    openAddAccountModal() {
+      // Switch to accounts tab first
+      this.activeTab = 'accounts';
+      // Wait for next tick to ensure Accounts component is rendered
+      this.$nextTick(() => {
+        if (this.$refs.accountsComponent && this.$refs.accountsComponent.openAddModal) {
+          this.$refs.accountsComponent.openAddModal();
+        }
+      });
+    },
+
+    handleViewHoldings(account) {
+      // Store the selected account ID
+      this.selectedAccountId = account.id;
+      // Switch to holdings tab
+      this.activeTab = 'holdings';
+    },
+
+    clearAccountFilter() {
+      // Clear the selected account filter
+      this.selectedAccountId = null;
     },
   },
 };

@@ -20,8 +20,30 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- Monthly Expenditure Breakdown -->
       <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Expenditure</h3>
-        <div class="space-y-3">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">Monthly Expenditure</h3>
+          <button
+            v-if="!hasExpenditure"
+            @click="navigateToAddExpenditure"
+            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Add Expenditure
+          </button>
+        </div>
+
+        <!-- Show message if no expenditure data -->
+        <div v-if="!hasExpenditure" class="text-center py-8">
+          <div class="mb-4">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <p class="text-gray-600 mb-2">No monthly expenditure data</p>
+          <p class="text-sm text-gray-500">Add your monthly expenditure to calculate emergency fund runway</p>
+        </div>
+
+        <!-- Show expenditure breakdown if data exists -->
+        <div v-else class="space-y-3">
           <div class="flex justify-between items-center">
             <span class="text-sm text-gray-600">Housing</span>
             <span class="font-semibold">{{ formatCurrency(expenditure.housing) }}</span>
@@ -140,7 +162,7 @@ export default {
 
   computed: {
     ...mapState('savings', ['expenditureProfile', 'analysis', 'accounts']),
-    ...mapGetters('savings', ['emergencyFundRunway', 'monthlyExpenditure', 'totalSavings']),
+    ...mapGetters('savings', ['emergencyFundRunway', 'monthlyExpenditure', 'emergencyFundTotal']),
 
     expenditure() {
       if (!this.expenditureProfile) {
@@ -153,10 +175,13 @@ export default {
       }
 
       return {
-        housing: this.expenditureProfile.housing || 0,
-        food: this.expenditureProfile.food_groceries || 0,
-        utilities: this.expenditureProfile.utilities_bills || 0,
-        other: this.expenditureProfile.other_essentials || 0,
+        housing: this.expenditureProfile.monthly_housing || 0,
+        food: this.expenditureProfile.monthly_food || 0,
+        utilities: this.expenditureProfile.monthly_utilities || 0,
+        other: (this.expenditureProfile.monthly_transport || 0) +
+               (this.expenditureProfile.monthly_insurance || 0) +
+               (this.expenditureProfile.monthly_loans || 0) +
+               (this.expenditureProfile.monthly_discretionary || 0),
       };
     },
 
@@ -169,7 +194,7 @@ export default {
     },
 
     currentAmount() {
-      return this.totalSavings;
+      return this.emergencyFundTotal;
     },
 
     shortfall() {
@@ -187,7 +212,14 @@ export default {
       return 'bg-red-600';
     },
 
+    hasExpenditure() {
+      return this.monthlyTotal > 0;
+    },
+
     statusMessage() {
+      if (!this.hasExpenditure) {
+        return 'Please add your monthly expenditure to calculate emergency fund runway.';
+      }
       if (this.emergencyFundRunway >= 6) {
         return 'Excellent! Your emergency fund exceeds the recommended 6-month target.';
       } else if (this.emergencyFundRunway >= 3) {
@@ -206,6 +238,11 @@ export default {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }).format(value);
+    },
+
+    navigateToAddExpenditure() {
+      // Navigate to User Profile page with cashflow tab
+      this.$router.push({ path: '/profile', query: { tab: 'cashflow' } });
     },
   },
 };

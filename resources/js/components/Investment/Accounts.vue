@@ -253,9 +253,8 @@ export default {
     },
 
     viewHoldings(account) {
-      // Emit event or navigate to holdings view filtered by account
+      // Emit event to parent dashboard to switch to holdings tab
       this.$emit('view-holdings', account);
-      // Or navigate: this.$router.push({ name: 'holdings', query: { accountId: account.id } });
     },
 
     clearMessages() {

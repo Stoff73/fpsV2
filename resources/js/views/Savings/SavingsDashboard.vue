@@ -1,9 +1,9 @@
 <template>
-  <AppLayout>
+  <component :is="isEmbedded ? 'div' : 'AppLayout'">
     <div class="savings-dashboard py-6">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Breadcrumb -->
-      <nav class="mb-6" aria-label="Breadcrumb">
+      <!-- Breadcrumb (only show when not embedded) -->
+      <nav v-if="!isEmbedded" class="mb-6" aria-label="Breadcrumb">
         <ol class="flex items-center space-x-2 text-sm">
           <li>
             <router-link to="/dashboard" class="text-gray-500 hover:text-gray-700">
@@ -29,8 +29,8 @@
         </ol>
       </nav>
 
-      <!-- Header -->
-      <div class="mb-8">
+      <!-- Header (only show when not embedded) -->
+      <div v-if="!isEmbedded" class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Savings & Emergency Fund</h1>
         <p class="text-gray-600">
           Manage your savings accounts, track emergency fund, and monitor progress towards your goals
@@ -112,7 +112,7 @@
       </div>
       </div>
     </div>
-  </AppLayout>
+  </component>
 </template>
 
 <script>
@@ -154,6 +154,11 @@ export default {
 
   computed: {
     ...mapState('savings', ['loading', 'error']),
+
+    // Check if this component is embedded in another page (like Net Worth)
+    isEmbedded() {
+      return this.$route.path.startsWith('/net-worth/');
+    },
   },
 
   mounted() {

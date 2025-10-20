@@ -2,9 +2,28 @@
   <div class="holdings">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">Holdings</h2>
-        <p class="text-gray-600">Manage your investment holdings and view detailed performance</p>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">
+          Holdings
+          <span v-if="selectedAccount" class="text-xl text-gray-600 font-normal ml-2">
+            - {{ selectedAccount.provider }}
+          </span>
+        </h2>
+        <p class="text-gray-600">
+          <template v-if="selectedAccount">
+            Viewing holdings for {{ selectedAccount.provider }} account
+          </template>
+          <template v-else>
+            Manage your investment holdings and view detailed performance
+          </template>
+        </p>
       </div>
+      <button
+        v-if="selectedAccountId"
+        @click="clearFilter"
+        class="text-blue-600 hover:text-blue-700 text-sm font-medium"
+      >
+        View All Holdings
+      </button>
     </div>
 
     <!-- Error Alert -->
@@ -29,7 +48,8 @@
 
     <!-- Holdings Table -->
     <HoldingsTable
-      :holdings="allHoldings"
+      :holdings="filteredHoldings"
+      :accounts="accounts"
       :loading="loading"
       @add-holding="openAddModal"
       @edit-holding="openEditModal"
@@ -101,6 +121,13 @@ export default {
     HoldingForm,
   },
 
+  props: {
+    selectedAccountId: {
+      type: Number,
+      default: null,
+    },
+  },
+
   data() {
     return {
       showModal: false,
@@ -121,6 +148,26 @@ export default {
 
     loading() {
       return this.$store.state.investment.loading;
+    },
+
+    filteredHoldings() {
+      // If a specific account is selected, filter holdings by that account
+      if (this.selectedAccountId) {
+        return this.allHoldings.filter(
+          (holding) => holding.investment_account_id === this.selectedAccountId
+        );
+      }
+      // Otherwise show all holdings
+      return this.allHoldings;
+    },
+
+    selectedAccount() {
+      if (this.selectedAccountId) {
+        return this.accounts.find(
+          (account) => account.id === this.selectedAccountId
+        );
+      }
+      return null;
     },
   },
 
@@ -215,6 +262,11 @@ export default {
     clearMessages() {
       this.error = null;
       this.successMessage = null;
+    },
+
+    clearFilter() {
+      // Emit event to parent to clear the selected account
+      this.$emit('clear-filter');
     },
   },
 };

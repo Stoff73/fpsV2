@@ -24,6 +24,7 @@ class StoreSavingsAccountRequest extends FormRequest
             'access_type' => 'required|in:immediate,notice,fixed',
             'notice_period_days' => 'nullable|integer|min:0',
             'maturity_date' => 'nullable|date|after:today',
+            'is_emergency_fund' => 'required|boolean',
             'is_isa' => 'required|boolean',
             'isa_type' => 'nullable|required_if:is_isa,true|in:cash,stocks_shares,LISA',
             'isa_subscription_year' => 'nullable|required_if:is_isa,true|string',

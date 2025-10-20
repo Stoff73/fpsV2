@@ -289,7 +289,7 @@ export default {
         purchase_price: null,
         purchase_date: '',
         current_price: null,
-        ocf_percent: null,
+        ocf_percent: 0,
       },
       errors: {},
       submitting: false,
@@ -435,7 +435,7 @@ export default {
         purchase_price: null,
         purchase_date: '',
         current_price: null,
-        ocf_percent: null,
+        ocf_percent: 0,
       };
       this.errors = {};
     },

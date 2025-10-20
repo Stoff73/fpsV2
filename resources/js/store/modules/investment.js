@@ -106,6 +106,20 @@ const getters = {
         return Math.round((getters.totalISAValue / totalValue) * 100);
     },
 
+    // Get current year ISA contributions (for allowance tracking)
+    totalISAContributions: (state, getters) => {
+        return getters.isaAccounts.reduce((sum, account) => {
+            return sum + parseFloat(account.contributions_ytd || 0);
+        }, 0);
+    },
+
+    // Get ISA allowance percentage used (based on contributions, not value)
+    isaAllowancePercentage: (state, getters) => {
+        const isaAllowance = 20000; // 2024/25 allowance
+        const contributions = getters.totalISAContributions;
+        return (contributions / isaAllowance) * 100;
+    },
+
     // Get current year ISA subscription (S&S ISA) from ISA accounts
     investmentISASubscription: (state, getters) => {
         return getters.isaAccounts.reduce((sum, account) => {

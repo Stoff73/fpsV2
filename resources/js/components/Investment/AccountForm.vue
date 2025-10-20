@@ -321,6 +321,10 @@ export default {
           this.formData = {
             ...newAccount,
             isa_type: newAccount.isa_type || 'stocks_and_shares',
+            // Map contributions_ytd to isa_subscription_current_year for ISA accounts
+            isa_subscription_current_year: newAccount.account_type === 'isa'
+              ? (newAccount.contributions_ytd || 0)
+              : null,
           };
         } else {
           this.resetForm();
@@ -356,10 +360,16 @@ export default {
         // Clean up data before submission
         const submitData = { ...this.formData };
 
-        // Remove ISA fields if not ISA account
-        if (submitData.account_type !== 'isa') {
+        // For ISA accounts, map isa_subscription_current_year to contributions_ytd
+        if (submitData.account_type === 'isa') {
+          submitData.contributions_ytd = submitData.isa_subscription_current_year || 0;
+          // Remove the UI-specific field
+          delete submitData.isa_subscription_current_year;
+        } else {
+          // Remove ISA fields if not ISA account
           delete submitData.isa_type;
           delete submitData.isa_subscription_current_year;
+          delete submitData.contributions_ytd;
         }
 
         // Emit save event - parent will close modal after successful save

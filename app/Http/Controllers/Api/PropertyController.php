@@ -30,22 +30,11 @@ class PropertyController extends Controller
         $user = $request->user();
 
         $properties = Property::where('user_id', $user->id)
-            ->with(['mortgages', 'household', 'trust'])
             ->orderBy('property_type')
-            ->orderBy('purchase_date', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        $propertySummaries = $properties->map(function ($property) {
-            return $this->propertyService->getPropertySummary($property);
-        });
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'properties' => $propertySummaries,
-                'count' => $properties->count(),
-            ],
-        ]);
+        return response()->json($properties);
     }
 
     /**
@@ -56,23 +45,29 @@ class PropertyController extends Controller
     public function store(StorePropertyRequest $request): JsonResponse
     {
         $user = $request->user();
+        $validated = $request->validated();
 
-        $property = Property::create([
-            'user_id' => $user->id,
-            'household_id' => $user->household_id,
-            ...$request->validated(),
-        ]);
+        // Set defaults for optional fields
+        $validated['user_id'] = $user->id;
+        $validated['household_id'] = $user->household_id;
+        $validated['ownership_type'] = $validated['ownership_type'] ?? 'individual';
+        $validated['ownership_percentage'] = $validated['ownership_percentage'] ?? 100.00;
+        $validated['valuation_date'] = $validated['valuation_date'] ?? now();
 
-        $property->load(['mortgages', 'household', 'trust']);
-        $summary = $this->propertyService->getPropertySummary($property);
+        // Handle address field - populate address_line_1 from address if needed
+        if (isset($validated['address']) && !isset($validated['address_line_1'])) {
+            $validated['address_line_1'] = $validated['address'];
+        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Property added successfully',
-            'data' => [
-                'property' => $summary,
-            ],
-        ], 201);
+        // Convert rental_income to monthly if provided
+        if (isset($validated['rental_income']) && !isset($validated['monthly_rental_income'])) {
+            $validated['monthly_rental_income'] = $validated['rental_income'];
+            $validated['annual_rental_income'] = $validated['rental_income'] * 12;
+        }
+
+        $property = Property::create($validated);
+
+        return response()->json($property, 201);
     }
 
     /**

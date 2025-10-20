@@ -24,25 +24,28 @@ class StorePropertyRequest extends FormRequest
     {
         return [
             'trust_id' => ['nullable', 'exists:trusts,id'],
-            'property_type' => ['required', Rule::in(['main_residence', 'second_home', 'buy_to_let', 'commercial', 'land'])],
-            'ownership_type' => ['required', Rule::in(['sole', 'joint', 'trust'])],
-            'ownership_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
+            'property_type' => ['required', Rule::in(['main_residence', 'secondary_residence', 'buy_to_let', 'commercial', 'land'])],
+            'ownership_type' => ['nullable', Rule::in(['individual', 'joint', 'trust'])],
+            'ownership_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
-            // Address
-            'address_line_1' => ['required', 'string', 'max:255'],
+            // Address - simplified (address is a virtual field, actual column is address_line_1)
+            'address' => ['required', 'string', 'max:500'],
+            'address_line_1' => ['nullable', 'string', 'max:255'],
             'address_line_2' => ['nullable', 'string', 'max:255'],
-            'city' => ['required', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:255'],
             'county' => ['nullable', 'string', 'max:255'],
-            'postcode' => ['required', 'string', 'regex:/^[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}$/i'],
+            'postcode' => ['nullable', 'string', 'max:10'],
 
             // Financial
-            'purchase_date' => ['required', 'date'],
-            'purchase_price' => ['required', 'numeric', 'min:0'],
+            'purchase_date' => ['nullable', 'date'],
+            'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'current_value' => ['required', 'numeric', 'min:0'],
             'valuation_date' => ['nullable', 'date'],
             'sdlt_paid' => ['nullable', 'numeric', 'min:0'],
+            'outstanding_mortgage' => ['nullable', 'numeric', 'min:0'],
 
-            // Rental (required for BTL)
+            // Rental (for BTL)
+            'rental_income' => ['nullable', 'numeric', 'min:0'],
             'monthly_rental_income' => ['nullable', 'numeric', 'min:0'],
             'annual_rental_income' => ['nullable', 'numeric', 'min:0'],
             'occupancy_rate_percent' => ['nullable', 'integer', 'min:0', 'max:100'],

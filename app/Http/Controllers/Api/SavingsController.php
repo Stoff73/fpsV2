@@ -38,12 +38,18 @@ class SavingsController extends Controller
         $goals = SavingsGoal::where('user_id', $user->id)->get();
         $expenditureProfile = ExpenditureProfile::where('user_id', $user->id)->first();
 
+        // Get current tax year ISA allowance
+        $currentTaxYear = $this->isaTracker->getCurrentTaxYear();
+        $isaAllowance = $this->isaTracker->getISAAllowanceStatus($user->id, $currentTaxYear);
+
         return response()->json([
             'success' => true,
             'data' => [
                 'accounts' => $accounts,
                 'goals' => $goals,
                 'expenditure_profile' => $expenditureProfile,
+                'isa_allowance' => $isaAllowance,
+                'analysis' => null, // Placeholder for analysis data
             ],
         ]);
     }

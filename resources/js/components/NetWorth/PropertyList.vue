@@ -3,6 +3,12 @@
     <div class="list-header">
       <h2 class="list-title">Properties</h2>
       <div class="list-controls">
+        <button @click="addProperty" class="add-property-button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="button-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Add Property
+        </button>
         <select v-model="filterType" class="filter-select">
           <option value="all">All Properties</option>
           <option value="main_residence">Main Residence</option>
@@ -40,17 +46,36 @@
         :property="property"
       />
     </div>
+
+    <!-- Property Form Modal -->
+    <PropertyForm
+      :show="showPropertyForm"
+      :property="selectedProperty"
+      @save="handleSaveProperty"
+      @close="closePropertyForm"
+    />
+
+    <!-- Success/Error Messages -->
+    <div v-if="successMessage" class="notification success">
+      {{ successMessage }}
+    </div>
+    <div v-if="errorMessage" class="notification error">
+      {{ errorMessage }}
+    </div>
   </div>
 </template>
 
 <script>
 import PropertyCard from './PropertyCard.vue';
+import PropertyForm from './PropertyForm.vue';
+import api from '@/services/api';
 
 export default {
   name: 'PropertyList',
 
   components: {
     PropertyCard,
+    PropertyForm,
   },
 
   data() {
@@ -60,6 +85,10 @@ export default {
       error: null,
       filterType: 'all',
       sortBy: 'value_desc',
+      showPropertyForm: false,
+      selectedProperty: null,
+      successMessage: null,
+      errorMessage: null,
     };
   },
 
@@ -85,10 +114,76 @@ export default {
     },
   },
 
+  methods: {
+    addProperty() {
+      this.selectedProperty = null;
+      this.showPropertyForm = true;
+    },
+
+    closePropertyForm() {
+      this.showPropertyForm = false;
+      this.selectedProperty = null;
+    },
+
+    async handleSaveProperty(formData) {
+      this.clearMessages();
+
+      try {
+        if (formData.id) {
+          // Update existing property
+          const response = await api.put(`/properties/${formData.id}`, formData);
+          const index = this.properties.findIndex(p => p.id === formData.id);
+          if (index !== -1) {
+            this.properties.splice(index, 1, response.data);
+          }
+          this.successMessage = 'Property updated successfully';
+        } else {
+          // Create new property
+          const response = await api.post('/properties', formData);
+          this.properties.push(response.data);
+          this.successMessage = 'Property added successfully';
+        }
+
+        this.closePropertyForm();
+
+        // Auto-hide success message after 5 seconds
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 5000);
+      } catch (error) {
+        console.error('Error saving property:', error);
+        this.errorMessage = error.response?.data?.message || 'Failed to save property. Please try again.';
+
+        // Auto-hide error message after 5 seconds
+        setTimeout(() => {
+          this.errorMessage = null;
+        }, 5000);
+      }
+    },
+
+    clearMessages() {
+      this.successMessage = null;
+      this.errorMessage = null;
+    },
+
+    async fetchProperties() {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const response = await api.get('/properties');
+        this.properties = response.data;
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+        this.error = error.response?.data?.message || 'Failed to load properties';
+      } finally {
+        this.loading = false;
+      }
+    },
+  },
+
   async mounted() {
-    // In Phase 4, this will fetch from the API
-    // For now, show empty state
-    this.loading = false;
+    await this.fetchProperties();
   },
 };
 </script>
@@ -117,6 +212,31 @@ export default {
 .list-controls {
   display: flex;
   gap: 12px;
+  align-items: center;
+}
+
+.add-property-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-property-button:hover {
+  background: #2563eb;
+}
+
+.button-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .filter-select,
@@ -188,6 +308,40 @@ export default {
   font-weight: 400;
 }
 
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 100;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+.notification.success {
+  background: #10b981;
+  color: white;
+}
+
+.notification.error {
+  background: #ef4444;
+  color: white;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 @media (max-width: 768px) {
   .property-list {
     padding: 16px;
@@ -203,6 +357,7 @@ export default {
     flex-direction: column;
   }
 
+  .add-property-button,
   .filter-select,
   .sort-select {
     width: 100%;

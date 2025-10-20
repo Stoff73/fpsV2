@@ -146,8 +146,8 @@ export default {
       'feeDragPercent',
       'unrealizedGains',
       'taxEfficiencyScore',
-      'isaPercentage',
-      'totalISAValue',
+      'totalISAContributions',
+      'isaAllowancePercentage',
     ]),
 
     feeBreakdown() {
@@ -161,7 +161,11 @@ export default {
     },
 
     isaUsed() {
-      return this.totalISAValue || 0;
+      return this.totalISAContributions || 0;
+    },
+
+    isaPercentage() {
+      return this.isaAllowancePercentage || 0;
     },
   },
 

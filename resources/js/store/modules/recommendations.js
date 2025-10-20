@@ -1,4 +1,4 @@
-import axios from '../../bootstrap';
+import api from '../../services/api';
 
 const state = {
   recommendations: [],
@@ -59,7 +59,7 @@ const actions = {
     commit('SET_ERROR', null);
 
     try {
-      const response = await axios.get('/api/recommendations', { params });
+      const response = await api.get('/api/recommendations', { params });
       commit('SET_RECOMMENDATIONS', response.data.data);
     } catch (error) {
       commit('SET_ERROR', error.response?.data?.message || 'Failed to fetch recommendations');
@@ -70,7 +70,7 @@ const actions = {
 
   async fetchSummary({ commit }) {
     try {
-      const response = await axios.get('/api/recommendations/summary');
+      const response = await api.get('/api/recommendations/summary');
       commit('SET_SUMMARY', response.data.data);
     } catch (error) {
       console.error('Failed to fetch summary:', error);
@@ -79,7 +79,7 @@ const actions = {
 
   async fetchTopRecommendations({ commit }, limit = 5) {
     try {
-      const response = await axios.get('/api/recommendations/top', {
+      const response = await api.get('/api/recommendations/top', {
         params: { limit },
       });
       commit('SET_TOP_RECOMMENDATIONS', response.data.data);
@@ -90,7 +90,7 @@ const actions = {
 
   async fetchCompletedRecommendations({ commit }) {
     try {
-      const response = await axios.get('/api/recommendations/completed');
+      const response = await api.get('/api/recommendations/completed');
       commit('SET_COMPLETED_RECOMMENDATIONS', response.data.data);
     } catch (error) {
       console.error('Failed to fetch completed recommendations:', error);
@@ -99,7 +99,7 @@ const actions = {
 
   async markRecommendationDone({ commit }, recommendation) {
     try {
-      await axios.post(`/api/recommendations/${recommendation.recommendation_id}/mark-done`, {
+      await api.post(`/api/recommendations/${recommendation.recommendation_id}/mark-done`, {
         module: recommendation.module,
         recommendation_text: recommendation.recommendation_text,
         priority_score: recommendation.priority_score,
@@ -116,7 +116,7 @@ const actions = {
 
   async markRecommendationInProgress({ commit }, recommendation) {
     try {
-      await axios.post(`/api/recommendations/${recommendation.recommendation_id}/in-progress`, {
+      await api.post(`/api/recommendations/${recommendation.recommendation_id}/in-progress`, {
         module: recommendation.module,
         recommendation_text: recommendation.recommendation_text,
         priority_score: recommendation.priority_score,
@@ -133,7 +133,7 @@ const actions = {
 
   async dismissRecommendation({ commit }, recommendation) {
     try {
-      await axios.post(`/api/recommendations/${recommendation.recommendation_id}/dismiss`, {
+      await api.post(`/api/recommendations/${recommendation.recommendation_id}/dismiss`, {
         module: recommendation.module,
         recommendation_text: recommendation.recommendation_text,
         priority_score: recommendation.priority_score,
@@ -150,7 +150,7 @@ const actions = {
 
   async updateRecommendationNotes({ state }, { recommendationId, notes }) {
     try {
-      await axios.patch(`/api/recommendations/${recommendationId}/notes`, { notes });
+      await api.patch(`/api/recommendations/${recommendationId}/notes`, { notes });
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to update notes');
     }

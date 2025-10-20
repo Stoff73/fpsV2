@@ -1,7 +1,7 @@
 <template>
   <div class="isa-allowance-tracker bg-white rounded-lg border border-gray-200 p-6">
     <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-semibold text-gray-900">ISA Allowance 2024/25</h3>
+      <h3 class="text-lg font-semibold text-gray-900">ISA Allowance {{ currentTaxYear }}</h3>
       <span class="text-sm text-gray-600">{{ formatCurrency(totalAllowance) }} total</span>
     </div>
 
@@ -52,7 +52,7 @@
     <!-- Info Message -->
     <div class="p-3 bg-blue-50 rounded-lg">
       <p class="text-sm text-gray-700">
-        <span class="font-medium">Tax year 2024/25:</span> You can save up to £20,000 across all ISAs.
+        <span class="font-medium">Tax year {{ currentTaxYear }}:</span> You can save up to £20,000 across all ISAs.
         Any unused allowance cannot be carried forward.
       </p>
     </div>
@@ -70,7 +70,21 @@ export default {
     ...mapGetters('savings', ['isaAllowanceRemaining']),
 
     totalAllowance() {
-      return 20000; // UK ISA allowance for 2024/25
+      return 20000; // UK ISA allowance
+    },
+
+    currentTaxYear() {
+      // Calculate current UK tax year (April 6 - April 5)
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth(); // 0-indexed
+      const day = now.getDate();
+
+      // If before April 6, we're in previous tax year
+      if (month < 3 || (month === 3 && day < 6)) {
+        return `${year - 1}/${String(year).slice(-2)}`;
+      }
+      return `${year}/${String(year + 1).slice(-2)}`;
     },
 
     cashISAUsed() {
@@ -78,7 +92,7 @@ export default {
     },
 
     stocksISAUsed() {
-      return this.isaAllowance?.stocks_isa_used || 0;
+      return this.isaAllowance?.stocks_shares_isa_used || 0;
     },
 
     remaining() {

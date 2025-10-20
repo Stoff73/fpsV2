@@ -1,0 +1,173 @@
+<template>
+  <div class="space-y-6">
+    <!-- Account Settings Section -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-h4 font-semibold text-gray-900">Account Settings</h3>
+        <p class="mt-1 text-body-sm text-gray-600">
+          Manage your account preferences and security
+        </p>
+      </div>
+
+      <div class="px-6 py-4 space-y-4">
+        <!-- User Information Display -->
+        <div class="flex items-center space-x-4 pb-4 border-b border-gray-200">
+          <div class="flex-shrink-0">
+            <div class="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+              <span class="text-h4 font-semibold text-primary-700">
+                {{ userInitials }}
+              </span>
+            </div>
+          </div>
+          <div>
+            <h4 class="text-body-base font-semibold text-gray-900">{{ currentUser?.name }}</h4>
+            <p class="text-body-sm text-gray-600">{{ currentUser?.email }}</p>
+          </div>
+        </div>
+
+        <!-- Session Information -->
+        <div class="pt-4">
+          <h4 class="text-body-sm font-semibold text-gray-900 mb-3">Session Information</h4>
+          <div class="bg-gray-50 rounded-md px-4 py-3">
+            <div class="grid grid-cols-1 gap-2 text-body-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Account Type:</span>
+                <span class="font-medium text-gray-900">{{ currentUser?.role || 'User' }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Member Since:</span>
+                <span class="font-medium text-gray-900">{{ formatDate(currentUser?.created_at) }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Status:</span>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success-100 text-success-800">
+                  Active
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Section -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-h4 font-semibold text-gray-900">Security</h3>
+        <p class="mt-1 text-body-sm text-gray-600">
+          Manage your session and account access
+        </p>
+      </div>
+
+      <div class="px-6 py-4 space-y-4">
+        <!-- Logout Button -->
+        <div class="flex items-center justify-between py-3">
+          <div>
+            <h4 class="text-body-base font-medium text-gray-900">Sign out of your account</h4>
+            <p class="text-body-sm text-gray-600 mt-1">
+              This will end your current session and return you to the login page
+            </p>
+          </div>
+          <button
+            @click="handleLogout"
+            :disabled="loggingOut"
+            class="btn-secondary"
+            :class="{ 'opacity-50 cursor-not-allowed': loggingOut }"
+          >
+            <span v-if="!loggingOut">Logout</span>
+            <span v-else>Logging out...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="bg-white rounded-lg border border-error-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-error-200 bg-error-50">
+        <h3 class="text-h4 font-semibold text-error-900">Danger Zone</h3>
+        <p class="mt-1 text-body-sm text-error-700">
+          Irreversible actions - proceed with caution
+        </p>
+      </div>
+
+      <div class="px-6 py-4">
+        <div class="flex items-center justify-between py-3">
+          <div>
+            <h4 class="text-body-base font-medium text-gray-900">Clear all data</h4>
+            <p class="text-body-sm text-gray-600 mt-1">
+              This will remove all your financial data but keep your account active
+            </p>
+          </div>
+          <button
+            class="px-4 py-2 border border-error-600 text-error-700 rounded-button text-body-sm font-medium hover:bg-error-50 transition-colors"
+            disabled
+          >
+            Clear Data
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref, computed } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+
+export default {
+  name: 'Settings',
+
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+    const loggingOut = ref(false);
+
+    const currentUser = computed(() => store.getters['auth/currentUser']);
+
+    const userInitials = computed(() => {
+      if (!currentUser.value?.name) return 'U';
+      const names = currentUser.value.name.split(' ');
+      return names.length > 1
+        ? names[0][0] + names[names.length - 1][0]
+        : names[0][0];
+    });
+
+    const formatDate = (dateString) => {
+      if (!dateString) return 'N/A';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+    };
+
+    const handleLogout = async () => {
+      if (loggingOut.value) return;
+
+      if (confirm('Are you sure you want to logout?')) {
+        loggingOut.value = true;
+        try {
+          await store.dispatch('auth/logout');
+          router.push({ name: 'Login' });
+        } catch (error) {
+          console.error('Logout failed:', error);
+          // Still redirect to login even if API call fails
+          router.push({ name: 'Login' });
+        } finally {
+          loggingOut.value = false;
+        }
+      }
+    };
+
+    return {
+      currentUser,
+      userInitials,
+      loggingOut,
+      formatDate,
+      handleLogout,
+    };
+  },
+};
+</script>

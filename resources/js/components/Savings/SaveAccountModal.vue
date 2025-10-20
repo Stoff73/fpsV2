@@ -18,7 +18,7 @@
         <div class="bg-white px-6 pt-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-semibold text-gray-900">
-              {{ isEditing ? 'Edit Savings Account' : 'Add New Savings Account' }}
+              {{ isEditing ? 'Edit Account' : 'Add Account' }}
             </h3>
             <button
               @click="handleClose"
@@ -64,6 +64,7 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Select account type...</option>
+                <option value="savings_account">Savings Account</option>
                 <option value="current_account">Current Account</option>
                 <option value="easy_access">Easy Access</option>
                 <option value="notice">Notice Account</option>
@@ -153,6 +154,19 @@
                 type="date"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+            </div>
+
+            <!-- Emergency Fund Status -->
+            <div class="flex items-center">
+              <input
+                v-model="formData.is_emergency_fund"
+                type="checkbox"
+                id="is_emergency_fund"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="is_emergency_fund" class="ml-2 block text-sm text-gray-700">
+                This forms part of my emergency fund
+              </label>
             </div>
 
             <!-- ISA Status -->
@@ -290,6 +304,7 @@ export default {
         access_type: 'immediate',
         notice_period_days: null,
         maturity_date: '',
+        is_emergency_fund: false,
         is_isa: false,
         isa_type: '',
         isa_subscription_year: '2024/25',
@@ -315,6 +330,7 @@ export default {
         access_type: this.account.access_type || 'immediate',
         notice_period_days: this.account.notice_period_days || null,
         maturity_date: this.account.maturity_date || '',
+        is_emergency_fund: this.account.is_emergency_fund || false,
         is_isa: this.account.is_isa || false,
         isa_type: this.account.isa_type || '',
         isa_subscription_year: this.account.isa_subscription_year || '2024/25',
@@ -345,6 +361,7 @@ export default {
         access_type: this.formData.access_type,
         notice_period_days: this.formData.access_type === 'notice' ? this.formData.notice_period_days : null,
         maturity_date: this.formData.access_type === 'fixed' ? this.formData.maturity_date : null,
+        is_emergency_fund: this.formData.is_emergency_fund,
         is_isa: this.formData.is_isa,
         isa_type: this.formData.is_isa ? this.formData.isa_type : null,
         isa_subscription_year: this.formData.is_isa ? this.formData.isa_subscription_year : null,

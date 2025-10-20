@@ -41,9 +41,14 @@
           <div>
             <h4 class="font-semibold text-gray-900">{{ account.institution }}</h4>
             <p class="text-sm text-gray-600">{{ formatAccountType(account.account_type) }}</p>
-            <span v-if="account.is_isa" class="inline-block mt-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-              ISA
-            </span>
+            <div class="flex gap-2 mt-1">
+              <span v-if="account.is_emergency_fund" class="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
+                Emergency Fund
+              </span>
+              <span v-if="account.is_isa" class="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                ISA
+              </span>
+            </div>
           </div>
           <div class="text-right">
             <p class="text-lg font-bold text-gray-900">{{ formatCurrency(account.current_balance) }}</p>
@@ -98,6 +103,8 @@ export default {
 
     formatAccountType(type) {
       const types = {
+        savings_account: 'Savings Account',
+        current_account: 'Current Account',
         easy_access: 'Easy Access',
         notice: 'Notice Account',
         fixed: 'Fixed Term',

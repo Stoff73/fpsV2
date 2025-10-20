@@ -24,6 +24,7 @@ class SavingsAccount extends Model
         'access_type',
         'notice_period_days',
         'maturity_date',
+        'is_emergency_fund',
         'is_isa',
         'isa_type',
         'isa_subscription_year',
@@ -35,6 +36,7 @@ class SavingsAccount extends Model
         'interest_rate' => 'decimal:4',
         'notice_period_days' => 'integer',
         'maturity_date' => 'date',
+        'is_emergency_fund' => 'boolean',
         'is_isa' => 'boolean',
         'isa_subscription_amount' => 'decimal:2',
     ];

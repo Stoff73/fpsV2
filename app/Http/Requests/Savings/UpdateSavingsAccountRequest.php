@@ -24,6 +24,7 @@ class UpdateSavingsAccountRequest extends FormRequest
             'access_type' => 'sometimes|in:immediate,notice,fixed',
             'notice_period_days' => 'nullable|integer|min:0',
             'maturity_date' => 'nullable|date',
+            'is_emergency_fund' => 'sometimes|boolean',
             'is_isa' => 'sometimes|boolean',
             'isa_type' => 'nullable|in:cash,stocks_shares,LISA',
             'isa_subscription_year' => 'nullable|string',

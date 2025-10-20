@@ -2,8 +2,22 @@
   <div class="holdings-table">
     <!-- Filters and Actions Bar -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-      <div class="flex items-center gap-2">
-        <label for="asset-type-filter" class="text-sm font-medium text-gray-700">Filter by:</label>
+      <div class="flex flex-wrap items-center gap-3">
+        <label class="text-sm font-medium text-gray-700">Filter by:</label>
+
+        <!-- Account Filter -->
+        <select
+          id="account-filter"
+          v-model="selectedAccountId"
+          class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Accounts</option>
+          <option v-for="account in accounts" :key="account.id" :value="account.id">
+            {{ account.provider }}
+          </option>
+        </select>
+
+        <!-- Asset Type Filter -->
         <select
           id="asset-type-filter"
           v-model="selectedAssetType"
@@ -31,6 +45,57 @@
     <!-- Loading State -->
     <div v-if="loading" class="flex items-center justify-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Allocation Chart and Legend (when holdings exist) -->
+    <div v-else-if="filteredHoldings.length > 0" class="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Chart Card -->
+      <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+          Holdings Allocation
+          <span v-if="selectedAccountId || selectedAssetType" class="text-sm font-normal text-gray-600 ml-2">
+            (Filtered View)
+          </span>
+        </h3>
+        <div class="flex justify-center">
+          <apexchart
+            type="donut"
+            :options="chartOptions"
+            :series="chartSeries"
+            height="350"
+            width="100%"
+          />
+        </div>
+      </div>
+
+      <!-- Legend Card -->
+      <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Holdings Breakdown</h3>
+        <div class="max-h-96 overflow-y-auto space-y-2">
+          <div v-for="(holding, index) in sortedByValue" :key="holding.id" class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <div
+                class="w-4 h-4 rounded-full flex-shrink-0"
+                :style="{ backgroundColor: chartColors[index % chartColors.length] }"
+              ></div>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-gray-900 truncate">{{ holding.security_name }}</p>
+                <p class="text-xs text-gray-500">{{ formatAssetType(holding.asset_type) }}</p>
+              </div>
+            </div>
+            <div class="text-right ml-4">
+              <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(holding.current_value) }}</p>
+              <p class="text-xs text-gray-600">{{ getHoldingPercentage(holding) }}%</p>
+            </div>
+          </div>
+        </div>
+        <div class="pt-3 mt-3 border-t-2 border-gray-300">
+          <div class="flex justify-between items-center">
+            <p class="text-sm font-bold text-gray-900">Total Value:</p>
+            <p class="text-lg font-bold text-gray-900">{{ formatCurrency(totalValue) }}</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Holdings Table -->
@@ -234,7 +299,7 @@
       </svg>
       <h3 class="text-lg font-medium text-gray-900 mb-2">No holdings found</h3>
       <p class="text-gray-500 mb-4">
-        {{ selectedAssetType ? 'No holdings match the selected filter.' : 'Get started by adding your first holding.' }}
+        {{ (selectedAssetType || selectedAccountId) ? 'No holdings match the selected filters.' : 'Get started by adding your first holding.' }}
       </p>
       <button
         @click="$emit('add-holding')"
@@ -260,23 +325,49 @@ export default {
       type: Boolean,
       default: false,
     },
+    accounts: {
+      type: Array,
+      default: () => [],
+    },
   },
 
   data() {
     return {
       selectedAssetType: '',
+      selectedAccountId: '',
       sortField: 'security_name',
       sortDirection: 'asc',
       expandedRow: null,
+      chartColors: [
+        '#3B82F6', // blue
+        '#10B981', // green
+        '#F59E0B', // amber
+        '#EF4444', // red
+        '#8B5CF6', // purple
+        '#EC4899', // pink
+        '#14B8A6', // teal
+        '#F97316', // orange
+        '#6366F1', // indigo
+        '#84CC16', // lime
+      ],
     };
   },
 
   computed: {
     filteredHoldings() {
-      if (!this.selectedAssetType) {
-        return this.holdings;
+      let filtered = this.holdings;
+
+      // Filter by account if selected
+      if (this.selectedAccountId) {
+        filtered = filtered.filter(h => h.investment_account_id === parseInt(this.selectedAccountId));
       }
-      return this.holdings.filter(h => h.asset_type === this.selectedAssetType);
+
+      // Filter by asset type if selected
+      if (this.selectedAssetType) {
+        filtered = filtered.filter(h => h.asset_type === this.selectedAssetType);
+      }
+
+      return filtered;
     },
 
     sortedHoldings() {
@@ -310,6 +401,114 @@ export default {
       if (this.filteredHoldings.length === 0) return 0;
       const totalReturn = this.filteredHoldings.reduce((sum, h) => sum + (h.return_percent || 0), 0);
       return totalReturn / this.filteredHoldings.length;
+    },
+
+    // All holdings sorted by value for chart
+    sortedByValue() {
+      return [...this.filteredHoldings]
+        .sort((a, b) => (b.current_value || 0) - (a.current_value || 0));
+    },
+
+    // Chart series data (current values of ALL holdings)
+    chartSeries() {
+      return this.sortedByValue.map(h => parseFloat(h.current_value) || 0);
+    },
+
+    // Chart options
+    chartOptions() {
+      const self = this;
+      return {
+        chart: {
+          type: 'donut',
+          fontFamily: 'Inter, system-ui, sans-serif',
+        },
+        labels: this.sortedByValue.map(h => h.security_name),
+        colors: this.chartColors,
+        legend: {
+          show: false, // We'll use custom legend in separate card
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function(val) {
+            return val.toFixed(1) + '%';
+          },
+          style: {
+            fontSize: '12px',
+            fontWeight: 600,
+          },
+          dropShadow: {
+            enabled: false,
+          },
+        },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '65%',
+              labels: {
+                show: true,
+                name: {
+                  show: true,
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  color: '#111827',
+                },
+                value: {
+                  show: true,
+                  fontSize: '28px',
+                  fontWeight: 700,
+                  color: '#111827',
+                  formatter: function(val) {
+                    return new Intl.NumberFormat('en-GB', {
+                      style: 'currency',
+                      currency: 'GBP',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(val);
+                  },
+                },
+                total: {
+                  show: true,
+                  label: 'Total Value',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  color: '#6B7280',
+                  formatter: function(w) {
+                    const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                    return new Intl.NumberFormat('en-GB', {
+                      style: 'currency',
+                      currency: 'GBP',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(total);
+                  },
+                },
+              },
+            },
+          },
+        },
+        tooltip: {
+          y: {
+            formatter: function(val) {
+              return new Intl.NumberFormat('en-GB', {
+                style: 'currency',
+                currency: 'GBP',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(val);
+            },
+          },
+        },
+        responsive: [
+          {
+            breakpoint: 480,
+            options: {
+              chart: {
+                width: 300,
+              },
+            },
+          },
+        ],
+      };
     },
   },
 
@@ -347,6 +546,11 @@ export default {
     formatDate(dateString) {
       if (!dateString) return 'N/A';
       return new Date(dateString).toLocaleDateString('en-GB');
+    },
+
+    getHoldingPercentage(holding) {
+      if (this.totalValue === 0) return 0;
+      return ((holding.current_value / this.totalValue) * 100).toFixed(1);
     },
 
     formatAssetType(type) {

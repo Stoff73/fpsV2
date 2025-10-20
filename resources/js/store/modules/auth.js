@@ -23,7 +23,7 @@ const actions = {
     try {
       const response = await authService.register(userData);
       commit('setAuth', {
-        token: response.data.token,
+        token: response.data.access_token,
         user: response.data.user,
       });
       return response;
@@ -43,7 +43,7 @@ const actions = {
     try {
       const response = await authService.login(credentials);
       commit('setAuth', {
-        token: response.data.token,
+        token: response.data.access_token,
         user: response.data.user,
       });
       return response;

@@ -181,6 +181,8 @@ export default {
 
     formatAccountType(type) {
       const types = {
+        savings_account: 'Savings Account',
+        current_account: 'Current Account',
         easy_access: 'Easy Access',
         notice: 'Notice Account',
         fixed: 'Fixed Term',

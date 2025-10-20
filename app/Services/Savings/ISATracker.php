@@ -71,7 +71,7 @@ class ISATracker
         $stocksSharesIsaUsed = (float) InvestmentAccount::where('user_id', $userId)
             ->where('account_type', 'isa')
             ->where('tax_year', $taxYear)
-            ->sum('contributions_ytd');
+            ->sum('isa_subscription_current_year');
 
         $totalUsed = $cashIsaUsed + $stocksSharesIsaUsed + $lisaUsed;
         $totalAllowance = (float) $tracking->total_allowance;
@@ -126,7 +126,7 @@ class ISATracker
             'stocks_shares' => $tracking->stocks_shares_isa_used = $amount ?? (float) InvestmentAccount::where('user_id', $userId)
                 ->where('account_type', 'isa')
                 ->where('tax_year', $taxYear)
-                ->sum('contributions_ytd'),
+                ->sum('isa_subscription_current_year'),
             'cash' => $tracking->cash_isa_used = $amount ?? (float) SavingsAccount::where('user_id', $userId)
                 ->where('is_isa', true)
                 ->where('isa_subscription_year', $taxYear)
