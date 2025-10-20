@@ -1,4 +1,4 @@
-import api from '../bootstrap';
+import api from './api';
 
 export default {
   // Mortgage CRUD operations

@@ -23,14 +23,14 @@
       </div>
     </div>
 
-    <!-- Net Worth (from NetWorth module) -->
+    <!-- Gross Taxable Estate -->
     <div class="mb-6">
       <div class="flex items-baseline mb-2">
         <span class="text-4xl font-bold text-blue-600">
-          {{ formattedNetWorth }}
+          {{ formattedTaxableEstate }}
         </span>
       </div>
-      <p class="text-sm text-gray-600">Total Net Worth</p>
+      <p class="text-sm text-gray-600">Gross Taxable Estate</p>
     </div>
 
     <!-- IHT Liability & Probate Readiness -->
@@ -102,7 +102,7 @@ export default {
   name: 'EstateOverviewCard',
 
   props: {
-    netWorth: {
+    taxableEstate: {
       type: Number,
       required: true,
       default: 0,
@@ -120,13 +120,13 @@ export default {
   },
 
   computed: {
-    formattedNetWorth() {
+    formattedTaxableEstate() {
       return new Intl.NumberFormat('en-GB', {
         style: 'currency',
         currency: 'GBP',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
-      }).format(this.netWorth);
+      }).format(this.taxableEstate);
     },
 
     formattedIHTLiability() {

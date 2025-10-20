@@ -117,9 +117,37 @@ class PropertyService
             'property_type' => $property->property_type,
             'ownership_type' => $property->ownership_type,
             'ownership_percentage' => (float) $property->ownership_percentage,
+            'household_id' => $property->household_id,
+            'trust_id' => $property->trust_id,
             'current_value' => (float) $currentValue,
+            'purchase_price' => (float) $purchasePrice,  // Add to top level for easier access
+            'purchase_date' => $property->purchase_date?->format('Y-m-d'),
+            'valuation_date' => $property->valuation_date?->format('Y-m-d'),
             'equity' => (float) $equity,
             'mortgage_balance' => (float) $mortgageBalance,
+
+            // Address fields (flat for form compatibility)
+            'address_line_1' => $property->address_line_1,
+            'address_line_2' => $property->address_line_2,
+            'city' => $property->city,
+            'county' => $property->county,
+            'postcode' => $property->postcode,
+
+            // Cost fields (flat for form compatibility)
+            'annual_service_charge' => $property->annual_service_charge ?? 0,
+            'annual_ground_rent' => $property->annual_ground_rent ?? 0,
+            'annual_insurance' => $property->annual_insurance ?? 0,
+            'annual_maintenance_reserve' => $property->annual_maintenance_reserve ?? 0,
+            'other_annual_costs' => $property->other_annual_costs ?? 0,
+            'sdlt_paid' => $property->sdlt_paid ?? 0,
+
+            // Rental fields (flat for form compatibility)
+            'monthly_rental_income' => $property->monthly_rental_income ?? 0,
+            'annual_rental_income' => $property->annual_rental_income ?? 0,
+            'occupancy_rate_percent' => $property->occupancy_rate_percent ?? 100,
+            'tenant_name' => $property->tenant_name,
+            'lease_start_date' => $property->lease_start_date?->format('Y-m-d'),
+            'lease_end_date' => $property->lease_end_date?->format('Y-m-d'),
 
             // Detailed nested structures
             'address' => [

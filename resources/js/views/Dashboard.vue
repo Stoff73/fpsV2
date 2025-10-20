@@ -79,7 +79,7 @@
         </div>
         <EstateOverviewCard
           v-else
-          :net-worth="netWorthData.netWorth"
+          :taxable-estate="estateData.taxableEstate"
           :iht-liability="estateData.ihtLiability"
           :probate-readiness="estateData.probateReadiness"
         />
@@ -185,6 +185,7 @@ export default {
     ...mapGetters('estate', {
       estateIHTLiability: 'ihtLiability',
       estateProbateReadiness: 'probateReadiness',
+      estateTaxableEstate: 'taxableEstate',
     }),
 
     netWorthData() {
@@ -214,6 +215,7 @@ export default {
 
     estateData() {
       return {
+        taxableEstate: this.estateTaxableEstate || 0,
         ihtLiability: this.estateIHTLiability || 0,
         probateReadiness: this.estateProbateReadiness || 0,
       };
@@ -229,6 +231,7 @@ export default {
         { name: 'retirement', action: 'retirement/fetchRetirementData' },
         { name: 'retirement', action: 'retirement/analyzeRetirement' },
         { name: 'estate', action: 'estate/fetchEstateData' },
+        { name: 'estate', action: 'estate/calculateIHT' },
         { name: 'recommendations', action: 'recommendations/fetchRecommendations' },
         { name: 'trusts', action: 'trusts/fetchTrusts' },
       ];
@@ -277,7 +280,7 @@ export default {
       const actions = {
         protection: ['protection/fetchProtectionData'],
         retirement: ['retirement/fetchRetirementData', 'retirement/analyzeRetirement'],
-        estate: ['estate/fetchEstateData'],
+        estate: ['estate/fetchEstateData', 'estate/calculateIHT'],
       };
 
       try {

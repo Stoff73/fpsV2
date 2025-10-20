@@ -4,7 +4,15 @@
 
     <!-- Annual Costs Breakdown -->
     <div class="bg-white border border-gray-200 rounded-lg p-6">
-      <h4 class="text-md font-semibold text-gray-700 mb-4">Annual Costs Breakdown</h4>
+      <div class="flex justify-between items-center mb-4">
+        <h4 class="text-md font-semibold text-gray-700">Annual Costs Breakdown</h4>
+        <button
+          @click="showEditCostsModal = true"
+          class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Edit Costs
+        </button>
+      </div>
 
       <dl class="space-y-2">
         <div class="flex justify-between py-2 border-b border-gray-100">
@@ -30,6 +38,11 @@
         <div class="flex justify-between py-2 border-b border-gray-100">
           <dt class="text-sm text-gray-600">Other Costs:</dt>
           <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.other_annual_costs) }}</dd>
+        </div>
+
+        <div class="flex justify-between py-2 border-b border-gray-100">
+          <dt class="text-sm text-gray-600">Mortgage Payments (Annual):</dt>
+          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(annualMortgagePayments) }}</dd>
         </div>
 
         <div class="flex justify-between py-3 border-t-2 border-gray-300 mt-2">
@@ -179,6 +192,138 @@
         </div>
       </div>
     </div>
+
+    <!-- Edit Costs Modal -->
+    <div v-if="showEditCostsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+      <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
+          <div class="flex items-center justify-between">
+            <h3 class="text-2xl font-semibold text-gray-900">Edit Annual Costs</h3>
+            <button
+              @click="closeEditCostsModal"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal Content -->
+        <form @submit.prevent="handleSaveCosts">
+          <div class="px-6 py-4 space-y-4">
+            <div>
+              <label for="annual_service_charge" class="block text-sm font-medium text-gray-700 mb-1">
+                Annual Service Charge (£)
+              </label>
+              <input
+                id="annual_service_charge"
+                v-model.number="costsForm.annual_service_charge"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label for="annual_ground_rent" class="block text-sm font-medium text-gray-700 mb-1">
+                Annual Ground Rent (£)
+              </label>
+              <input
+                id="annual_ground_rent"
+                v-model.number="costsForm.annual_ground_rent"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label for="annual_insurance" class="block text-sm font-medium text-gray-700 mb-1">
+                Annual Insurance (£)
+              </label>
+              <input
+                id="annual_insurance"
+                v-model.number="costsForm.annual_insurance"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label for="annual_maintenance_reserve" class="block text-sm font-medium text-gray-700 mb-1">
+                Annual Maintenance Reserve (£)
+              </label>
+              <input
+                id="annual_maintenance_reserve"
+                v-model.number="costsForm.annual_maintenance_reserve"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label for="other_annual_costs" class="block text-sm font-medium text-gray-700 mb-1">
+                Other Annual Costs (£)
+              </label>
+              <input
+                id="other_annual_costs"
+                v-model.number="costsForm.other_annual_costs"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label for="sdlt_paid" class="block text-sm font-medium text-gray-700 mb-1">
+                SDLT Paid (£)
+              </label>
+              <input
+                id="sdlt_paid"
+                v-model.number="costsForm.sdlt_paid"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <!-- Error Message -->
+            <div v-if="error" class="p-3 bg-red-50 border border-red-200 rounded-md">
+              <p class="text-sm text-red-600">{{ error }}</p>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end space-x-2 rounded-b-lg">
+            <button
+              type="button"
+              @click="closeEditCostsModal"
+              class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              :disabled="submitting"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ submitting ? 'Saving...' : 'Save Costs' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -191,21 +336,49 @@ export default {
       type: Object,
       required: true,
     },
+    mortgages: {
+      type: Array,
+      default: () => [],
+    },
+  },
+
+  data() {
+    return {
+      showEditCostsModal: false,
+      submitting: false,
+      error: null,
+      costsForm: {
+        annual_service_charge: null,
+        annual_ground_rent: null,
+        annual_insurance: null,
+        annual_maintenance_reserve: null,
+        other_annual_costs: null,
+        sdlt_paid: null,
+      },
+    };
   },
 
   computed: {
+    annualMortgagePayments() {
+      return this.mortgages.reduce((total, mortgage) => {
+        return total + ((mortgage.monthly_payment || 0) * 12);
+      }, 0);
+    },
+
     totalAnnualCosts() {
       return (
         (this.property.annual_service_charge || 0) +
         (this.property.annual_ground_rent || 0) +
         (this.property.annual_insurance || 0) +
         (this.property.annual_maintenance_reserve || 0) +
-        (this.property.other_annual_costs || 0)
+        (this.property.other_annual_costs || 0) +
+        this.annualMortgagePayments
       );
     },
 
     costBreakdown() {
       const costs = [
+        { label: 'Mortgage Payments', value: this.annualMortgagePayments },
         { label: 'Service Charge', value: this.property.annual_service_charge || 0 },
         { label: 'Ground Rent', value: this.property.annual_ground_rent || 0 },
         { label: 'Insurance', value: this.property.annual_insurance || 0 },
@@ -261,7 +434,49 @@ export default {
     },
   },
 
+  watch: {
+    property: {
+      immediate: true,
+      handler(newProperty) {
+        if (newProperty) {
+          this.populateCostsForm();
+        }
+      },
+    },
+  },
+
   methods: {
+    populateCostsForm() {
+      this.costsForm.annual_service_charge = this.property.annual_service_charge || null;
+      this.costsForm.annual_ground_rent = this.property.annual_ground_rent || null;
+      this.costsForm.annual_insurance = this.property.annual_insurance || null;
+      this.costsForm.annual_maintenance_reserve = this.property.annual_maintenance_reserve || null;
+      this.costsForm.other_annual_costs = this.property.other_annual_costs || null;
+      this.costsForm.sdlt_paid = this.property.sdlt_paid || null;
+    },
+
+    closeEditCostsModal() {
+      this.showEditCostsModal = false;
+      this.error = null;
+      this.populateCostsForm(); // Reset form to current property values
+    },
+
+    async handleSaveCosts() {
+      this.submitting = true;
+      this.error = null;
+
+      try {
+        // Emit event to parent to handle the update
+        this.$emit('update-costs', this.costsForm);
+        this.showEditCostsModal = false;
+      } catch (error) {
+        console.error('Failed to save costs:', error);
+        this.error = error.message || 'Failed to save costs. Please try again.';
+      } finally {
+        this.submitting = false;
+      }
+    },
+
     formatCurrency(value) {
       if (value === null || value === undefined) return '£0';
       return new Intl.NumberFormat('en-GB', {

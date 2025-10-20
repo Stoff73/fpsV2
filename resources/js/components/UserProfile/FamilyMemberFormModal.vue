@@ -33,8 +33,26 @@
                 <option value="parent">Parent</option>
                 <option value="other_dependent">Other Dependent</option>
               </select>
-              <p v-if="form.relationship === 'spouse'" class="mt-1 text-body-xs text-amber-600">
-                Note: Spouse should be a registered user. This will link their account.
+              <p v-if="form.relationship === 'spouse'" class="mt-1 text-body-xs text-primary-600">
+                A user account will be created for your spouse if they don't have one yet. If they already have an account, it will be linked.
+              </p>
+            </div>
+
+            <!-- Email (only for spouse) -->
+            <div v-if="form.relationship === 'spouse'">
+              <label for="email" class="block text-body-sm font-medium text-gray-700 mb-1">
+                Email Address <span class="text-error-600">*</span>
+              </label>
+              <input
+                id="email"
+                v-model="form.email"
+                type="email"
+                :required="form.relationship === 'spouse'"
+                class="form-input"
+                placeholder="spouse@example.com"
+              />
+              <p class="mt-1 text-body-xs text-gray-500">
+                Used to create or link their account
               </p>
             </div>
 
@@ -239,6 +257,7 @@ export default {
 
     const form = ref({
       relationship: '',
+      email: '',
       name: '',
       date_of_birth: '',
       gender: '',
@@ -254,6 +273,7 @@ export default {
       if (member) {
         form.value = {
           relationship: member.relationship || '',
+          email: member.email || '',
           name: member.name || '',
           date_of_birth: member.date_of_birth || '',
           gender: member.gender || '',
@@ -267,6 +287,7 @@ export default {
         // Reset form for new member
         form.value = {
           relationship: '',
+          email: '',
           name: '',
           date_of_birth: '',
           gender: '',

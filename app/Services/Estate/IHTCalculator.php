@@ -19,10 +19,11 @@ class IHTCalculator
      * @param  IHTProfile  $profile  IHT profile
      * @param  Collection|null  $gifts  Gifts (optional, for comprehensive calculation)
      * @param  Collection|null  $trusts  Trusts (optional, for trust IHT value calculation)
+     * @param  float  $liabilities  Total liabilities (mortgages, loans, etc.)
      */
-    public function calculateIHTLiability(Collection $assets, IHTProfile $profile, ?Collection $gifts = null, ?Collection $trusts = null): array
+    public function calculateIHTLiability(Collection $assets, IHTProfile $profile, ?Collection $gifts = null, ?Collection $trusts = null, float $liabilities = 0): array
     {
-        // Calculate gross estate value from assets
+        // Calculate gross estate value from assets (before deducting liabilities)
         $grossEstateValue = $assets->sum('current_value');
 
         // Add trust values that count in estate (e.g., discounted gift trust retained value, loan trust loan balance)
@@ -44,6 +45,9 @@ class IHTCalculator
         // Total estate value including trust IHT values
         $grossEstateValue += $trustIHTValue;
 
+        // Deduct liabilities (mortgages, loans, etc.) to get net estate value
+        $netEstateValue = max(0, $grossEstateValue - $liabilities);
+
         // Get tax config
         $config = config('uk_tax_config.inheritance_tax');
 
@@ -54,8 +58,9 @@ class IHTCalculator
         $totalNRB = $nrb + $profile->nrb_transferred_from_spouse;
 
         // Check RNRB eligibility (only applies to estate, not gifts)
+        // Use netEstateValue for RNRB taper calculation
         $rnrb = $this->checkRNRBEligibility($profile, $assets)
-            ? $this->calculateRNRB($grossEstateValue, $config)
+            ? $this->calculateRNRB($netEstateValue, $config)
             : 0;
 
         // Calculate gift liabilities if gifts provided
@@ -76,8 +81,8 @@ class IHTCalculator
         // Calculate total tax-free allowance for estate (remaining NRB + RNRB)
         $totalAllowance = $remainingNRB + $rnrb;
 
-        // Calculate taxable estate
-        $taxableEstate = max(0, $grossEstateValue - $totalAllowance);
+        // Calculate taxable estate (net estate value minus allowances)
+        $taxableEstate = max(0, $netEstateValue - $totalAllowance);
 
         // Determine IHT rate (standard 40% or reduced 36% for charity)
         $ihtRate = $this->calculateCharitableReduction($grossEstateValue, $profile->charitable_giving_percent);
@@ -90,6 +95,8 @@ class IHTCalculator
 
         return [
             'gross_estate_value' => round($grossEstateValue, 2),
+            'liabilities' => round($liabilities, 2),
+            'net_estate_value' => round($netEstateValue, 2),
             'trust_iht_value' => round($trustIHTValue, 2),
             'trust_details' => $trustDetails,
             'nrb' => round($nrb, 2),
@@ -105,8 +112,8 @@ class IHTCalculator
             'estate_iht_liability' => round($estateLiability, 2),
             'gift_iht_liability' => round($giftLiability, 2),
             'iht_liability' => round($totalIHTLiability, 2),
-            'effective_rate' => $grossEstateValue > 0
-                ? round(($totalIHTLiability / $grossEstateValue) * 100, 2)
+            'effective_rate' => $netEstateValue > 0
+                ? round(($totalIHTLiability / $netEstateValue) * 100, 2)
                 : 0,
             'gifting_details' => $giftingDetails,
         ];

@@ -272,13 +272,17 @@ const actions = {
 
         try {
             const response = await propertyService.getProperty(propertyId);
+            console.log('fetchProperty response:', response);
 
             if (response.success) {
-                commit('SET_SELECTED_PROPERTY', response.data);
+                console.log('Property data:', response.data);
+                commit('SET_SELECTED_PROPERTY', response.data.property);
             } else {
                 throw new Error(response.message || 'Failed to fetch property');
             }
         } catch (error) {
+            console.error('fetchProperty error:', error);
+            console.error('error.response:', error.response);
             const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch property';
             commit('SET_ERROR', errorMessage);
             throw error;

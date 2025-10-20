@@ -122,11 +122,19 @@ const getters = {
     },
 
     // Taxable estate value (for IHT calculation)
+    // Use net_estate_value from analysis if available (assets minus liabilities)
+    // Otherwise fall back to calculated value from store assets
     taxableEstate: (state, getters) => {
+        if (state.analysis && state.analysis.net_estate_value !== undefined) {
+            return state.analysis.net_estate_value;
+        }
+
+        // Fallback: calculate from store assets minus liabilities
         const totalAssets = getters.totalAssets;
+        const totalLiabilities = getters.totalLiabilities;
         const exemptAssets = getters.ihtExemptAssets.reduce((sum, asset) =>
             sum + parseFloat(asset.current_value || 0), 0);
-        return totalAssets - exemptAssets;
+        return totalAssets - exemptAssets - totalLiabilities;
     },
 
     loading: (state) => state.loading,
@@ -200,6 +208,8 @@ const actions = {
 
         try {
             const response = await estateService.calculateIHT(data);
+            // Commit the IHT analysis data to state
+            commit('setAnalysis', response.data);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'IHT calculation failed';

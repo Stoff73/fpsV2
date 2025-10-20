@@ -591,11 +591,41 @@ export default {
 
   methods: {
     populateForm() {
-      Object.keys(this.form).forEach(key => {
-        if (this.property[key] !== undefined) {
-          this.form[key] = this.property[key];
-        }
-      });
+      // Direct top-level fields
+      this.form.property_type = this.property.property_type || '';
+      this.form.ownership_type = this.property.ownership_type || 'sole';
+      this.form.ownership_percentage = this.property.ownership_percentage || 100;
+      this.form.household_id = this.property.household_id || null;
+      this.form.trust_id = this.property.trust_id || null;
+      this.form.current_value = this.property.current_value || null;
+      this.form.purchase_price = this.property.purchase_price || null;
+
+      // Address fields (may be nested or top-level)
+      this.form.address_line_1 = this.property.address_line_1 || this.property.address?.line_1 || '';
+      this.form.address_line_2 = this.property.address_line_2 || this.property.address?.line_2 || '';
+      this.form.city = this.property.city || this.property.address?.city || '';
+      this.form.county = this.property.county || this.property.address?.county || '';
+      this.form.postcode = this.property.postcode || this.property.address?.postcode || '';
+
+      // Valuation fields (may be nested or top-level)
+      this.form.purchase_date = this.property.purchase_date || this.property.valuation?.purchase_date || '';
+      this.form.valuation_date = this.property.valuation_date || this.property.valuation?.valuation_date || '';
+
+      // Cost fields (may be nested or top-level)
+      this.form.annual_service_charge = this.property.annual_service_charge || this.property.costs?.annual_service_charge || null;
+      this.form.annual_ground_rent = this.property.annual_ground_rent || this.property.costs?.annual_ground_rent || null;
+      this.form.annual_insurance = this.property.annual_insurance || this.property.costs?.annual_insurance || null;
+      this.form.annual_maintenance_reserve = this.property.annual_maintenance_reserve || this.property.costs?.annual_maintenance_reserve || null;
+      this.form.other_annual_costs = this.property.other_annual_costs || this.property.costs?.other_annual_costs || null;
+      this.form.sdlt_paid = this.property.sdlt_paid || null;
+
+      // Rental fields (may be nested or top-level)
+      this.form.monthly_rental_income = this.property.monthly_rental_income || this.property.rental?.monthly_rental_income || null;
+      this.form.annual_rental_income = this.property.annual_rental_income || this.property.rental?.annual_rental_income || null;
+      this.form.occupancy_rate_percent = this.property.occupancy_rate_percent || this.property.rental?.occupancy_rate_percent || null;
+      this.form.tenant_name = this.property.tenant_name || this.property.rental?.tenant_name || '';
+      this.form.lease_start_date = this.property.lease_start_date || this.property.rental?.lease_start_date || '';
+      this.form.lease_end_date = this.property.lease_end_date || this.property.rental?.lease_end_date || '';
     },
 
     nextStep() {

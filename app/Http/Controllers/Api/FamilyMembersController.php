@@ -44,11 +44,17 @@ class FamilyMembersController extends Controller
     public function store(StoreFamilyMemberRequest $request): JsonResponse
     {
         $user = $request->user();
+        $data = $request->validated();
+
+        // Special handling for spouse relationship
+        if ($data['relationship'] === 'spouse' && isset($data['email'])) {
+            return $this->handleSpouseCreation($user, $data);
+        }
 
         $familyMember = FamilyMember::create([
             'user_id' => $user->id,
             'household_id' => $user->household_id,
-            ...$request->validated(),
+            ...$data,
         ]);
 
         return response()->json([
@@ -56,6 +62,115 @@ class FamilyMembersController extends Controller
             'message' => 'Family member added successfully',
             'data' => [
                 'family_member' => $familyMember,
+            ],
+        ], 201);
+    }
+
+    /**
+     * Handle spouse creation or linking
+     */
+    private function handleSpouseCreation($currentUser, array $data): JsonResponse
+    {
+        $spouseEmail = $data['email'];
+
+        // Check if spouse already has an account
+        $spouseUser = \App\Models\User::where('email', $spouseEmail)->first();
+
+        if ($spouseUser) {
+            // Spouse already exists - link the accounts
+            if ($spouseUser->id === $currentUser->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You cannot add yourself as a spouse',
+                ], 422);
+            }
+
+            if ($spouseUser->spouse_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This user is already linked to another spouse',
+                ], 422);
+            }
+
+            // Link both users
+            $currentUser->spouse_id = $spouseUser->id;
+            $currentUser->marital_status = 'married';
+            $currentUser->save();
+
+            $spouseUser->spouse_id = $currentUser->id;
+            $spouseUser->marital_status = 'married';
+            $spouseUser->save();
+
+            // Create family member record
+            $familyMember = FamilyMember::create([
+                'user_id' => $currentUser->id,
+                'household_id' => $currentUser->household_id,
+                'relationship' => 'spouse',
+                'name' => $data['name'],
+                'date_of_birth' => $data['date_of_birth'] ?? null,
+                'gender' => $data['gender'] ?? null,
+                'national_insurance_number' => $data['national_insurance_number'] ?? null,
+                'annual_income' => $data['annual_income'] ?? null,
+                'is_dependent' => $data['is_dependent'] ?? false,
+                'notes' => $data['notes'] ?? null,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Spouse account linked successfully',
+                'data' => [
+                    'family_member' => $familyMember,
+                    'spouse_user' => $spouseUser,
+                    'linked' => true,
+                ],
+            ], 201);
+        }
+
+        // Spouse doesn't exist - create new user account
+        $temporaryPassword = \Illuminate\Support\Str::random(16);
+
+        $spouseUser = \App\Models\User::create([
+            'name' => $data['name'],
+            'email' => $spouseEmail,
+            'password' => \Illuminate\Support\Facades\Hash::make($temporaryPassword),
+            'date_of_birth' => $data['date_of_birth'] ?? null,
+            'gender' => $data['gender'] ?? null,
+            'marital_status' => 'married',
+            'spouse_id' => $currentUser->id,
+            'household_id' => $currentUser->household_id,
+            'is_primary_account' => false,
+            'national_insurance_number' => $data['national_insurance_number'] ?? null,
+        ]);
+
+        // Update current user
+        $currentUser->spouse_id = $spouseUser->id;
+        $currentUser->marital_status = 'married';
+        $currentUser->save();
+
+        // Create family member record
+        $familyMember = FamilyMember::create([
+            'user_id' => $currentUser->id,
+            'household_id' => $currentUser->household_id,
+            'relationship' => 'spouse',
+            'name' => $data['name'],
+            'date_of_birth' => $data['date_of_birth'] ?? null,
+            'gender' => $data['gender'] ?? null,
+            'national_insurance_number' => $data['national_insurance_number'] ?? null,
+            'annual_income' => $data['annual_income'] ?? null,
+            'is_dependent' => $data['is_dependent'] ?? false,
+            'notes' => $data['notes'] ?? null,
+        ]);
+
+        // TODO: Send email to spouse with password reset link
+        // \Mail::to($spouseEmail)->send(new SpouseAccountCreated($spouseUser, $temporaryPassword));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Spouse account created successfully. They will receive an email to set their password.',
+            'data' => [
+                'family_member' => $familyMember,
+                'spouse_user' => $spouseUser,
+                'created' => true,
             ],
         ], 201);
     }

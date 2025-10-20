@@ -171,15 +171,56 @@ class EstateController extends Controller
             $investmentAccounts = InvestmentAccount::where('user_id', $user->id)->get();
 
             // Convert investment accounts to asset-compatible format for IHT calculation
+            // NOTE: ISAs are NOT IHT-exempt - they are only exempt from income/CGT
+            // All investment accounts are included in IHT estate value
             $investmentAssets = $investmentAccounts->map(function ($account) {
                 return (object) [
+                    'asset_type' => 'investment',
+                    'asset_name' => $account->provider . ' - ' . strtoupper($account->account_type),
                     'current_value' => $account->current_value,
-                    'is_iht_exempt' => false, // All investment accounts are IHT taxable (ISAs, GIAs, bonds, etc.)
+                    'is_iht_exempt' => false, // ISAs are IHT taxable
                 ];
             });
 
-            // Merge manual assets and investment accounts
-            $allAssets = $assets->concat($investmentAssets);
+            // Include properties from Property module
+            $properties = \App\Models\Property::where('user_id', $user->id)->get();
+            $propertyAssets = $properties->map(function ($property) {
+                $ownershipPercentage = $property->ownership_percentage ?? 100;
+                $userValue = $property->current_value * ($ownershipPercentage / 100);
+
+                return (object) [
+                    'asset_type' => 'property',
+                    'asset_name' => $property->address_line_1 ?: 'Property',
+                    'current_value' => $userValue,
+                    'is_iht_exempt' => false,
+                ];
+            });
+
+            // Include savings/cash accounts from Savings module
+            $savingsAccounts = \App\Models\SavingsAccount::where('user_id', $user->id)->get();
+            $savingsAssets = $savingsAccounts->map(function ($account) {
+                // NOTE: Cash ISAs are NOT IHT-exempt - they are only exempt from income tax
+                // All cash accounts are included in IHT estate value
+                return (object) [
+                    'asset_type' => 'cash',
+                    'asset_name' => $account->institution . ' - ' . ucfirst($account->account_type),
+                    'current_value' => $account->current_balance,
+                    'is_iht_exempt' => false, // Cash ISAs are IHT taxable
+                ];
+            });
+
+            // Merge all assets
+            $allAssets = $assets
+                ->concat($investmentAssets)
+                ->concat($propertyAssets)
+                ->concat($savingsAssets);
+
+            // Get liabilities (mortgages, loans, etc.)
+            $liabilities = \App\Models\Estate\Liability::where('user_id', $user->id)->get();
+            $mortgages = \App\Models\Mortgage::where('user_id', $user->id)->get();
+
+            // Calculate total liabilities
+            $totalLiabilities = $liabilities->sum('current_balance') + $mortgages->sum('outstanding_balance');
 
             // Debug logging
             \Log::info('IHT Calculation Debug:', [
@@ -187,8 +228,16 @@ class EstateController extends Controller
                 'manual_assets_total' => $assets->sum('current_value'),
                 'investment_accounts_count' => $investmentAccounts->count(),
                 'investment_accounts_total' => $investmentAccounts->sum('current_value'),
+                'properties_count' => $properties->count(),
+                'properties_total' => $propertyAssets->sum('current_value'),
+                'savings_accounts_count' => $savingsAccounts->count(),
+                'savings_total' => $savingsAssets->sum('current_value'),
                 'total_assets_count' => $allAssets->count(),
                 'total_assets_value' => $allAssets->sum('current_value'),
+                'mortgages_count' => $mortgages->count(),
+                'mortgages_total' => $mortgages->sum('outstanding_balance'),
+                'liabilities_total' => $liabilities->sum('current_balance'),
+                'total_liabilities' => $totalLiabilities,
             ]);
 
             $gifts = Gift::where('user_id', $user->id)->get();
@@ -207,7 +256,7 @@ class EstateController extends Controller
                 ]);
             }
 
-            $ihtLiability = $this->ihtCalculator->calculateIHTLiability($allAssets, $ihtProfile, $gifts, $trusts);
+            $ihtLiability = $this->ihtCalculator->calculateIHTLiability($allAssets, $ihtProfile, $gifts, $trusts, $totalLiabilities);
 
             return response()->json([
                 'success' => true,

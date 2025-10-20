@@ -1,5 +1,6 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <AppLayout>
+    <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumbs -->
     <nav class="text-sm mb-6">
       <ol class="flex items-center space-x-2">
@@ -240,7 +241,11 @@
 
           <!-- Financials Tab -->
           <div v-show="activeTab === 'financials'">
-            <PropertyFinancials :property="property" />
+            <PropertyFinancials
+              :property="property"
+              :mortgages="mortgages"
+              @update-costs="handleCostsUpdate"
+            />
           </div>
 
           <!-- Taxes Tab -->
@@ -282,11 +287,13 @@
       @confirm="handleMortgageDelete"
       @cancel="showDeleteMortgageConfirm = false"
     />
-  </div>
+    </div>
+  </AppLayout>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import AppLayout from '@/layouts/AppLayout.vue';
 import PropertyForm from './PropertyForm.vue';
 import MortgageForm from './MortgageForm.vue';
 import PropertyFinancials from './PropertyFinancials.vue';
@@ -297,6 +304,7 @@ export default {
   name: 'PropertyDetail',
 
   components: {
+    AppLayout,
     PropertyForm,
     MortgageForm,
     PropertyFinancials,
@@ -399,6 +407,17 @@ export default {
         await this.loadProperty();
       } catch (error) {
         console.error('Failed to update property:', error);
+      }
+    },
+
+    async handleCostsUpdate(costsData) {
+      try {
+        await this.updateProperty({ id: this.propertyId, data: costsData });
+        // Refresh property data
+        await this.loadProperty();
+      } catch (error) {
+        console.error('Failed to update costs:', error);
+        throw error;
       }
     },
 

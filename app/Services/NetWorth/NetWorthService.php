@@ -7,7 +7,7 @@ namespace App\Services\NetWorth;
 use App\Models\User;
 use App\Models\Property;
 use App\Models\Investment\InvestmentAccount;
-use App\Models\CashAccount;
+use App\Models\SavingsAccount;
 use App\Models\BusinessInterest;
 use App\Models\Chattel;
 use App\Models\Mortgage;
@@ -99,19 +99,15 @@ class NetWorthService
     }
 
     /**
-     * Calculate total cash value (with ownership percentage)
+     * Calculate total cash value from savings accounts
      *
      * @param int $userId
      * @return float
      */
     private function calculateCashValue(int $userId): float
     {
-        return CashAccount::where('user_id', $userId)
-            ->get()
-            ->sum(function ($account) {
-                $ownershipPercentage = $account->ownership_percentage ?? 100;
-                return $account->current_balance * ($ownershipPercentage / 100);
-            });
+        return (float) SavingsAccount::where('user_id', $userId)
+            ->sum('current_balance');
     }
 
     /**
@@ -252,7 +248,7 @@ class NetWorthService
                 'total_value' => $this->calculateInvestmentValue($userId),
             ],
             'cash' => [
-                'count' => CashAccount::where('user_id', $userId)->count(),
+                'count' => SavingsAccount::where('user_id', $userId)->count(),
                 'total_value' => $this->calculateCashValue($userId),
             ],
             'business' => [
@@ -307,20 +303,9 @@ class NetWorthService
                 ];
             });
 
-        // Get joint cash accounts
-        $cashAccounts = CashAccount::where('user_id', $userId)
-            ->where('ownership_type', 'joint')
-            ->get()
-            ->map(function ($account) {
-                return [
-                    'type' => 'cash',
-                    'id' => $account->id,
-                    'description' => $account->account_name,
-                    'value' => $account->current_balance,
-                    'ownership_percentage' => $account->ownership_percentage,
-                    'co_owner' => null, // Co-owner tracking not in schema
-                ];
-            });
+        // Get joint savings accounts (savings_accounts table doesn't have ownership_type, so skip for now)
+        // TODO: Add ownership_type to savings_accounts table if joint accounts needed
+        $cashAccounts = collect([]);
 
         // Get joint businesses
         $businesses = BusinessInterest::where('user_id', $userId)

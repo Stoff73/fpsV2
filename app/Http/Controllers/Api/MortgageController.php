@@ -60,10 +60,20 @@ class MortgageController extends Controller
             ->where('user_id', $user->id)
             ->firstOrFail();
 
+        $validated = $request->validated();
+
+        // Calculate remaining_term_months if not provided
+        if (!isset($validated['remaining_term_months'])) {
+            $startDate = new \DateTime($validated['start_date']);
+            $maturityDate = new \DateTime($validated['maturity_date']);
+            $interval = $startDate->diff($maturityDate);
+            $validated['remaining_term_months'] = ($interval->y * 12) + $interval->m;
+        }
+
         $mortgage = Mortgage::create([
             'property_id' => $propertyId,
             'user_id' => $user->id,
-            ...$request->validated(),
+            ...$validated,
         ]);
 
         return response()->json([
@@ -110,7 +120,17 @@ class MortgageController extends Controller
             ->where('user_id', $user->id)
             ->firstOrFail();
 
-        $mortgage->update($request->validated());
+        $validated = $request->validated();
+
+        // Calculate remaining_term_months if not provided but dates are
+        if (!isset($validated['remaining_term_months']) && isset($validated['start_date']) && isset($validated['maturity_date'])) {
+            $startDate = new \DateTime($validated['start_date']);
+            $maturityDate = new \DateTime($validated['maturity_date']);
+            $interval = $startDate->diff($maturityDate);
+            $validated['remaining_term_months'] = ($interval->y * 12) + $interval->m;
+        }
+
+        $mortgage->update($validated);
 
         return response()->json([
             'success' => true,

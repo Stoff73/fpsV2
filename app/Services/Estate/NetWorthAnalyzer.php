@@ -8,6 +8,9 @@ use App\Models\Estate\Asset;
 use App\Models\Estate\Liability;
 use App\Models\Estate\NetWorthStatement;
 use App\Models\Investment\InvestmentAccount;
+use App\Models\Property;
+use App\Models\SavingsAccount;
+use App\Models\Mortgage;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -34,13 +37,52 @@ class NetWorthAnalyzer
             ];
         });
 
+        // Get properties from Property module
+        $properties = Property::where('user_id', $userId)->get();
+        $propertyTotalValue = $properties->sum(function ($property) {
+            $ownershipPercentage = $property->ownership_percentage ?? 100;
+            return $property->current_value * ($ownershipPercentage / 100);
+        });
+
+        // Convert properties to asset format for composition analysis
+        $propertyAssets = $properties->map(function ($property) {
+            $ownershipPercentage = $property->ownership_percentage ?? 100;
+            $userValue = $property->current_value * ($ownershipPercentage / 100);
+
+            return (object) [
+                'asset_type' => 'property',
+                'current_value' => $userValue,
+                'asset_name' => $property->address_line_1 ?: 'Property',
+            ];
+        });
+
+        // Get savings/cash accounts from Savings module
+        $savingsAccounts = SavingsAccount::where('user_id', $userId)->get();
+        $savingsTotalValue = $savingsAccounts->sum('current_balance');
+
+        // Convert savings accounts to asset format for composition analysis
+        $savingsAssets = $savingsAccounts->map(function ($account) {
+            return (object) [
+                'asset_type' => 'cash',
+                'current_value' => $account->current_balance,
+                'asset_name' => $account->institution . ' - ' . ucfirst($account->account_type),
+            ];
+        });
+
         // Merge all assets
-        $allAssets = $manualAssets->concat($investmentAssets);
+        $allAssets = $manualAssets
+            ->concat($investmentAssets)
+            ->concat($propertyAssets)
+            ->concat($savingsAssets);
         $totalAssets = $allAssets->sum('current_value');
 
-        // Get all liabilities
+        // Get all liabilities (manual + mortgages)
         $liabilities = Liability::where('user_id', $userId)->get();
-        $totalLiabilities = $liabilities->sum('current_balance');
+        $mortgages = Mortgage::where('user_id', $userId)->get();
+
+        $manualLiabilitiesTotal = $liabilities->sum('current_balance');
+        $mortgagesTotal = $mortgages->sum('outstanding_balance');
+        $totalLiabilities = $manualLiabilitiesTotal + $mortgagesTotal;
 
         // Calculate net worth
         $netWorth = $totalAssets - $totalLiabilities;
@@ -48,8 +90,8 @@ class NetWorthAnalyzer
         // Analyze asset composition
         $assetComposition = $this->analyzeAssetComposition($allAssets);
 
-        // Analyze liability composition
-        $liabilityComposition = $this->analyzeLiabilityComposition($liabilities);
+        // Analyze liability composition (include mortgages)
+        $liabilityComposition = $this->analyzeLiabilityComposition($liabilities, $mortgages);
 
         // Calculate ratios
         $debtToAssetRatio = $totalAssets > 0 ? ($totalLiabilities / $totalAssets) : 0;
@@ -59,7 +101,11 @@ class NetWorthAnalyzer
             'total_assets' => round($totalAssets, 2),
             'total_manual_assets' => round($manualAssets->sum('current_value'), 2),
             'total_investment_assets' => round($investmentTotalValue, 2),
+            'total_property_assets' => round($propertyTotalValue, 2),
+            'total_cash_assets' => round($savingsTotalValue, 2),
             'total_liabilities' => round($totalLiabilities, 2),
+            'total_manual_liabilities' => round($manualLiabilitiesTotal, 2),
+            'total_mortgage_liabilities' => round($mortgagesTotal, 2),
             'net_worth' => round($netWorth, 2),
             'debt_to_asset_ratio' => round($debtToAssetRatio, 4),
             'net_worth_ratio' => round($netWorthRatio, 4),
@@ -100,14 +146,17 @@ class NetWorthAnalyzer
     /**
      * Analyze liability composition by type
      */
-    private function analyzeLiabilityComposition(Collection $liabilities): array
+    private function analyzeLiabilityComposition(Collection $liabilities, Collection $mortgages): array
     {
-        $totalValue = $liabilities->sum('current_balance');
+        $manualLiabilitiesTotal = $liabilities->sum('current_balance');
+        $mortgagesTotal = $mortgages->sum('outstanding_balance');
+        $totalValue = $manualLiabilitiesTotal + $mortgagesTotal;
 
         if ($totalValue == 0) {
             return [];
         }
 
+        // Group manual liabilities by type
         $byType = $liabilities->groupBy('liability_type')->map(function ($group, $type) use ($totalValue) {
             $typeValue = $group->sum('current_balance');
             $totalMonthlyPayment = $group->sum('monthly_payment');
@@ -120,6 +169,19 @@ class NetWorthAnalyzer
                 'monthly_payment' => round($totalMonthlyPayment, 2),
             ];
         })->values()->toArray();
+
+        // Add mortgages as a separate type if they exist
+        if ($mortgagesTotal > 0) {
+            $totalMonthlyMortgagePayment = $mortgages->sum('monthly_payment');
+
+            $byType[] = [
+                'type' => 'mortgage',
+                'balance' => round($mortgagesTotal, 2),
+                'percentage' => round(($mortgagesTotal / $totalValue) * 100, 2),
+                'count' => $mortgages->count(),
+                'monthly_payment' => round($totalMonthlyMortgagePayment, 2),
+            ];
+        }
 
         // Sort by balance descending
         usort($byType, fn ($a, $b) => $b['balance'] <=> $a['balance']);

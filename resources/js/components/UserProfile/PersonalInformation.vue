@@ -111,8 +111,6 @@
             <option value="married">Married</option>
             <option value="divorced">Divorced</option>
             <option value="widowed">Widowed</option>
-            <option value="civil_partnership">Civil Partnership</option>
-            <option value="separated">Separated</option>
           </select>
         </div>
 
@@ -330,7 +328,14 @@ export default {
           successMessage.value = '';
         }, 3000);
       } catch (error) {
-        errorMessage.value = error.response?.data?.message || 'Failed to update personal information';
+        console.error('Update error:', error.response?.data);
+        // Show validation errors if available
+        if (error.response?.data?.errors) {
+          const errors = Object.values(error.response.data.errors).flat();
+          errorMessage.value = errors.join('. ');
+        } else {
+          errorMessage.value = error.response?.data?.message || 'Failed to update personal information';
+        }
       } finally {
         submitting.value = false;
       }
