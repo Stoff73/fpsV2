@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import AssetAllocationDonut from './AssetAllocationDonut.vue';
 import NetWorthTrendChart from './NetWorthTrendChart.vue';
 import AssetBreakdownBar from './AssetBreakdownBar.vue';
@@ -73,7 +73,7 @@ export default {
   },
 
   computed: {
-    ...mapState('netWorth', ['overview', 'trend']),
+    ...mapState('netWorth', ['overview', 'trend', 'loading']),
     ...mapGetters('netWorth', [
       'formattedNetWorth',
       'formattedAssets',
@@ -96,6 +96,8 @@ export default {
   },
 
   methods: {
+    ...mapActions('netWorth', ['loadAllData']),
+
     formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString('en-GB', {
@@ -104,6 +106,14 @@ export default {
         day: 'numeric',
       });
     },
+  },
+
+  async mounted() {
+    try {
+      await this.loadAllData();
+    } catch (error) {
+      console.error('Failed to load net worth data:', error);
+    }
   },
 };
 </script>
