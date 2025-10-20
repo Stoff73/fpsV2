@@ -38,7 +38,7 @@ When working on any task, feature, or improvement:
 
 This is the **FPS (Financial Planning System)** - a comprehensive financial planning web application designed for UK individuals and families. The system covers five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
-**Current Status**: Foundation complete (Task 01 - 100%). Laravel 10.x backend with Sanctum authentication, Vue.js 3 frontend with full auth flow, Pest testing suite (36 tests passing), Settings page, and error handling implemented. Ready for module development.
+**Current Status**: Phase 02 complete (v0.1.1). Laravel 10.x backend with Sanctum authentication, Vue.js 3 frontend with full auth flow, Pest testing suite, User Profile module, Settings page, and error handling implemented. Net Worth (Property Management), Savings (Emergency Fund + ISA Tracking), Investment, Retirement, and Estate modules operational.
 
 ## Technology Stack
 
@@ -150,7 +150,7 @@ resources/js/
 All UK tax rules, allowances, and IHT rules are maintained in a centralized configuration file (`config/uk_tax_config.php` or `tax_configurations` table). This includes:
 - Income tax bands and rates
 - National Insurance thresholds
-- ISA allowances (£20,000 total for 2024/25)
+- ISA allowances (£20,000 total for 2025/26)
 - Pension annual allowance (£60,000)
 - IHT rates, NRB (£325,000), RNRB (£175,000)
 - PET/CLT gifting rules
@@ -158,11 +158,14 @@ All UK tax rules, allowances, and IHT rules are maintained in a centralized conf
 **Update process**: When UK tax rules change (typically after Budget), update the centralized config and deploy.
 
 ### ISA Allowance Tracking
-ISA tracking is **cross-module**:
-- Cash ISA subscriptions tracked in Savings Module
-- Stocks & Shares ISA subscriptions tracked in Investment Module
-- Total combined allowance: £20,000 (2024/25)
-- The ISA allowance tracker appears on both Savings and Investment dashboards
+ISA tracking is **cross-module** (implemented as of v0.1.1):
+- Cash ISA subscriptions tracked in Savings Module (`savings_accounts.isa_subscription_amount`)
+- Stocks & Shares ISA subscriptions tracked in Investment Module (`investment_accounts.isa_subscription_current_year`)
+- Total combined allowance: £20,000 per tax year
+- Current tax year: 2025/26 (dynamically calculated based on April 6 - April 5 UK tax year)
+- The ISA allowance tracker appears on Savings > Cash tab
+- Service: `app/Services/Savings/ISATracker.php` provides cross-module aggregation
+- API endpoint: `/api/savings` returns full ISA allowance breakdown
 
 ### Calculation Patterns
 All financial calculations are implemented as functions/methods within the application:
@@ -191,9 +194,16 @@ Memcached is used with TTLs based on data volatility:
 - Dashboard charts: Coverage gauge, gap heatmap, premium breakdown, policy timeline
 
 ### Savings Module
-- Emergency fund analysis, savings goals tracking, ISA allowance monitoring
-- Key outputs: Emergency fund runway (months), liquidity ladder, ISA usage progress
-- Dashboard charts: Emergency fund gauge, liquidity ladder, goal progress bars
+- Emergency fund analysis (with designated account tracking), savings goals tracking, ISA allowance monitoring
+- Key features:
+  - Emergency Fund Tracking: Users can mark specific accounts as "emergency fund" (`is_emergency_fund` field)
+  - Runway calculation: Emergency fund total ÷ monthly expenditure (from User Profile)
+  - Empty state handling: Shows "Add Expenditure" button when monthly expenditure = 0
+  - ISA Allowance Tracker: Cross-module tracking of Cash ISA + Stocks ISA + LISA
+  - Account types: Savings Account, Current Account, Easy Access, Notice Account, Fixed Term
+- Key outputs: Emergency fund runway (months), emergency fund total, ISA usage progress
+- Dashboard tabs: Current Situation, Emergency Fund, Savings Goals, Recommendations, What-If Scenarios, Account Details
+- Visual indicators: Green "Emergency Fund" badge, Blue "ISA" badge on accounts
 
 ### Investment Module
 - Portfolio analysis, asset allocation, Monte Carlo projections, fee analysis
@@ -205,8 +215,15 @@ Memcached is used with TTLs based on data volatility:
 - Key outputs: Retirement readiness score, income projection, contribution recommendations
 - Dashboard charts: Readiness gauge, income stacked area chart, drawdown simulator
 
-### Estate Planning Module
+### Estate Planning Module (Net Worth)
 - IHT calculation, net worth tracking, personal P&L/cashflow, gifting strategy (PETs/CLTs)
+- Property Management (v0.1.1):
+  - Add/edit properties with simplified form (PropertyForm modal)
+  - Required fields: Property Type, Address, Current Value
+  - Optional fields: Outstanding Mortgage, Rental Income, Purchase Price/Date
+  - Virtual field mapping: `address` → `address_line_1`, `rental_income` → `monthly_rental_income`
+  - Property types: Main Residence, Secondary Residence, Buy to Let, Commercial, Land
+- Dashboard tabs: Overview, Property, Investments, Cash, Business Interests, Chattels
 - Key outputs: IHT liability, net worth, gifting timeline, probate readiness score
 - Dashboard charts: IHT waterfall, net worth bar chart, gifting timeline (rangeBar)
 
@@ -297,6 +314,7 @@ Process flow diagrams are located in the root directory with `.md` extension:
 - **moduleSimple.md**: Simplified architecture overview (agent-based approach, UK tax config structure)
 - **designStyleGuide.md**: Complete design system and component specifications
 - **design/*.html**: UI mockups and prototypes
+- **NET_WORTH_SAVINGS_IMPLEMENTATION.md**: Detailed implementation documentation for Phase 02 v0.1.1 features (property management, ISA tracking, emergency fund)
 
 ## Development Workflow
 
@@ -759,7 +777,7 @@ class RetirementController extends Controller
 
 ## Key Principles for Development
 
-1. **UK-Specific**: All calculations must follow UK tax rules and regulations (2024/25 tax year as baseline)
+1. **UK-Specific**: All calculations must follow UK tax rules and regulations (2025/26 tax year as current baseline)
 2. **Agent Pattern**: Each module's logic should be encapsulated in an Agent class
 3. **Centralized Config**: Never hardcode tax rates - always reference centralized config
 4. **No Financial Advice Disclaimer**: FPS is for demonstration/analysis purposes only, not regulated financial advice
@@ -770,6 +788,7 @@ class RetirementController extends Controller
 9. **Background Jobs**: Long-running calculations (>2 seconds) should be queued
 10. **Testing**: Write Pest tests for all financial calculations before implementation
 11. **Code Quality**: Follow PSR-12 for PHP, Vue.js style guide, and maintain consistent code style throughout
+12. **No Fictional Data**: Never auto-populate demo or test data in the database - users must enter their own data
 
 ## Constraints & Limitations
 
