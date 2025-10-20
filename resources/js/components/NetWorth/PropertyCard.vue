@@ -68,11 +68,11 @@ export default {
     },
 
     hasMortgage() {
-      return this.property.mortgage_outstanding > 0;
+      return this.property.outstanding_mortgage > 0;
     },
 
     mortgageAmount() {
-      return this.property.mortgage_outstanding || 0;
+      return this.property.outstanding_mortgage || 0;
     },
 
     equity() {
