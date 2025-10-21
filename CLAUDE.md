@@ -38,7 +38,7 @@ When working on any task, feature, or improvement:
 
 This is the **FPS (Financial Planning System)** - a comprehensive financial planning web application designed for UK individuals and families. The system covers five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
-**Current Status**: Phase 02 complete (v0.1.1). Laravel 10.x backend with Sanctum authentication, Vue.js 3 frontend with full auth flow, Pest testing suite, User Profile module, Settings page, and error handling implemented. Net Worth (Property Management), Savings (Emergency Fund + ISA Tracking), Investment, Retirement, and Estate modules operational.
+**Current Status**: Phase 02 complete (v0.1.2). Laravel 10.x backend with Sanctum authentication, Vue.js 3 frontend with full auth flow, Pest testing suite, User Profile module, Settings page, and error handling implemented. Net Worth (Property Management), Savings (Emergency Fund + ISA Tracking), Investment, Retirement, and Estate modules operational. **New in v0.1.2**: Spouse account management, joint ownership across all assets, trust ownership, will planning with bequests, enhanced protection analysis with UK tax calculations.
 
 ## Technology Stack
 
@@ -169,13 +169,64 @@ ISA tracking is **cross-module** (implemented as of v0.1.1):
 
 ### Calculation Patterns
 All financial calculations are implemented as functions/methods within the application:
-- **Protection**: Human capital valuation, coverage gap analysis
+- **Protection**: Human capital valuation (using NET income after tax/NI), coverage gap analysis
 - **Savings**: Emergency fund runway, goal projections
 - **Investment**: Monte Carlo simulations (1,000 iterations), asset allocation optimization
 - **Retirement**: DC/DB pension projections, sustainable withdrawal rate
 - **Estate**: IHT calculation with NRB/RNRB, PET taper relief (7-year rule), CLT tracking (14-year lookback)
+- **Tax Calculations (v0.1.2)**: UK income tax and National Insurance calculations
 
 **Note on DB Pensions**: DB pension information is captured for **income projection only** - no DB to DC transfer advice is provided.
+
+### UK Tax Calculator (v0.1.2)
+
+A centralized service (`app/Services/UKTaxCalculator.php`) provides accurate UK tax and National Insurance calculations using 2025/26 tax year rates.
+
+**Features**:
+- Calculate net income after income tax and National Insurance
+- Support multiple income types:
+  - Employment income (PAYE) - subject to Class 1 NI
+  - Self-employment income - subject to Class 4 NI
+  - Rental income (property)
+  - Dividend income
+  - Other taxable income
+- Return detailed breakdown:
+  - Gross income
+  - Income tax (with personal allowance, basic/higher/additional rate bands)
+  - National Insurance (Class 1 for employees, Class 4 for self-employed)
+  - Total deductions
+  - Net income
+  - Effective tax rate
+
+**Usage**:
+```php
+use App\Services\UKTaxCalculator;
+
+$taxCalculator = new UKTaxCalculator();
+
+$result = $taxCalculator->calculateNetIncome(
+    employmentIncome: 50000,
+    selfEmploymentIncome: 0,
+    rentalIncome: 12000,
+    dividendIncome: 5000,
+    otherIncome: 0
+);
+
+// Returns:
+// [
+//     'gross_income' => 67000.00,
+//     'income_tax' => 12345.00,
+//     'national_insurance' => 4567.00,
+//     'total_deductions' => 16912.00,
+//     'net_income' => 50088.00,
+//     'effective_tax_rate' => 25.24
+// ]
+```
+
+**Integration Points**:
+- **ProtectionAgent**: Calculates NET income for human capital valuation
+- **CoverageGapAnalyzer**: Uses NET income for protection needs calculation
+- Future: May be used for retirement income projections, estate planning tax efficiency
 
 ### Background Jobs
 Monte Carlo simulations run as **Laravel Queue jobs** (database-backed) to avoid blocking the UI. Results are polled via job ID.
@@ -190,6 +241,22 @@ Memcached is used with TTLs based on data volatility:
 
 ### Protection Module
 - Covers all UK protection products (life insurance, critical illness, income protection, health insurance)
+- **Enhanced Protection Analysis (v0.1.2)**:
+  - Uses NET income (after tax and NI) for accurate human capital calculation
+  - Pulls debt from actual mortgages and liabilities tables (real-time data)
+  - Tracks spouse income separately with permission checks
+  - Spouse income REDUCES protection need (continues after user's death)
+  - Excludes rental/dividend income from protection needs (continues after death)
+  - Income categorization:
+    - **Earned Income** (STOPS on death): Employment, self-employment, other earned
+    - **Continuing Income** (CONTINUES after death): Rental income, dividend income
+  - Cache invalidation when income changes (user and spouse)
+  - Comprehensive protection needs breakdown UI showing:
+    - User's earned income with tax/NI breakdown
+    - Spouse's earned income (with permission check)
+    - Continuing income that reduces protection need
+    - Income tax and National Insurance calculations
+    - Net income calculations
 - Key outputs: Coverage adequacy score, gap analysis heatmap, prioritized recommendations
 - Dashboard charts: Coverage gauge, gap heatmap, premium breakdown, policy timeline
 
@@ -216,14 +283,30 @@ Memcached is used with TTLs based on data volatility:
 - Dashboard charts: Readiness gauge, income stacked area chart, drawdown simulator
 
 ### Estate Planning Module (Net Worth)
-- IHT calculation, net worth tracking, personal P&L/cashflow, gifting strategy (PETs/CLTs)
+- IHT calculation, net worth tracking, personal P&L/cashflow, gifting strategy (PETs/CLTs), will planning
 - Property Management (v0.1.1):
   - Add/edit properties with simplified form (PropertyForm modal)
   - Required fields: Property Type, Address, Current Value
   - Optional fields: Outstanding Mortgage, Rental Income, Purchase Price/Date
   - Virtual field mapping: `address` → `address_line_1`, `rental_income` → `monthly_rental_income`
   - Property types: Main Residence, Secondary Residence, Buy to Let, Commercial, Land
-- Dashboard tabs: Overview, Property, Investments, Cash, Business Interests, Chattels
+- **Will Planning (v0.1.2)**:
+  - Death scenario configuration:
+    - **User death only**: Spouse survives, spouse exemption applies
+    - **Both dying simultaneously**: No spouse exemption, full IHT calculation
+  - Spouse bequest configuration:
+    - Toggle spouse as primary beneficiary
+    - Slider to allocate 0-100% of estate to spouse
+    - Real-time calculation showing tax-free amount vs. taxable amount
+  - Specific bequests management:
+    - **Percentage of estate**: Specify % of total estate
+    - **Specific amount**: Fixed monetary amount
+    - **Specific asset**: Named asset with description
+    - **Residuary bequest**: Remainder after other bequests
+  - Executor notes for special instructions
+  - Integration with IHT calculation for net estate value
+  - Marital status awareness (shows spouse options only if married)
+- Dashboard tabs: Overview, Property, Investments, Cash, Business Interests, Chattels, **Will Planning**
 - Key outputs: IHT liability, net worth, gifting timeline, probate readiness score
 - Dashboard charts: IHT waterfall, net worth bar chart, gifting timeline (rangeBar)
 
