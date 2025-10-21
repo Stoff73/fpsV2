@@ -63,7 +63,7 @@ class PersonalAccountsController extends Controller
             ? Carbon::parse($request->input('as_of_date'))
             : Carbon::now();
 
-        // Calculate all three statements
+        // Calculate all three statements for the user
         $profitAndLoss = $this->personalAccountsService->calculateProfitAndLoss(
             $user,
             $startDate,
@@ -81,12 +81,37 @@ class PersonalAccountsController extends Controller
             $asOfDate
         );
 
+        // Check if user is married and has permission to view spouse data
+        $spouseData = null;
+        if ($user->spouse_id && $user->hasAcceptedSpousePermission()) {
+            $spouse = \App\Models\User::find($user->spouse_id);
+            if ($spouse) {
+                $spouseData = [
+                    'profit_and_loss' => $this->personalAccountsService->calculateProfitAndLoss(
+                        $spouse,
+                        $startDate,
+                        $endDate
+                    ),
+                    'cashflow' => $this->personalAccountsService->calculateCashflow(
+                        $spouse,
+                        $startDate,
+                        $endDate
+                    ),
+                    'balance_sheet' => $this->personalAccountsService->calculateBalanceSheet(
+                        $spouse,
+                        $asOfDate
+                    ),
+                ];
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
                 'profit_and_loss' => $profitAndLoss,
                 'cashflow' => $cashflow,
                 'balance_sheet' => $balanceSheet,
+                'spouse_data' => $spouseData,
                 'period' => [
                     'start_date' => $startDate->format('Y-m-d'),
                     'end_date' => $endDate->format('Y-m-d'),

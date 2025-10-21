@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\UserProfile;
 
 use App\Models\User;
+use App\Models\SavingsAccount;
 use Carbon\Carbon;
 
 class PersonalAccountsService
@@ -198,7 +199,6 @@ class PersonalAccountsService
     {
         // Load all asset and liability relationships
         $user->load([
-            'cashAccounts',
             'investmentAccounts',
             'properties',
             'businessInterests',
@@ -207,10 +207,8 @@ class PersonalAccountsService
             'mortgages',
         ]);
 
-        // Calculate assets
-        $cashTotal = $user->cashAccounts->sum(function ($account) {
-            return $account->current_balance * ($account->ownership_percentage / 100);
-        });
+        // Calculate assets - use SavingsAccount model directly (no ownership_percentage on this table)
+        $cashTotal = SavingsAccount::where('user_id', $user->id)->sum('current_balance');
 
         $investmentsTotal = $user->investmentAccounts->sum(function ($account) {
             return $account->current_value * ($account->ownership_percentage / 100);

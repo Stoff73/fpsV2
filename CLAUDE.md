@@ -227,6 +227,100 @@ Memcached is used with TTLs based on data volatility:
 - Key outputs: IHT liability, net worth, gifting timeline, probate readiness score
 - Dashboard charts: IHT waterfall, net worth bar chart, gifting timeline (rangeBar)
 
+## Asset Ownership & Spouse Management (v0.1.2)
+
+### Ownership Types
+
+All assets support three ownership types:
+- **Individual**: Solely owned by one person
+- **Joint**: Owned by two people (usually spouses)
+- **Trust**: Owned by a trust entity
+
+### Supported Assets with Ownership:
+- Properties
+- Investment Accounts
+- Savings Accounts (Cash)
+- Business Interests
+- Chattels
+- Mortgages
+
+### Database Schema Pattern
+
+All asset tables include:
+```php
+$table->enum('ownership_type', ['individual', 'joint', 'trust'])->default('individual');
+$table->bigInteger('joint_owner_id')->nullable();  // For joint ownership
+$table->foreignId('trust_id')->nullable();         // For trust ownership
+```
+
+### Frontend Form Pattern
+
+All asset forms must use these exact values for ownership_type dropdown:
+```vue
+<select v-model="formData.ownership_type">
+  <option value="individual">Individual Owner</option>
+  <option value="joint">Joint Owner</option>
+  <option value="trust">Trust</option>
+</select>
+```
+
+**CRITICAL**: Do NOT use 'sole' - use 'individual'. The database enum requires these exact values.
+
+### ISA Ownership Restriction
+
+ISAs can ONLY be individually owned (UK tax rule). Backend validation enforces this:
+```php
+if ($validated['account_type'] === 'isa' && $validated['ownership_type'] !== 'individual') {
+    return response()->json([
+        'success' => false,
+        'message' => 'ISAs can only be individually owned...',
+    ], 422);
+}
+```
+
+### Joint Ownership Pattern
+
+When creating jointly owned assets:
+1. User creates asset with `joint_owner_id` set to spouse's user ID
+2. Backend automatically creates reciprocal record for joint owner
+3. Both users see the asset in their accounts
+4. Example implementation in `PropertyController::createJointProperty()`
+
+### Spouse Account Management
+
+#### Auto-Creation Workflow:
+1. User adds spouse in Family Members with new email
+2. System creates user account with random password
+3. Sets `must_change_password = true`
+4. Sends welcome email with temporary credentials
+5. Spouse must change password on first login
+
+#### Account Linking Workflow:
+1. User adds spouse with existing email
+2. System finds existing user account
+3. Links both accounts bidirectionally (`spouse_id` updated for both)
+4. Sets `marital_status = 'married'` for both
+5. Sends linking notification email to both parties
+
+#### Implementation Files:
+- Backend: `app/Http/Controllers/Api/FamilyMembersController.php`
+- Frontend: `resources/js/components/UserProfile/FamilyMemberFormModal.vue`
+- Email: `app/Mail/SpouseAccountCreated.php`, `app/Mail/SpouseAccountLinked.php`
+
+### Spouse Data Sharing Permissions
+
+Granular permissions control what spouse can view:
+- User Profile
+- Net Worth
+- Savings
+- Investment
+- Retirement
+- Estate Planning
+- Protection
+- Holistic Planning
+
+Permissions stored in `spouse_permissions` table with `can_view` and `can_edit` flags.
+
 ## Important UK-Specific Rules
 
 ### Inheritance Tax (IHT)
@@ -315,6 +409,8 @@ Process flow diagrams are located in the root directory with `.md` extension:
 - **designStyleGuide.md**: Complete design system and component specifications
 - **design/*.html**: UI mockups and prototypes
 - **NET_WORTH_SAVINGS_IMPLEMENTATION.md**: Detailed implementation documentation for Phase 02 v0.1.1 features (property management, ISA tracking, emergency fund)
+- **ACCOUNT_MANAGEMENT_IMPLEMENTATION_SUMMARY.md**: Investment account management components implementation (v0.1.1)
+- **OCTOBER_2025_FEATURES_UPDATE.md**: Comprehensive summary of October 2025 features (spouse management, joint ownership, trust ownership, email notifications) - v0.1.2
 
 ## Development Workflow
 

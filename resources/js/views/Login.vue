@@ -1,5 +1,12 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <!-- Change Password Modal -->
+    <ChangePasswordModal
+      :show="showPasswordModal"
+      :is-required="true"
+      @success="handlePasswordChanged"
+    />
+
     <div class="max-w-md w-full space-y-8">
       <div>
         <h1 class="text-center font-display text-h1 text-gray-900">
@@ -99,9 +106,15 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import ChangePasswordModal from '../components/Auth/ChangePasswordModal.vue';
+import authService from '../services/authService';
 
 export default {
   name: 'Login',
+
+  components: {
+    ChangePasswordModal,
+  },
 
   setup() {
     const store = useStore();
@@ -115,6 +128,7 @@ export default {
 
     const errors = ref({});
     const errorMessage = ref('');
+    const showPasswordModal = ref(false);
 
     const loading = computed(() => store.getters['auth/loading']);
 
@@ -123,13 +137,18 @@ export default {
       errorMessage.value = '';
 
       try {
-        await store.dispatch('auth/login', {
+        const response = await store.dispatch('auth/login', {
           email: form.value.email,
           password: form.value.password,
         });
 
-        // Redirect to dashboard after successful login
-        router.push({ name: 'Dashboard' });
+        // Check if user must change password
+        if (response?.data?.must_change_password) {
+          showPasswordModal.value = true;
+        } else {
+          // Redirect to dashboard after successful login
+          router.push({ name: 'Dashboard' });
+        }
       } catch (error) {
         if (error.errors) {
           errors.value = error.errors;
@@ -139,12 +158,24 @@ export default {
       }
     };
 
+    const handlePasswordChanged = () => {
+      showPasswordModal.value = false;
+
+      // Update user data to reflect password change
+      authService.getUser();
+
+      // Redirect to dashboard
+      router.push({ name: 'Dashboard' });
+    };
+
     return {
       form,
       errors,
       errorMessage,
       loading,
+      showPasswordModal,
       handleLogin,
+      handlePasswordChanged,
     };
   },
 };

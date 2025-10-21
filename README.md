@@ -29,6 +29,25 @@ A comprehensive financial planning web application designed for UK individuals a
 
 ---
 
+## 🆕 Recent Updates (October 2025)
+
+### Version 0.1.2 - Spouse Management & Joint Ownership
+
+**Release Date**: October 21, 2025
+
+**Major Features**:
+- ✅ **Spouse Account Management**: Auto-creation and linking of spouse accounts via Family Members
+- ✅ **Joint Ownership**: Support for jointly owned assets (properties, investments, savings, etc.)
+- ✅ **Trust Ownership**: Track assets held in trust
+- ✅ **Data Sharing Permissions**: Granular control over what spouse can view/edit
+- ✅ **Email Notifications**: Welcome emails and account linking notifications
+- ✅ **Password Security**: First-time login password change requirement
+- ✅ **Bug Fixes**: Investment account form, IHT calculation with liabilities, property & mortgage fixes
+
+**See**: [OCTOBER_2025_FEATURES_UPDATE.md](OCTOBER_2025_FEATURES_UPDATE.md) for complete details
+
+---
+
 ## 🎯 Overview
 
 FPS v2 is a next-generation financial planning application that helps UK individuals and families:
@@ -47,12 +66,30 @@ The system uses an **agent-based architecture** where intelligent agents analyze
 
 - Laravel 10.x backend with Sanctum authentication
 - Vue.js 3 frontend with full auth flow
-- Pest testing suite (36+ tests passing)
+- Pest testing suite (60+ tests passing)
 - Settings page and error handling
 - All 5 modules implemented
 - Coordinating agent for holistic planning
 - Code quality checks passed (Laravel Pint, PSR-12 compliant)
 - Architecture tests passing
+
+**✅ User Profile & Account Management (100%)**
+
+- Personal information and family members management
+- Spouse account creation and linking (auto-invite system)
+- Joint ownership across all asset types (properties, investments, savings, etc.)
+- Trust ownership support
+- Spouse data sharing permissions (granular per-module control)
+- Email notification system for account events
+- First-time login password change flow
+
+**✅ Asset Ownership Features (NEW - October 2025)**
+
+- Individual, joint, and trust ownership for all assets
+- Automatic reciprocal record creation for jointly owned assets
+- Spouse selection for joint ownership
+- Trust selection for trust-owned assets
+- ISA ownership restriction (individual only, per UK tax rules)
 
 ---
 
@@ -896,11 +933,11 @@ For issues, questions, or contributions:
 
 ---
 
-**Current Version**: 0.1.0 (Alpha)
+**Current Version**: 0.1.2 (Beta)
 
-**Last Updated**: 18 October 2025
+**Last Updated**: 21 October 2025
 
-**Status**: 🔧 Initial Development - Foundation & User Profile Complete
+**Status**: 🚀 Active Development - Core Features Complete, Spouse Management & Joint Ownership Implemented
 
 ---
 

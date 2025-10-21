@@ -7,9 +7,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreFamilyMemberRequest;
 use App\Http\Requests\UpdateFamilyMemberRequest;
+use App\Mail\SpouseAccountCreated;
+use App\Mail\SpouseAccountLinked;
 use App\Models\FamilyMember;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class FamilyMembersController extends Controller
 {
@@ -26,6 +29,19 @@ class FamilyMembersController extends Controller
             ->orderBy('relationship')
             ->orderBy('date_of_birth')
             ->get();
+
+        // Add spouse email if applicable
+        $familyMembers = $familyMembers->map(function ($member) use ($user) {
+            $memberArray = $member->toArray();
+
+            // If this is a spouse and user has a spouse_id, get the spouse's email
+            if ($member->relationship === 'spouse' && $user->spouse_id) {
+                $spouse = \App\Models\User::find($user->spouse_id);
+                $memberArray['email'] = $spouse ? $spouse->email : null;
+            }
+
+            return $memberArray;
+        });
 
         return response()->json([
             'success' => true,
@@ -115,6 +131,13 @@ class FamilyMembersController extends Controller
                 'notes' => $data['notes'] ?? null,
             ]);
 
+            // Send email notification to spouse
+            try {
+                Mail::to($spouseUser->email)->send(new SpouseAccountLinked($spouseUser, $currentUser));
+            } catch (\Exception $e) {
+                \Log::error('Failed to send spouse account linked email: ' . $e->getMessage());
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Spouse account linked successfully',
@@ -133,6 +156,7 @@ class FamilyMembersController extends Controller
             'name' => $data['name'],
             'email' => $spouseEmail,
             'password' => \Illuminate\Support\Facades\Hash::make($temporaryPassword),
+            'must_change_password' => true,
             'date_of_birth' => $data['date_of_birth'] ?? null,
             'gender' => $data['gender'] ?? null,
             'marital_status' => 'married',
@@ -161,8 +185,14 @@ class FamilyMembersController extends Controller
             'notes' => $data['notes'] ?? null,
         ]);
 
-        // TODO: Send email to spouse with password reset link
-        // \Mail::to($spouseEmail)->send(new SpouseAccountCreated($spouseUser, $temporaryPassword));
+        // Send email to spouse with temporary password
+        try {
+            Mail::to($spouseEmail)->send(new SpouseAccountCreated($spouseUser, $currentUser, $temporaryPassword));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send spouse account created email: ' . $e->getMessage());
+            // Also log the temporary password so it can be retrieved if email fails
+            \Log::info("Temporary password for {$spouseEmail}: {$temporaryPassword}");
+        }
 
         return response()->json([
             'success' => true,
@@ -187,10 +217,18 @@ class FamilyMembersController extends Controller
         $familyMember = FamilyMember::where('user_id', $user->id)
             ->findOrFail($id);
 
+        $memberArray = $familyMember->toArray();
+
+        // If this is a spouse and user has a spouse_id, get the spouse's email
+        if ($familyMember->relationship === 'spouse' && $user->spouse_id) {
+            $spouse = \App\Models\User::find($user->spouse_id);
+            $memberArray['email'] = $spouse ? $spouse->email : null;
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
-                'family_member' => $familyMember,
+                'family_member' => $memberArray,
             ],
         ]);
     }
@@ -229,6 +267,20 @@ class FamilyMembersController extends Controller
 
         $familyMember = FamilyMember::where('user_id', $user->id)
             ->findOrFail($id);
+
+        // If deleting a spouse, clear the spouse linkage
+        if ($familyMember->relationship === 'spouse' && $user->spouse_id) {
+            $spouseUser = \App\Models\User::find($user->spouse_id);
+
+            if ($spouseUser) {
+                // Clear spouse linkage for both users
+                $spouseUser->spouse_id = null;
+                $spouseUser->save();
+            }
+
+            $user->spouse_id = null;
+            $user->save();
+        }
 
         $familyMember->delete();
 

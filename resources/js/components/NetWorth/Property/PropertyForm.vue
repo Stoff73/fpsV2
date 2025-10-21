@@ -1,6 +1,6 @@
 <template>
-  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-    <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center" @click.self="">
+    <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto" @click.stop>
       <!-- Header -->
       <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg z-10">
         <div class="flex items-center justify-between">
@@ -149,7 +149,7 @@
                   id="purchase_price"
                   v-model.number="form.purchase_price"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0"
                   required
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -162,7 +162,7 @@
                   id="current_value"
                   v-model.number="form.current_value"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0"
                   required
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -229,7 +229,7 @@
                 id="ownership_percentage"
                 v-model.number="form.ownership_percentage"
                 type="number"
-                step="0.01"
+                step="any"
                 min="0"
                 max="100"
                 required
@@ -240,15 +240,22 @@
             </div>
 
             <div v-if="form.ownership_type === 'joint'">
-              <label for="household_id" class="block text-sm font-medium text-gray-700 mb-1">Household (Joint Owner)</label>
+              <label for="joint_owner_id" class="block text-sm font-medium text-gray-700 mb-1">
+                Joint Owner <span class="text-red-500">*</span>
+              </label>
               <select
-                id="household_id"
-                v-model="form.household_id"
+                id="joint_owner_id"
+                v-model="form.joint_owner_id"
+                required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select household</option>
-                <!-- Households would be loaded dynamically -->
+                <option value="">Select joint owner</option>
+                <option v-if="spouse" :value="spouse.id">{{ spouse.name }} (Spouse)</option>
+                <option v-if="!spouse" value="" disabled>No spouse linked - add spouse in Family Members</option>
               </select>
+              <p class="text-sm text-gray-500 mt-1">
+                Joint assets will appear in both your and your spouse's accounts with your respective ownership percentages.
+              </p>
             </div>
 
             <div v-if="form.ownership_type === 'trust'">
@@ -298,7 +305,7 @@
                   id="mortgage_balance"
                   v-model.number="mortgageForm.outstanding_balance"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -317,7 +324,7 @@
                   id="annual_service_charge"
                   v-model.number="form.annual_service_charge"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -329,7 +336,7 @@
                   id="annual_ground_rent"
                   v-model.number="form.annual_ground_rent"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -341,7 +348,7 @@
                   id="annual_insurance"
                   v-model.number="form.annual_insurance"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -353,7 +360,7 @@
                   id="annual_maintenance_reserve"
                   v-model.number="form.annual_maintenance_reserve"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -365,7 +372,7 @@
                   id="other_annual_costs"
                   v-model.number="form.other_annual_costs"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -377,7 +384,7 @@
                   id="sdlt_paid"
                   v-model.number="form.sdlt_paid"
                   type="number"
-                  step="0.01"
+                  step="any"
                   min="0"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -397,7 +404,7 @@
                     id="monthly_rental_income"
                     v-model.number="form.monthly_rental_income"
                     type="number"
-                    step="0.01"
+                    step="any"
                     min="0"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -409,7 +416,7 @@
                     id="annual_rental_income"
                     v-model.number="form.annual_rental_income"
                     type="number"
-                    step="0.01"
+                    step="any"
                     min="0"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -421,7 +428,7 @@
                     id="occupancy_rate_percent"
                     v-model.number="form.occupancy_rate_percent"
                     type="number"
-                    step="0.01"
+                    step="any"
                     min="0"
                     max="100"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -545,6 +552,7 @@ export default {
         valuation_date: '',
         ownership_type: 'sole',
         ownership_percentage: 100,
+        joint_owner_id: null,
         household_id: null,
         trust_id: null,
         annual_service_charge: null,
@@ -573,6 +581,9 @@ export default {
     isEditMode() {
       return this.property !== null;
     },
+    spouse() {
+      return this.$store.getters['userProfile/spouse'];
+    },
   },
 
   watch: {
@@ -595,6 +606,7 @@ export default {
       this.form.property_type = this.property.property_type || '';
       this.form.ownership_type = this.property.ownership_type || 'sole';
       this.form.ownership_percentage = this.property.ownership_percentage || 100;
+      this.form.joint_owner_id = this.property.joint_owner_id || null;
       this.form.household_id = this.property.household_id || null;
       this.form.trust_id = this.property.trust_id || null;
       this.form.current_value = this.property.current_value || null;

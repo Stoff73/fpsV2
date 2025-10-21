@@ -271,11 +271,18 @@ export default {
     // Initialize form when member prop changes
     watch(() => props.member, (member) => {
       if (member) {
+        // Format date_of_birth to yyyy-MM-dd if it exists
+        let formattedDateOfBirth = '';
+        if (member.date_of_birth) {
+          const date = new Date(member.date_of_birth);
+          formattedDateOfBirth = date.toISOString().split('T')[0];
+        }
+
         form.value = {
           relationship: member.relationship || '',
           email: member.email || '',
           name: member.name || '',
-          date_of_birth: member.date_of_birth || '',
+          date_of_birth: formattedDateOfBirth,
           gender: member.gender || '',
           national_insurance_number: member.national_insurance_number || '',
           annual_income: member.annual_income || null,

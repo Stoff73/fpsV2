@@ -239,6 +239,45 @@
               </div>
             </div>
 
+            <!-- Joint Ownership Section -->
+            <div class="space-y-4 pt-4 border-t border-gray-200">
+              <h4 class="text-sm font-semibold text-gray-900">Ownership</h4>
+
+              <!-- Ownership Type -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Ownership Type <span class="text-red-500">*</span>
+                </label>
+                <select
+                  v-model="formData.ownership_type"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="sole">Sole Owner</option>
+                  <option value="joint">Joint Owner</option>
+                </select>
+              </div>
+
+              <!-- Joint Owner (if ownership_type is joint) -->
+              <div v-if="formData.ownership_type === 'joint'">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Joint Owner <span class="text-red-500">*</span>
+                </label>
+                <select
+                  v-model="formData.joint_owner_id"
+                  :required="formData.ownership_type === 'joint'"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select joint owner</option>
+                  <option v-if="spouse" :value="spouse.id">{{ spouse.name }} (Spouse)</option>
+                  <option v-if="!spouse" value="" disabled>No spouse linked - add spouse in Family Members</option>
+                </select>
+                <p class="text-sm text-gray-500 mt-1">
+                  Joint accounts will appear in both your and your spouse's accounts.
+                </p>
+              </div>
+            </div>
+
             <!-- Account Number (optional) -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -309,8 +348,16 @@ export default {
         isa_type: '',
         isa_subscription_year: '2024/25',
         isa_subscription_amount: null,
+        ownership_type: 'sole',
+        joint_owner_id: null,
       },
     };
+  },
+
+  computed: {
+    spouse() {
+      return this.$store.getters['userProfile/spouse'];
+    },
   },
 
   mounted() {
@@ -335,6 +382,8 @@ export default {
         isa_type: this.account.isa_type || '',
         isa_subscription_year: this.account.isa_subscription_year || '2024/25',
         isa_subscription_amount: this.account.isa_subscription_amount ? parseFloat(this.account.isa_subscription_amount) : null,
+        ownership_type: this.account.ownership_type || 'sole',
+        joint_owner_id: this.account.joint_owner_id || null,
       };
     },
 
@@ -366,6 +415,8 @@ export default {
         isa_type: this.formData.is_isa ? this.formData.isa_type : null,
         isa_subscription_year: this.formData.is_isa ? this.formData.isa_subscription_year : null,
         isa_subscription_amount: this.formData.is_isa ? this.formData.isa_subscription_amount : null,
+        ownership_type: this.formData.ownership_type,
+        joint_owner_id: this.formData.ownership_type === 'joint' ? this.formData.joint_owner_id : null,
       };
 
       return data;

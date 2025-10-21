@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\ProtectionController;
 use App\Http\Controllers\Api\RecommendationsController;
 use App\Http\Controllers\Api\RetirementController;
 use App\Http\Controllers\Api\SavingsController;
+use App\Http\Controllers\Api\SpousePermissionController;
 use App\Http\Controllers\Api\UKTaxesController;
 use App\Http\Controllers\Api\UserProfileController;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,7 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/user', [AuthController::class, 'user']);
+        Route::post('/change-password', [AuthController::class, 'changePassword']);
     });
 });
 
@@ -64,6 +66,15 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
         Route::put('/line-item/{id}', [PersonalAccountsController::class, 'updateLineItem']);
         Route::delete('/line-item/{id}', [PersonalAccountsController::class, 'deleteLineItem']);
     });
+});
+
+// Spouse Permission routes
+Route::middleware('auth:sanctum')->prefix('spouse-permission')->group(function () {
+    Route::get('/status', [SpousePermissionController::class, 'status']);
+    Route::post('/request', [SpousePermissionController::class, 'request']);
+    Route::post('/accept', [SpousePermissionController::class, 'accept']);
+    Route::post('/reject', [SpousePermissionController::class, 'reject']);
+    Route::delete('/revoke', [SpousePermissionController::class, 'revoke']);
 });
 
 // Net Worth routes (Phase 3)

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\UserProfile;
 
 use App\Models\User;
+use App\Models\SavingsAccount;
 
 class UserProfileService
 {
@@ -67,18 +68,28 @@ class UserProfileService
                 'employment_status' => $user->employment_status,
                 'annual_employment_income' => $user->annual_employment_income,
                 'annual_self_employment_income' => $user->annual_self_employment_income,
-                'annual_rental_income' => $user->annual_rental_income,
+                'annual_rental_income' => $this->calculateAnnualRentalIncome($user),
                 'annual_dividend_income' => $user->annual_dividend_income,
                 'annual_other_income' => $user->annual_other_income,
                 'total_annual_income' => (
                     ($user->annual_employment_income ?? 0) +
                     ($user->annual_self_employment_income ?? 0) +
-                    ($user->annual_rental_income ?? 0) +
+                    $this->calculateAnnualRentalIncome($user) +
                     ($user->annual_dividend_income ?? 0) +
                     ($user->annual_other_income ?? 0)
                 ),
             ],
-            'family_members' => $user->familyMembers,
+            'family_members' => $user->familyMembers->map(function ($member) use ($user) {
+                $memberArray = $member->toArray();
+
+                // If this is a spouse and user has a spouse_id, get the spouse's email
+                if ($member->relationship === 'spouse' && $user->spouse_id) {
+                    $spouse = User::find($user->spouse_id);
+                    $memberArray['email'] = $spouse ? $spouse->email : null;
+                }
+
+                return $memberArray;
+            }),
             'assets_summary' => $assetsSummary,
             'liabilities_summary' => $liabilitiesSummary,
             'net_worth' => $assetsSummary['total'] - $liabilitiesSummary['total'],
@@ -100,9 +111,29 @@ class UserProfileService
      */
     public function updateIncomeOccupation(User $user, array $data): User
     {
+        // Calculate annual rental income from properties
+        $annualRentalIncome = $this->calculateAnnualRentalIncome($user);
+
+        // Override the annual_rental_income with calculated value
+        $data['annual_rental_income'] = $annualRentalIncome;
+
         $user->update($data);
 
         return $user->fresh();
+    }
+
+    /**
+     * Calculate total annual rental income from user's properties
+     */
+    private function calculateAnnualRentalIncome(User $user): float
+    {
+        return $user->properties->sum(function ($property) {
+            $monthlyRental = $property->monthly_rental_income ?? 0;
+            $ownershipPercentage = $property->ownership_percentage ?? 100;
+
+            // Calculate annual rental income adjusted for ownership percentage
+            return ($monthlyRental * 12) * ($ownershipPercentage / 100);
+        });
     }
 
     /**
@@ -110,9 +141,9 @@ class UserProfileService
      */
     private function calculateAssetsSummary(User $user): array
     {
-        $cashTotal = $user->cashAccounts->sum(function ($account) {
-            return $account->current_balance * ($account->ownership_percentage / 100);
-        });
+        // Cash - use SavingsAccount model directly (no ownership_percentage on this table)
+        $cashTotal = SavingsAccount::where('user_id', $user->id)->sum('current_balance');
+        $cashCount = SavingsAccount::where('user_id', $user->id)->count();
 
         $investmentsTotal = $user->investmentAccounts->sum(function ($account) {
             return $account->current_value * ($account->ownership_percentage / 100);
@@ -133,12 +164,30 @@ class UserProfileService
         $pensionsTotal = $user->dcPensions->sum('current_fund_value');
 
         return [
-            'cash' => $cashTotal,
-            'investments' => $investmentsTotal,
-            'properties' => $propertiesTotal,
-            'business_interests' => $businessTotal,
-            'chattels' => $chattelsTotal,
-            'pensions' => $pensionsTotal,
+            'cash' => [
+                'total' => $cashTotal,
+                'count' => $cashCount,
+            ],
+            'investments' => [
+                'total' => $investmentsTotal,
+                'count' => $user->investmentAccounts->count(),
+            ],
+            'properties' => [
+                'total' => $propertiesTotal,
+                'count' => $user->properties->count(),
+            ],
+            'business' => [
+                'total' => $businessTotal,
+                'count' => $user->businessInterests->count(),
+            ],
+            'chattels' => [
+                'total' => $chattelsTotal,
+                'count' => $user->chattels->count(),
+            ],
+            'pensions' => [
+                'total' => $pensionsTotal,
+                'count' => $user->dcPensions->count(),
+            ],
             'total' => $cashTotal + $investmentsTotal + $propertiesTotal + $businessTotal + $chattelsTotal + $pensionsTotal,
         ];
     }
@@ -153,7 +202,20 @@ class UserProfileService
         // TODO: Add other liabilities when implemented (credit cards, loans, etc.)
 
         return [
-            'mortgages' => $mortgagesTotal,
+            'mortgages' => [
+                'total' => $mortgagesTotal,
+                'count' => $user->mortgages->count(),
+                'items' => $user->mortgages->map(function ($mortgage) {
+                    return [
+                        'id' => $mortgage->id,
+                        'lender' => $mortgage->lender,
+                        'outstanding_balance' => $mortgage->outstanding_balance,
+                        'interest_rate' => $mortgage->interest_rate,
+                        'monthly_payment' => $mortgage->monthly_payment,
+                        'property_id' => $mortgage->property_id,
+                    ];
+                }),
+            ],
             'total' => $mortgagesTotal,
         ];
     }

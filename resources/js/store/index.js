@@ -12,6 +12,7 @@ import userProfile from './modules/userProfile';
 import netWorth from './modules/netWorth';
 import trusts from './modules/trusts';
 import recommendations from './modules/recommendations';
+import spousePermission from './modules/spousePermission';
 
 const store = createStore({
   modules: {
@@ -28,6 +29,7 @@ const store = createStore({
     netWorth,
     trusts,
     recommendations,
+    spousePermission,
   },
   strict: process.env.NODE_ENV !== 'production',
 });

@@ -103,6 +103,16 @@ const authService = {
   isAuthenticated() {
     return !!this.getToken();
   },
+
+  /**
+   * Change user password
+   * @param {Object} passwordData - { current_password, new_password, new_password_confirmation }
+   * @returns {Promise}
+   */
+  async changePassword(passwordData) {
+    const response = await api.post('/auth/change-password', passwordData);
+    return response.data;
+  },
 };
 
 export default authService;

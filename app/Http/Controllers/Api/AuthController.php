@@ -64,6 +64,7 @@ class AuthController extends Controller
                 'user' => $user,
                 'access_token' => $token,
                 'token_type' => 'Bearer',
+                'must_change_password' => $user->must_change_password,
             ],
         ]);
     }
@@ -91,6 +92,37 @@ class AuthController extends Controller
             'data' => [
                 'user' => $request->user(),
             ],
+        ]);
+    }
+
+    /**
+     * Change user password.
+     */
+    public function changePassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        // Verify current password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Current password is incorrect',
+            ], 422);
+        }
+
+        // Update password and reset must_change_password flag
+        $user->password = Hash::make($request->new_password);
+        $user->must_change_password = false;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password changed successfully',
         ]);
     }
 }

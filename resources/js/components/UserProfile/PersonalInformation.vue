@@ -319,7 +319,19 @@ export default {
       errorMessage.value = '';
 
       try {
-        await store.dispatch('userProfile/updatePersonalInfo', form.value);
+        // Clean up form data: convert empty strings to null for optional fields
+        const cleanedData = Object.entries(form.value).reduce((acc, [key, value]) => {
+          // Keep required fields as-is (name, email)
+          if (key === 'name' || key === 'email') {
+            acc[key] = value;
+          } else {
+            // Convert empty strings to null for optional fields
+            acc[key] = value === '' ? null : value;
+          }
+          return acc;
+        }, {});
+
+        await store.dispatch('userProfile/updatePersonalInfo', cleanedData);
         successMessage.value = 'Personal information updated successfully!';
         isEditing.value = false;
 
@@ -328,13 +340,13 @@ export default {
           successMessage.value = '';
         }, 3000);
       } catch (error) {
-        console.error('Update error:', error.response?.data);
+        console.error('Update error:', error);
         // Show validation errors if available
-        if (error.response?.data?.errors) {
-          const errors = Object.values(error.response.data.errors).flat();
+        if (error.errors) {
+          const errors = Object.values(error.errors).flat();
           errorMessage.value = errors.join('. ');
         } else {
-          errorMessage.value = error.response?.data?.message || 'Failed to update personal information';
+          errorMessage.value = error.message || 'Failed to update personal information';
         }
       } finally {
         submitting.value = false;

@@ -107,17 +107,26 @@
     <div v-else>
       <!-- Profit & Loss -->
       <div v-show="activeTab === 'profit_loss'">
-        <ProfitAndLossView :data="personalAccounts?.profitAndLoss" />
+        <ProfitAndLossView
+          :data="personalAccounts?.profitAndLoss"
+          :spouse-data="spouseAccounts?.profitAndLoss"
+        />
       </div>
 
       <!-- Cashflow -->
       <div v-show="activeTab === 'cashflow'">
-        <CashflowView :data="personalAccounts?.cashflow" />
+        <CashflowView
+          :data="personalAccounts?.cashflow"
+          :spouse-data="spouseAccounts?.cashflow"
+        />
       </div>
 
       <!-- Balance Sheet -->
       <div v-show="activeTab === 'balance_sheet'">
-        <BalanceSheetView :data="personalAccounts?.balanceSheet" />
+        <BalanceSheetView
+          :data="personalAccounts?.balanceSheet"
+          :spouse-data="spouseAccounts?.balanceSheet"
+        />
       </div>
     </div>
   </div>
@@ -145,6 +154,7 @@ export default {
     const loading = computed(() => store.getters['userProfile/loading']);
 
     const personalAccounts = computed(() => store.getters['userProfile/personalAccounts']);
+    const spouseAccounts = computed(() => store.getters['userProfile/spouseAccounts']);
 
     // Initialize period to current tax year (6 April to 5 April)
     const getCurrentTaxYear = () => {
@@ -174,12 +184,23 @@ export default {
     const calculateAccounts = async () => {
       try {
         await store.dispatch('userProfile/calculatePersonalAccounts', period.value);
+        // Save period to localStorage after successful calculation
+        localStorage.setItem('personalAccounts_period', JSON.stringify(period.value));
       } catch (error) {
         console.error('Failed to calculate personal accounts:', error);
       }
     };
 
     onMounted(() => {
+      // Restore saved period from localStorage if available
+      const savedPeriod = localStorage.getItem('personalAccounts_period');
+      if (savedPeriod) {
+        try {
+          period.value = JSON.parse(savedPeriod);
+        } catch (error) {
+          console.error('Failed to restore saved period:', error);
+        }
+      }
       // Don't auto-calculate on mount to avoid rate limiting issues
       // User must click "Calculate" button to load data
     });
@@ -189,6 +210,7 @@ export default {
       period,
       loading,
       personalAccounts,
+      spouseAccounts,
       calculateAccounts,
     };
   },

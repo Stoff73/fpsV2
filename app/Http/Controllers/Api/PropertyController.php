@@ -59,13 +59,31 @@ class PropertyController extends Controller
             $validated['address_line_1'] = $validated['address'];
         }
 
+        // Ensure postcode is never null (database requires NOT NULL)
+        if (!isset($validated['postcode']) || $validated['postcode'] === null) {
+            $validated['postcode'] = '';
+        }
+
         // Convert rental_income to monthly if provided
         if (isset($validated['rental_income']) && !isset($validated['monthly_rental_income'])) {
             $validated['monthly_rental_income'] = $validated['rental_income'];
             $validated['annual_rental_income'] = $validated['rental_income'] * 12;
         }
 
+        // For joint ownership, default to 50/50 split if not specified
+        if ($validated['ownership_type'] === 'joint' && $validated['ownership_percentage'] == 100.00) {
+            $validated['ownership_percentage'] = 50.00;
+        }
+
         $property = Property::create($validated);
+
+        // If joint ownership, create reciprocal property for joint owner
+        if ($validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
+            $this->createJointProperty($property, $validated['joint_owner_id'], $validated['ownership_percentage']);
+        }
+
+        // Sync rental income to user table
+        $this->syncUserRentalIncome($user);
 
         return response()->json($property, 201);
     }
@@ -109,6 +127,9 @@ class PropertyController extends Controller
 
         $property->update($request->validated());
         $property->load(['mortgages', 'household', 'trust']);
+
+        // Sync rental income to user table
+        $this->syncUserRentalIncome($user);
 
         $summary = $this->propertyService->getPropertySummary($property);
 
@@ -218,5 +239,51 @@ class PropertyController extends Controller
             'success' => true,
             'data' => $rentalTax,
         ]);
+    }
+
+    /**
+     * Create a reciprocal property record for joint owner
+     */
+    private function createJointProperty(Property $originalProperty, int $jointOwnerId, float $ownershipPercentage): void
+    {
+        // Calculate the reciprocal ownership percentage
+        $reciprocalPercentage = 100.00 - $ownershipPercentage;
+
+        // Get joint owner's household_id
+        $jointOwner = \App\Models\User::findOrFail($jointOwnerId);
+
+        // Create the reciprocal property
+        $jointPropertyData = $originalProperty->toArray();
+
+        // Remove auto-generated fields
+        unset($jointPropertyData['id'], $jointPropertyData['created_at'], $jointPropertyData['updated_at']);
+
+        // Update fields for joint owner
+        $jointPropertyData['user_id'] = $jointOwnerId;
+        $jointPropertyData['household_id'] = $jointOwner->household_id;
+        $jointPropertyData['ownership_percentage'] = $reciprocalPercentage;
+        $jointPropertyData['joint_owner_id'] = $originalProperty->user_id;
+
+        $jointProperty = Property::create($jointPropertyData);
+
+        // Update original property with joint_owner_id pointing to the reciprocal record
+        $originalProperty->update(['joint_owner_id' => $jointOwnerId]);
+
+        // Sync rental income for joint owner as well
+        $this->syncUserRentalIncome($jointOwner);
+    }
+
+    /**
+     * Sync rental income from properties to user table
+     */
+    private function syncUserRentalIncome(\App\Models\User $user): void
+    {
+        $annualRentalIncome = $user->properties->sum(function ($property) {
+            $monthlyRental = $property->monthly_rental_income ?? 0;
+            $ownershipPercentage = $property->ownership_percentage ?? 100;
+            return ($monthlyRental * 12) * ($ownershipPercentage / 100);
+        });
+
+        $user->update(['annual_rental_income' => $annualRentalIncome]);
     }
 }

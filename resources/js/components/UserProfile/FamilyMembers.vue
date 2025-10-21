@@ -226,16 +226,28 @@ export default {
           successMessage.value = 'Family member updated successfully!';
         } else {
           // Add new member
-          await store.dispatch('userProfile/addFamilyMember', formData);
-          successMessage.value = 'Family member added successfully!';
+          const response = await store.dispatch('userProfile/addFamilyMember', formData);
+
+          // Check if spouse account was created or linked
+          if (formData.relationship === 'spouse' && response.data) {
+            if (response.data.created) {
+              successMessage.value = `Spouse account created successfully! An email has been sent to ${formData.email} with instructions to set their password.`;
+            } else if (response.data.linked) {
+              successMessage.value = `Spouse account linked successfully! You can now request permission to share financial data with ${formData.name}.`;
+            } else {
+              successMessage.value = 'Family member added successfully!';
+            }
+          } else {
+            successMessage.value = 'Family member added successfully!';
+          }
         }
 
         closeModal();
 
-        // Clear success message after 3 seconds
+        // Clear success message after 5 seconds (longer for spouse messages)
         setTimeout(() => {
           successMessage.value = '';
-        }, 3000);
+        }, 5000);
       } catch (error) {
         console.error('Failed to save family member:', error);
       }

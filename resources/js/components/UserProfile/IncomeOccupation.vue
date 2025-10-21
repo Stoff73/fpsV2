@@ -153,7 +153,7 @@
             </div>
           </div>
 
-          <!-- Annual Rental Income -->
+          <!-- Annual Rental Income (Auto-calculated from Properties) -->
           <div>
             <label for="annual_rental_income" class="block text-body-sm font-medium text-gray-700 mb-1">
               Rental Income
@@ -168,11 +168,12 @@
                 type="number"
                 step="0.01"
                 min="0"
-                class="form-input pl-7"
-                :disabled="!isEditing"
+                class="form-input pl-7 bg-gray-50"
+                disabled
                 placeholder="0.00"
               />
             </div>
+            <p class="mt-1 text-body-xs text-gray-500">Automatically calculated from your properties</p>
           </div>
 
           <!-- Annual Dividend Income -->
@@ -323,11 +324,11 @@ export default {
           employer: incomeOccupation.value.employer || '',
           industry: incomeOccupation.value.industry || '',
           employment_status: incomeOccupation.value.employment_status || '',
-          annual_employment_income: incomeOccupation.value.annual_employment_income || 0,
-          annual_self_employment_income: incomeOccupation.value.annual_self_employment_income || 0,
-          annual_rental_income: incomeOccupation.value.annual_rental_income || 0,
-          annual_dividend_income: incomeOccupation.value.annual_dividend_income || 0,
-          annual_other_income: incomeOccupation.value.annual_other_income || 0,
+          annual_employment_income: Number(incomeOccupation.value.annual_employment_income) || 0,
+          annual_self_employment_income: Number(incomeOccupation.value.annual_self_employment_income) || 0,
+          annual_rental_income: Number(incomeOccupation.value.annual_rental_income) || 0,
+          annual_dividend_income: Number(incomeOccupation.value.annual_dividend_income) || 0,
+          annual_other_income: Number(incomeOccupation.value.annual_other_income) || 0,
         };
       }
     };
@@ -343,7 +344,18 @@ export default {
       errorMessage.value = '';
 
       try {
-        await store.dispatch('userProfile/updateIncomeOccupation', form.value);
+        // Clean up form data: convert empty strings to null for optional fields
+        const cleanedData = Object.entries(form.value).reduce((acc, [key, value]) => {
+          // Convert empty strings to null
+          if (value === '') {
+            acc[key] = null;
+          } else {
+            acc[key] = value;
+          }
+          return acc;
+        }, {});
+
+        await store.dispatch('userProfile/updateIncomeOccupation', cleanedData);
         successMessage.value = 'Income and occupation information updated successfully!';
         isEditing.value = false;
 
@@ -352,7 +364,14 @@ export default {
           successMessage.value = '';
         }, 3000);
       } catch (error) {
-        errorMessage.value = error.response?.data?.message || 'Failed to update income and occupation';
+        console.error('Update error:', error);
+        // Show validation errors if available
+        if (error.errors) {
+          const errors = Object.values(error.errors).flat();
+          errorMessage.value = errors.join('. ');
+        } else {
+          errorMessage.value = error.message || 'Failed to update income and occupation';
+        }
       } finally {
         submitting.value = false;
       }

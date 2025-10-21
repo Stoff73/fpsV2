@@ -154,7 +154,15 @@ class SavingsController extends Controller
             $data = $request->validated();
             $data['user_id'] = $user->id;
 
+            // Set default ownership type if not provided
+            $data['ownership_type'] = $data['ownership_type'] ?? 'individual';
+
             $account = SavingsAccount::create($data);
+
+            // If joint ownership, create reciprocal account for joint owner
+            if (isset($data['ownership_type']) && $data['ownership_type'] === 'joint' && isset($data['joint_owner_id'])) {
+                $this->createJointSavingsAccount($account, $data['joint_owner_id']);
+            }
 
             // Invalidate cache
             Cache::forget("savings_analysis_{$user->id}");
@@ -392,5 +400,32 @@ class SavingsController extends Controller
                 'message' => 'Failed to update goal progress: '.$e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Create a reciprocal savings account record for joint owner
+     */
+    private function createJointSavingsAccount(SavingsAccount $originalAccount, int $jointOwnerId): void
+    {
+        // Get joint owner
+        $jointOwner = \App\Models\User::findOrFail($jointOwnerId);
+
+        // Create the reciprocal account
+        $jointAccountData = $originalAccount->toArray();
+
+        // Remove auto-generated fields
+        unset($jointAccountData['id'], $jointAccountData['created_at'], $jointAccountData['updated_at']);
+
+        // Update fields for joint owner
+        $jointAccountData['user_id'] = $jointOwnerId;
+        $jointAccountData['joint_owner_id'] = $originalAccount->user_id;
+
+        $jointAccount = SavingsAccount::create($jointAccountData);
+
+        // Update original account with joint_owner_id
+        $originalAccount->update(['joint_owner_id' => $jointOwnerId]);
+
+        // Invalidate cache for joint owner
+        Cache::forget("savings_analysis_{$jointOwnerId}");
     }
 }

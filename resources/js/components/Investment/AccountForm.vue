@@ -208,6 +208,67 @@
                 </p>
               </div>
             </div>
+
+            <!-- Joint Ownership Section -->
+            <div class="space-y-4 pt-4 border-t border-gray-200">
+              <h4 class="text-sm font-semibold text-gray-900">Ownership</h4>
+
+              <!-- Ownership Type -->
+              <div>
+                <label for="ownership_type" class="block text-sm font-medium text-gray-700 mb-1">
+                  Ownership Type <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="ownership_type"
+                  v-model="formData.ownership_type"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="individual">Individual Owner</option>
+                  <option value="joint">Joint Owner</option>
+                  <option value="trust">Trust</option>
+                </select>
+              </div>
+
+              <!-- Joint Owner (if ownership_type is joint) -->
+              <div v-if="formData.ownership_type === 'joint'">
+                <label for="joint_owner_id" class="block text-sm font-medium text-gray-700 mb-1">
+                  Joint Owner <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="joint_owner_id"
+                  v-model="formData.joint_owner_id"
+                  :required="formData.ownership_type === 'joint'"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select joint owner</option>
+                  <option v-if="spouse" :value="spouse.id">{{ spouse.name }} (Spouse)</option>
+                  <option v-if="!spouse" value="" disabled>No spouse linked - add spouse in Family Members</option>
+                </select>
+                <p class="text-sm text-gray-500 mt-1">
+                  Joint accounts will appear in both your and your spouse's accounts.
+                </p>
+              </div>
+
+              <!-- Trust (if ownership_type is trust) -->
+              <div v-if="formData.ownership_type === 'trust'">
+                <label for="trust_id" class="block text-sm font-medium text-gray-700 mb-1">
+                  Trust <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="trust_id"
+                  v-model="formData.trust_id"
+                  :required="formData.ownership_type === 'trust'"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select trust</option>
+                  <!-- Trust options would be loaded from store/API -->
+                </select>
+                <p class="text-sm text-gray-500 mt-1">
+                  Trust-owned accounts are held for the benefit of trust beneficiaries.
+                </p>
+              </div>
+            </div>
           </div>
 
           <!-- Footer -->
@@ -260,6 +321,9 @@ export default {
         platform_fee_percent: null,
         isa_type: 'stocks_and_shares',
         isa_subscription_current_year: null,
+        ownership_type: 'individual',
+        joint_owner_id: null,
+        trust_id: null,
       },
       errors: {},
       submitting: false,
@@ -270,6 +334,10 @@ export default {
   computed: {
     isEditMode() {
       return !!this.account;
+    },
+
+    spouse() {
+      return this.$store.getters['userProfile/spouse'];
     },
 
     isISAType() {
@@ -325,6 +393,9 @@ export default {
             isa_subscription_current_year: newAccount.account_type === 'isa'
               ? (newAccount.contributions_ytd || 0)
               : null,
+            ownership_type: newAccount.ownership_type || 'individual',
+            joint_owner_id: newAccount.joint_owner_id || null,
+            trust_id: newAccount.trust_id || null,
           };
         } else {
           this.resetForm();
@@ -443,6 +514,9 @@ export default {
         platform_fee_percent: null,
         isa_type: 'stocks_and_shares',
         isa_subscription_current_year: null,
+        ownership_type: 'individual',
+        joint_owner_id: null,
+        trust_id: null,
       };
       this.errors = {};
     },

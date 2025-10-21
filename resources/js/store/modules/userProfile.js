@@ -1,15 +1,50 @@
 import userProfileService from '@/services/userProfileService';
 
+// Helper to get user-specific localStorage key
+const getUserStorageKey = (key) => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  return user.id ? `${key}_user_${user.id}` : key;
+};
+
+// Restore personalAccounts from localStorage if available
+const getInitialPersonalAccounts = () => {
+  try {
+    const key = getUserStorageKey('personalAccounts_data');
+    const savedData = localStorage.getItem(key);
+    if (savedData) {
+      return JSON.parse(savedData);
+    }
+  } catch (error) {
+    console.error('Failed to restore personalAccounts from localStorage:', error);
+  }
+  return {
+    profitAndLoss: null,
+    cashflow: null,
+    balanceSheet: null,
+  };
+};
+
+// Restore spouse personalAccounts from localStorage if available
+const getInitialSpouseAccounts = () => {
+  try {
+    const key = getUserStorageKey('spouseAccounts_data');
+    const savedData = localStorage.getItem(key);
+    if (savedData) {
+      return JSON.parse(savedData);
+    }
+  } catch (error) {
+    console.error('Failed to restore spouseAccounts from localStorage:', error);
+  }
+  return null;
+};
+
 const state = {
   profile: null,
   personalInfo: null,
   familyMembers: [],
   incomeOccupation: null,
-  personalAccounts: {
-    profitAndLoss: null,
-    cashflow: null,
-    balanceSheet: null,
-  },
+  personalAccounts: getInitialPersonalAccounts(),
+  spouseAccounts: getInitialSpouseAccounts(),
   loading: false,
   error: null,
 };
@@ -24,6 +59,7 @@ const getters = {
     return state.incomeOccupation.total_annual_income || 0;
   },
   personalAccounts: (state) => state.personalAccounts,
+  spouseAccounts: (state) => state.spouseAccounts,
   loading: (state) => state.loading,
   error: (state) => state.error,
 };
@@ -67,10 +103,38 @@ const actions = {
       const response = await userProfileService.updatePersonalInfo(data);
 
       if (response.success) {
-        commit('setPersonalInfo', response.data.user);
+        // Transform user data to match the expected format
+        const user = response.data.user;
+
+        // Format date_of_birth to yyyy-MM-dd for HTML date input
+        let formattedDateOfBirth = null;
+        if (user.date_of_birth) {
+          const date = new Date(user.date_of_birth);
+          formattedDateOfBirth = date.toISOString().split('T')[0];
+        }
+
+        const personalInfo = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          date_of_birth: formattedDateOfBirth,
+          gender: user.gender,
+          marital_status: user.marital_status,
+          national_insurance_number: user.national_insurance_number,
+          phone: user.phone,
+          address: {
+            line_1: user.address_line_1,
+            line_2: user.address_line_2,
+            city: user.city,
+            county: user.county,
+            postcode: user.postcode,
+          },
+        };
+
+        commit('setPersonalInfo', personalInfo);
 
         // Update auth store user as well
-        commit('auth/setUser', response.data.user, { root: true });
+        commit('auth/setUser', user, { root: true });
       }
 
       return response;
@@ -94,10 +158,32 @@ const actions = {
       const response = await userProfileService.updateIncomeOccupation(data);
 
       if (response.success) {
-        commit('setIncomeOccupation', response.data.user);
+        const user = response.data.user;
+
+        // Transform user data to match the expected format
+        const incomeOccupation = {
+          occupation: user.occupation,
+          employer: user.employer,
+          industry: user.industry,
+          employment_status: user.employment_status,
+          annual_employment_income: user.annual_employment_income,
+          annual_self_employment_income: user.annual_self_employment_income,
+          annual_rental_income: user.annual_rental_income,
+          annual_dividend_income: user.annual_dividend_income,
+          annual_other_income: user.annual_other_income,
+          total_annual_income: (
+            (user.annual_employment_income || 0) +
+            (user.annual_self_employment_income || 0) +
+            (user.annual_rental_income || 0) +
+            (user.annual_dividend_income || 0) +
+            (user.annual_other_income || 0)
+          ),
+        };
+
+        commit('setIncomeOccupation', incomeOccupation);
 
         // Update auth store user as well
-        commit('auth/setUser', response.data.user, { root: true });
+        commit('auth/setUser', user, { root: true });
       }
 
       return response;
@@ -329,6 +415,24 @@ const mutations = {
       cashflow: data.cashflow || null,
       balanceSheet: data.balance_sheet || null,
     };
+    // Persist to localStorage with user-specific key
+    const userKey = getUserStorageKey('personalAccounts_data');
+    localStorage.setItem(userKey, JSON.stringify(state.personalAccounts));
+
+    // Handle spouse data if available
+    if (data.spouse_data) {
+      state.spouseAccounts = {
+        profitAndLoss: data.spouse_data.profit_and_loss || null,
+        cashflow: data.spouse_data.cashflow || null,
+        balanceSheet: data.spouse_data.balance_sheet || null,
+      };
+      const spouseKey = getUserStorageKey('spouseAccounts_data');
+      localStorage.setItem(spouseKey, JSON.stringify(state.spouseAccounts));
+    } else {
+      state.spouseAccounts = null;
+      const spouseKey = getUserStorageKey('spouseAccounts_data');
+      localStorage.removeItem(spouseKey);
+    }
   },
 
   addFamilyMember(state, familyMember) {

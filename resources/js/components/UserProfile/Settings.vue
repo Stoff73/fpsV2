@@ -1,5 +1,8 @@
 <template>
   <div class="space-y-6">
+    <!-- Spouse Data Sharing -->
+    <SpouseDataSharing />
+
     <!-- Account Settings Section -->
     <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
@@ -114,9 +117,14 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import SpouseDataSharing from './SpouseDataSharing.vue';
 
 export default {
   name: 'Settings',
+
+  components: {
+    SpouseDataSharing,
+  },
 
   setup() {
     const store = useStore();

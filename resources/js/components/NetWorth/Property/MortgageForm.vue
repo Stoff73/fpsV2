@@ -181,6 +181,47 @@
             </p>
           </div>
 
+          <!-- Joint Ownership Section -->
+          <div class="space-y-4 pt-4 border-t border-gray-200">
+            <h4 class="text-sm font-semibold text-gray-900">Ownership</h4>
+
+            <!-- Ownership Type -->
+            <div>
+              <label for="ownership_type" class="block text-sm font-medium text-gray-700 mb-1">
+                Ownership Type <span class="text-red-500">*</span>
+              </label>
+              <select
+                id="ownership_type"
+                v-model="form.ownership_type"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="sole">Sole Owner</option>
+                <option value="joint">Joint Owner</option>
+              </select>
+            </div>
+
+            <!-- Joint Owner (if ownership_type is joint) -->
+            <div v-if="form.ownership_type === 'joint'">
+              <label for="joint_owner_id" class="block text-sm font-medium text-gray-700 mb-1">
+                Joint Owner <span class="text-red-500">*</span>
+              </label>
+              <select
+                id="joint_owner_id"
+                v-model="form.joint_owner_id"
+                :required="form.ownership_type === 'joint'"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select joint owner</option>
+                <option v-if="spouse" :value="spouse.id">{{ spouse.name }} (Spouse)</option>
+                <option v-if="!spouse" value="" disabled>No spouse linked - add spouse in Family Members</option>
+              </select>
+              <p class="text-sm text-gray-500 mt-1">
+                Joint mortgages will appear in both your and your spouse's accounts.
+              </p>
+            </div>
+          </div>
+
           <!-- Error Message -->
           <div v-if="error" class="p-3 bg-red-50 border border-red-200 rounded-md">
             <p class="text-sm text-red-600">{{ error }}</p>
@@ -246,6 +287,8 @@ export default {
         monthly_payment: null,
         start_date: '',
         maturity_date: '',
+        ownership_type: 'sole',
+        joint_owner_id: null,
       },
       submitting: false,
       error: null,
@@ -256,6 +299,10 @@ export default {
   computed: {
     isEditMode() {
       return this.mortgage !== null;
+    },
+
+    spouse() {
+      return this.$store.getters['userProfile/spouse'];
     },
 
     remainingTermMonths() {

@@ -1,0 +1,187 @@
+<template>
+  <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex min-h-screen items-center justify-center p-4">
+      <!-- Backdrop -->
+      <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity"></div>
+
+      <!-- Modal -->
+      <div class="relative w-full max-w-md transform overflow-hidden rounded-lg bg-white shadow-xl transition-all">
+        <div class="bg-white px-4 pb-4 pt-5 sm:p-6">
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">
+              {{ isRequired ? 'Change Your Password' : 'Update Password' }}
+            </h3>
+            <p v-if="isRequired" class="mt-2 text-sm text-amber-700 bg-amber-50 rounded p-3 border border-amber-200">
+              For security reasons, you must change your password before continuing.
+            </p>
+            <p v-else class="mt-1 text-sm text-gray-600">
+              Enter your current password and choose a new one.
+            </p>
+          </div>
+
+          <!-- Error Message -->
+          <div v-if="error" class="mb-4 rounded-md bg-error-50 p-3">
+            <p class="text-sm font-medium text-error-800">{{ error }}</p>
+          </div>
+
+          <!-- Success Message -->
+          <div v-if="success" class="mb-4 rounded-md bg-success-50 p-3">
+            <p class="text-sm font-medium text-success-800">{{ success }}</p>
+          </div>
+
+          <form @submit.prevent="handleSubmit" class="space-y-4">
+            <!-- Current Password -->
+            <div>
+              <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">
+                Current Password
+              </label>
+              <input
+                id="current_password"
+                v-model="form.current_password"
+                type="password"
+                required
+                class="input-field w-full"
+                :disabled="submitting"
+              />
+            </div>
+
+            <!-- New Password -->
+            <div>
+              <label for="new_password" class="block text-sm font-medium text-gray-700 mb-1">
+                New Password
+              </label>
+              <input
+                id="new_password"
+                v-model="form.new_password"
+                type="password"
+                required
+                minlength="8"
+                class="input-field w-full"
+                :disabled="submitting"
+              />
+              <p class="mt-1 text-xs text-gray-500">
+                Must be at least 8 characters long
+              </p>
+            </div>
+
+            <!-- Confirm New Password -->
+            <div>
+              <label for="new_password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">
+                Confirm New Password
+              </label>
+              <input
+                id="new_password_confirmation"
+                v-model="form.new_password_confirmation"
+                type="password"
+                required
+                minlength="8"
+                class="input-field w-full"
+                :disabled="submitting"
+              />
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-6 flex justify-end gap-3">
+              <button
+                v-if="!isRequired"
+                type="button"
+                @click="$emit('close')"
+                class="btn-secondary"
+                :disabled="submitting"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="btn-primary"
+                :disabled="submitting"
+              >
+                {{ submitting ? 'Changing Password...' : 'Change Password' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref, reactive } from 'vue';
+import authService from '../../services/authService';
+
+export default {
+  name: 'ChangePasswordModal',
+
+  props: {
+    show: {
+      type: Boolean,
+      required: true,
+    },
+    isRequired: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  emits: ['close', 'success'],
+
+  setup(props, { emit }) {
+    const submitting = ref(false);
+    const error = ref('');
+    const success = ref('');
+
+    const form = reactive({
+      current_password: '',
+      new_password: '',
+      new_password_confirmation: '',
+    });
+
+    const handleSubmit = async () => {
+      error.value = '';
+      success.value = '';
+      submitting.value = true;
+
+      try {
+        // Validate passwords match
+        if (form.new_password !== form.new_password_confirmation) {
+          error.value = 'New passwords do not match';
+          submitting.value = false;
+          return;
+        }
+
+        const response = await authService.changePassword(form);
+
+        if (response.success) {
+          success.value = response.message;
+
+          // Reset form
+          form.current_password = '';
+          form.new_password = '';
+          form.new_password_confirmation = '';
+
+          // Emit success event after a short delay to show the success message
+          setTimeout(() => {
+            emit('success');
+          }, 1500);
+        } else {
+          error.value = response.message || 'Failed to change password';
+        }
+      } catch (err) {
+        console.error('Password change error:', err);
+        error.value = err.response?.data?.message || 'An error occurred while changing password';
+      } finally {
+        submitting.value = false;
+      }
+    };
+
+    return {
+      submitting,
+      error,
+      success,
+      form,
+      handleSubmit,
+    };
+  },
+};
+</script>

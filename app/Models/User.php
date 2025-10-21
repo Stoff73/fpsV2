@@ -26,6 +26,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'must_change_password',
         'date_of_birth',
         'gender',
         'marital_status',
@@ -69,6 +70,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'must_change_password' => 'boolean',
         'date_of_birth' => 'date',
         'is_primary_account' => 'boolean',
         'annual_employment_income' => 'decimal:2',
@@ -228,5 +230,41 @@ class User extends Authenticatable
     public function statePension(): HasOne
     {
         return $this->hasOne(StatePension::class);
+    }
+
+    /**
+     * Get the spouse permission requests sent by this user
+     */
+    public function spousePermissionRequests(): HasMany
+    {
+        return $this->hasMany(SpousePermission::class, 'user_id');
+    }
+
+    /**
+     * Get the spouse permission requests received by this user
+     */
+    public function receivedSpousePermissions(): HasMany
+    {
+        return $this->hasMany(SpousePermission::class, 'spouse_id');
+    }
+
+    /**
+     * Check if user has accepted permission to share data with spouse
+     */
+    public function hasAcceptedSpousePermission(): bool
+    {
+        if (!$this->spouse_id) {
+            return false;
+        }
+
+        $permission = SpousePermission::where(function ($query) {
+            $query->where('user_id', $this->id)
+                  ->where('spouse_id', $this->spouse_id);
+        })->orWhere(function ($query) {
+            $query->where('user_id', $this->spouse_id)
+                  ->where('spouse_id', $this->id);
+        })->where('status', 'accepted')->first();
+
+        return $permission !== null;
     }
 }

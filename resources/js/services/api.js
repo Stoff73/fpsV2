@@ -40,6 +40,7 @@ api.interceptors.response.use(
                                error.config?.url?.includes('/auth/register');
 
         if (!isAuthEndpoint) {
+          console.error('[API] 401 Unauthorized - Token expired or invalid. Redirecting to login...');
           // Clear token and redirect to login for protected routes
           localStorage.removeItem('auth_token');
           localStorage.removeItem('user');
@@ -57,6 +58,7 @@ api.interceptors.response.use(
 
       // Handle 422 Validation errors
       if (error.response.status === 422) {
+        console.error('[API] 422 Validation Error:', error.response.data);
         return Promise.reject({
           message: error.response.data.message || 'Validation failed',
           errors: error.response.data.errors || null,

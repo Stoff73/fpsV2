@@ -1,6 +1,6 @@
 <template>
-  <div v-if="show" class="modal-overlay" @click.self="closeModal">
-    <div class="modal-container">
+  <div v-if="show" class="modal-overlay">
+    <div class="modal-container" @click.stop>
       <div class="modal-header">
         <h3 class="modal-title">{{ isEdit ? 'Edit Property' : 'Add Property' }}</h3>
         <button @click="closeModal" class="close-button">
@@ -63,7 +63,7 @@
             id="current_value"
             v-model.number="formData.current_value"
             type="number"
-            step="1000"
+            step="any"
             min="0"
             class="form-input"
             placeholder="500000"
@@ -79,7 +79,7 @@
             id="purchase_price"
             v-model.number="formData.purchase_price"
             type="number"
-            step="1000"
+            step="any"
             min="0"
             class="form-input"
             placeholder="400000"
@@ -104,7 +104,7 @@
             id="outstanding_mortgage"
             v-model.number="formData.outstanding_mortgage"
             type="number"
-            step="1000"
+            step="any"
             min="0"
             class="form-input"
             placeholder="200000"
@@ -118,11 +118,67 @@
             id="rental_income"
             v-model.number="formData.rental_income"
             type="number"
-            step="100"
+            step="any"
             min="0"
             class="form-input"
             placeholder="2000"
           />
+        </div>
+
+        <!-- Ownership Type -->
+        <div class="form-group">
+          <label class="form-label">Ownership Type *</label>
+          <div class="flex gap-4">
+            <label class="flex items-center">
+              <input
+                type="radio"
+                v-model="formData.ownership_type"
+                value="individual"
+                class="mr-2"
+              />
+              <span>Individual</span>
+            </label>
+            <label class="flex items-center">
+              <input
+                type="radio"
+                v-model="formData.ownership_type"
+                value="joint"
+                class="mr-2"
+              />
+              <span>Joint Ownership</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Ownership Percentage -->
+        <div v-if="formData.ownership_type === 'joint'" class="form-group">
+          <label for="ownership_percentage" class="form-label">Your Ownership Percentage (%)</label>
+          <input
+            id="ownership_percentage"
+            v-model.number="formData.ownership_percentage"
+            type="number"
+            step="any"
+            min="0"
+            max="100"
+            class="form-input"
+            placeholder="50"
+          />
+        </div>
+
+        <!-- Joint Owner -->
+        <div v-if="formData.ownership_type === 'joint'" class="form-group">
+          <label for="joint_owner_id" class="form-label">Joint Owner *</label>
+          <select
+            id="joint_owner_id"
+            v-model="formData.joint_owner_id"
+            class="form-select"
+            required
+          >
+            <option value="">Select joint owner</option>
+            <option v-for="member in familyMembers" :key="member.id" :value="member.user_id">
+              {{ member.first_name }} {{ member.last_name }} ({{ member.relationship }})
+            </option>
+          </select>
         </div>
 
         <!-- Notes -->
@@ -152,6 +208,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'PropertyForm',
 
@@ -177,8 +235,12 @@ export default {
         purchase_date: null,
         outstanding_mortgage: 0,
         rental_income: null,
+        ownership_type: 'individual',
+        ownership_percentage: 100,
+        joint_owner_id: null,
         notes: '',
       },
+      familyMembers: [],
       errors: {},
       submitting: false,
     };
@@ -201,9 +263,32 @@ export default {
         }
       },
     },
+    'formData.ownership_type'(newVal) {
+      if (newVal === 'individual') {
+        this.formData.ownership_percentage = 100;
+        this.formData.joint_owner_id = null;
+      } else if (newVal === 'joint' && this.formData.ownership_percentage === 100) {
+        this.formData.ownership_percentage = 50;
+      }
+    },
+  },
+
+  mounted() {
+    this.loadFamilyMembers();
   },
 
   methods: {
+    async loadFamilyMembers() {
+      try {
+        const response = await axios.get('/api/family-members');
+        const familyMembers = response.data.data?.family_members || [];
+        this.familyMembers = familyMembers.filter(member => member.user_id !== null);
+      } catch (error) {
+        console.error('Error loading family members:', error);
+        this.familyMembers = [];
+      }
+    },
+
     closeModal() {
       this.$emit('close');
       this.resetForm();
@@ -219,6 +304,9 @@ export default {
         purchase_date: null,
         outstanding_mortgage: 0,
         rental_income: null,
+        ownership_type: 'individual',
+        ownership_percentage: 100,
+        joint_owner_id: null,
         notes: '',
       };
       this.errors = {};

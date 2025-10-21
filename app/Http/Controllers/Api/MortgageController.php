@@ -62,6 +62,9 @@ class MortgageController extends Controller
 
         $validated = $request->validated();
 
+        // Set default ownership type if not provided
+        $validated['ownership_type'] = $validated['ownership_type'] ?? 'individual';
+
         // Calculate remaining_term_months if not provided
         if (!isset($validated['remaining_term_months'])) {
             $startDate = new \DateTime($validated['start_date']);
@@ -75,6 +78,11 @@ class MortgageController extends Controller
             'user_id' => $user->id,
             ...$validated,
         ]);
+
+        // If joint ownership, create reciprocal mortgage for joint owner
+        if (isset($validated['ownership_type']) && $validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
+            $this->createJointMortgage($mortgage, $validated['joint_owner_id'], $property);
+        }
 
         return response()->json([
             'success' => true,
@@ -217,5 +225,44 @@ class MortgageController extends Controller
                 'total_repayment' => $monthlyPayment * $request->input('term_months'),
             ],
         ]);
+    }
+
+    /**
+     * Create a reciprocal mortgage record for joint owner
+     */
+    private function createJointMortgage(Mortgage $originalMortgage, int $jointOwnerId, Property $property): void
+    {
+        // Get joint owner
+        $jointOwner = \App\Models\User::findOrFail($jointOwnerId);
+
+        // Find the joint owner's corresponding property record
+        // (This should exist if the property is joint-owned)
+        $jointProperty = Property::where('user_id', $jointOwnerId)
+            ->where('joint_owner_id', $property->user_id)
+            ->where('address_line_1', $property->address_line_1)
+            ->where('postcode', $property->postcode)
+            ->first();
+
+        // If no joint property found, we can't create the mortgage
+        if (!$jointProperty) {
+            \Log::warning("Joint property not found for user {$jointOwnerId}. Mortgage will not be duplicated.");
+            return;
+        }
+
+        // Create the reciprocal mortgage
+        $jointMortgageData = $originalMortgage->toArray();
+
+        // Remove auto-generated fields
+        unset($jointMortgageData['id'], $jointMortgageData['created_at'], $jointMortgageData['updated_at']);
+
+        // Update fields for joint owner
+        $jointMortgageData['user_id'] = $jointOwnerId;
+        $jointMortgageData['property_id'] = $jointProperty->id;
+        $jointMortgageData['joint_owner_id'] = $originalMortgage->user_id;
+
+        $jointMortgage = Mortgage::create($jointMortgageData);
+
+        // Update original mortgage with joint_owner_id
+        $originalMortgage->update(['joint_owner_id' => $jointOwnerId]);
     }
 }

@@ -229,6 +229,9 @@ class InvestmentController extends Controller
      */
     public function storeAccount(Request $request): JsonResponse
     {
+        // Log incoming request data for debugging
+        \Log::info('Investment account creation attempt', ['data' => $request->all()]);
+
         $validated = $request->validate([
             'account_type' => ['required', Rule::in(['isa', 'gia', 'onshore_bond', 'offshore_bond', 'vct', 'eis'])],
             'provider' => 'required|string|max:255',
@@ -240,10 +243,24 @@ class InvestmentController extends Controller
             'platform_fee_percent' => 'nullable|numeric|min:0|max:100',
             'isa_type' => ['nullable', Rule::in(['stocks_and_shares', 'lifetime', 'innovative_finance'])],
             'isa_subscription_current_year' => 'nullable|numeric|min:0|max:20000',
+            'ownership_type' => ['nullable', Rule::in(['individual', 'joint', 'trust'])],
+            'joint_owner_id' => 'nullable|exists:users,id',
+            'trust_id' => 'nullable|exists:trusts,id',
         ]);
 
         $user = $request->user();
         $validated['user_id'] = $user->id;
+
+        // Set default ownership type if not provided
+        $validated['ownership_type'] = $validated['ownership_type'] ?? 'individual';
+
+        // ISA validation: ISAs can only be individually owned (UK tax rule)
+        if ($validated['account_type'] === 'isa' && $validated['ownership_type'] !== 'individual') {
+            return response()->json([
+                'success' => false,
+                'message' => 'ISAs can only be individually owned. Joint or trust ownership is not permitted for ISAs under UK tax rules.',
+            ], 422);
+        }
 
         $account = InvestmentAccount::create($validated);
 
@@ -262,6 +279,11 @@ class InvestmentController extends Controller
             'cost_basis' => null,
             'ocf_percent' => 0.00,
         ]);
+
+        // If joint ownership, create reciprocal account for joint owner
+        if (isset($validated['ownership_type']) && $validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
+            $this->createJointInvestmentAccount($account, $validated['joint_owner_id']);
+        }
 
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
@@ -590,5 +612,47 @@ class InvestmentController extends Controller
             'success' => true,
             'data' => $riskProfile,
         ]);
+    }
+
+    /**
+     * Create a reciprocal investment account record for joint owner
+     */
+    private function createJointInvestmentAccount(InvestmentAccount $originalAccount, int $jointOwnerId): void
+    {
+        // Get joint owner
+        $jointOwner = \App\Models\User::findOrFail($jointOwnerId);
+
+        // Create the reciprocal account
+        $jointAccountData = $originalAccount->toArray();
+
+        // Remove auto-generated fields
+        unset($jointAccountData['id'], $jointAccountData['created_at'], $jointAccountData['updated_at']);
+
+        // Update fields for joint owner
+        $jointAccountData['user_id'] = $jointOwnerId;
+        $jointAccountData['joint_owner_id'] = $originalAccount->user_id;
+
+        $jointAccount = InvestmentAccount::create($jointAccountData);
+
+        // Create cash holding for the joint account (mirror of original)
+        Holding::create([
+            'investment_account_id' => $jointAccount->id,
+            'asset_type' => 'cash',
+            'security_name' => 'Cash',
+            'allocation_percent' => 100.00,
+            'current_value' => $jointAccount->current_value,
+            'quantity' => null,
+            'purchase_price' => null,
+            'purchase_date' => null,
+            'current_price' => null,
+            'cost_basis' => null,
+            'ocf_percent' => 0.00,
+        ]);
+
+        // Update original account with joint_owner_id
+        $originalAccount->update(['joint_owner_id' => $jointOwnerId]);
+
+        // Clear cache for joint owner
+        $this->investmentAgent->clearCache($jointOwnerId);
     }
 }

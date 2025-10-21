@@ -31,11 +31,11 @@ class UpdatePersonalInfoRequest extends FormRequest
             'gender' => ['sometimes', 'nullable', Rule::in(['male', 'female', 'other', 'prefer_not_to_say'])],
             'marital_status' => ['sometimes', 'nullable', Rule::in(['single', 'married', 'divorced', 'widowed'])],
             'national_insurance_number' => ['sometimes', 'nullable', 'string', 'regex:/^[A-Z]{2}[0-9]{6}[A-Z]{1}$/'],
-            'address_line_1' => ['sometimes', 'string', 'max:255'],
+            'address_line_1' => ['sometimes', 'nullable', 'string', 'max:255'],
             'address_line_2' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'city' => ['sometimes', 'string', 'max:255'],
+            'city' => ['sometimes', 'nullable', 'string', 'max:255'],
             'county' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'postcode' => ['sometimes', 'string', 'regex:/^[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}$/i'],
+            'postcode' => ['sometimes', 'nullable', 'string', 'regex:/^[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}$/i'],
             'phone' => ['sometimes', 'nullable', 'string', 'regex:/^(\+44|0)[0-9]{10}$/'],
         ];
     }
