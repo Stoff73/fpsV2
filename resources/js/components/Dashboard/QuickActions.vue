@@ -1,5 +1,5 @@
 <template>
-  <div class="quick-actions bg-white rounded-lg shadow-md p-6">
+  <div class="quick-actions bg-white rounded-lg shadow-md p-6 relative z-10">
     <h3 class="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h3>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

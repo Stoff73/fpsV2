@@ -111,7 +111,9 @@
         />
 
         <!-- Card 5: Actions & Recommendations (Phase 5) -->
-        <QuickActions />
+        <div class="lg:col-span-2">
+          <QuickActions />
+        </div>
 
         <!-- Card 6: Trusts (Phase 6) -->
         <TrustsOverviewCard />
