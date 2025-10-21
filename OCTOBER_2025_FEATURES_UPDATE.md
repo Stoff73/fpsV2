@@ -610,6 +610,123 @@ POST   /api/properties                      # Now supports joint/trust ownership
 
 ---
 
+### 10. Surviving Spouse IHT Planning with Actuarial Projections
+
+**Status**: ✅ Complete
+**Implementation Date**: October 21, 2025
+
+#### Features:
+- **Actuarial Life Expectancy Calculations**: Uses UK ONS National Life Tables (2020-2022) to estimate life expectancy
+- **NRB Transfer Tracking**: Automatically checks deceased spouse's NRB usage and calculates transferable amount
+- **Future Value Projections**: Projects all assets to expected death date using asset-specific growth rates
+- **Comprehensive IHT Calculation**: Calculates IHT liability as a surviving spouse with full NRB transfer
+- **Interactive UI**: Beautiful Vue component showing current vs. projected estate values and IHT liability
+
+#### Technical Implementation:
+
+**Database**:
+- Migration: `2025_10_21_172331_create_uk_life_expectancy_tables_table.php`
+- Seeder: `UKLifeExpectancySeeder.php` - ONS life expectancy data for ages 0-100, male/female
+- Table structure: age, gender, life_expectancy_years, table_version, data_year
+
+**Backend Services**:
+1. **ActuarialLifeTableService** (`app/Services/Estate/ActuarialLifeTableService.php`):
+   - Get life expectancy for any age/gender
+   - Calculate estimated age at death
+   - Perform surviving spouse analysis
+   - Interpolate data for ages not in table
+
+2. **SpouseNRBTrackerService** (`app/Services/Estate/SpouseNRBTrackerService.php`):
+   - Track deceased spouse's NRB usage (gifts within 7 years)
+   - Calculate transferable NRB amount (£0-£325k based on usage)
+   - Check for full NRB transfer eligibility (double NRB = £650k if spouse used £0)
+   - Calculate RNRB transfer details
+
+3. **FutureValueCalculator** (`app/Services/Estate/FutureValueCalculator.php`):
+   - Project asset values using compound growth
+   - Support different growth rates by asset type:
+     - Property: 3% per annum
+     - Investments: 5% per annum
+     - Cash/Savings: 4% per annum
+     - Pensions: 5% per annum
+   - Calculate real future value (inflation-adjusted)
+   - Project entire estate portfolio to death date
+
+4. **Enhanced IHTCalculator**:
+   - New method: `calculateSurvivingSpouseIHT()`
+   - Integrates actuarial, NRB tracking, and future value services
+   - Returns comprehensive analysis with projected IHT liability
+
+**API Endpoint**:
+- Route: `POST /api/estate/calculate-surviving-spouse-iht`
+- Controller: `EstateController@calculateSurvivingSpouseIHT`
+- Validation:
+  - User must be married or widowed
+  - Must have linked spouse account
+  - Must have date_of_birth and gender set
+- Returns: Full surviving spouse IHT analysis with projections
+
+**Frontend Component**:
+- Component: `SurvivingSpouseIHTPlanning.vue`
+- Features:
+  - Summary cards (current estate, projected estate, IHT liability)
+  - Life expectancy projection panel
+  - NRB transfer details with spouse's NRB usage breakdown
+  - Asset growth projection table
+  - IHT calculation waterfall breakdown
+  - Refresh calculation button
+
+**Testing**:
+- `ActuarialLifeTableServiceTest.php` - 7 tests, 25 assertions ✅
+- `FutureValueCalculatorTest.php` - 8 tests, 38 assertions ✅
+- Total: 15 new tests with 63 assertions, all passing
+
+#### Use Case Example:
+1. User (male, age 49) logs in as surviving spouse
+2. System calculates life expectancy: ~30 years (dies at age 79 in 2054)
+3. Checks deceased spouse's NRB usage: £0 used on gifts
+4. Transferable NRB: Full £325k (total available NRB = £650k)
+5. Projects current estate of £800k to £1.3M at death (growth over 30 years)
+6. Calculates IHT: (£1.3M - £650k NRB - £175k RNRB) × 40% = £190k IHT liability
+7. User sees full breakdown and can plan accordingly
+
+#### Key Benefits:
+- **Actuarially accurate** using real UK ONS data
+- **Automatic NRB tracking** - no manual calculation needed
+- **Future value projections** - realistic growth assumptions
+- **Comprehensive analysis** - full IHT breakdown
+- **User-friendly** - complex calculations presented clearly
+
+#### Files Created:
+```
+app/Services/Estate/
+├── ActuarialLifeTableService.php (NEW)
+├── SpouseNRBTrackerService.php (NEW)
+└── FutureValueCalculator.php (NEW)
+
+database/migrations/
+└── 2025_10_21_172331_create_uk_life_expectancy_tables_table.php (NEW)
+
+database/seeders/
+└── UKLifeExpectancySeeder.php (NEW)
+
+resources/js/components/Estate/
+└── SurvivingSpouseIHTPlanning.vue (NEW)
+
+tests/Unit/Services/Estate/
+├── ActuarialLifeTableServiceTest.php (NEW)
+└── FutureValueCalculatorTest.php (NEW)
+```
+
+#### Files Modified:
+```
+app/Services/Estate/IHTCalculator.php (added calculateSurvivingSpouseIHT method)
+app/Http/Controllers/Api/EstateController.php (added endpoint, constructor)
+routes/api.php (added new route)
+```
+
+---
+
 ## 🐛 Known Issues & Future Enhancements
 
 ### Known Issues:
@@ -680,7 +797,11 @@ app/Models/
 app/Services/
 ├── UKTaxCalculator.php (NEW)
 ├── Protection/CoverageGapAnalyzer.php (modified)
-└── Estate/IHTCalculator.php (modified)
+├── Estate/
+│   ├── IHTCalculator.php (modified - added calculateSurvivingSpouseIHT)
+│   ├── ActuarialLifeTableService.php (NEW)
+│   ├── SpouseNRBTrackerService.php (NEW)
+│   └── FutureValueCalculator.php (NEW)
 
 database/migrations/
 ├── 2025_10_21_085149_create_spouse_permissions_table.php (NEW)
@@ -688,14 +809,20 @@ database/migrations/
 ├── 2025_10_21_093110_add_must_change_password_to_users_table.php (NEW)
 ├── 2025_10_21_100607_add_joint_ownership_to_assets_tables.php (NEW)
 ├── 2025_10_21_112311_add_trust_ownership_type_to_asset_tables.php (NEW)
-└── 2025_10_21_162955_create_wills_and_bequests_tables.php (NEW)
+├── 2025_10_21_162955_create_wills_and_bequests_tables.php (NEW)
+└── 2025_10_21_172331_create_uk_life_expectancy_tables_table.php (NEW)
+
+database/seeders/
+└── UKLifeExpectancySeeder.php (NEW)
 ```
 
 ### Frontend Files:
 ```
 resources/js/components/
 ├── Auth/ChangePasswordForm.vue (NEW)
-├── Estate/WillPlanning.vue (NEW)
+├── Estate/
+│   ├── WillPlanning.vue (NEW)
+│   └── SurvivingSpouseIHTPlanning.vue (NEW)
 ├── Investment/AccountForm.vue (modified)
 ├── Protection/
 │   ├── GapAnalysis.vue (major update - needs breakdown UI)
@@ -713,6 +840,10 @@ resources/js/store/modules/
 resources/views/emails/
 ├── spouse-account-created.blade.php (NEW)
 └── spouse-account-linked.blade.php (NEW)
+
+tests/Unit/Services/Estate/
+├── ActuarialLifeTableServiceTest.php (NEW)
+└── FutureValueCalculatorTest.php (NEW)
 ```
 
 ---
@@ -730,18 +861,19 @@ This October 2025 update represents a major milestone in the FPS application wit
 - **Will Planning module** with death scenarios and bequest management
 - **UK Tax Calculator service** for accurate income tax and NI calculations
 - **Enhanced Protection analysis** with NET income, spouse income tracking, and income categorization
+- **Surviving Spouse IHT Planning** with actuarial projections and future value calculations
 - **Multiple bug fixes** and improvements
 
-All features have been tested (708 passing tests) and are ready for production deployment after proper email configuration.
+All features have been tested (723 passing tests) and are ready for production deployment after proper email configuration.
 
 ### Statistics:
-- **Total Features**: 9 major features
-- **Files Created**: 8 new files (models, migrations, services, components)
-- **Files Modified**: 30+ files across backend and frontend
-- **Tests Passing**: 708 tests (3,029 assertions)
-- **Database Tables**: 3 new tables (wills, bequests, spouse_permissions)
-- **API Endpoints**: 12+ new endpoints
-- **Lines of Code**: ~2,000+ lines added/modified
+- **Total Features**: 10 major features
+- **Files Created**: 16 new files (models, migrations, services, components, tests)
+- **Files Modified**: 33+ files across backend and frontend
+- **Tests Passing**: 723 tests (3,092 assertions)
+- **Database Tables**: 4 new tables (wills, bequests, spouse_permissions, uk_life_expectancy_tables)
+- **API Endpoints**: 13+ new endpoints
+- **Lines of Code**: ~3,500+ lines added/modified
 
 ---
 

@@ -485,4 +485,113 @@ class IHTCalculator
 
         return 0;
     }
+
+    /**
+     * Calculate IHT liability for surviving spouse scenario
+     *
+     * This projects the estate value to the expected death date and calculates
+     * IHT with transferred NRB from deceased spouse.
+     *
+     * @param  User  $survivor  The surviving spouse (user)
+     * @param  User  $deceased  The deceased spouse
+     * @param  Collection  $assets  Survivor's current assets
+     * @param  IHTProfile  $survivorProfile  Survivor's IHT profile
+     * @param  Collection|null  $gifts  Survivor's gifts
+     * @param  Collection|null  $trusts  Survivor's trusts
+     * @param  float  $liabilities  Survivor's liabilities
+     * @param  Will|null  $will  Survivor's will
+     * @param  ActuarialLifeTableService  $actuarialService  Actuarial service
+     * @param  SpouseNRBTrackerService  $nrbTracker  NRB tracker service
+     * @param  FutureValueCalculator  $fvCalculator  Future value calculator
+     * @param  array|null  $customGrowthRates  Optional custom growth rates by asset type
+     * @return array IHT calculation for surviving spouse
+     */
+    public function calculateSurvivingSpouseIHT(
+        User $survivor,
+        User $deceased,
+        Collection $assets,
+        IHTProfile $survivorProfile,
+        ?Collection $gifts = null,
+        ?Collection $trusts = null,
+        float $liabilities = 0,
+        ?Will $will = null,
+        ActuarialLifeTableService $actuarialService,
+        SpouseNRBTrackerService $nrbTracker,
+        FutureValueCalculator $fvCalculator,
+        ?array $customGrowthRates = null
+    ): array {
+        // 1. Get actuarial life expectancy for survivor
+        if (! $survivor->date_of_birth || ! $survivor->gender) {
+            return [
+                'success' => false,
+                'error' => 'Survivor must have date_of_birth and gender to calculate life expectancy',
+            ];
+        }
+
+        $yearsUntilDeath = $actuarialService->getYearsUntilExpectedDeath(
+            \Carbon\Carbon::parse($survivor->date_of_birth),
+            $survivor->gender
+        );
+
+        $estimatedDeathDate = $actuarialService->getEstimatedDateOfDeath(
+            \Carbon\Carbon::parse($survivor->date_of_birth),
+            $survivor->gender
+        );
+
+        // 2. Project assets to expected death date
+        $growthRates = $customGrowthRates ?? $fvCalculator->getDefaultGrowthRates();
+        $futureEstateProjection = $fvCalculator->projectEstateAtDeath($assets, $yearsUntilDeath, $growthRates);
+
+        // Convert projected assets back to collection format for IHT calculation
+        $projectedAssets = collect($futureEstateProjection['asset_projections'])->map(function ($projection) {
+            return (object) [
+                'asset_type' => $projection['asset_type'],
+                'asset_name' => $projection['asset_name'],
+                'current_value' => $projection['future_value'], // Use projected future value
+                'is_iht_exempt' => false,
+            ];
+        });
+
+        // 3. Get transferred NRB from deceased spouse
+        $nrbTransferDetails = $nrbTracker->calculateSurvivorTotalNRB($survivor, $deceased);
+
+        // 4. Update survivor's IHT profile with transferred NRB
+        $adjustedProfile = clone $survivorProfile;
+        $adjustedProfile->nrb_transferred_from_spouse = $nrbTransferDetails['transferred_nrb_from_deceased'];
+
+        // 5. Project liabilities (assuming they'll be paid down over time, conservative approach: no reduction)
+        $projectedLiabilities = $liabilities;
+
+        // 6. Calculate IHT on projected estate
+        $ihtCalculation = $this->calculateIHTLiability(
+            $projectedAssets,
+            $adjustedProfile,
+            $gifts,
+            $trusts,
+            $projectedLiabilities,
+            $will,
+            $survivor
+        );
+
+        // 7. Return comprehensive surviving spouse IHT analysis
+        return [
+            'success' => true,
+            'scenario' => 'surviving_spouse',
+            'survivor_name' => $survivor->name,
+            'deceased_spouse_name' => $deceased->name,
+            'current_date' => now()->format('Y-m-d'),
+            'estimated_death_date' => $estimatedDeathDate->format('Y-m-d'),
+            'years_until_death' => $yearsUntilDeath,
+            'survivor_current_age' => \Carbon\Carbon::parse($survivor->date_of_birth)->age,
+            'survivor_estimated_age_at_death' => \Carbon\Carbon::parse($survivor->date_of_birth)->age + $yearsUntilDeath,
+            'current_estate_value' => $futureEstateProjection['current_estate_value'],
+            'projected_estate_value' => $futureEstateProjection['projected_estate_value_at_death'],
+            'projected_growth' => $futureEstateProjection['projected_growth'],
+            'growth_rates_used' => $growthRates,
+            'nrb_transfer_details' => $nrbTransferDetails,
+            'total_nrb_available' => $ihtCalculation['total_nrb'],
+            'iht_calculation' => $ihtCalculation,
+            'asset_projections' => $futureEstateProjection['asset_projections'],
+        ];
+    }
 }

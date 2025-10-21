@@ -33,7 +33,10 @@ class EstateController extends Controller
         private CashFlowProjector $cashFlowProjector,
         private TrustService $trustService,
         private TrustAssetAggregatorService $trustAssetAggregator,
-        private IHTPeriodicChargeCalculator $periodicChargeCalculator
+        private IHTPeriodicChargeCalculator $periodicChargeCalculator,
+        private \App\Services\Estate\ActuarialLifeTableService $actuarialService,
+        private \App\Services\Estate\SpouseNRBTrackerService $nrbTracker,
+        private \App\Services\Estate\FutureValueCalculator $fvCalculator
     ) {}
 
     /**
@@ -1222,5 +1225,146 @@ class EstateController extends Controller
             'success' => true,
             'message' => 'Bequest deleted successfully',
         ]);
+    }
+
+    /**
+     * Calculate IHT for surviving spouse scenario
+     *
+     * This endpoint calculates IHT as if the user is a surviving spouse,
+     * projecting their estate to expected death date and including
+     * transferred NRB from deceased spouse.
+     */
+    public function calculateSurvivingSpouseIHT(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            // Validate that user is married and has a linked spouse
+            if (! in_array($user->marital_status, ['married', 'widowed']) || ! $user->spouse_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User must be married or widowed with a linked spouse account to use this feature.',
+                ], 400);
+            }
+
+            // Get spouse
+            $spouse = User::find($user->spouse_id);
+            if (! $spouse) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Spouse account not found.',
+                ], 404);
+            }
+
+            // Validate user has required data for actuarial calculation
+            if (! $user->date_of_birth || ! $user->gender) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User must have date of birth and gender set to calculate life expectancy.',
+                ], 400);
+            }
+
+            // Get all user's assets
+            $assets = Asset::where('user_id', $user->id)->get();
+            $investmentAccounts = InvestmentAccount::where('user_id', $user->id)->get();
+            $properties = \App\Models\Property::where('user_id', $user->id)->get();
+            $savingsAccounts = \App\Models\SavingsAccount::where('user_id', $user->id)->get();
+
+            // Convert to unified asset format
+            $investmentAssets = $investmentAccounts->map(function ($account) {
+                return (object) [
+                    'asset_type' => 'investment',
+                    'asset_name' => $account->provider.' - '.strtoupper($account->account_type),
+                    'current_value' => $account->current_value,
+                    'is_iht_exempt' => false,
+                ];
+            });
+
+            $propertyAssets = $properties->map(function ($property) {
+                $ownershipPercentage = $property->ownership_percentage ?? 100;
+                $userValue = $property->current_value * ($ownershipPercentage / 100);
+
+                return (object) [
+                    'asset_type' => 'property',
+                    'asset_name' => $property->address_line_1 ?: 'Property',
+                    'current_value' => $userValue,
+                    'is_iht_exempt' => false,
+                ];
+            });
+
+            $savingsAssets = $savingsAccounts->map(function ($account) {
+                return (object) [
+                    'asset_type' => 'cash',
+                    'asset_name' => $account->institution.' - '.ucfirst($account->account_type),
+                    'current_value' => $account->current_balance,
+                    'is_iht_exempt' => false,
+                ];
+            });
+
+            $allAssets = $assets
+                ->concat($investmentAssets)
+                ->concat($propertyAssets)
+                ->concat($savingsAssets);
+
+            // Get liabilities
+            $liabilities = \App\Models\Estate\Liability::where('user_id', $user->id)->get();
+            $mortgages = \App\Models\Mortgage::where('user_id', $user->id)->get();
+            $totalLiabilities = $liabilities->sum('current_balance') + $mortgages->sum('outstanding_balance');
+
+            // Get gifts and trusts
+            $gifts = Gift::where('user_id', $user->id)->get();
+            $trusts = Trust::where('user_id', $user->id)->where('is_active', true)->get();
+
+            // Get or create IHT profile
+            $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
+            if (! $ihtProfile) {
+                $ihtProfile = new IHTProfile([
+                    'user_id' => $user->id,
+                    'marital_status' => $user->marital_status ?? 'married',
+                    'own_home' => false,
+                    'home_value' => 0,
+                    'nrb_transferred_from_spouse' => 0,
+                    'charitable_giving_percent' => 0,
+                ]);
+            }
+
+            // Get will
+            $will = Will::where('user_id', $user->id)->first();
+
+            // Get custom growth rates from request (optional)
+            $customGrowthRates = $request->input('growth_rates', null);
+
+            // Calculate surviving spouse IHT
+            $survivingSpouseAnalysis = $this->ihtCalculator->calculateSurvivingSpouseIHT(
+                survivor: $user,
+                deceased: $spouse,
+                assets: $allAssets,
+                survivorProfile: $ihtProfile,
+                gifts: $gifts,
+                trusts: $trusts,
+                liabilities: $totalLiabilities,
+                will: $will,
+                actuarialService: $this->actuarialService,
+                nrbTracker: $this->nrbTracker,
+                fvCalculator: $this->fvCalculator,
+                customGrowthRates: $customGrowthRates
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $survivingSpouseAnalysis,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Surviving Spouse IHT Calculation Error:', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to calculate surviving spouse IHT: '.$e->getMessage(),
+            ], 500);
+        }
     }
 }
