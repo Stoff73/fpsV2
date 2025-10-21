@@ -217,7 +217,96 @@ This document summarizes all major features and enhancements implemented in Octo
 
 ---
 
-### 7. Bug Fixes & Improvements
+### 7. Will Planning & Estate Distribution
+
+**Status**: ✅ Complete
+**Implementation Date**: October 21, 2025
+
+#### Features:
+- **Death Scenario Planning**: Choose between two scenarios:
+  1. User death only (spouse survives) - Spouse exemption applies
+  2. Both dying simultaneously - No spouse exemption, full IHT calculation
+
+- **Spouse Bequest Configuration**:
+  - Toggle spouse as primary beneficiary
+  - Slider to set percentage (0-100%) of estate to spouse
+  - Real-time calculation of amounts:
+    - Amount to spouse (tax-free via spouse exemption)
+    - Amount to other beneficiaries (subject to IHT)
+
+- **Specific Bequests Management**:
+  - Add/edit/delete specific bequests to beneficiaries
+  - Bequest types:
+    - **Percentage of estate**: Specify % of total estate
+    - **Specific amount**: Fixed monetary amount
+    - **Specific asset**: Named asset with description
+    - **Residuary**: Remainder of estate after other bequests
+  - Conditional bequests with notes
+  - Priority ordering for bequest distribution
+
+- **Executor Notes**: Optional field for special instructions to executors
+
+#### Technical Implementation:
+- **Database Models**:
+  - `Will` model with fields:
+    - `user_id`, `death_scenario`, `spouse_primary_beneficiary`
+    - `spouse_bequest_percentage`, `executor_notes`
+  - `Bequest` model with fields:
+    - `user_id`, `beneficiary_name`, `bequest_type`
+    - `percentage_of_estate`, `specific_amount`, `specific_asset_description`
+    - `conditions`, `priority_order`
+
+- **Database Migration**: `2025_10_21_162955_create_wills_and_bequests_tables.php`
+
+- **API Endpoints** (EstateController):
+  ```
+  GET    /api/estate/will              # Get user's will configuration
+  POST   /api/estate/will              # Create/update will
+  GET    /api/estate/bequests          # List all bequests
+  POST   /api/estate/bequests          # Create bequest
+  PUT    /api/estate/bequests/{id}     # Update bequest
+  DELETE /api/estate/bequests/{id}     # Delete bequest
+  ```
+
+- **Frontend Component**: `WillPlanning.vue`
+  - Integrated into Estate Dashboard as new tab
+  - Real-time estate value integration from IHT calculator
+  - Visual feedback for tax implications
+  - Marital status awareness (shows spouse options only if married)
+
+#### Business Logic:
+- **User Death Only Scenario**:
+  - If spouse is primary beneficiary:
+    - Configured percentage passes to spouse tax-free (unlimited spouse exemption)
+    - Remaining estate distributed per bequests, subject to IHT
+  - If spouse is NOT primary beneficiary:
+    - Entire estate subject to IHT calculation
+    - Warning displayed to user
+
+- **Both Dying Simultaneously**:
+  - Spouse exemption does NOT apply
+  - Full estate value subject to IHT
+  - Distribution per bequests to other beneficiaries
+
+#### Integration:
+- Links to IHT calculation for net estate value
+- Considers death scenario in IHT planning recommendations
+- Provides probate readiness insights
+
+---
+
+### 8. Bug Fixes & Improvements
+
+#### Will Planning Authentication Fix (October 21, 2025)
+**Issue**: 401 Unauthorized errors when accessing Will Planning endpoints
+**Root Cause**: Component using `window.axios` without Authorization Bearer token
+**Fix**:
+- Updated `WillPlanning.vue` to use `api` service from `@/services/api.js`
+- API service includes interceptor to add `Authorization: Bearer {token}` header
+- All API calls now properly authenticated
+
+**Files Modified**:
+- `resources/js/components/Estate/WillPlanning.vue`
 
 #### Investment Account Form Fix (October 21, 2025)
 **Issue**: 422 validation error when creating investment accounts
@@ -256,6 +345,12 @@ This document summarizes all major features and enhancements implemented in Octo
 1. **spouse_permissions** (2025_10_21_085149)
    - Tracks data sharing permissions between spouses
 
+2. **wills** (2025_10_21_162955)
+   - Stores user will configurations and death scenarios
+
+3. **bequests** (2025_10_21_162955)
+   - Tracks specific bequests to beneficiaries
+
 ### Modified Tables:
 1. **users** (2025_10_21_093110)
    - Added `must_change_password` boolean field
@@ -287,6 +382,12 @@ This document summarizes all major features and enhancements implemented in Octo
 GET    /api/spouse-permissions              # Get spouse permissions
 PUT    /api/spouse-permissions/{scope}      # Update permission
 POST   /api/auth/reset-password             # Reset password (first-time login)
+GET    /api/estate/will                     # Get will configuration
+POST   /api/estate/will                     # Create/update will
+GET    /api/estate/bequests                 # List bequests
+POST   /api/estate/bequests                 # Create bequest
+PUT    /api/estate/bequests/{id}            # Update bequest
+DELETE /api/estate/bequests/{id}            # Delete bequest
 ```
 
 ### Modified Endpoints:
@@ -304,6 +405,7 @@ POST   /api/properties                      # Now supports joint/trust ownership
 ### New Components:
 - `resources/js/components/UserProfile/SpouseDataSharing.vue`
 - `resources/js/components/Auth/ChangePasswordForm.vue`
+- `resources/js/components/Estate/WillPlanning.vue`
 
 ### Modified Components:
 - `resources/js/components/UserProfile/FamilyMemberFormModal.vue`
@@ -316,6 +418,10 @@ POST   /api/properties                      # Now supports joint/trust ownership
 
 - `resources/js/views/Login.vue`
   - Password change flow for first-time login
+
+- `resources/js/views/Estate/EstateDashboard.vue`
+  - Added "Will Planning" tab
+  - Integrated WillPlanning component
 
 ### New Services:
 - `resources/js/services/spousePermissionService.js`
@@ -336,6 +442,11 @@ POST   /api/properties                      # Now supports joint/trust ownership
 - ✅ Email notifications (log driver)
 - ✅ Investment account form submission
 - ✅ Trust ownership selection
+- ✅ Will planning configuration save/load
+- ✅ Death scenario switching
+- ✅ Spouse bequest percentage slider
+- ✅ Bequest CRUD operations
+- ✅ Will Planning authentication fix
 
 ### Automated Tests:
 - Existing Pest test suite (60+ tests)
@@ -450,20 +561,25 @@ app/Mail/
 
 app/Models/
 ├── User.php (spouse relationship)
-└── SpousePermission.php (NEW)
+├── SpousePermission.php (NEW)
+└── Estate/
+    ├── Will.php (NEW)
+    └── Bequest.php (NEW)
 
 database/migrations/
 ├── 2025_10_21_085149_create_spouse_permissions_table.php (NEW)
 ├── 2025_10_21_085212_add_ownership_fields_to_savings_accounts_table.php (NEW)
 ├── 2025_10_21_093110_add_must_change_password_to_users_table.php (NEW)
 ├── 2025_10_21_100607_add_joint_ownership_to_assets_tables.php (NEW)
-└── 2025_10_21_112311_add_trust_ownership_type_to_asset_tables.php (NEW)
+├── 2025_10_21_112311_add_trust_ownership_type_to_asset_tables.php (NEW)
+└── 2025_10_21_162955_create_wills_and_bequests_tables.php (NEW)
 ```
 
 ### Frontend Files:
 ```
 resources/js/components/
 ├── Auth/ChangePasswordForm.vue (NEW)
+├── Estate/WillPlanning.vue (NEW)
 ├── Investment/AccountForm.vue (modified)
 ├── UserProfile/FamilyMemberFormModal.vue (modified)
 └── UserProfile/SpouseDataSharing.vue (NEW)
@@ -491,6 +607,7 @@ This October 2025 update represents a major milestone in the FPS application wit
 - **Granular data sharing permissions** between spouses
 - **Email notification system**
 - **First-time login password change** flow
+- **Will Planning module** with death scenarios and bequest management
 - **Multiple bug fixes** and improvements
 
 All features have been tested and are ready for production deployment after proper email configuration.

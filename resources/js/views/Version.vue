@@ -78,6 +78,12 @@
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>Password Security:</strong> First-time login password change requirement for new spouse accounts with secure password generation</span>
               </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>Will Planning Module:</strong> Configure death scenarios (user only/both dying), set spouse bequest percentages, manage specific bequests to beneficiaries, and add executor notes for estate distribution</span>
+              </li>
             </ul>
           </div>
 
@@ -109,6 +115,12 @@
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>Dashboard Display:</strong> Fixed gross taxable estate showing correctly on Estate dashboard, IHT liability now displays proper values</span>
               </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>Will Planning Authentication:</strong> Fixed 401 Unauthorized errors when accessing Will Planning endpoints by using proper API service with Bearer token authentication</span>
+              </li>
             </ul>
           </div>
 
@@ -126,6 +138,10 @@
                   <li>• Assets overview (properties, investments, cash)</li>
                   <li>• Liabilities overview (mortgages, debts)</li>
                   <li>• Personal accounts management</li>
+                  <li>• Spouse account creation & linking</li>
+                  <li>• Joint ownership across all assets</li>
+                  <li>• Trust ownership tracking</li>
+                  <li>• Will planning with bequests</li>
                   <li>• Main dashboard with module cards</li>
                   <li>• Settings page</li>
                   <li>• Error handling and validation</li>
@@ -138,8 +154,8 @@
                   <li>• Savings module (emergency fund, goals, ISA tracking)</li>
                   <li>• Investment module (portfolio analysis, Monte Carlo)</li>
                   <li>• Retirement module (pension tracking, projections)</li>
-                  <li>• Estate module (IHT calculation, net worth)</li>
-                  <li>• Trusts management</li>
+                  <li>• Estate module enhancements (gifting strategy, probate)</li>
+                  <li>• Trusts management enhancements</li>
                   <li>• Holistic planning coordination</li>
                   <li>• Advanced analytics and reporting</li>
                 </ul>
