@@ -23,14 +23,15 @@
       </div>
     </div>
 
-    <!-- Gross Taxable Estate -->
+    <!-- Taxable Estate (after allowances) -->
     <div class="mb-6">
       <div class="flex items-baseline mb-2">
         <span class="text-4xl font-bold text-blue-600">
           {{ formattedTaxableEstate }}
         </span>
       </div>
-      <p class="text-sm text-gray-600">Gross Taxable Estate</p>
+      <p class="text-sm text-gray-600">Taxable Estate</p>
+      <p class="text-xs text-gray-500 mt-1">After NRB/RNRB allowances</p>
     </div>
 
     <!-- IHT Liability & Probate Readiness -->

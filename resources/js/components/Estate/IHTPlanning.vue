@@ -25,7 +25,8 @@
     <!-- IHT Summary -->
     <div v-else-if="ihtData" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-purple-50 rounded-lg p-6">
-        <p class="text-sm text-purple-600 font-medium mb-2">Gross Taxable Estate</p>
+        <p class="text-sm text-purple-600 font-medium mb-2">Gross Estate</p>
+        <p class="text-xs text-purple-500 mb-1">Before allowances</p>
         <p class="text-3xl font-bold text-gray-900">{{ formattedTaxableEstate }}</p>
       </div>
       <div class="bg-green-50 rounded-lg p-6">
@@ -89,7 +90,7 @@
           <span class="text-sm font-medium text-amber-700">-{{ formatCurrency(ihtData?.nrb_used_by_gifts || 0) }}</span>
         </div>
         <div class="flex justify-between items-center py-2 border-b border-gray-200 bg-purple-50">
-          <span class="text-sm font-medium text-purple-800">Gross Taxable Estate</span>
+          <span class="text-sm font-medium text-purple-800">Gross Estate (before allowances)</span>
           <span class="text-sm font-semibold text-purple-800">{{ formatCurrency(ihtData?.gross_estate_value || 0) }}</span>
         </div>
         <div class="flex justify-between items-center py-2 border-b border-gray-200 bg-green-50">
@@ -327,7 +328,7 @@ export default {
     },
 
     nrbRemaining() {
-      // NRB Remaining = NRB Available for Estate - Gross Taxable Estate
+      // NRB Remaining = NRB Available for Estate minus what's already been used
       // If result is negative, set to 0
       const nrbAvailable = this.ihtData?.nrb_available_for_estate || 0;
       const grossEstate = this.ihtData?.gross_estate_value || 0;

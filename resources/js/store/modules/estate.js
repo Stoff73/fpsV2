@@ -121,10 +121,22 @@ const getters = {
         return score;
     },
 
-    // Taxable estate value (for IHT calculation)
-    // Use net_estate_value from analysis if available (assets minus liabilities)
-    // Otherwise fall back to calculated value from store assets
+    // Taxable estate value (AFTER allowances - NRB/RNRB)
+    // This is what's actually subject to IHT at 40%
     taxableEstate: (state, getters) => {
+        // Use taxable_estate from IHT analysis (estate value after allowances)
+        if (state.analysis && state.analysis.taxable_estate !== undefined) {
+            return state.analysis.taxable_estate;
+        }
+
+        // Fallback if no analysis: return 0 (need IHT calc to get proper taxable estate)
+        return 0;
+    },
+
+    // Gross estate value (BEFORE allowances)
+    // This is total assets minus liabilities
+    grossEstate: (state, getters) => {
+        // Use net_estate_value from analysis if available
         if (state.analysis && state.analysis.net_estate_value !== undefined) {
             return state.analysis.net_estate_value;
         }
@@ -132,9 +144,7 @@ const getters = {
         // Fallback: calculate from store assets minus liabilities
         const totalAssets = getters.totalAssets;
         const totalLiabilities = getters.totalLiabilities;
-        const exemptAssets = getters.ihtExemptAssets.reduce((sum, asset) =>
-            sum + parseFloat(asset.current_value || 0), 0);
-        return totalAssets - exemptAssets - totalLiabilities;
+        return totalAssets - totalLiabilities;
     },
 
     loading: (state) => state.loading,
