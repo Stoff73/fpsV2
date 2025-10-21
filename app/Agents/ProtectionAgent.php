@@ -79,17 +79,35 @@ class ProtectionAgent extends BaseAgent
                 'disability' => $this->scenarioBuilder->modelDisabilityScenario($profile, $coverage),
             ];
 
+            // Calculate total annual income from user's actual income fields (all sources for reference)
+            // Note: Human capital calculation excludes rental/dividend income as these continue after death
+            $totalAnnualIncome = ($user->annual_employment_income ?? 0)
+                               + ($user->annual_self_employment_income ?? 0)
+                               + ($user->annual_rental_income ?? 0)
+                               + ($user->annual_dividend_income ?? 0)
+                               + ($user->annual_other_income ?? 0);
+
+            // Calculate current age
+            $currentAge = $user->date_of_birth ?
+                (int) $user->date_of_birth->diffInYears(now()) : 40;
+
+            // Calculate debt breakdown
+            $mortgageDebt = $user->mortgages()->sum('outstanding_balance');
+            $otherDebt = $user->liabilities()->sum('current_balance');
+
             return $this->response(
                 true,
                 'Protection analysis completed successfully.',
                 [
                     'profile' => [
                         'annual_income' => (float) $profile->annual_income,
+                        'total_annual_income' => (float) $totalAnnualIncome,
                         'monthly_expenditure' => (float) $profile->monthly_expenditure,
                         'mortgage_balance' => (float) $profile->mortgage_balance,
                         'other_debts' => (float) $profile->other_debts,
                         'number_of_dependents' => $profile->number_of_dependents,
                         'retirement_age' => $profile->retirement_age,
+                        'current_age' => $currentAge,
                     ],
                     'needs' => $needs,
                     'coverage' => $coverage,
@@ -97,6 +115,11 @@ class ProtectionAgent extends BaseAgent
                     'adequacy_score' => $scoreInsights,
                     'recommendations' => $recommendations,
                     'scenarios' => $scenarios,
+                    'debt_breakdown' => [
+                        'mortgage' => (float) $mortgageDebt,
+                        'other' => (float) $otherDebt,
+                        'total' => (float) ($mortgageDebt + $otherDebt),
+                    ],
                     'policies' => [
                         'life_insurance' => $user->lifeInsurancePolicies->map(fn ($p) => [
                             'id' => $p->id,

@@ -216,30 +216,42 @@ export default {
   computed: {
     ...mapState('trusts', ['trusts']),
 
+    safeTrusts() {
+      return this.trusts || [];
+    },
+
     activeTrusts() {
-      return this.trusts.filter(t => t.is_active);
+      return this.safeTrusts.filter(t => t.is_active);
     },
 
     inactiveTrusts() {
-      return this.trusts.filter(t => !t.is_active);
+      return this.safeTrusts.filter(t => !t.is_active);
     },
 
     relevantPropertyTrusts() {
-      return this.trusts.filter(t => t.is_relevant_property_trust);
+      return this.safeTrusts.filter(t => t.is_relevant_property_trust);
     },
 
     totalTrustValue() {
-      return this.trusts.reduce((sum, trust) => sum + (trust.total_asset_value || trust.current_value || 0), 0);
+      const total = this.safeTrusts.reduce((sum, trust) => {
+        const value = parseFloat(trust.total_asset_value || trust.current_value || 0);
+        return sum + (isNaN(value) ? 0 : value);
+      }, 0);
+      return isNaN(total) ? 0 : total;
     },
 
     totalAssets() {
       // This would be calculated from aggregated assets
-      return this.trusts.reduce((sum, trust) => sum + (trust.asset_count || 0), 0);
+      const total = this.safeTrusts.reduce((sum, trust) => {
+        const count = parseInt(trust.asset_count || 0);
+        return sum + (isNaN(count) ? 0 : count);
+      }, 0);
+      return isNaN(total) ? 0 : total;
     },
 
     filters() {
       return [
-        { id: 'all', label: 'All Trusts', count: this.trusts.length },
+        { id: 'all', label: 'All Trusts', count: this.safeTrusts.length },
         { id: 'active', label: 'Active', count: this.activeTrusts.length },
         { id: 'rpt', label: 'Relevant Property', count: this.relevantPropertyTrusts.length },
         { id: 'inactive', label: 'Inactive', count: this.inactiveTrusts.length },
@@ -255,7 +267,7 @@ export default {
         case 'inactive':
           return this.inactiveTrusts;
         default:
-          return this.trusts;
+          return this.safeTrusts;
       }
     },
   },
@@ -307,7 +319,9 @@ export default {
         this.closeTrustModal();
         await this.loadData();
       } catch (error) {
+        console.error('Error saving trust:', error);
         this.error = error.message || 'Failed to save trust';
+        // Keep modal open so user can see the error and fix it
       }
     },
 

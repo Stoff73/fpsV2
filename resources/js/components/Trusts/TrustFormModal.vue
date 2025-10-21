@@ -19,6 +19,11 @@
           </button>
         </div>
 
+        <!-- Error Message -->
+        <div v-if="error" class="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+          <p class="text-red-800 text-sm">{{ error }}</p>
+        </div>
+
         <!-- Form -->
         <form @submit.prevent="handleSubmit">
           <div class="space-y-4">
@@ -74,13 +79,14 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Initial Value
+                  Initial Value <span class="text-red-500">*</span>
                 </label>
                 <input
                   v-model.number="formData.initial_value"
                   type="number"
                   step="0.01"
                   min="0"
+                  required
                   class="input-field"
                   placeholder="0.00"
                 />
@@ -90,13 +96,14 @@
             <!-- Current Value -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Current Value
+                Current Value <span class="text-red-500">*</span>
               </label>
               <input
                 v-model.number="formData.current_value"
                 type="number"
                 step="0.01"
                 min="0"
+                required
                 class="input-field"
                 placeholder="0.00"
               />
@@ -192,12 +199,13 @@ export default {
   data() {
     return {
       submitting: false,
+      error: null,
       formData: {
         trust_name: '',
         trust_type: '',
         trust_creation_date: '',
-        initial_value: null,
-        current_value: null,
+        initial_value: 0,
+        current_value: 0,
         beneficiaries: '',
         trustees: '',
         purpose: '',
@@ -215,8 +223,20 @@ export default {
   methods: {
     async handleSubmit() {
       this.submitting = true;
+      this.error = null;
+
       try {
+        // Ensure numeric fields are actually numbers, not null
+        if (this.formData.initial_value === null || this.formData.initial_value === '') {
+          this.formData.initial_value = 0;
+        }
+        if (this.formData.current_value === null || this.formData.current_value === '') {
+          this.formData.current_value = 0;
+        }
+
         this.$emit('save', this.formData);
+      } catch (err) {
+        this.error = err.message || 'An error occurred';
       } finally {
         this.submitting = false;
       }

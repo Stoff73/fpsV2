@@ -115,11 +115,25 @@ const actions = {
         commit('setError', null);
 
         try {
+            // Fetch protection profile and policies
             const response = await protectionService.getProtectionData();
             const data = response.data || response;
             commit('setProfile', data.profile || null);
             commit('setPolicies', data.policies || {});
-            commit('setAnalysis', data.analysis || null);
+
+            // Also fetch analysis data to get human capital and total debt
+            try {
+                const analysisResponse = await protectionService.analyzeProtection({});
+                // Backend returns: {success: true, message: '...', data: {...}}
+                // We want the 'data' object which contains profile, needs, gaps, etc.
+                const analysisData = analysisResponse.data || analysisResponse;
+                commit('setAnalysis', analysisData);
+            } catch (analysisError) {
+                console.warn('Failed to fetch protection analysis:', analysisError);
+                // Don't fail the whole request if analysis fails
+                commit('setAnalysis', null);
+            }
+
             return response;
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch protection data';
@@ -138,7 +152,10 @@ const actions = {
 
         try {
             const response = await protectionService.analyzeProtection(data);
-            commit('setAnalysis', response.data.analysis);
+            // Backend returns: {success: true, message: '...', data: {...}}
+            // analysisData should be the full response so components can access response.data.needs
+            const analysisData = response.data || response;
+            commit('setAnalysis', analysisData);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Analysis failed';
@@ -222,7 +239,7 @@ const actions = {
     },
 
     // Life Insurance Policy Actions
-    async createLifePolicy({ commit }, policyData) {
+    async createLifePolicy({ commit, dispatch }, policyData) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -233,6 +250,10 @@ const actions = {
             // The actual policy is in response.data.data
             const policy = response.data || response;
             commit('addPolicy', { type: 'life', policy });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create life insurance policy';
@@ -243,7 +264,7 @@ const actions = {
         }
     },
 
-    async updateLifePolicy({ commit }, { id, policyData }) {
+    async updateLifePolicy({ commit, dispatch }, { id, policyData }) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -251,6 +272,10 @@ const actions = {
             const response = await protectionService.updateLifePolicy(id, policyData);
             const policy = response.data || response;
             commit('updatePolicy', { type: 'life', policy });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update life insurance policy';
@@ -261,13 +286,17 @@ const actions = {
         }
     },
 
-    async deleteLifePolicy({ commit }, id) {
+    async deleteLifePolicy({ commit, dispatch }, id) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
             const response = await protectionService.deleteLifePolicy(id);
             commit('removePolicy', { type: 'life', id });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to delete life insurance policy';
@@ -279,7 +308,7 @@ const actions = {
     },
 
     // Critical Illness Policy Actions
-    async createCriticalIllnessPolicy({ commit }, policyData) {
+    async createCriticalIllnessPolicy({ commit, dispatch }, policyData) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -287,6 +316,10 @@ const actions = {
             const response = await protectionService.createCriticalIllnessPolicy(policyData);
             const policy = response.data || response;
             commit('addPolicy', { type: 'criticalIllness', policy });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create critical illness policy';
@@ -297,7 +330,7 @@ const actions = {
         }
     },
 
-    async updateCriticalIllnessPolicy({ commit }, { id, policyData }) {
+    async updateCriticalIllnessPolicy({ commit, dispatch }, { id, policyData }) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -305,6 +338,10 @@ const actions = {
             const response = await protectionService.updateCriticalIllnessPolicy(id, policyData);
             const policy = response.data || response;
             commit('updatePolicy', { type: 'criticalIllness', policy });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update critical illness policy';
@@ -315,13 +352,17 @@ const actions = {
         }
     },
 
-    async deleteCriticalIllnessPolicy({ commit }, id) {
+    async deleteCriticalIllnessPolicy({ commit, dispatch }, id) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
             const response = await protectionService.deleteCriticalIllnessPolicy(id);
             commit('removePolicy', { type: 'criticalIllness', id });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to delete critical illness policy';
@@ -333,7 +374,7 @@ const actions = {
     },
 
     // Income Protection Policy Actions
-    async createIncomeProtectionPolicy({ commit }, policyData) {
+    async createIncomeProtectionPolicy({ commit, dispatch }, policyData) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -341,6 +382,10 @@ const actions = {
             const response = await protectionService.createIncomeProtectionPolicy(policyData);
             const policy = response.data || response;
             commit('addPolicy', { type: 'incomeProtection', policy });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create income protection policy';
@@ -351,7 +396,7 @@ const actions = {
         }
     },
 
-    async updateIncomeProtectionPolicy({ commit }, { id, policyData }) {
+    async updateIncomeProtectionPolicy({ commit, dispatch }, { id, policyData }) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -359,6 +404,10 @@ const actions = {
             const response = await protectionService.updateIncomeProtectionPolicy(id, policyData);
             const policy = response.data || response;
             commit('updatePolicy', { type: 'incomeProtection', policy });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update income protection policy';
@@ -369,13 +418,17 @@ const actions = {
         }
     },
 
-    async deleteIncomeProtectionPolicy({ commit }, id) {
+    async deleteIncomeProtectionPolicy({ commit, dispatch }, id) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
             const response = await protectionService.deleteIncomeProtectionPolicy(id);
             commit('removePolicy', { type: 'incomeProtection', id });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to delete income protection policy';
@@ -387,7 +440,7 @@ const actions = {
     },
 
     // Disability Policy Actions
-    async createDisabilityPolicy({ commit }, policyData) {
+    async createDisabilityPolicy({ commit, dispatch }, policyData) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -395,6 +448,10 @@ const actions = {
             const response = await protectionService.createDisabilityPolicy(policyData);
             const policy = response.data || response;
             commit('addPolicy', { type: 'disability', policy });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create disability policy';
@@ -405,7 +462,7 @@ const actions = {
         }
     },
 
-    async updateDisabilityPolicy({ commit }, { id, policyData }) {
+    async updateDisabilityPolicy({ commit, dispatch }, { id, policyData }) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -413,6 +470,10 @@ const actions = {
             const response = await protectionService.updateDisabilityPolicy(id, policyData);
             const policy = response.data || response;
             commit('updatePolicy', { type: 'disability', policy });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update disability policy';
@@ -423,13 +484,17 @@ const actions = {
         }
     },
 
-    async deleteDisabilityPolicy({ commit }, id) {
+    async deleteDisabilityPolicy({ commit, dispatch }, id) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
             const response = await protectionService.deleteDisabilityPolicy(id);
             commit('removePolicy', { type: 'disability', id });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to delete disability policy';
@@ -441,7 +506,7 @@ const actions = {
     },
 
     // Sickness/Illness Policy Actions
-    async createSicknessIllnessPolicy({ commit }, policyData) {
+    async createSicknessIllnessPolicy({ commit, dispatch }, policyData) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -449,6 +514,10 @@ const actions = {
             const response = await protectionService.createSicknessIllnessPolicy(policyData);
             const policy = response.data || response;
             commit('addPolicy', { type: 'sicknessIllness', policy });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create sickness/illness policy';
@@ -459,7 +528,7 @@ const actions = {
         }
     },
 
-    async updateSicknessIllnessPolicy({ commit }, { id, policyData }) {
+    async updateSicknessIllnessPolicy({ commit, dispatch }, { id, policyData }) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -467,6 +536,10 @@ const actions = {
             const response = await protectionService.updateSicknessIllnessPolicy(id, policyData);
             const policy = response.data || response;
             commit('updatePolicy', { type: 'sicknessIllness', policy });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update sickness/illness policy';
@@ -477,13 +550,17 @@ const actions = {
         }
     },
 
-    async deleteSicknessIllnessPolicy({ commit }, id) {
+    async deleteSicknessIllnessPolicy({ commit, dispatch }, id) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
             const response = await protectionService.deleteSicknessIllnessPolicy(id);
             commit('removePolicy', { type: 'sicknessIllness', id });
+
+            // Re-analyze protection to update gaps
+            await dispatch('analyzeProtection', {});
+
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to delete sickness/illness policy';

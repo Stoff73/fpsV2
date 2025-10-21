@@ -7,6 +7,8 @@ namespace App\Services\Estate;
 use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Trust;
+use App\Models\Estate\Will;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -20,8 +22,10 @@ class IHTCalculator
      * @param  Collection|null  $gifts  Gifts (optional, for comprehensive calculation)
      * @param  Collection|null  $trusts  Trusts (optional, for trust IHT value calculation)
      * @param  float  $liabilities  Total liabilities (mortgages, loans, etc.)
+     * @param  Will|null  $will  Will (optional, for spouse exemption and bequest calculations)
+     * @param  User|null  $user  User (optional, for checking marital status and spouse)
      */
-    public function calculateIHTLiability(Collection $assets, IHTProfile $profile, ?Collection $gifts = null, ?Collection $trusts = null, float $liabilities = 0): array
+    public function calculateIHTLiability(Collection $assets, IHTProfile $profile, ?Collection $gifts = null, ?Collection $trusts = null, float $liabilities = 0, ?Will $will = null, ?User $user = null): array
     {
         // Calculate gross estate value from assets (before deducting liabilities)
         $grossEstateValue = $assets->sum('current_value');
@@ -48,6 +52,32 @@ class IHTCalculator
         // Deduct liabilities (mortgages, loans, etc.) to get net estate value
         $netEstateValue = max(0, $grossEstateValue - $liabilities);
 
+        // Check for spouse exemption
+        $spouseExemption = 0;
+        $spouseExemptionApplies = false;
+        $deathScenario = 'user_only';
+
+        if ($will && $user) {
+            $deathScenario = $will->death_scenario;
+
+            // Check if user is married and has a spouse
+            $isMarried = in_array($user->marital_status, ['married']);
+            $hasSpouse = $user->spouse_id !== null;
+
+            // Spouse exemption only applies if:
+            // 1. User is married and has a linked spouse
+            // 2. Death scenario is 'user_only' (not both dying)
+            // 3. Spouse is primary beneficiary
+            if ($isMarried && $hasSpouse && $will->death_scenario === 'user_only' && $will->spouse_primary_beneficiary) {
+                $spouseExemptionPercentage = $will->spouse_bequest_percentage / 100;
+                $spouseExemption = $netEstateValue * $spouseExemptionPercentage;
+                $spouseExemptionApplies = true;
+            }
+        }
+
+        // Calculate taxable estate after spouse exemption
+        $taxableNetEstate = max(0, $netEstateValue - $spouseExemption);
+
         // Get tax config
         $config = config('uk_tax_config.inheritance_tax');
 
@@ -58,9 +88,9 @@ class IHTCalculator
         $totalNRB = $nrb + $profile->nrb_transferred_from_spouse;
 
         // Check RNRB eligibility (only applies to estate, not gifts)
-        // Use netEstateValue for RNRB taper calculation
+        // Use taxableNetEstate for RNRB taper calculation (after spouse exemption)
         $rnrb = $this->checkRNRBEligibility($profile, $assets)
-            ? $this->calculateRNRB($netEstateValue, $config)
+            ? $this->calculateRNRB($taxableNetEstate, $config)
             : 0;
 
         // Calculate gift liabilities if gifts provided
@@ -81,8 +111,8 @@ class IHTCalculator
         // Calculate total tax-free allowance for estate (remaining NRB + RNRB)
         $totalAllowance = $remainingNRB + $rnrb;
 
-        // Calculate taxable estate (net estate value minus allowances)
-        $taxableEstate = max(0, $netEstateValue - $totalAllowance);
+        // Calculate taxable estate (taxable net estate minus allowances)
+        $taxableEstate = max(0, $taxableNetEstate - $totalAllowance);
 
         // Determine IHT rate (standard 40% or reduced 36% for charity)
         $ihtRate = $this->calculateCharitableReduction($grossEstateValue, $profile->charitable_giving_percent);
@@ -97,6 +127,10 @@ class IHTCalculator
             'gross_estate_value' => round($grossEstateValue, 2),
             'liabilities' => round($liabilities, 2),
             'net_estate_value' => round($netEstateValue, 2),
+            'spouse_exemption' => round($spouseExemption, 2),
+            'spouse_exemption_applies' => $spouseExemptionApplies,
+            'death_scenario' => $deathScenario,
+            'taxable_net_estate' => round($taxableNetEstate, 2),
             'trust_iht_value' => round($trustIHTValue, 2),
             'trust_details' => $trustDetails,
             'nrb' => round($nrb, 2),

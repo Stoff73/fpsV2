@@ -197,11 +197,20 @@ export default {
     },
 
     protectionData() {
+      // protectionCoverageGaps is an object with gaps_by_category, not an array
+      const gaps = this.protectionCoverageGaps?.gaps_by_category || {};
+      const criticalGaps = Object.values(gaps).filter(gap => gap > 10000).length || 0;
+
+      // protectionAdequacyScore is an object with {score, category, color, insights}
+      const adequacyScore = typeof this.protectionAdequacyScore === 'object'
+        ? (this.protectionAdequacyScore?.score ?? 0)
+        : (this.protectionAdequacyScore || 0);
+
       return {
-        adequacyScore: this.protectionAdequacyScore || 0,
+        adequacyScore: adequacyScore,
         totalCoverage: this.protectionTotalCoverage || 0,
         premiumTotal: this.protectionTotalPremium || 0,
-        criticalGaps: this.protectionCoverageGaps?.filter(gap => gap.severity === 'high').length || 0,
+        criticalGaps: criticalGaps,
       };
     },
 

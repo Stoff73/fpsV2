@@ -1,15 +1,12 @@
 <template>
   <div class="coverage-gap-chart">
     <apexchart
-      v-if="hasData && isReady"
+      v-if="isReady"
       type="heatmap"
       :options="chartOptions"
       :series="series"
       height="350"
     />
-    <div v-if="!hasData" class="flex items-center justify-center h-64 text-gray-400">
-      <p>No gap analysis data available</p>
-    </div>
   </div>
 </template>
 

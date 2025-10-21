@@ -71,6 +71,16 @@ class UserProfileController extends Controller
             $request->validated()
         );
 
+        // Clear protection analysis cache when income changes
+        // This ensures protection needs recalculate with new income
+        \Cache::tags(['protection', 'user_' . $user->id])->flush();
+
+        // If user has spouse, also clear their protection cache
+        // (spouse's protection calculation depends on this user's income)
+        if ($user->spouse_id) {
+            \Cache::tags(['protection', 'user_' . $user->spouse_id])->flush();
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Income and occupation information updated successfully',

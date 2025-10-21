@@ -359,6 +359,15 @@ export default {
         successMessage.value = 'Income and occupation information updated successfully!';
         isEditing.value = false;
 
+        // Trigger protection analysis refresh if user has protection module data
+        // Income changes affect protection needs calculation
+        try {
+          await store.dispatch('protection/fetchProtectionData');
+        } catch (protectionError) {
+          // Silently fail - user might not have protection module set up yet
+          console.log('Protection data refresh skipped:', protectionError.message);
+        }
+
         // Clear success message after 3 seconds
         setTimeout(() => {
           successMessage.value = '';

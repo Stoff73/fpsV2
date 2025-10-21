@@ -169,6 +169,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's liabilities.
+     */
+    public function liabilities(): HasMany
+    {
+        return $this->hasMany(\App\Models\Estate\Liability::class);
+    }
+
+    /**
      * Get the user's business interests.
      */
     public function businessInterests(): HasMany

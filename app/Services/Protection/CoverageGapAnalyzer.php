@@ -5,45 +5,53 @@ declare(strict_types=1);
 namespace App\Services\Protection;
 
 use App\Models\ProtectionProfile;
+use App\Services\UKTaxCalculator;
 use Illuminate\Support\Collection;
 
 class CoverageGapAnalyzer
 {
+    public function __construct(
+        private UKTaxCalculator $taxCalculator
+    ) {}
+
     /**
      * Calculate human capital value.
+     * Uses NET income (after tax and NI) because that's what the family would actually receive.
      */
-    public function calculateHumanCapital(float $income, int $age, int $retirementAge): float
+    public function calculateHumanCapital(float $netIncome, int $age, int $retirementAge): float
     {
         $yearsToRetirement = max(0, $retirementAge - $age);
         $multiplier = 10; // Standard rule of thumb
         $effectiveYears = min($yearsToRetirement, 10);
 
-        return $income * $multiplier * $effectiveYears;
+        return $netIncome * $multiplier * $effectiveYears;
     }
 
     /**
      * Calculate debt protection need.
+     * Pulls from actual mortgages and liabilities tables to reflect current situation.
      */
     public function calculateDebtProtectionNeed(ProtectionProfile $profile): float
     {
-        return $profile->mortgage_balance + $profile->other_debts;
+        $user = $profile->user;
+
+        // Get total mortgage debt from mortgages table
+        $totalMortgageDebt = $user->mortgages()->sum('outstanding_balance');
+
+        // Get total other liabilities from liabilities table
+        $totalOtherDebt = $user->liabilities()->sum('current_balance');
+
+        return $totalMortgageDebt + $totalOtherDebt;
     }
 
     /**
      * Calculate education funding need.
+     * NOTE: Disabled for current phase - will be implemented in next phase.
      */
     public function calculateEducationFunding(int $numChildren, array $ages): float
     {
-        $totalFunding = 0;
-        $annualCostPerChild = 9000; // £9,000 per year per child
-        $educationEndAge = 21;
-
-        foreach ($ages as $age) {
-            $yearsRemaining = max(0, $educationEndAge - $age);
-            $totalFunding += $annualCostPerChild * $yearsRemaining;
-        }
-
-        return $totalFunding;
+        // Placeholder - coming in next phase
+        return 0;
     }
 
     /**
@@ -135,10 +143,11 @@ class CoverageGapAnalyzer
             'gaps_by_category' => [
                 'human_capital_gap' => max(0, $needs['human_capital'] - $coverage['life_coverage']),
                 'debt_protection_gap' => max(0, $needs['debt_protection'] - $coverage['life_coverage']),
-                'education_funding_gap' => max(0, $needs['education_funding'] - $coverage['life_coverage']),
-                'income_protection_gap' => max(0, $needs['income_protection_need'] - $totalIncomeCoverage),
-                'disability_coverage_gap' => max(0, $needs['income_protection_need'] - $totalIncomeCoverage),
-                'sickness_illness_gap' => max(0, $needs['income_protection_need'] * 0.5 - $coverage['sickness_illness_coverage']),
+                // Placeholders for next phase - set to 0
+                'education_funding_gap' => 0,
+                'income_protection_gap' => 0,
+                'disability_coverage_gap' => 0,
+                'sickness_illness_gap' => 0,
             ],
             'coverage_percentage' => $totalNeed > 0 ? ($totalCoverage / $totalNeed) * 100 : 100,
         ];
@@ -146,17 +155,102 @@ class CoverageGapAnalyzer
 
     /**
      * Calculate total protection needs.
+     * Pulls income from user's actual income fields to reflect current situation.
+     * Tracks spouse income separately - spouse income REDUCES protection need (continues after user's death).
+     * Excludes rental and dividend income (continues after death).
      */
     public function calculateProtectionNeeds(ProtectionProfile $profile): array
     {
-        $age = $profile->user->date_of_birth ?
-               (int) $profile->user->date_of_birth->diffInYears(now()) : 40;
+        $user = $profile->user;
 
-        $humanCapital = $this->calculateHumanCapital(
-            $profile->annual_income,
-            $age,
-            $profile->retirement_age
+        // Calculate USER'S NET annual income after tax and NI (EMPLOYMENT/SELF-EMPLOYMENT ONLY)
+        // These are earned income streams that STOP on death
+        $userTaxCalculation = $this->taxCalculator->calculateNetIncome(
+            (float) ($user->annual_employment_income ?? 0),
+            (float) ($user->annual_self_employment_income ?? 0),
+            0, // Rental income calculated separately
+            0, // Dividend income calculated separately
+            (float) ($user->annual_other_income ?? 0)
         );
+
+        $userGrossIncome = $userTaxCalculation['gross_income'];
+        $userNetIncome = $userTaxCalculation['net_income'];
+
+        // Calculate USER'S continuing income (rental + dividend) - these CONTINUE after death
+        $userContinuingIncome = (float) ($user->annual_rental_income ?? 0)
+                              + (float) ($user->annual_dividend_income ?? 0);
+
+        // Track spouse income separately
+        $spouseIncluded = false;
+        $spouseGrossIncome = 0;
+        $spouseNetIncome = 0;
+        $spouseContinuingIncome = 0;
+        $spousePermissionDenied = false;
+
+        // Check for spouse and track spouse income separately
+        if ($user->spouse_id && $user->marital_status === 'married') {
+            // Check if spouse permission is accepted (either direction)
+            if ($user->hasAcceptedSpousePermission()) {
+                // Permission granted - track spouse income (REDUCES protection need)
+                $spouse = $user->spouse;
+                if ($spouse) {
+                    // Spouse earned income (employment/self-employment)
+                    $spouseTaxCalc = $this->taxCalculator->calculateNetIncome(
+                        (float) ($spouse->annual_employment_income ?? 0),
+                        (float) ($spouse->annual_self_employment_income ?? 0),
+                        0, // Rental income calculated separately
+                        0, // Dividend income calculated separately
+                        (float) ($spouse->annual_other_income ?? 0)
+                    );
+
+                    $spouseGrossIncome = $spouseTaxCalc['gross_income'];
+                    $spouseNetIncome = $spouseTaxCalc['net_income'];
+
+                    // Spouse continuing income (rental + dividend)
+                    $spouseContinuingIncome = (float) ($spouse->annual_rental_income ?? 0)
+                                            + (float) ($spouse->annual_dividend_income ?? 0);
+
+                    $spouseIncluded = true;
+                }
+            } else {
+                // Spouse exists but permission not granted
+                $spousePermissionDenied = true;
+            }
+        }
+
+        // If no income in user profile, fall back to protection profile
+        if ($userGrossIncome == 0) {
+            $userNetIncome = $profile->annual_income; // Assume net if using profile fallback
+            $userGrossIncome = $profile->annual_income;
+        }
+
+        $age = $user->date_of_birth ?
+               (int) $user->date_of_birth->diffInYears(now()) : 40;
+
+        // Calculate income that STOPS on death: User's earned income
+        $incomeThatStops = $userNetIncome;
+
+        // Calculate income that CONTINUES after death:
+        // 1. User's rental/dividend income
+        // 2. Spouse's total income (earned + continuing)
+        $incomeThatContinues = $userContinuingIncome
+                             + $spouseNetIncome
+                             + $spouseContinuingIncome;
+
+        // Net income difference = What stops - What continues
+        // This is what the family actually LOSES if user dies
+        $netIncomeDifference = $incomeThatStops - $incomeThatContinues;
+
+        // If spouse earns more or equal, no income protection needed
+        // (family income would stay same or increase)
+        $humanCapital = 0;
+        if ($netIncomeDifference > 0) {
+            $humanCapital = $this->calculateHumanCapital(
+                $netIncomeDifference,
+                $age,
+                $profile->retirement_age
+            );
+        }
 
         $debtProtection = $this->calculateDebtProtectionNeed($profile);
 
@@ -167,16 +261,28 @@ class CoverageGapAnalyzer
 
         $finalExpenses = $this->calculateFinalExpenses();
 
-        // Income protection need: typically 50-70% of gross income
-        $incomeProtectionNeed = $profile->annual_income * 0.6;
+        // Total need = Human capital (income difference) + debt + education + final expenses
+        $totalNeed = $humanCapital + $debtProtection + $educationFunding + $finalExpenses;
 
         return [
             'human_capital' => $humanCapital,
             'debt_protection' => $debtProtection,
             'education_funding' => $educationFunding,
             'final_expenses' => $finalExpenses,
-            'income_protection_need' => $incomeProtectionNeed,
-            'total_need' => $humanCapital + $debtProtection + $educationFunding + $finalExpenses,
+            'total_need' => $totalNeed,
+            'gross_income' => $userGrossIncome,
+            'net_income' => $userNetIncome,
+            'continuing_income' => $userContinuingIncome,
+            'income_that_stops' => $incomeThatStops,
+            'income_that_continues' => $incomeThatContinues,
+            'net_income_difference' => max(0, $netIncomeDifference),
+            'income_tax' => $userTaxCalculation['income_tax'] ?? 0,
+            'national_insurance' => $userTaxCalculation['national_insurance'] ?? 0,
+            'spouse_included' => $spouseIncluded,
+            'spouse_gross_income' => $spouseGrossIncome,
+            'spouse_net_income' => $spouseNetIncome,
+            'spouse_continuing_income' => $spouseContinuingIncome,
+            'spouse_permission_denied' => $spousePermissionDenied,
         ];
     }
 }

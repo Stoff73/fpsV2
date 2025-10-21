@@ -120,11 +120,13 @@ export default {
     },
 
     humanCapital() {
-      return this.analysis?.human_capital || 0;
+      // Analysis returns needs.human_capital
+      return this.analysis?.needs?.human_capital || 0;
     },
 
     totalDebt() {
-      return this.analysis?.total_debt || 0;
+      // Analysis returns needs.debt_protection (mortgage + other debts)
+      return this.analysis?.needs?.debt_protection || 0;
     },
 
     coverageRatio() {
