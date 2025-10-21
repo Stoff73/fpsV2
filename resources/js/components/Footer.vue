@@ -5,7 +5,7 @@
         <div class="text-body-sm text-gray-500">
           &copy; {{ currentYear }} FPS - Financial Planning System. For demonstration purposes only.
           <span class="ml-2 text-gray-400">|</span>
-          <span class="ml-2 font-semibold">v0.1</span>
+          <span class="ml-2 font-semibold">v0.1.2</span>
         </div>
         <div class="flex space-x-6">
           <a href="#" class="text-body-sm text-gray-500 hover:text-gray-700">
