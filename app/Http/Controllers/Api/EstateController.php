@@ -7,10 +7,12 @@ namespace App\Http\Controllers\Api;
 use App\Agents\EstateAgent;
 use App\Http\Controllers\Controller;
 use App\Models\Estate\Asset;
+use App\Models\Estate\Bequest;
 use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Liability;
 use App\Models\Estate\Trust;
+use App\Models\Estate\Will;
 use App\Models\Investment\InvestmentAccount;
 use App\Services\Estate\CashFlowProjector;
 use App\Services\Estate\IHTCalculator;
@@ -248,7 +250,7 @@ class EstateController extends Controller
             if (! $ihtProfile) {
                 $ihtProfile = new IHTProfile([
                     'user_id' => $user->id,
-                    'marital_status' => 'single',
+                    'marital_status' => $user->marital_status ?? 'single',
                     'own_home' => false,
                     'home_value' => 0,
                     'nrb_transferred_from_spouse' => 0,
@@ -256,7 +258,20 @@ class EstateController extends Controller
                 ]);
             }
 
-            $ihtLiability = $this->ihtCalculator->calculateIHTLiability($allAssets, $ihtProfile, $gifts, $trusts, $totalLiabilities);
+            // Get or create default Will
+            $will = Will::where('user_id', $user->id)->first();
+            if (! $will) {
+                // Create default will
+                $isMarried = in_array($user->marital_status, ['married']) && $user->spouse_id !== null;
+                $will = new Will([
+                    'user_id' => $user->id,
+                    'death_scenario' => 'user_only',
+                    'spouse_primary_beneficiary' => $isMarried,
+                    'spouse_bequest_percentage' => $isMarried ? 100.00 : 0.00,
+                ]);
+            }
+
+            $ihtLiability = $this->ihtCalculator->calculateIHTLiability($allAssets, $ihtProfile, $gifts, $trusts, $totalLiabilities, $will, $user);
 
             return response()->json([
                 'success' => true,
@@ -1017,6 +1032,195 @@ class EstateController extends Controller
                 'upcoming_periodic_charges' => $upcomingCharges,
                 'tax_returns' => $taxReturns->values(),
             ],
+        ]);
+    }
+
+    // ============ WILL & BEQUEST CRUD ============
+
+    /**
+     * Get user's will
+     */
+    public function getWill(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $will = Will::where('user_id', $user->id)->with('bequests')->first();
+
+        // If no will exists, create default
+        if (! $will) {
+            $isMarried = in_array($user->marital_status, ['married']) && $user->spouse_id !== null;
+            $will = Will::create([
+                'user_id' => $user->id,
+                'death_scenario' => 'user_only',
+                'spouse_primary_beneficiary' => $isMarried,
+                'spouse_bequest_percentage' => $isMarried ? 100.00 : 0.00,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $will,
+        ]);
+    }
+
+    /**
+     * Create or update will
+     */
+    public function storeOrUpdateWill(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'death_scenario' => 'required|in:user_only,both_simultaneous',
+            'spouse_primary_beneficiary' => 'boolean',
+            'spouse_bequest_percentage' => 'nullable|numeric|min:0|max:100',
+            'executor_notes' => 'nullable|string',
+            'last_reviewed_date' => 'nullable|date',
+        ]);
+
+        $validated['user_id'] = $user->id;
+
+        $will = Will::updateOrCreate(
+            ['user_id' => $user->id],
+            $validated
+        );
+
+        // Invalidate IHT cache
+        Cache::forget("estate_analysis_{$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Will saved successfully',
+            'data' => $will->fresh()->load('bequests'),
+        ]);
+    }
+
+    /**
+     * Get all bequests for user's will
+     */
+    public function getBequests(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $will = Will::where('user_id', $user->id)->first();
+
+        if (! $will) {
+            return response()->json([
+                'success' => true,
+                'data' => [],
+            ]);
+        }
+
+        $bequests = Bequest::where('will_id', $will->id)->orderBy('priority_order')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $bequests,
+        ]);
+    }
+
+    /**
+     * Create a bequest
+     */
+    public function storeBequest(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        // Get or create will first
+        $will = Will::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'death_scenario' => 'user_only',
+                'spouse_primary_beneficiary' => false,
+                'spouse_bequest_percentage' => 0.00,
+            ]
+        );
+
+        $validated = $request->validate([
+            'beneficiary_name' => 'required|string|max:255',
+            'beneficiary_user_id' => 'nullable|exists:users,id',
+            'bequest_type' => 'required|in:percentage,specific_amount,specific_asset,residuary',
+            'percentage_of_estate' => 'nullable|numeric|min:0|max:100',
+            'specific_amount' => 'nullable|numeric|min:0',
+            'specific_asset_description' => 'nullable|string',
+            'asset_id' => 'nullable|exists:assets,id',
+            'priority_order' => 'nullable|integer|min:1',
+            'conditions' => 'nullable|string',
+        ]);
+
+        $validated['will_id'] = $will->id;
+        $validated['user_id'] = $user->id;
+
+        // Auto-set priority order if not provided
+        if (! isset($validated['priority_order'])) {
+            $maxPriority = Bequest::where('will_id', $will->id)->max('priority_order') ?? 0;
+            $validated['priority_order'] = $maxPriority + 1;
+        }
+
+        $bequest = Bequest::create($validated);
+
+        // Invalidate cache
+        Cache::forget("estate_analysis_{$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bequest created successfully',
+            'data' => $bequest,
+        ], 201);
+    }
+
+    /**
+     * Update a bequest
+     */
+    public function updateBequest(Request $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'beneficiary_name' => 'sometimes|string|max:255',
+            'beneficiary_user_id' => 'nullable|exists:users,id',
+            'bequest_type' => 'sometimes|in:percentage,specific_amount,specific_asset,residuary',
+            'percentage_of_estate' => 'nullable|numeric|min:0|max:100',
+            'specific_amount' => 'nullable|numeric|min:0',
+            'specific_asset_description' => 'nullable|string',
+            'asset_id' => 'nullable|exists:assets,id',
+            'priority_order' => 'nullable|integer|min:1',
+            'conditions' => 'nullable|string',
+        ]);
+
+        $bequest = Bequest::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $bequest->update($validated);
+
+        // Invalidate cache
+        Cache::forget("estate_analysis_{$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bequest updated successfully',
+            'data' => $bequest->fresh(),
+        ]);
+    }
+
+    /**
+     * Delete a bequest
+     */
+    public function deleteBequest(Request $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+
+        $bequest = Bequest::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $bequest->delete();
+
+        // Invalidate cache
+        Cache::forget("estate_analysis_{$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bequest deleted successfully',
         ]);
     }
 }

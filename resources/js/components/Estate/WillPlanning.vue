@@ -1,0 +1,385 @@
+<template>
+  <div class="will-planning-tab">
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-8">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <p class="mt-2 text-gray-600">Loading will details...</p>
+    </div>
+
+    <!-- Main Content -->
+    <div v-else>
+      <!-- Will Configuration Card -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Will Configuration</h3>
+
+        <div class="space-y-6">
+          <!-- Death Scenario -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Death Scenario
+            </label>
+            <div class="space-y-3">
+              <label class="flex items-start cursor-pointer">
+                <input
+                  type="radio"
+                  v-model="form.death_scenario"
+                  value="user_only"
+                  class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  @change="handleScenarioChange"
+                />
+                <div class="ml-3">
+                  <span class="block text-sm font-medium text-gray-900">Your death only</span>
+                  <span class="block text-xs text-gray-500">Calculate IHT assuming only you pass away (spouse survives)</span>
+                </div>
+              </label>
+              <label class="flex items-start cursor-pointer">
+                <input
+                  type="radio"
+                  v-model="form.death_scenario"
+                  value="both_simultaneous"
+                  class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  @change="handleScenarioChange"
+                />
+                <div class="ml-3">
+                  <span class="block text-sm font-medium text-gray-900">Both dying (simultaneous death)</span>
+                  <span class="block text-xs text-gray-500">Calculate IHT if both you and your spouse die together</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Spouse Bequest (only show if married and user_only scenario) -->
+          <div v-if="isMarried && form.death_scenario === 'user_only'" class="border-t border-gray-200 pt-6">
+            <div class="flex items-center justify-between mb-4">
+              <label class="block text-sm font-medium text-gray-700">
+                Spouse as Primary Beneficiary
+              </label>
+              <button
+                type="button"
+                @click="form.spouse_primary_beneficiary = !form.spouse_primary_beneficiary"
+                :class="[
+                  form.spouse_primary_beneficiary ? 'bg-blue-600' : 'bg-gray-200',
+                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                ]"
+              >
+                <span
+                  :class="[
+                    form.spouse_primary_beneficiary ? 'translate-x-5' : 'translate-x-0',
+                    'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                  ]"
+                />
+              </button>
+            </div>
+
+            <div v-if="form.spouse_primary_beneficiary" class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Percentage to Spouse ({{ form.spouse_bequest_percentage }}%)
+              </label>
+              <input
+                type="range"
+                v-model.number="form.spouse_bequest_percentage"
+                min="0"
+                max="100"
+                step="1"
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+              <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <span>0%</span>
+                <span>50%</span>
+                <span>100%</span>
+              </div>
+              <p class="text-xs text-gray-600 mt-2">
+                <strong>{{ formatCurrency(spouseAmount) }}</strong> will pass to your spouse tax-free (unlimited spouse exemption)
+              </p>
+              <p v-if="form.spouse_bequest_percentage < 100" class="text-xs text-amber-600 mt-1">
+                <strong>{{ formatCurrency(nonSpouseAmount) }}</strong> will be subject to IHT calculation (distributed to other beneficiaries)
+              </p>
+            </div>
+
+            <div v-else class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p class="text-sm text-amber-800">
+                Your spouse is not set as the primary beneficiary. The entire estate will be subject to IHT calculation.
+              </p>
+            </div>
+          </div>
+
+          <!-- Both Dying Notice -->
+          <div v-if="form.death_scenario === 'both_simultaneous'" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Simultaneous Death Scenario</h3>
+                <p class="mt-1 text-sm text-blue-700">
+                  Spouse exemption does not apply in this scenario. The full estate value will be subject to IHT calculation. Bequests below will determine distribution to beneficiaries.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Executor Notes -->
+          <div class="border-t border-gray-200 pt-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Executor Notes (Optional)
+            </label>
+            <textarea
+              v-model="form.executor_notes"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Any special instructions or notes for your executor..."
+            ></textarea>
+          </div>
+
+          <!-- Save Button -->
+          <div class="flex justify-end pt-4">
+            <button
+              @click="saveWill"
+              :disabled="saving"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {{ saving ? 'Saving...' : 'Save Will Configuration' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bequests Section -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">Specific Bequests</h3>
+          <button
+            @click="showBequestModal = true"
+            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+          >
+            Add Bequest
+          </button>
+        </div>
+
+        <!-- Bequests List -->
+        <div v-if="bequests.length > 0" class="space-y-3">
+          <div
+            v-for="bequest in bequests"
+            :key="bequest.id"
+            class="border border-gray-200 rounded-lg p-4 hover:border-blue-300"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <h4 class="text-sm font-semibold text-gray-900">{{ bequest.beneficiary_name }}</h4>
+                <p class="text-xs text-gray-600 mt-1">
+                  <span v-if="bequest.bequest_type === 'percentage'">
+                    {{ bequest.percentage_of_estate }}% of estate
+                  </span>
+                  <span v-else-if="bequest.bequest_type === 'specific_amount'">
+                    {{ formatCurrency(bequest.specific_amount) }}
+                  </span>
+                  <span v-else-if="bequest.bequest_type === 'specific_asset'">
+                    Specific Asset: {{ bequest.specific_asset_description }}
+                  </span>
+                  <span v-else>
+                    Residuary bequest
+                  </span>
+                </p>
+                <p v-if="bequest.conditions" class="text-xs text-gray-500 mt-1">
+                  Conditions: {{ bequest.conditions }}
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  @click="editBequest(bequest)"
+                  class="text-blue-600 hover:text-blue-800 text-sm"
+                >
+                  Edit
+                </button>
+                <button
+                  @click="deleteBequest(bequest.id)"
+                  class="text-red-600 hover:text-red-800 text-sm"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else class="text-center py-8 text-gray-500">
+          <p class="text-sm">No specific bequests added yet.</p>
+          <p class="text-xs mt-1">Click "Add Bequest" to specify gifts to beneficiaries.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div v-if="successMessage" class="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50">
+      <p class="text-sm text-green-800">{{ successMessage }}</p>
+    </div>
+
+    <!-- Error Message -->
+    <div v-if="errorMessage" class="fixed top-4 right-4 bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg z-50">
+      <p class="text-sm text-red-800">{{ errorMessage }}</p>
+    </div>
+  </div>
+</template>
+
+<script>
+import api from '@/services/api';
+
+export default {
+  name: 'WillPlanning',
+
+  data() {
+    return {
+      loading: true,
+      saving: false,
+      will: null,
+      form: {
+        death_scenario: 'user_only',
+        spouse_primary_beneficiary: true,
+        spouse_bequest_percentage: 100,
+        executor_notes: '',
+      },
+      bequests: [],
+      showBequestModal: false,
+      successMessage: '',
+      errorMessage: '',
+      netEstateValue: 0,
+    };
+  },
+
+  computed: {
+    isMarried() {
+      return this.$store.state.auth?.user?.marital_status === 'married' && this.$store.state.auth?.user?.spouse_id;
+    },
+
+    spouseAmount() {
+      return this.netEstateValue * (this.form.spouse_bequest_percentage / 100);
+    },
+
+    nonSpouseAmount() {
+      return this.netEstateValue - this.spouseAmount;
+    },
+  },
+
+  mounted() {
+    this.loadWill();
+    this.loadBequests();
+    this.loadNetEstateValue();
+  },
+
+  methods: {
+    async loadWill() {
+      try {
+        const response = await api.get('/estate/will');
+        this.will = response.data.data;
+
+        this.form = {
+          death_scenario: this.will.death_scenario,
+          spouse_primary_beneficiary: this.will.spouse_primary_beneficiary,
+          spouse_bequest_percentage: parseFloat(this.will.spouse_bequest_percentage),
+          executor_notes: this.will.executor_notes || '',
+        };
+      } catch (error) {
+        console.error('Failed to load will:', error);
+        this.errorMessage = 'Failed to load will details';
+        setTimeout(() => this.errorMessage = '', 3000);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async loadBequests() {
+      try {
+        const response = await api.get('/estate/bequests');
+        this.bequests = response.data.data;
+      } catch (error) {
+        console.error('Failed to load bequests:', error);
+      }
+    },
+
+    async loadNetEstateValue() {
+      try {
+        const response = await api.post('/estate/calculate-iht');
+        this.netEstateValue = response.data.data.net_estate_value || 0;
+      } catch (error) {
+        console.error('Failed to load estate value:', error);
+      }
+    },
+
+    async saveWill() {
+      this.saving = true;
+      this.errorMessage = '';
+
+      try {
+        await api.post('/estate/will', this.form);
+        this.successMessage = 'Will saved successfully';
+        setTimeout(() => this.successMessage = '', 3000);
+
+        await this.loadWill();
+        this.$emit('will-updated');
+      } catch (error) {
+        console.error('Failed to save will:', error);
+        this.errorMessage = error.response?.data?.message || 'Failed to save will';
+        setTimeout(() => this.errorMessage = '', 3000);
+      } finally {
+        this.saving = false;
+      }
+    },
+
+    handleScenarioChange() {
+      this.saveWill();
+    },
+
+    async deleteBequest(id) {
+      if (!confirm('Are you sure you want to delete this bequest?')) return;
+
+      try {
+        await api.delete(`/estate/bequests/${id}`);
+        this.successMessage = 'Bequest deleted successfully';
+        setTimeout(() => this.successMessage = '', 3000);
+        await this.loadBequests();
+      } catch (error) {
+        console.error('Failed to delete bequest:', error);
+        this.errorMessage = 'Failed to delete bequest';
+        setTimeout(() => this.errorMessage = '', 3000);
+      }
+    },
+
+    editBequest(bequest) {
+      console.log('Edit bequest:', bequest);
+    },
+
+    formatCurrency(value) {
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value || 0);
+    },
+  },
+};
+</script>
+
+<style scoped>
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #2563eb;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #2563eb;
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+}
+</style>

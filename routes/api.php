@@ -289,6 +289,16 @@ Route::middleware('auth:sanctum')->prefix('estate')->group(function () {
     // Trust planning and tax returns
     Route::get('/trust-recommendations', [EstateController::class, 'getTrustRecommendations']);
     Route::get('/trusts/upcoming-tax-returns', [EstateController::class, 'getUpcomingTaxReturns']);
+
+    // Will and Bequests
+    Route::get('/will', [EstateController::class, 'getWill']);
+    Route::post('/will', [EstateController::class, 'storeOrUpdateWill']);
+    Route::prefix('bequests')->group(function () {
+        Route::get('/', [EstateController::class, 'getBequests']);
+        Route::post('/', [EstateController::class, 'storeBequest']);
+        Route::put('/{id}', [EstateController::class, 'updateBequest']);
+        Route::delete('/{id}', [EstateController::class, 'deleteBequest']);
+    });
     Route::post('/calculate-discount', [EstateController::class, 'calculateDiscountedGiftDiscount']);
 });
 

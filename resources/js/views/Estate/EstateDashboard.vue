@@ -33,7 +33,7 @@
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Estate Planning</h1>
         <p class="text-gray-600">
-          Plan your estate with IHT calculations, gifting strategies, trust planning, and cash flow projections
+          Plan your estate with IHT calculations, gifting strategies, and trust planning
         </p>
       </div>
 
@@ -92,16 +92,16 @@
         <!-- Tab Content -->
         <div class="p-6">
           <!-- IHT Planning Tab -->
-          <IHTPlanning v-if="activeTab === 'iht'" />
+          <IHTPlanning v-if="activeTab === 'iht'" @will-updated="reloadIHTCalculation" />
+
+          <!-- Will Tab -->
+          <WillPlanning v-else-if="activeTab === 'will'" @will-updated="reloadIHTCalculation" />
 
           <!-- Gifting Strategy Tab -->
           <GiftingStrategy v-else-if="activeTab === 'gifting'" />
 
           <!-- Trust Planning Tab -->
           <TrustPlanning v-else-if="activeTab === 'trusts'" />
-
-          <!-- Cash Flow Tab -->
-          <CashFlow v-else-if="activeTab === 'cashflow'" />
 
           <!-- Recommendations Tab -->
           <Recommendations v-else-if="activeTab === 'recommendations'" />
@@ -121,7 +121,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import IHTPlanning from '@/components/Estate/IHTPlanning.vue';
 import GiftingStrategy from '@/components/Estate/GiftingStrategy.vue';
 import TrustPlanning from '@/components/Estate/TrustPlanning.vue';
-import CashFlow from '@/components/Estate/CashFlow.vue';
+import WillPlanning from '@/components/Estate/WillPlanning.vue';
 import Recommendations from '@/components/Estate/Recommendations.vue';
 import WhatIfScenarios from '@/components/Estate/WhatIfScenarios.vue';
 
@@ -133,7 +133,7 @@ export default {
     IHTPlanning,
     GiftingStrategy,
     TrustPlanning,
-    CashFlow,
+    WillPlanning,
     Recommendations,
     WhatIfScenarios,
   },
@@ -144,9 +144,9 @@ export default {
       initialLoading: true,
       tabs: [
         { id: 'iht', label: 'IHT Planning' },
+        { id: 'will', label: 'Will' },
         { id: 'gifting', label: 'Gifting Strategy' },
         { id: 'trusts', label: 'Trust Planning' },
-        { id: 'cashflow', label: 'Cash Flow' },
         { id: 'recommendations', label: 'Recommendations' },
         { id: 'scenarios', label: 'What-If Scenarios' },
       ],
@@ -171,6 +171,14 @@ export default {
         console.error('Failed to load estate data:', error);
       } finally {
         this.initialLoading = false;
+      }
+    },
+
+    reloadIHTCalculation() {
+      // Force reload IHT calculation when will is updated
+      if (this.activeTab === 'iht') {
+        // IHTPlanning component will reload automatically
+        this.$forceUpdate();
       }
     },
   },
