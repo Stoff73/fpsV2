@@ -77,6 +77,24 @@ class PropertyController extends Controller
 
         $property = Property::create($validated);
 
+        // If outstanding_mortgage provided, auto-create a basic mortgage record
+        if (isset($validated['outstanding_mortgage']) && $validated['outstanding_mortgage'] > 0) {
+            \App\Models\Mortgage::create([
+                'property_id' => $property->id,
+                'user_id' => $user->id,
+                'lender_name' => 'To be completed',
+                'mortgage_type' => 'repayment',
+                'original_loan_amount' => $validated['outstanding_mortgage'],
+                'outstanding_balance' => $validated['outstanding_mortgage'],
+                'interest_rate' => 0.0000,
+                'rate_type' => 'fixed',
+                'monthly_payment' => 0.00,
+                'start_date' => now(),
+                'maturity_date' => now()->addYears(25),
+                'remaining_term_months' => 300,
+            ]);
+        }
+
         // If joint ownership, create reciprocal property for joint owner
         if ($validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
             $this->createJointProperty($property, $validated['joint_owner_id'], $validated['ownership_percentage']);

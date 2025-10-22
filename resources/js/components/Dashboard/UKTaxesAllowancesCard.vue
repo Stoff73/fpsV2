@@ -7,7 +7,7 @@
       </svg>
     </div>
     <p class="text-body text-gray-600 mb-4">
-      2024/25 UK tax rules, rates, and allowances
+      2025/26 UK tax rules, rates, and allowances
     </p>
     <div class="flex gap-2 flex-wrap">
       <span class="badge-success">Income Tax</span>
@@ -26,7 +26,7 @@
       <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-primary-50">
-          <h2 class="text-h2 text-gray-900">UK Taxes & Allowances 2024/25</h2>
+          <h2 class="text-h2 text-gray-900">UK Taxes & Allowances 2025/26</h2>
           <button
             @click="closeModal"
             class="text-gray-500 hover:text-gray-700 transition-colors"
@@ -349,7 +349,7 @@
                 <p class="text-sm text-green-900">
                   <strong>Lifetime Allowance:</strong> Abolished April 2024
                   <br>
-                  <em class="text-xs">No limit on total pension savings from 2024/25 onwards</em>
+                  <em class="text-xs">No limit on total pension savings from 2025/26 onwards</em>
                 </p>
               </div>
 
@@ -788,11 +788,11 @@ export default {
     const showModal = ref(false);
     const activeTab = ref('income');
 
-    // Tax configuration (2024/25)
+    // Tax configuration (2025/26)
     const taxConfig = {
-      tax_year: '2024/25',
-      effective_from: '2024-04-06',
-      effective_to: '2025-04-05',
+      tax_year: '2025/26',
+      effective_from: '2025-04-06',
+      effective_to: '2026-04-05',
       income_tax: {
         personal_allowance: 12570,
         personal_allowance_taper_threshold: 100000,

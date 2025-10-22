@@ -100,7 +100,7 @@
     <!-- Add Policy Modal -->
     <PolicyFormModal
       v-if="showAddPolicyModal"
-      @close="showAddPolicyModal = false"
+      @close="closeAddModal"
       @save="handleAddPolicy"
     />
 
@@ -141,6 +141,13 @@ export default {
     ConfirmationModal,
   },
 
+  props: {
+    showModal: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
   data() {
     return {
       selectedFilter: 'all',
@@ -150,6 +157,14 @@ export default {
       editingPolicy: null,
       deletingPolicy: null,
     };
+  },
+
+  watch: {
+    showModal(newVal) {
+      if (newVal) {
+        this.showAddPolicyModal = true;
+      }
+    },
   },
 
   computed: {
@@ -193,6 +208,11 @@ export default {
   methods: {
     ...mapActions('protection', ['createPolicy', 'updatePolicy', 'deletePolicy']),
 
+    closeAddModal() {
+      this.showAddPolicyModal = false;
+      this.$emit('modal-closed'); // Notify parent that modal was closed
+    },
+
     handleEdit(policy) {
       this.editingPolicy = policy;
       this.showEditPolicyModal = true;
@@ -209,6 +229,7 @@ export default {
         const { policyType, ...actualPolicyData } = policyData;
         await this.createPolicy({ policyType, policyData: actualPolicyData });
         this.showAddPolicyModal = false;
+        this.$emit('modal-closed'); // Notify parent that modal was closed
         // Show success notification (you can implement a toast notification system)
         console.log('Policy added successfully');
       } catch (error) {

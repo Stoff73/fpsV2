@@ -34,11 +34,121 @@ When working on any task, feature, or improvement:
 
 ---
 
+## ⚠️ CRITICAL INSTRUCTION - DATABASE BACKUP PROTOCOL
+
+**ALWAYS CHECK FOR AND MAINTAIN DATABASE BACKUPS BEFORE ANY DESTRUCTIVE OPERATIONS.**
+
+### Database Backup Requirements:
+
+1. **BEFORE Database Wipe or Migration Rollback**:
+   - **ALWAYS** create a database backup using the admin panel backup system
+   - Verify backup file exists in `storage/app/backups/` directory
+   - Check backup file size is reasonable (not 0 bytes)
+   - Document backup filename in terminal output
+
+2. **When Development Requires Database Reset**:
+   - Use admin panel backup system (`/admin` → Database Backups tab)
+   - **NEVER** run `migrate:fresh` or `migrate:refresh` without explicit user approval
+   - If database must be wiped:
+     - Create backup FIRST
+     - Run migrations
+     - Restore admin user(s) from backup
+     - Restore other critical users if needed
+     - Provide user with restore instructions
+
+3. **Admin User Protection**:
+   - Admin account: `admin@fps.com` / `admin123456` (ID: 1016)
+   - If admin user is lost, recreate with:
+     ```bash
+     php artisan tinker
+     $user = new \App\Models\User();
+     $user->name = 'Administrator';
+     $user->email = 'admin@fps.com';
+     $user->password = bcrypt('admin123456');
+     $user->is_admin = true;
+     $user->email_verified_at = now();
+     $user->save();
+     ```
+
+4. **Backup Verification**:
+   - After creating backup, verify it can be listed via API
+   - Check file size is appropriate (typical: 50KB - 500KB for dev database)
+   - Test restore process in development environment periodically
+
+5. **User Data Loss Incident Response**:
+   - If user reports data loss:
+     - **IMMEDIATELY** check `storage/app/backups/` for recent backups
+     - List available backups using admin panel
+     - Guide user through restore process
+     - Document what caused the data loss
+     - Implement preventive measures
+
+### Commands to AVOID Without Backup:
+- ❌ `php artisan migrate:fresh`
+- ❌ `php artisan migrate:refresh`
+- ❌ `php artisan migrate:rollback` (only safe for single recent migration)
+- ❌ `php artisan db:wipe`
+- ❌ Manual SQL `DROP DATABASE` or `TRUNCATE` statements
+
+### Safe Database Commands:
+- ✅ `php artisan migrate` (forward migrations only)
+- ✅ `php artisan db:seed` (seeders should be idempotent)
+- ✅ Using admin panel backup/restore system
+- ✅ Manual backup via: `curl -X POST http://localhost:8000/api/admin/backup/create -H "Authorization: Bearer TOKEN"`
+
+**REMEMBER**: User data is precious. Once lost without backup, it cannot be recovered. Always backup first, ask questions later.
+
+---
+
+## ⚠️ CRITICAL INSTRUCTION - ALWAYS CHECK FOR RELEVANT SKILLS
+
+**BEFORE STARTING ANY TASK, CHECK IF THERE IS A RELEVANT SKILL AVAILABLE.**
+
+The project has specialized skills in `.claude/skills/` that provide expert guidance for common tasks. **You MUST check for and use relevant skills** before starting work.
+
+### Available Local Skills:
+1. **systematic-debugging** - For investigating and fixing bugs (USE THIS FOR ALL BUG REPORTS)
+2. **fps-module-builder** - For creating new FPS modules (full-stack)
+3. **fps-feature-builder** - For adding/extending features in existing modules
+4. **fps-component-builder** - For creating Vue 3 components
+
+### When to Use Each Skill:
+
+**Use systematic-debugging when:**
+- User reports a bug or unexpected behavior
+- Something is not working as expected
+- Data is not displaying correctly
+- Features are broken or showing errors
+- **ANY troubleshooting or investigation task**
+
+**Use fps-module-builder when:**
+- Creating an entirely new financial planning module
+- Building a new section of the application
+
+**Use fps-feature-builder when:**
+- Adding new functionality to existing modules
+- Extending capabilities of current features
+- Modifying existing module behavior
+
+**Use fps-component-builder when:**
+- Creating individual Vue components
+- Building forms, charts, cards, or UI elements
+
+### Skill Invocation Process:
+1. **STOP** and identify what type of task you're being asked to do
+2. **CHECK** if any skill matches the task description
+3. **INVOKE** the appropriate skill using the Skill tool
+4. **FOLLOW** the skill's guidance throughout the task
+
+**FAILURE TO USE AVAILABLE SKILLS IS UNACCEPTABLE.** Skills provide systematic approaches, prevent mistakes, and ensure consistent quality.
+
+---
+
 ## Project Overview
 
 This is the **FPS (Financial Planning System)** - a comprehensive financial planning web application designed for UK individuals and families. The system covers five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
-**Current Status**: Phase 02 complete (v0.1.2). Laravel 10.x backend with Sanctum authentication, Vue.js 3 frontend with full auth flow, Pest testing suite, User Profile module, Settings page, and error handling implemented. Net Worth (Property Management), Savings (Emergency Fund + ISA Tracking), Investment, Retirement, and Estate modules operational. **New in v0.1.2**: Spouse account management, joint ownership across all assets, trust ownership, will planning with bequests, enhanced protection analysis with UK tax calculations.
+**Current Status**: Phase 02 complete (v0.1.2). Laravel 10.x backend with Sanctum authentication, Vue.js 3 frontend with full auth flow, Pest testing suite, User Profile module, Settings page, and error handling implemented. Net Worth (Property Management), Savings (Emergency Fund + ISA Tracking), Investment, Retirement, and Estate modules operational. **New in v0.1.2**: Spouse account management, joint ownership across all assets, trust ownership, will planning with bequests, enhanced protection analysis with UK tax calculations, **Administrator Panel** with user management, database backup/restore system, and tax settings management.
 
 ## Technology Stack
 

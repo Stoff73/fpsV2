@@ -26,6 +26,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
         'must_change_password',
         'date_of_birth',
         'gender',
@@ -50,6 +51,12 @@ class User extends Authenticatable
         'annual_rental_income',
         'annual_dividend_income',
         'annual_other_income',
+        'onboarding_completed',
+        'onboarding_focus_area',
+        'onboarding_current_step',
+        'onboarding_skipped_steps',
+        'onboarding_started_at',
+        'onboarding_completed_at',
     ];
 
     /**
@@ -70,6 +77,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_admin' => 'boolean',
         'must_change_password' => 'boolean',
         'date_of_birth' => 'date',
         'is_primary_account' => 'boolean',
@@ -78,6 +86,10 @@ class User extends Authenticatable
         'annual_rental_income' => 'decimal:2',
         'annual_dividend_income' => 'decimal:2',
         'annual_other_income' => 'decimal:2',
+        'onboarding_completed' => 'boolean',
+        'onboarding_skipped_steps' => 'array',
+        'onboarding_started_at' => 'datetime',
+        'onboarding_completed_at' => 'datetime',
     ];
 
     /**
@@ -254,6 +266,14 @@ class User extends Authenticatable
     public function receivedSpousePermissions(): HasMany
     {
         return $this->hasMany(SpousePermission::class, 'spouse_id');
+    }
+
+    /**
+     * Get the user's onboarding progress records
+     */
+    public function onboardingProgress(): HasMany
+    {
+        return $this->hasMany(OnboardingProgress::class);
     }
 
     /**

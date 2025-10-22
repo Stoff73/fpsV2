@@ -51,8 +51,18 @@
       </div>
 
       <!-- Form Content -->
-      <form @submit.prevent="handleSubmit">
+      <form @submit.prevent="handleSubmit" novalidate>
         <div class="px-6 py-4">
+          <!-- Error Message -->
+          <div v-if="error" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex items-start">
+              <svg class="w-5 h-5 text-red-600 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+              <p class="text-sm text-red-700">{{ error }}</p>
+            </div>
+          </div>
+
           <!-- Step 1: Basic Information -->
           <div v-show="currentStep === 1" class="space-y-4">
             <h4 class="text-lg font-semibold text-gray-800 mb-4">Basic Information</h4>
@@ -61,6 +71,7 @@
               <label for="property_type" class="block text-sm font-medium text-gray-700 mb-1">Property Type <span class="text-red-500">*</span></label>
               <select
                 id="property_type"
+                name="property_type"
                 v-model="form.property_type"
                 required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -79,6 +90,7 @@
                 <label for="address_line_1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1 <span class="text-red-500">*</span></label>
                 <input
                   id="address_line_1"
+                  name="address_line_1"
                   v-model="form.address_line_1"
                   type="text"
                   required
@@ -90,6 +102,7 @@
                 <label for="address_line_2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2</label>
                 <input
                   id="address_line_2"
+                  name="address_line_2"
                   v-model="form.address_line_2"
                   type="text"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -100,6 +113,7 @@
                 <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City <span class="text-red-500">*</span></label>
                 <input
                   id="city"
+                  name="city"
                   v-model="form.city"
                   type="text"
                   required
@@ -111,6 +125,7 @@
                 <label for="county" class="block text-sm font-medium text-gray-700 mb-1">County</label>
                 <input
                   id="county"
+                  name="county"
                   v-model="form.county"
                   type="text"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -121,6 +136,7 @@
                 <label for="postcode" class="block text-sm font-medium text-gray-700 mb-1">Postcode <span class="text-red-500">*</span></label>
                 <input
                   id="postcode"
+                  name="postcode"
                   v-model="form.postcode"
                   type="text"
                   required
@@ -136,6 +152,7 @@
                 <label for="purchase_date" class="block text-sm font-medium text-gray-700 mb-1">Purchase Date <span class="text-red-500">*</span></label>
                 <input
                   id="purchase_date"
+                  name="purchase_date"
                   v-model="form.purchase_date"
                   type="date"
                   required
@@ -147,6 +164,7 @@
                 <label for="purchase_price" class="block text-sm font-medium text-gray-700 mb-1">Purchase Price (£) <span class="text-red-500">*</span></label>
                 <input
                   id="purchase_price"
+                  name="purchase_price"
                   v-model.number="form.purchase_price"
                   type="number"
                   step="any"
@@ -160,6 +178,7 @@
                 <label for="current_value" class="block text-sm font-medium text-gray-700 mb-1">Current Value (£) <span class="text-red-500">*</span></label>
                 <input
                   id="current_value"
+                  name="current_value"
                   v-model.number="form.current_value"
                   type="number"
                   step="any"
@@ -173,6 +192,7 @@
                 <label for="valuation_date" class="block text-sm font-medium text-gray-700 mb-1">Valuation Date</label>
                 <input
                   id="valuation_date"
+                  name="valuation_date"
                   v-model="form.valuation_date"
                   type="date"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -192,11 +212,11 @@
                   <input
                     type="radio"
                     v-model="form.ownership_type"
-                    value="sole"
+                    value="individual"
                     required
                     class="mr-2"
                   />
-                  <span>Sole Ownership</span>
+                  <span>Individual Owner</span>
                 </label>
                 <label class="flex items-center">
                   <input
@@ -206,7 +226,7 @@
                     required
                     class="mr-2"
                   />
-                  <span>Joint Ownership</span>
+                  <span>Joint Owner</span>
                 </label>
                 <label class="flex items-center">
                   <input
@@ -216,7 +236,7 @@
                     required
                     class="mr-2"
                   />
-                  <span>Held in Trust</span>
+                  <span>Trust</span>
                 </label>
               </div>
             </div>
@@ -550,7 +570,7 @@ export default {
         purchase_price: null,
         current_value: null,
         valuation_date: '',
-        ownership_type: 'sole',
+        ownership_type: 'individual',
         ownership_percentage: 100,
         joint_owner_id: null,
         household_id: null,
@@ -588,7 +608,7 @@ export default {
 
   watch: {
     'form.ownership_type'(newVal) {
-      if (newVal === 'sole') {
+      if (newVal === 'individual') {
         this.form.ownership_percentage = 100;
       }
     },
@@ -604,7 +624,7 @@ export default {
     populateForm() {
       // Direct top-level fields
       this.form.property_type = this.property.property_type || '';
-      this.form.ownership_type = this.property.ownership_type || 'sole';
+      this.form.ownership_type = this.property.ownership_type || 'individual';
       this.form.ownership_percentage = this.property.ownership_percentage || 100;
       this.form.joint_owner_id = this.property.joint_owner_id || null;
       this.form.household_id = this.property.household_id || null;
@@ -655,17 +675,20 @@ export default {
     validateForm() {
       // Basic validation
       if (!this.form.property_type || !this.form.address_line_1 || !this.form.city || !this.form.postcode) {
-        this.error = 'Please fill in all required fields.';
+        this.error = 'Please fill in all required fields in Basic Information (Step 1).';
+        this.currentStep = 1; // Go to step with error
         return false;
       }
 
       if (!this.form.purchase_date || !this.form.purchase_price || !this.form.current_value) {
-        this.error = 'Please fill in all required financial fields.';
+        this.error = 'Please fill in Purchase Date, Purchase Price, and Current Value (Step 1).';
+        this.currentStep = 1; // Go to step with error
         return false;
       }
 
       if (!this.form.ownership_type || !this.form.ownership_percentage) {
-        this.error = 'Please fill in ownership details.';
+        this.error = 'Please fill in ownership details (Step 2).';
+        this.currentStep = 2; // Go to step with error
         return false;
       }
 
@@ -675,6 +698,8 @@ export default {
 
     async handleSubmit() {
       if (!this.validateForm()) {
+        // Scroll to top to show error message
+        this.$el.querySelector('.px-6.py-4').scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
       }
 

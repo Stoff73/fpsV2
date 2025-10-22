@@ -27,7 +27,7 @@ class InvestmentAccountFactory extends Factory
             'platform' => $this->faker->randomElement(['Vanguard Investor', 'HL Platform', 'ii Platform', 'AJ Bell Youinvest']),
             'current_value' => $this->faker->randomFloat(2, 10000, 200000),
             'contributions_ytd' => $this->faker->randomFloat(2, 0, 20000),
-            'tax_year' => $this->faker->randomElement(['2023/24', '2024/25']),
+            'tax_year' => $this->faker->randomElement(['2024/25', '2025/26']),
             'platform_fee_percent' => $this->faker->randomFloat(4, 0.10, 0.45),
             'ownership_type' => $ownershipType,
             'ownership_percentage' => $ownershipType === 'joint' ? 50.00 : 100.00,

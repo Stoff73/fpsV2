@@ -18,9 +18,14 @@ class PropertyService
     {
         $currentValue = $property->current_value ?? 0;
 
-        // Get total outstanding mortgage balance
+        // Get total outstanding mortgage balance from detailed records
         $mortgageBalance = $property->mortgages()
             ->sum('outstanding_balance');
+
+        // Fall back to simple outstanding_mortgage field if no detailed records exist
+        if ($mortgageBalance == 0 && $property->outstanding_mortgage > 0) {
+            $mortgageBalance = $property->outstanding_mortgage;
+        }
 
         // Apply ownership percentage
         $userShare = $currentValue * ($property->ownership_percentage / 100);
@@ -102,7 +107,11 @@ class PropertyService
 
         // Calculate loan-to-value ratio
         $currentValue = $property->current_value ?? 0;
+        // Get mortgage balance from detailed records, or fall back to simple outstanding_mortgage field
         $mortgageBalance = $property->mortgages()->sum('outstanding_balance');
+        if ($mortgageBalance == 0 && $property->outstanding_mortgage > 0) {
+            $mortgageBalance = $property->outstanding_mortgage;
+        }
         $ltv = $currentValue > 0 ? ($mortgageBalance / $currentValue) * 100 : 0;
 
         // Calculate total return (capital growth + rental yield)
@@ -125,6 +134,8 @@ class PropertyService
             'valuation_date' => $property->valuation_date?->format('Y-m-d'),
             'equity' => (float) $equity,
             'mortgage_balance' => (float) $mortgageBalance,
+            'outstanding_mortgage' => (float) ($property->outstanding_mortgage ?? 0),  // Include simple field for reference
+            'net_rental_yield' => (float) $rentalYield,  // Top-level for easy access in frontend
 
             // Address fields (flat for form compatibility)
             'address_line_1' => $property->address_line_1,

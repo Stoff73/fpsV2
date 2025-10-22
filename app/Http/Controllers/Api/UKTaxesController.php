@@ -21,7 +21,7 @@ class UKTaxesController extends Controller
             'success' => true,
             'message' => 'UK Taxes configuration access granted',
             'data' => [
-                'tax_year' => '2024/25',
+                'tax_year' => '2025/26',
                 'note' => 'UK tax configuration is currently managed in the frontend. This endpoint confirms admin access.',
             ],
         ]);

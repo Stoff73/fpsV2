@@ -8,7 +8,7 @@
           <span class="text-gray-400 mx-2">/</span>
           <span class="text-gray-600">UK Taxes & Allowances</span>
         </nav>
-        <h1 class="font-display text-h1 text-gray-900">UK Taxes & Allowances 2024/25</h1>
+        <h1 class="font-display text-h1 text-gray-900">UK Taxes & Allowances 2025/26</h1>
         <p class="text-body text-gray-600 mt-2">
           Current UK tax rules, rates, and allowances with detailed calculation methodologies
         </p>

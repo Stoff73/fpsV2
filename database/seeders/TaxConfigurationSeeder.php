@@ -17,7 +17,7 @@ class TaxConfigurationSeeder extends Seeder
         // Load the UK tax configuration
         $config = config('uk_tax_config');
 
-        // Create or update the 2024/25 tax year configuration
+        // Create or update the 2025/26 tax year configuration
         $taxConfig = TaxConfiguration::updateOrCreate(
             ['tax_year' => $config['tax_year']],
             [
@@ -25,7 +25,7 @@ class TaxConfigurationSeeder extends Seeder
                 'effective_to' => $config['effective_to'],
                 'config_data' => $config,
                 'is_active' => true,
-                'notes' => 'UK Tax Year 2024/25 - Initial configuration seeded from config file',
+                'notes' => 'UK Tax Year 2025/26 - Initial configuration seeded from config file',
             ]
         );
 

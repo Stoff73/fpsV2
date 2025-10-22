@@ -49,7 +49,9 @@
       </div>
       <div class="bg-green-50 rounded-lg p-6">
         <p class="text-sm text-green-600 font-medium mb-2">{{ ihtData?.spouse_exemption_applies ? 'Spouse Exemption' : 'Total Allowances' }}</p>
-        <p class="text-xs text-green-500 mb-1">{{ ihtData?.spouse_exemption_applies ? 'Unlimited transfer' : 'NRB + RNRB' }}</p>
+        <p class="text-xs text-green-500 mb-1">
+          {{ ihtData?.spouse_exemption_applies ? 'Unlimited transfer' : (ihtData?.rnrb_eligible && ihtData?.rnrb > 0 ? 'NRB + RNRB' : 'NRB only') }}
+        </p>
         <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(ihtData?.spouse_exemption_applies ? ihtData.spouse_exemption : ihtData?.total_allowance || 0) }}</p>
       </div>
       <div class="bg-red-50 rounded-lg p-6">

@@ -16,7 +16,7 @@ beforeEach(function () {
 
 describe('createPersonalPL', function () {
     it('creates personal P&L statement with correct structure', function () {
-        $result = $this->projector->createPersonalPL($this->user->id, '2024');
+        $result = $this->projector->createPersonalPL($this->user->id, '2025');
 
         expect($result)->toHaveKeys([
             'tax_year',
@@ -27,9 +27,9 @@ describe('createPersonalPL', function () {
             'net_surplus_deficit',
             'status',
         ])
-            ->and($result['tax_year'])->toBe('2024/25')
-            ->and($result['period_start'])->toBe('2024-04-06')
-            ->and($result['period_end'])->toBe('2025-04-05');
+            ->and($result['tax_year'])->toBe('2025/26')
+            ->and($result['period_start'])->toBe('2025-04-06')
+            ->and($result['period_end'])->toBe('2026-04-05');
     });
 
     it('includes debt servicing in expenditure', function () {
@@ -49,7 +49,7 @@ describe('createPersonalPL', function () {
             'monthly_payment' => 300,
         ]);
 
-        $result = $this->projector->createPersonalPL($this->user->id, '2024');
+        $result = $this->projector->createPersonalPL($this->user->id, '2025');
 
         $debtServicing = collect($result['expenditure']['items'])
             ->firstWhere('category', 'Debt Servicing');
@@ -58,7 +58,7 @@ describe('createPersonalPL', function () {
     });
 
     it('calculates surplus when income exceeds expenditure', function () {
-        $result = $this->projector->createPersonalPL($this->user->id, '2024');
+        $result = $this->projector->createPersonalPL($this->user->id, '2025');
 
         // By default, all values are 0 except debt servicing
         expect($result['status'])->toBeIn(['Surplus', 'Deficit']);
@@ -95,7 +95,7 @@ describe('identifyCashFlowIssues', function () {
     it('identifies consecutive deficit years', function () {
         $projection = [
             'projections' => [
-                ['year' => 2024, 'net_cash_flow' => -10000, 'cumulative_cash_flow' => -10000],
+                ['year' => 2025, 'net_cash_flow' => -10000, 'cumulative_cash_flow' => -10000],
                 ['year' => 2025, 'net_cash_flow' => -15000, 'cumulative_cash_flow' => -25000],
                 ['year' => 2026, 'net_cash_flow' => 5000, 'cumulative_cash_flow' => -20000],
             ],
@@ -113,7 +113,7 @@ describe('identifyCashFlowIssues', function () {
     it('identifies large single-year deficits', function () {
         $projection = [
             'projections' => [
-                ['year' => 2024, 'net_cash_flow' => -15000, 'cumulative_cash_flow' => -15000],
+                ['year' => 2025, 'net_cash_flow' => -15000, 'cumulative_cash_flow' => -15000],
                 ['year' => 2025, 'net_cash_flow' => 5000, 'cumulative_cash_flow' => -10000],
             ],
         ];
@@ -130,7 +130,7 @@ describe('identifyCashFlowIssues', function () {
     it('identifies negative cumulative cash flow', function () {
         $projection = [
             'projections' => [
-                ['year' => 2024, 'net_cash_flow' => -5000, 'cumulative_cash_flow' => -5000],
+                ['year' => 2025, 'net_cash_flow' => -5000, 'cumulative_cash_flow' => -5000],
                 ['year' => 2025, 'net_cash_flow' => -5000, 'cumulative_cash_flow' => -10000],
                 ['year' => 2026, 'net_cash_flow' => -5000, 'cumulative_cash_flow' => -15000],
             ],
@@ -148,7 +148,7 @@ describe('identifyCashFlowIssues', function () {
     it('returns healthy status for positive cash flow', function () {
         $projection = [
             'projections' => [
-                ['year' => 2024, 'net_cash_flow' => 10000, 'cumulative_cash_flow' => 10000],
+                ['year' => 2025, 'net_cash_flow' => 10000, 'cumulative_cash_flow' => 10000],
                 ['year' => 2025, 'net_cash_flow' => 12000, 'cumulative_cash_flow' => 22000],
                 ['year' => 2026, 'net_cash_flow' => 15000, 'cumulative_cash_flow' => 37000],
             ],
@@ -163,7 +163,7 @@ describe('identifyCashFlowIssues', function () {
 
 describe('calculateDiscretionaryIncome', function () {
     it('calculates discretionary income correctly', function () {
-        $result = $this->projector->calculateDiscretionaryIncome($this->user->id, '2024');
+        $result = $this->projector->calculateDiscretionaryIncome($this->user->id, '2025');
 
         expect($result)->toHaveKeys([
             'tax_year',
@@ -176,14 +176,14 @@ describe('calculateDiscretionaryIncome', function () {
     });
 
     it('suggests 25% of discretionary income for gifting', function () {
-        $result = $this->projector->calculateDiscretionaryIncome($this->user->id, '2024');
+        $result = $this->projector->calculateDiscretionaryIncome($this->user->id, '2025');
 
         // Since all values are 0 by default, available_for_gifting should be 0
         expect($result['available_for_gifting'])->toBe(0.0);
     });
 
     it('calculates discretionary percentage of total income', function () {
-        $result = $this->projector->calculateDiscretionaryIncome($this->user->id, '2024');
+        $result = $this->projector->calculateDiscretionaryIncome($this->user->id, '2025');
 
         expect($result['discretionary_percentage'])->toBeNumeric();
     });

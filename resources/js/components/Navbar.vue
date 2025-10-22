@@ -19,6 +19,26 @@
 
         <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
           <router-link
+            v-if="!onboardingCompleted"
+            to="/onboarding"
+            class="inline-flex items-center px-3 py-2 border border-transparent text-body-sm font-medium rounded-button text-white bg-primary-600 hover:bg-primary-700"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            Complete Setup
+          </router-link>
+          <router-link
+            v-if="isAdmin"
+            to="/admin"
+            class="inline-flex items-center px-3 py-2 border border-transparent text-body-sm font-medium rounded-button text-white bg-red-600 hover:bg-red-700"
+          >
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            Admin
+          </router-link>
+          <router-link
             to="/profile"
             class="inline-flex items-center px-3 py-2 border border-transparent text-body-sm font-medium rounded-button text-gray-700 bg-gray-100 hover:bg-gray-200"
           >
@@ -71,6 +91,14 @@
           Dashboard
         </router-link>
         <router-link
+          v-if="isAdmin"
+          to="/admin"
+          class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+          :class="isActive('/admin') ? 'bg-red-50 border-red-600 text-red-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'"
+        >
+          Admin Panel
+        </router-link>
+        <router-link
           to="/settings"
           class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
           :class="isActive('/settings') ? 'bg-primary-50 border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'"
@@ -108,6 +136,15 @@ export default {
       return user?.name || 'User';
     });
 
+    const isAdmin = computed(() => {
+      return store.getters['auth/isAdmin'];
+    });
+
+    const onboardingCompleted = computed(() => {
+      const user = store.getters['auth/currentUser'];
+      return user?.onboarding_completed || false;
+    });
+
     const isActive = (path) => {
       return route.path === path;
     };
@@ -115,6 +152,8 @@ export default {
     return {
       mobileMenuOpen,
       userName,
+      isAdmin,
+      onboardingCompleted,
       isActive,
     };
   },

@@ -22,7 +22,7 @@
       <!-- Properties -->
       <div
         class="card p-6 cursor-pointer hover:shadow-lg transition-shadow"
-        @click="navigateToNetWorth('properties')"
+        @click="navigateToProperties"
       >
         <div class="flex justify-between items-start">
           <div>
@@ -47,7 +47,7 @@
       <!-- Investments -->
       <div
         class="card p-6 cursor-pointer hover:shadow-lg transition-shadow"
-        @click="navigateToNetWorth('investments')"
+        @click="navigateToInvestment"
       >
         <div class="flex justify-between items-start">
           <div>
@@ -72,7 +72,7 @@
       <!-- Cash Accounts -->
       <div
         class="card p-6 cursor-pointer hover:shadow-lg transition-shadow"
-        @click="navigateToNetWorth('cash')"
+        @click="navigateToSavings"
       >
         <div class="flex justify-between items-start">
           <div>
@@ -97,7 +97,7 @@
       <!-- Business Interests -->
       <div
         class="card p-6 cursor-pointer hover:shadow-lg transition-shadow"
-        @click="navigateToNetWorth('business')"
+        @click="navigateToEstate('business')"
       >
         <div class="flex justify-between items-start">
           <div>
@@ -122,7 +122,7 @@
       <!-- Chattels -->
       <div
         class="card p-6 cursor-pointer hover:shadow-lg transition-shadow"
-        @click="navigateToNetWorth('chattels')"
+        @click="navigateToEstate('chattels')"
       >
         <div class="flex justify-between items-start">
           <div>
@@ -173,7 +173,7 @@
     <!-- View Net Worth Dashboard Button -->
     <div class="mt-8 text-center">
       <button
-        @click="navigateToNetWorth()"
+        @click="navigateToEstate()"
         class="btn-primary"
       >
         View Full Net Worth Dashboard
@@ -206,9 +206,19 @@ export default {
       }).format(amount || 0);
     };
 
-    const navigateToNetWorth = (tab = null) => {
-      // Note: Net Worth Dashboard will be created in Phase 3
-      // For now, this will navigate to a placeholder or Estate dashboard
+    const navigateToProperties = () => {
+      router.push({ name: 'NetWorthProperty' });
+    };
+
+    const navigateToInvestment = () => {
+      router.push({ name: 'Investment' });
+    };
+
+    const navigateToSavings = () => {
+      router.push({ name: 'Savings' });
+    };
+
+    const navigateToEstate = (tab = null) => {
       if (tab) {
         router.push({ name: 'Estate', query: { tab } });
       } else {
@@ -223,7 +233,10 @@ export default {
     return {
       assetsSummary,
       formatCurrency,
-      navigateToNetWorth,
+      navigateToProperties,
+      navigateToInvestment,
+      navigateToSavings,
+      navigateToEstate,
       navigateToRetirement,
     };
   },

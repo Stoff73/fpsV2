@@ -120,6 +120,7 @@ class CoverageGapAnalyzer
 
     /**
      * Calculate coverage gaps.
+     * Allocation priority: Life insurance covers debts FIRST, then excess reduces human capital need.
      */
     public function calculateCoverageGap(array $needs, array $coverage): array
     {
@@ -128,28 +129,49 @@ class CoverageGapAnalyzer
                    + $needs['education_funding']
                    + $needs['final_expenses'];
 
-        $totalCoverage = $coverage['total_coverage'];
-        $gap = max(0, $totalNeed - $totalCoverage);
+        $lifeCoverage = $coverage['life_coverage'];
 
-        // Calculate total income-based coverage from all income replacement policies
+        // STEP 1: Allocate life cover to debts FIRST
+        $debtNeed = $needs['debt_protection'];
+        $debtCovered = min($lifeCoverage, $debtNeed); // How much debt is covered
+        $debtGap = max(0, $debtNeed - $debtCovered);
+
+        // STEP 2: Any excess life cover reduces human capital need
+        $excessLifeCover = max(0, $lifeCoverage - $debtNeed);
+        $humanCapitalNeed = $needs['human_capital'];
+        $humanCapitalCovered = min($excessLifeCover, $humanCapitalNeed);
+        $humanCapitalGap = max(0, $humanCapitalNeed - $humanCapitalCovered);
+
+        // STEP 3: Income-based policies (Family Income Benefit, etc.) reduce income replacement need
         $totalIncomeCoverage = $coverage['income_protection_coverage']
                              + $coverage['disability_coverage']
                              + $coverage['sickness_illness_coverage'];
 
+        // Calculate total coverage used
+        $totalCoverageUsed = $debtCovered + $humanCapitalCovered;
+        $totalGap = max(0, $totalNeed - $totalCoverageUsed);
+
         return [
             'total_need' => $totalNeed,
-            'total_coverage' => $totalCoverage,
-            'total_gap' => $gap,
+            'total_coverage' => $lifeCoverage,
+            'total_coverage_used' => $totalCoverageUsed,
+            'total_gap' => $totalGap,
             'gaps_by_category' => [
-                'human_capital_gap' => max(0, $needs['human_capital'] - $coverage['life_coverage']),
-                'debt_protection_gap' => max(0, $needs['debt_protection'] - $coverage['life_coverage']),
+                'human_capital_gap' => $humanCapitalGap,
+                'debt_protection_gap' => $debtGap,
                 // Placeholders for next phase - set to 0
                 'education_funding_gap' => 0,
                 'income_protection_gap' => 0,
                 'disability_coverage_gap' => 0,
                 'sickness_illness_gap' => 0,
             ],
-            'coverage_percentage' => $totalNeed > 0 ? ($totalCoverage / $totalNeed) * 100 : 100,
+            'coverage_allocated' => [
+                'debt_covered' => $debtCovered,
+                'human_capital_covered' => $humanCapitalCovered,
+                'excess_unused' => max(0, $lifeCoverage - $totalCoverageUsed),
+            ],
+            'income_replacement_coverage' => $totalIncomeCoverage,
+            'coverage_percentage' => $totalNeed > 0 ? ($totalCoverageUsed / $totalNeed) * 100 : 100,
         ];
     }
 

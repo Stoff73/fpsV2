@@ -95,7 +95,10 @@
           <CurrentSituation v-if="activeTab === 'current'" />
 
           <!-- Gap Analysis Tab -->
-          <GapAnalysis v-else-if="activeTab === 'gaps'" />
+          <GapAnalysis
+            v-else-if="activeTab === 'gaps'"
+            @add-policy="handleAddPolicy"
+          />
 
           <!-- Recommendations Tab -->
           <Recommendations v-else-if="activeTab === 'recommendations'" />
@@ -104,7 +107,11 @@
           <WhatIfScenarios v-else-if="activeTab === 'scenarios'" />
 
           <!-- Policy Details Tab -->
-          <PolicyDetails v-else-if="activeTab === 'details'" />
+          <PolicyDetails
+            v-else-if="activeTab === 'details'"
+            :show-modal="showAddPolicyModal"
+            @modal-closed="showAddPolicyModal = false"
+          />
         </div>
       </div>
       </div>
@@ -143,6 +150,7 @@ export default {
         { id: 'scenarios', label: 'What-If Scenarios' },
         { id: 'details', label: 'Policy Details' },
       ],
+      showAddPolicyModal: false,
     };
   },
 
@@ -163,6 +171,15 @@ export default {
       } catch (error) {
         console.error('Failed to load protection data:', error);
       }
+    },
+
+    handleAddPolicy() {
+      // Switch to Policy Details tab and open the add modal
+      this.activeTab = 'details';
+      // Use nextTick to ensure the PolicyDetails component is mounted
+      this.$nextTick(() => {
+        this.showAddPolicyModal = true;
+      });
     },
   },
 };

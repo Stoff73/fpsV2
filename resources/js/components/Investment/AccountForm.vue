@@ -113,9 +113,9 @@
                 :class="{ 'border-red-500': errors.tax_year }"
                 required
               >
+                <option value="2025/26">2025/26</option>
                 <option value="2024/25">2024/25</option>
                 <option value="2023/24">2023/24</option>
-                <option value="2022/23">2022/23</option>
               </select>
               <p v-if="errors.tax_year" class="mt-1 text-sm text-red-600">{{ errors.tax_year }}</p>
             </div>
@@ -147,7 +147,7 @@
                 <div>
                   <p class="text-sm font-medium text-blue-900">ISA Account Information</p>
                   <p class="text-xs text-blue-700 mt-1">
-                    ISA contributions count towards your £20,000 annual allowance (2024/25)
+                    ISA contributions count towards your £20,000 annual allowance (2025/26)
                   </p>
                 </div>
               </div>
@@ -316,7 +316,7 @@ export default {
         provider: '',
         platform: '',
         current_value: null,
-        tax_year: '2024/25',
+        tax_year: '2025/26',
         contributions_ytd: null,
         platform_fee_percent: null,
         isa_type: 'stocks_and_shares',
@@ -327,7 +327,7 @@ export default {
       },
       errors: {},
       submitting: false,
-      ISA_ALLOWANCE: 20000, // 2024/25 tax year
+      ISA_ALLOWANCE: 20000, // 2025/26 tax year
     };
   },
 
@@ -389,10 +389,8 @@ export default {
           this.formData = {
             ...newAccount,
             isa_type: newAccount.isa_type || 'stocks_and_shares',
-            // Map contributions_ytd to isa_subscription_current_year for ISA accounts
-            isa_subscription_current_year: newAccount.account_type === 'isa'
-              ? (newAccount.contributions_ytd || 0)
-              : null,
+            // Use isa_subscription_current_year directly (backend stores this field)
+            isa_subscription_current_year: newAccount.isa_subscription_current_year || null,
             ownership_type: newAccount.ownership_type || 'individual',
             joint_owner_id: newAccount.joint_owner_id || null,
             trust_id: newAccount.trust_id || null,
@@ -431,16 +429,14 @@ export default {
         // Clean up data before submission
         const submitData = { ...this.formData };
 
-        // For ISA accounts, map isa_subscription_current_year to contributions_ytd
+        // For ISA accounts, keep isa_subscription_current_year (backend expects this field)
         if (submitData.account_type === 'isa') {
-          submitData.contributions_ytd = submitData.isa_subscription_current_year || 0;
-          // Remove the UI-specific field
-          delete submitData.isa_subscription_current_year;
+          // Backend uses isa_subscription_current_year, not contributions_ytd
+          // Keep isa_subscription_current_year as is
         } else {
           // Remove ISA fields if not ISA account
           delete submitData.isa_type;
           delete submitData.isa_subscription_current_year;
-          delete submitData.contributions_ytd;
         }
 
         // Emit save event - parent will close modal after successful save
@@ -509,7 +505,7 @@ export default {
         provider: '',
         platform: '',
         current_value: null,
-        tax_year: '2024/25',
+        tax_year: '2025/26',
         contributions_ytd: null,
         platform_fee_percent: null,
         isa_type: 'stocks_and_shares',

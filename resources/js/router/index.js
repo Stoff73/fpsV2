@@ -4,6 +4,7 @@ import store from '@/store';
 // Lazy load components
 const Login = () => import('@/views/Login.vue');
 const Register = () => import('@/views/Register.vue');
+const Onboarding = () => import('@/views/Onboarding/OnboardingView.vue');
 const Dashboard = () => import('@/views/Dashboard.vue');
 const Settings = () => import('@/views/Settings.vue');
 const UserProfile = () => import('@/views/UserProfile.vue');
@@ -21,6 +22,7 @@ const EstateDashboard = () => import('@/views/Estate/EstateDashboard.vue');
 const TrustsDashboard = () => import('@/views/Trusts/TrustsDashboard.vue');
 const HolisticPlan = () => import('@/views/HolisticPlan.vue');
 const UKTaxesDashboard = () => import('@/views/UKTaxes/UKTaxesDashboard.vue');
+const AdminPanel = () => import('@/views/Admin/AdminPanel.vue');
 const Version = () => import('@/views/Version.vue');
 
 const routes = [
@@ -39,6 +41,12 @@ const routes = [
     name: 'Register',
     component: Register,
     meta: { requiresGuest: true },
+  },
+  {
+    path: '/onboarding',
+    name: 'Onboarding',
+    component: Onboarding,
+    meta: { requiresAuth: true, hideNavbar: true },
   },
   {
     path: '/dashboard',
@@ -230,6 +238,19 @@ const routes = [
       breadcrumb: [
         { label: 'Home', path: '/dashboard' },
         { label: 'UK Taxes & Allowances', path: '/uk-taxes' },
+      ],
+    },
+  },
+  {
+    path: '/admin',
+    name: 'AdminPanel',
+    component: AdminPanel,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Admin Panel', path: '/admin' },
       ],
     },
   },

@@ -40,7 +40,7 @@ const getters = {
         if (!state.isaAllowance) return 20000; // Default UK ISA allowance
 
         const cashISAUsed = state.isaAllowance.cash_isa_used || 0;
-        const stocksISAUsed = state.isaAllowance.stocks_isa_used || 0;
+        const stocksISAUsed = state.isaAllowance.stocks_shares_isa_used || 0;
         const totalAllowance = state.isaAllowance.total_allowance || 20000;
 
         return totalAllowance - cashISAUsed - stocksISAUsed;

@@ -212,9 +212,9 @@
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select tax year...</option>
+                  <option value="2025/26">2025/26</option>
                   <option value="2024/25">2024/25</option>
                   <option value="2023/24">2023/24</option>
-                  <option value="2022/23">2022/23</option>
                 </select>
               </div>
 
@@ -235,7 +235,7 @@
                     placeholder="0.00"
                   />
                 </div>
-                <p class="text-xs text-gray-500 mt-1">Max £20,000 per tax year (2024/25)</p>
+                <p class="text-xs text-gray-500 mt-1">Max £20,000 per tax year (2025/26)</p>
               </div>
             </div>
 
@@ -346,7 +346,7 @@ export default {
         is_emergency_fund: false,
         is_isa: false,
         isa_type: '',
-        isa_subscription_year: '2024/25',
+        isa_subscription_year: '2025/26',
         isa_subscription_amount: null,
         ownership_type: 'sole',
         joint_owner_id: null,
@@ -380,7 +380,7 @@ export default {
         is_emergency_fund: this.account.is_emergency_fund || false,
         is_isa: this.account.is_isa || false,
         isa_type: this.account.isa_type || '',
-        isa_subscription_year: this.account.isa_subscription_year || '2024/25',
+        isa_subscription_year: this.account.isa_subscription_year || '2025/26',
         isa_subscription_amount: this.account.isa_subscription_amount ? parseFloat(this.account.isa_subscription_amount) : null,
         ownership_type: this.account.ownership_type || 'sole',
         joint_owner_id: this.account.joint_owner_id || null,

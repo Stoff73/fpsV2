@@ -15,6 +15,7 @@ use App\Http\Requests\Savings\UpdateSavingsGoalRequest;
 use App\Models\ExpenditureProfile;
 use App\Models\SavingsAccount;
 use App\Models\SavingsGoal;
+use App\Services\NetWorth\NetWorthService;
 use App\Services\Savings\ISATracker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,7 +25,8 @@ class SavingsController extends Controller
 {
     public function __construct(
         private SavingsAgent $savingsAgent,
-        private ISATracker $isaTracker
+        private ISATracker $isaTracker,
+        private NetWorthService $netWorthService
     ) {}
 
     /**
@@ -166,6 +168,7 @@ class SavingsController extends Controller
 
             // Invalidate cache
             Cache::forget("savings_analysis_{$user->id}");
+            $this->netWorthService->invalidateCache($user->id);
 
             return response()->json([
                 'success' => true,
@@ -196,6 +199,7 @@ class SavingsController extends Controller
 
             // Invalidate cache
             Cache::forget("savings_analysis_{$user->id}");
+            $this->netWorthService->invalidateCache($user->id);
 
             return response()->json([
                 'success' => true,
@@ -231,6 +235,7 @@ class SavingsController extends Controller
 
             // Invalidate cache
             Cache::forget("savings_analysis_{$user->id}");
+            $this->netWorthService->invalidateCache($user->id);
 
             return response()->json([
                 'success' => true,

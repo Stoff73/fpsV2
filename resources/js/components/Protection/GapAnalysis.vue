@@ -245,10 +245,82 @@
         </div>
       </div>
 
-      <!-- Coverage Gap by Category -->
+      <!-- Existing Coverage & Allocation -->
+      <div class="mb-8" v-if="existingLifeCoverage > 0">
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Your Existing Life Insurance Coverage</h3>
+          <p class="text-sm text-gray-600 mb-6">
+            Your life insurance is allocated to cover your debts first, then any excess reduces your income replacement need.
+          </p>
+
+          <div class="space-y-4">
+            <!-- Total Life Cover -->
+            <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold text-gray-900">Total Life Insurance</span>
+                <span class="text-2xl font-bold text-green-600">{{ formatCurrency(existingLifeCoverage) }}</span>
+              </div>
+            </div>
+
+            <!-- Allocation Breakdown -->
+            <div class="pl-4 space-y-3">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                  <span class="text-gray-600">1. Allocated to cover debts</span>
+                  <div class="ml-2 group relative">
+                    <svg class="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                    </svg>
+                    <div class="hidden group-hover:block absolute z-10 w-64 p-2 mt-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg -left-32">
+                      Life insurance covers debts first (priority 1)
+                    </div>
+                  </div>
+                </div>
+                <span class="font-medium text-gray-900">{{ formatCurrency(debtCovered) }}</span>
+              </div>
+
+              <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                  <span class="text-gray-600">2. Excess applied to income replacement</span>
+                  <div class="ml-2 group relative">
+                    <svg class="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                    </svg>
+                    <div class="hidden group-hover:block absolute z-10 w-64 p-2 mt-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg -left-32">
+                      After covering debts, remaining life cover reduces income replacement need
+                    </div>
+                  </div>
+                </div>
+                <span class="font-medium text-gray-900">{{ formatCurrency(humanCapitalCovered) }}</span>
+              </div>
+
+              <div v-if="excessUnused > 0" class="flex justify-between items-center text-amber-700">
+                <span class="font-medium">3. Excess unused</span>
+                <span class="font-medium">{{ formatCurrency(excessUnused) }}</span>
+              </div>
+            </div>
+
+            <!-- Income Replacement Policies -->
+            <div v-if="incomeReplacementCoverage > 0" class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="flex justify-between items-center">
+                <div>
+                  <span class="font-semibold text-gray-900">Income Replacement Policies</span>
+                  <p class="text-xs text-gray-600 mt-1">Family Income Benefit, Income Protection, etc.</p>
+                </div>
+                <span class="text-xl font-bold text-blue-600">{{ formatCurrency(incomeReplacementCoverage) }}/year</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Protection Shortfall (was "Coverage Gaps") -->
       <div class="mb-8">
       <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Coverage Gaps by Category</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Protection Shortfall</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          After accounting for your existing cover, these are the protection gaps that remain. These amounts represent additional cover needed.
+        </p>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div
             v-for="gap in gapCategories"
@@ -369,18 +441,18 @@ export default {
       return [
         {
           category: 'human_capital',
-          label: 'Human Capital',
+          label: 'Income Replacement Gap',
           amount: gaps.human_capital_gap || 0,
           severity: this.calculateSeverity(gaps.human_capital_gap || 0),
-          description: 'Lost income potential from death or disability',
+          description: 'Additional cover needed to replace lost income',
           isPlaceholder: false,
         },
         {
           category: 'debt',
-          label: 'Outstanding Debt',
+          label: 'Debt Protection Gap',
           amount: gaps.debt_protection_gap || 0,
           severity: this.calculateSeverity(gaps.debt_protection_gap || 0),
-          description: 'Mortgage and other debts requiring coverage',
+          description: 'Additional cover needed to clear debts',
           isPlaceholder: false,
         },
         {
@@ -424,7 +496,10 @@ export default {
     },
 
     monthlyIncome() {
-      return this.profile?.monthly_gross_income || 0;
+      // Calculate monthly income from gross annual income in analysis
+      // If analysis data not available, fall back to profile annual_income
+      const annualIncome = this.grossAnnualIncome || this.profile?.annual_income || 0;
+      return annualIncome / 12;
     },
 
     premiumPercentage() {
@@ -568,6 +643,32 @@ export default {
     spouseContinuingIncome() {
       return this.analysis?.data?.needs?.spouse_continuing_income ||
              this.analysis?.needs?.spouse_continuing_income || 0;
+    },
+
+    // Existing coverage values
+    existingLifeCoverage() {
+      return this.analysis?.data?.gaps?.total_coverage ||
+             this.analysis?.gaps?.total_coverage || 0;
+    },
+
+    debtCovered() {
+      return this.analysis?.data?.gaps?.coverage_allocated?.debt_covered ||
+             this.analysis?.gaps?.coverage_allocated?.debt_covered || 0;
+    },
+
+    humanCapitalCovered() {
+      return this.analysis?.data?.gaps?.coverage_allocated?.human_capital_covered ||
+             this.analysis?.gaps?.coverage_allocated?.human_capital_covered || 0;
+    },
+
+    excessUnused() {
+      return this.analysis?.data?.gaps?.coverage_allocated?.excess_unused ||
+             this.analysis?.gaps?.coverage_allocated?.excess_unused || 0;
+    },
+
+    incomeReplacementCoverage() {
+      return this.analysis?.data?.gaps?.income_replacement_coverage ||
+             this.analysis?.gaps?.income_replacement_coverage || 0;
     },
   },
 

@@ -190,9 +190,9 @@ describe('Complete estate planning workflow', function () {
             ]);
 
         // 12. Get cash flow projection
-        $cashFlowResponse = $this->getJson('/api/estate/cash-flow/2024');
+        $cashFlowResponse = $this->getJson('/api/estate/cash-flow/2025');
         $cashFlowResponse->assertOk()
-            ->assertJsonPath('data.tax_year', '2024/25');
+            ->assertJsonPath('data.tax_year', '2025/26');
     });
 });
 

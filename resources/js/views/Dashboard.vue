@@ -306,8 +306,23 @@ export default {
 
     async refreshDashboard() {
       this.refreshing = true;
-      await this.loadAllData();
-      this.refreshing = false;
+      // Use refreshNetWorth to bypass cache, then load other modules
+      try {
+        await this.$store.dispatch('netWorth/refreshNetWorth');
+        // Load other module data
+        await Promise.allSettled([
+          this.$store.dispatch('protection/fetchOverview'),
+          this.$store.dispatch('savings/fetchSavingsData'),
+          this.$store.dispatch('investment/fetchOverview'),
+          this.$store.dispatch('retirement/fetchOverview'),
+          this.$store.dispatch('estate/fetchOverview'),
+          this.$store.dispatch('ukTaxes/fetchAllowances'),
+        ]);
+      } catch (error) {
+        console.error('Error refreshing dashboard:', error);
+      } finally {
+        this.refreshing = false;
+      }
     },
   },
 

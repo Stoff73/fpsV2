@@ -206,8 +206,8 @@ export default {
 
       try {
         await store.dispatch('auth/register', form.value);
-        // Redirect to dashboard after successful registration
-        router.push({ name: 'Dashboard' });
+        // Redirect to onboarding after successful registration
+        router.push({ name: 'Onboarding' });
       } catch (error) {
         if (error.errors) {
           errors.value = error.errors;

@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('isa_allowance_tracking', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('tax_year'); // e.g., '2024/25'
+            $table->string('tax_year'); // e.g., '2025/26'
             $table->decimal('cash_isa_used', 10, 2)->default(0.00);
             $table->decimal('stocks_shares_isa_used', 10, 2)->default(0.00);
             $table->decimal('lisa_used', 10, 2)->default(0.00);
             $table->decimal('total_used', 10, 2)->default(0.00);
-            $table->decimal('total_allowance', 10, 2)->default(20000.00); // £20,000 for 2024/25
+            $table->decimal('total_allowance', 10, 2)->default(20000.00); // £20,000 for 2025/26
             $table->timestamps();
 
             $table->unique(['user_id', 'tax_year']);

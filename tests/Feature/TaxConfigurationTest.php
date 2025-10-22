@@ -12,24 +12,24 @@ beforeEach(function () {
     $this->seed(\Database\Seeders\TaxConfigurationSeeder::class);
 });
 
-test('tax configuration exists for 2024/25 tax year', function () {
-    $config = TaxConfiguration::where('tax_year', '2024/25')->first();
+test('tax configuration exists for 2025/26 tax year', function () {
+    $config = TaxConfiguration::where('tax_year', '2025/26')->first();
 
     expect($config)->not()->toBeNull();
 });
 
 test('tax configuration has required fields', function () {
-    $config = TaxConfiguration::where('tax_year', '2024/25')->first();
+    $config = TaxConfiguration::where('tax_year', '2025/26')->first();
 
     expect($config)->not()->toBeNull();
-    expect($config->tax_year)->toBe('2024/25');
+    expect($config->tax_year)->toBe('2025/26');
     expect($config->config_data)->not()->toBeNull();
     expect($config->config_data)->toBeArray();
     expect($config->is_active)->toBeTrue();
 });
 
 test('personal allowance configuration exists', function () {
-    $config = TaxConfiguration::where('tax_year', '2024/25')->first();
+    $config = TaxConfiguration::where('tax_year', '2025/26')->first();
 
     expect($config)->not()->toBeNull();
     expect($config->config_data)->toHaveKey('income_tax');
@@ -38,7 +38,7 @@ test('personal allowance configuration exists', function () {
 });
 
 test('isa annual allowance configuration exists', function () {
-    $config = TaxConfiguration::where('tax_year', '2024/25')->first();
+    $config = TaxConfiguration::where('tax_year', '2025/26')->first();
 
     expect($config)->not()->toBeNull();
     expect($config->config_data)->toHaveKey('isa');
@@ -47,7 +47,7 @@ test('isa annual allowance configuration exists', function () {
 });
 
 test('pension annual allowance configuration exists', function () {
-    $config = TaxConfiguration::where('tax_year', '2024/25')->first();
+    $config = TaxConfiguration::where('tax_year', '2025/26')->first();
 
     expect($config)->not()->toBeNull();
     expect($config->config_data)->toHaveKey('pension');
@@ -56,7 +56,7 @@ test('pension annual allowance configuration exists', function () {
 });
 
 test('inheritance tax nil rate band configuration exists', function () {
-    $config = TaxConfiguration::where('tax_year', '2024/25')->first();
+    $config = TaxConfiguration::where('tax_year', '2025/26')->first();
 
     expect($config)->not()->toBeNull();
     expect($config->config_data)->toHaveKey('inheritance_tax');
@@ -65,7 +65,7 @@ test('inheritance tax nil rate band configuration exists', function () {
 });
 
 test('inheritance tax residence nil rate band configuration exists', function () {
-    $config = TaxConfiguration::where('tax_year', '2024/25')->first();
+    $config = TaxConfiguration::where('tax_year', '2025/26')->first();
 
     expect($config)->not()->toBeNull();
     expect($config->config_data['inheritance_tax'])->toHaveKey('residence_nil_rate_band');
@@ -73,7 +73,7 @@ test('inheritance tax residence nil rate band configuration exists', function ()
 });
 
 test('inheritance tax standard rate configuration exists', function () {
-    $config = TaxConfiguration::where('tax_year', '2024/25')->first();
+    $config = TaxConfiguration::where('tax_year', '2025/26')->first();
 
     expect($config)->not()->toBeNull();
     expect($config->config_data['inheritance_tax'])->toHaveKey('standard_rate');
@@ -81,7 +81,7 @@ test('inheritance tax standard rate configuration exists', function () {
 });
 
 test('can retrieve complete tax configuration for a tax year', function () {
-    $config = TaxConfiguration::where('tax_year', '2024/25')->first();
+    $config = TaxConfiguration::where('tax_year', '2025/26')->first();
 
     expect($config->config_data)->toHaveKeys([
         'income_tax',

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\HolisticPlanningController;
 use App\Http\Controllers\Api\InvestmentController;
 use App\Http\Controllers\Api\MortgageController;
 use App\Http\Controllers\Api\NetWorthController;
+use App\Http\Controllers\Api\OnboardingController;
 use App\Http\Controllers\Api\PersonalAccountsController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\ProtectionController;
@@ -40,6 +41,19 @@ Route::prefix('auth')->group(function () {
         Route::get('/user', [AuthController::class, 'user']);
         Route::post('/change-password', [AuthController::class, 'changePassword']);
     });
+});
+
+// Onboarding routes
+Route::middleware('auth:sanctum')->prefix('onboarding')->group(function () {
+    Route::get('/status', [OnboardingController::class, 'getOnboardingStatus']);
+    Route::post('/focus-area', [OnboardingController::class, 'setFocusArea']);
+    Route::get('/steps', [OnboardingController::class, 'getSteps']);
+    Route::get('/step/{step}', [OnboardingController::class, 'getStepData']);
+    Route::post('/step', [OnboardingController::class, 'saveStepProgress']);
+    Route::post('/skip-step', [OnboardingController::class, 'skipStep']);
+    Route::get('/skip-reason/{step}', [OnboardingController::class, 'getSkipReason']);
+    Route::post('/complete', [OnboardingController::class, 'completeOnboarding']);
+    Route::post('/restart', [OnboardingController::class, 'restartOnboarding']);
 });
 
 // User Profile routes (Phase 2)
@@ -366,4 +380,32 @@ Route::middleware('auth:sanctum')->prefix('recommendations')->group(function () 
 // UK Taxes & Allowances routes (Admin only)
 Route::middleware(['auth:sanctum', 'admin'])->prefix('uk-taxes')->group(function () {
     Route::get('/', [UKTaxesController::class, 'index']);
+});
+
+// Admin Panel routes
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [\App\Http\Controllers\Api\AdminController::class, 'dashboard']);
+
+    // User management
+    Route::get('/users', [\App\Http\Controllers\Api\AdminController::class, 'getUsers']);
+    Route::post('/users', [\App\Http\Controllers\Api\AdminController::class, 'createUser']);
+    Route::put('/users/{id}', [\App\Http\Controllers\Api\AdminController::class, 'updateUser']);
+    Route::delete('/users/{id}', [\App\Http\Controllers\Api\AdminController::class, 'deleteUser']);
+
+    // Database backup and restore
+    Route::post('/backup/create', [\App\Http\Controllers\Api\AdminController::class, 'createBackup']);
+    Route::get('/backup/list', [\App\Http\Controllers\Api\AdminController::class, 'listBackups']);
+    Route::post('/backup/restore', [\App\Http\Controllers\Api\AdminController::class, 'restoreBackup']);
+    Route::delete('/backup/delete', [\App\Http\Controllers\Api\AdminController::class, 'deleteBackup']);
+});
+
+// Tax Settings routes (Admin only)
+Route::middleware(['auth:sanctum', 'admin'])->prefix('tax-settings')->group(function () {
+    Route::get('/current', [\App\Http\Controllers\Api\TaxSettingsController::class, 'getCurrent']);
+    Route::get('/all', [\App\Http\Controllers\Api\TaxSettingsController::class, 'getAll']);
+    Route::get('/calculations', [\App\Http\Controllers\Api\TaxSettingsController::class, 'getCalculations']);
+    Route::post('/create', [\App\Http\Controllers\Api\TaxSettingsController::class, 'create']);
+    Route::put('/{id}', [\App\Http\Controllers\Api\TaxSettingsController::class, 'update']);
+    Route::post('/{id}/activate', [\App\Http\Controllers\Api\TaxSettingsController::class, 'setActive']);
 });

@@ -5,19 +5,19 @@ declare(strict_types=1);
 return [
     /*
     |--------------------------------------------------------------------------
-    | UK Tax Configuration - 2024/25 Tax Year
+    | UK Tax Configuration - 2025/26 Tax Year
     |--------------------------------------------------------------------------
     |
     | This configuration file contains all UK tax rules, allowances, and rates
-    | for the 2024/25 tax year (April 6, 2024 - April 5, 2025).
+    | for the 2025/26 tax year (April 6, 2025 - April 5, 2026).
     |
     | Update this file annually after the UK Budget announcement.
     |
     */
 
-    'tax_year' => '2024/25',
-    'effective_from' => '2024-04-06',
-    'effective_to' => '2025-04-05',
+    'tax_year' => '2025/26',
+    'effective_from' => '2025-04-06',
+    'effective_to' => '2026-04-05',
 
     /*
     |--------------------------------------------------------------------------

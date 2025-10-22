@@ -1,0 +1,126 @@
+<template>
+  <AppLayout>
+    <div class="px-4 sm:px-0">
+      <!-- Header -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="font-display text-h1 text-gray-900">Admin Panel</h1>
+            <p class="text-body text-gray-600 mt-2">
+              System administration and management
+            </p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              Administrator
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="border-b border-gray-200 mb-6">
+        <nav class="flex space-x-8 overflow-x-auto">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            @click="activeTab = tab.id"
+            :class="[
+              'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center',
+              activeTab === tab.id
+                ? 'border-primary-600 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            ]"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getTabIcon(tab.id)" />
+            </svg>
+            {{ tab.label }}
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="space-y-6">
+        <!-- Dashboard Tab -->
+        <AdminDashboard v-if="activeTab === 'dashboard'" />
+
+        <!-- Users Tab -->
+        <UserManagement v-if="activeTab === 'users'" />
+
+        <!-- Backups Tab -->
+        <DatabaseBackup v-if="activeTab === 'backups'" />
+
+        <!-- Tax Settings Tab -->
+        <TaxSettings v-if="activeTab === 'tax-settings'" />
+      </div>
+    </div>
+  </AppLayout>
+</template>
+
+<script>
+import AppLayout from '../../layouts/AppLayout.vue';
+import AdminDashboard from '../../components/Admin/AdminDashboard.vue';
+import UserManagement from '../../components/Admin/UserManagement.vue';
+import DatabaseBackup from '../../components/Admin/DatabaseBackup.vue';
+import TaxSettings from '../../components/Admin/TaxSettings.vue';
+
+export default {
+  name: 'AdminPanel',
+
+  components: {
+    AppLayout,
+    AdminDashboard,
+    UserManagement,
+    DatabaseBackup,
+    TaxSettings,
+  },
+
+  data() {
+    return {
+      activeTab: 'dashboard',
+      tabs: [
+        {
+          id: 'dashboard',
+          label: 'Dashboard',
+        },
+        {
+          id: 'users',
+          label: 'User Management',
+        },
+        {
+          id: 'backups',
+          label: 'Database Backups',
+        },
+        {
+          id: 'tax-settings',
+          label: 'Tax Settings',
+        },
+      ],
+    };
+  },
+
+  methods: {
+    getTabIcon(tabId) {
+      const icons = {
+        dashboard: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+        users: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+        backups: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4',
+        'tax-settings': 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z',
+      };
+      return icons[tabId] || '';
+    },
+  },
+
+  mounted() {
+    // Check if user is admin
+    const user = this.$store.state.auth?.user;
+    if (!user || !user.is_admin) {
+      this.$router.push('/dashboard');
+    }
+  },
+};
+</script>

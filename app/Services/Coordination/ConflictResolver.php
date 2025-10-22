@@ -165,7 +165,7 @@ class ConflictResolver
     /**
      * Resolve ISA allowance conflicts between Cash ISA and Stocks & Shares ISA
      *
-     * @param  float  $isaAllowance  Total ISA allowance (£20,000 for 2024/25)
+     * @param  float  $isaAllowance  Total ISA allowance (£20,000 for 2025/26)
      * @param  array  $demands  ISA demands from Savings and Investment modules
      * @return array Optimal ISA allocation
      */
@@ -275,7 +275,7 @@ class ConflictResolver
      */
     private function detectISAConflicts(array $recommendations): ?array
     {
-        $isaAllowance = 20000; // 2024/25 tax year
+        $isaAllowance = 20000; // 2025/26 tax year
         $cashISADemand = 0;
         $stocksSharesISADemand = 0;
 

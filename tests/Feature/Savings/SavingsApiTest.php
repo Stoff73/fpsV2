@@ -90,7 +90,7 @@ describe('Savings API', function () {
                 'access_type' => 'immediate',
                 'is_isa' => true,
                 'isa_type' => 'cash',
-                'isa_subscription_year' => '2024/25',
+                'isa_subscription_year' => '2025/26',
                 'isa_subscription_amount' => 5000,
             ];
 
@@ -202,7 +202,7 @@ describe('Savings API', function () {
         it('returns ISA allowance status', function () {
             $user = User::factory()->create();
             // Use hyphen format instead of slash
-            $taxYear = '2024-25';
+            $taxYear = '2025-26';
             $response = $this->actingAs($user)->getJson("/api/savings/isa-allowance/{$taxYear}");
 
             $response->assertOk()

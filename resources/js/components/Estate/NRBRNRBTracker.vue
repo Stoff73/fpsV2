@@ -2,7 +2,7 @@
   <div class="nrb-rnrb-tracker">
     <div class="tracker-header">
       <h3>IHT Allowance Tracker</h3>
-      <p class="subtitle">2024/25 Tax Year</p>
+      <p class="subtitle">2025/26 Tax Year</p>
     </div>
 
     <!-- Nil Rate Band (NRB) -->
@@ -167,7 +167,7 @@ export default {
 
   data() {
     return {
-      // 2024/25 UK IHT allowances
+      // 2025/26 UK IHT allowances
       nrbStandard: 325000,
       rnrbStandard: 175000,
       rnrbTaperingThreshold: 2000000,

@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <!-- Taxable Estate (after allowances) -->
+    <!-- Taxable Estate -->
     <div class="mb-6">
       <div class="flex items-baseline mb-2">
         <span class="text-4xl font-bold text-blue-600">
@@ -31,7 +31,6 @@
         </span>
       </div>
       <p class="text-sm text-gray-600">Taxable Estate</p>
-      <p class="text-xs text-gray-500 mt-1">After NRB/RNRB allowances</p>
     </div>
 
     <!-- IHT Liability & Probate Readiness -->

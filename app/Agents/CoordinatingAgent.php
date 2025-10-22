@@ -165,7 +165,7 @@ class CoordinatingAgent extends BaseAgent
                     break;
 
                 case 'isa_allowance_conflict':
-                    $isaAllowance = 20000; // 2024/25
+                    $isaAllowance = 20000; // 2025/26
                     $resolution = $this->conflictResolver->resolveISAAllocation($isaAllowance, $conflict['demands']);
                     $resolved['conflict_resolutions'][] = [
                         'type' => 'isa_allowance',

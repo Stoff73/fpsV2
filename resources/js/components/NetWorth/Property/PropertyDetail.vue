@@ -360,7 +360,12 @@ export default {
     },
 
     mortgageBalance() {
-      return this.mortgages.reduce((sum, m) => sum + (m.outstanding_balance || 0), 0);
+      // If detailed mortgage records exist, sum them
+      if (this.mortgages && this.mortgages.length > 0) {
+        return this.mortgages.reduce((sum, m) => sum + (m.outstanding_balance || 0), 0);
+      }
+      // Otherwise, fall back to simple outstanding_mortgage field from property
+      return this.property?.outstanding_mortgage || 0;
     },
 
     valueChange() {

@@ -30,7 +30,7 @@ describe('Investment Account Management', function () {
             'platform' => 'Vanguard Investor',
             'current_value' => 50000.00,
             'contributions_ytd' => 15000.00,
-            'tax_year' => '2024/25',
+            'tax_year' => '2025/26',
             'platform_fee_percent' => 0.15,
         ]);
 
@@ -108,7 +108,7 @@ describe('Investment Account Management', function () {
             'account_type' => 'invalid_type',
             'provider' => 'Test Provider',
             'current_value' => 50000,
-            'tax_year' => '2024/25',
+            'tax_year' => '2025/26',
         ]);
 
         $response->assertStatus(422)
