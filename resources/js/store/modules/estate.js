@@ -11,6 +11,7 @@ const state = {
     cashFlow: null,
     analysis: null,
     recommendations: [],
+    secondDeathPlanning: null, // Second death IHT planning data
     loading: false,
     error: null,
 };
@@ -424,6 +425,24 @@ const actions = {
         }
     },
 
+    // Second Death IHT Planning action
+    async calculateSecondDeathIHTPlanning({ commit }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await estateService.calculateSecondDeathIHTPlanning();
+            commit('setSecondDeathPlanning', response.data);
+            return response;
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to calculate second death IHT planning';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
     // Trust actions
     async fetchTrusts({ commit }) {
         commit('setLoading', true);
@@ -533,6 +552,10 @@ const mutations = {
 
     setRecommendations(state, recommendations) {
         state.recommendations = recommendations;
+    },
+
+    setSecondDeathPlanning(state, secondDeathPlanning) {
+        state.secondDeathPlanning = secondDeathPlanning;
     },
 
     addAsset(state, asset) {

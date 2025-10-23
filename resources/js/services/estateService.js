@@ -54,6 +54,15 @@ const estateService = {
     },
 
     /**
+     * Calculate comprehensive second death IHT planning for married couples
+     * @returns {Promise} Second death analysis with gifting strategy, life cover, and mitigation strategies
+     */
+    async calculateSecondDeathIHTPlanning() {
+        const response = await api.post('/estate/calculate-second-death-iht-planning');
+        return response.data;
+    },
+
+    /**
      * Get net worth summary
      * @returns {Promise} Net worth breakdown
      */

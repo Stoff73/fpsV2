@@ -277,6 +277,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's expenditure profile.
+     */
+    public function expenditureProfile(): HasOne
+    {
+        return $this->hasOne(ExpenditureProfile::class);
+    }
+
+    /**
+     * Get the user's savings accounts.
+     */
+    public function savingsAccounts(): HasMany
+    {
+        return $this->hasMany(SavingsAccount::class);
+    }
+
+    /**
      * Check if user has accepted permission to share data with spouse
      */
     public function hasAcceptedSpousePermission(): bool

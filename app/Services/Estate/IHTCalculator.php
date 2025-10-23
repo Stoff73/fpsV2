@@ -90,7 +90,7 @@ class IHTCalculator
         // Check RNRB eligibility (only applies to estate, not gifts)
         // Use taxableNetEstate for RNRB taper calculation (after spouse exemption)
         $rnrb = $this->checkRNRBEligibility($profile, $assets)
-            ? $this->calculateRNRB($taxableNetEstate, $config)
+            ? $this->calculateRNRB($taxableNetEstate, $config, $user)
             : 0;
 
         // Calculate gift liabilities if gifts provided
@@ -123,6 +123,13 @@ class IHTCalculator
         // Total IHT liability (estate + gifts)
         $totalIHTLiability = $estateLiability + $giftLiability;
 
+        // Calculate individual RNRB components for breakdown display
+        $individualRNRB = $config['residence_nil_rate_band'];
+        $spouseRNRB = 0;
+        if ($user && in_array($user->marital_status, ['married'])) {
+            $spouseRNRB = $individualRNRB; // Spouse's RNRB
+        }
+
         return [
             'gross_estate_value' => round($grossEstateValue, 2),
             'liabilities' => round($liabilities, 2),
@@ -139,6 +146,8 @@ class IHTCalculator
             'nrb_used_by_gifts' => round($nrbUsedByGifts, 2),
             'nrb_available_for_estate' => round($remainingNRB, 2),
             'rnrb' => round($rnrb, 2),
+            'rnrb_individual' => round($individualRNRB, 2),
+            'rnrb_from_spouse' => round($spouseRNRB, 2),
             'rnrb_eligible' => $rnrb > 0,
             'total_allowance' => round($totalAllowance, 2),
             'taxable_estate' => round($taxableEstate, 2),
@@ -182,11 +191,23 @@ class IHTCalculator
     }
 
     /**
-     * Calculate RNRB amount including taper
+     * Calculate RNRB amount including taper and spouse transfer
+     *
+     * @param  float  $estateValue  Estate value for taper calculation
+     * @param  array  $config  UK tax config
+     * @param  User|null  $user  User (optional, for checking marital status)
+     * @return float RNRB amount
      */
-    private function calculateRNRB(float $estateValue, array $config): float
+    private function calculateRNRB(float $estateValue, array $config, ?User $user = null): float
     {
         $rnrb = $config['residence_nil_rate_band'];
+
+        // For married users, include full spouse RNRB by default (£175,000 + £175,000 = £350,000)
+        // This will be verified once spouse accounts are linked
+        if ($user && in_array($user->marital_status, ['married'])) {
+            $rnrb = $rnrb * 2; // Double RNRB for married users
+        }
+
         $taperThreshold = $config['rnrb_taper_threshold'];
         $taperRate = $config['rnrb_taper_rate'];
 

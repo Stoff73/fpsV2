@@ -22,8 +22,25 @@
       <p class="mt-2 text-gray-600">Calculating IHT liability...</p>
     </div>
 
-    <!-- Spouse Exemption Notice -->
-    <div v-if="ihtData?.spouse_exemption_applies && ihtData?.spouse_exemption > 0" class="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+    <!-- Spouse Exemption Notice (Always show for married users) -->
+    <SpouseExemptionNotice
+      v-if="showSpouseExemptionNotice && secondDeathData"
+      :message="secondDeathData.spouse_exemption_message"
+      :has-spouse="hasSpouse"
+      :data-sharing-enabled="secondDeathData.data_sharing_enabled"
+      class="mb-6"
+    />
+
+    <!-- Missing Data Alert -->
+    <MissingDataAlert
+      v-if="secondDeathData?.missing_data && secondDeathData.missing_data.length > 0"
+      :missing-data="secondDeathData.missing_data"
+      :message="getMissingDataMessage()"
+      class="mb-6"
+    />
+
+    <!-- Old Spouse Exemption Notice (keep for backward compatibility with non-married) -->
+    <div v-if="ihtData?.spouse_exemption_applies && ihtData?.spouse_exemption > 0 && !isMarried" class="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
       <div class="flex">
         <div class="flex-shrink-0">
           <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -40,7 +57,32 @@
       </div>
     </div>
 
-    <!-- IHT Summary -->
+    <!-- IHT Summary - Second Death (Married Users) -->
+    <div v-if="isMarried && secondDeathData?.second_death_analysis" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- First Death Summary -->
+      <div class="bg-blue-50 rounded-lg p-6">
+        <p class="text-sm text-blue-600 font-medium mb-2">First Death ({{ secondDeathData.second_death_analysis.first_death.name }})</p>
+        <p class="text-xs text-blue-500 mb-1">{{ secondDeathData.second_death_analysis.first_death.years_until_death }} years</p>
+        <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.first_death.projected_estate_value) }}</p>
+        <p class="text-xs text-green-600 mt-2">IHT: £0 (Spouse Exemption)</p>
+      </div>
+
+      <!-- Second Death Summary -->
+      <div class="bg-purple-50 rounded-lg p-6">
+        <p class="text-sm text-purple-600 font-medium mb-2">Second Death ({{ secondDeathData.second_death_analysis.second_death.name }})</p>
+        <p class="text-xs text-purple-500 mb-1">{{ secondDeathData.second_death_analysis.second_death.years_until_death }} years</p>
+        <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.second_death.projected_combined_estate_at_second_death) }}</p>
+      </div>
+
+      <!-- Total IHT Payable -->
+      <div class="bg-red-50 rounded-lg p-6">
+        <p class="text-sm text-red-600 font-medium mb-2">Total IHT Payable</p>
+        <p class="text-xs text-red-500 mb-1">On second death only</p>
+        <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.iht_liability) }}</p>
+      </div>
+    </div>
+
+    <!-- IHT Summary - Standard (Non-Married Users) -->
     <div v-else-if="ihtData" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-purple-50 rounded-lg p-6">
         <p class="text-sm text-purple-600 font-medium mb-2">Gross Estate</p>
@@ -61,12 +103,157 @@
       </div>
     </div>
 
-    <!-- IHT Breakdown -->
-    <div v-if="!loading" class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">IHT Calculation Breakdown (Death Now Scenario)</h3>
+    <!-- IHT Breakdown - Second Death (Married Users) -->
+    <div v-if="!loading && isMarried && secondDeathData?.second_death_analysis" class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">IHT Calculation Breakdown (Second Death Scenario)</h3>
+      <p class="text-sm text-gray-600 mb-6">Comparison of IHT liability if death occurs now vs. at projected life expectancy (Age {{ secondDeathData.second_death_analysis.second_death.estimated_age_at_death }})</p>
 
-      <!-- Estate Calculation -->
-      <div class="space-y-3 mb-6">
+      <!-- Estate Calculation Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Line Item</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Now</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Death at Age {{ secondDeathData.second_death_analysis.second_death.estimated_age_at_death }}</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <!-- Combined Gross Estate -->
+            <tr>
+              <td class="px-4 py-3 text-sm text-gray-900">Combined Gross Estate</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.gross_estate_value || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right font-medium text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.gross_estate_value || 0) }}</td>
+            </tr>
+
+            <!-- Liabilities -->
+            <tr v-if="secondDeathData.second_death_analysis.current_iht_calculation?.total_liabilities > 0 || secondDeathData.second_death_analysis.iht_calculation.total_liabilities > 0">
+              <td class="px-4 py-3 text-sm text-gray-600">Less: Liabilities</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.total_liabilities || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.total_liabilities || 0) }}</td>
+            </tr>
+
+            <!-- Net Estate -->
+            <tr class="bg-purple-50">
+              <td class="px-4 py-3 text-sm font-semibold text-purple-800">Net Estate</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-purple-800">{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.net_estate_value || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-purple-800">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.net_estate_value || 0) }}</td>
+            </tr>
+
+            <!-- NRB -->
+            <tr>
+              <td class="px-4 py-3 text-sm text-gray-600">Less: Total NRB (inc. transferred)</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.total_nrb || 650000) }}</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.total_nrb || 650000) }}</td>
+            </tr>
+
+            <!-- RNRB -->
+            <tr v-if="secondDeathData.second_death_analysis.iht_calculation.rnrb_eligible && secondDeathData.second_death_analysis.iht_calculation.rnrb > 0">
+              <td class="px-4 py-3 text-sm text-gray-600">Less: RNRB</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.rnrb || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.rnrb || 0) }}</td>
+            </tr>
+
+            <!-- Taxable Estate -->
+            <tr class="bg-gray-50">
+              <td class="px-4 py-3 text-sm font-semibold text-gray-900">Taxable Estate</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.taxable_estate || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.taxable_estate || 0) }}</td>
+            </tr>
+
+            <!-- IHT Liability -->
+            <tr class="bg-red-50">
+              <td class="px-4 py-3 text-sm font-semibold text-red-800">IHT Liability (40%)</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-red-800">{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.iht_liability || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-red-800">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.iht_liability || 0) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- IHT Breakdown - Standard (Non-Married Users OR Married without spouse link) -->
+    <div v-else-if="!loading && ihtData" class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        {{ isMarried ? 'IHT Calculation Breakdown (Spouse Exemption Applies)' : 'IHT Calculation Breakdown' }}
+      </h3>
+      <p v-if="projection" class="text-sm text-gray-600 mb-6">Comparison of IHT liability if death occurs now vs. at projected life expectancy (Age {{ projection.life_expectancy.death_age }})</p>
+
+      <!-- Estate Calculation Table (if projection data available) -->
+      <div v-if="projection" class="overflow-x-auto mb-6">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Line Item</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Now</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Death at Age {{ projection.life_expectancy.death_age }}</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <!-- Gross Estate -->
+            <tr>
+              <td class="px-4 py-3 text-sm text-gray-900">Total Estate Value</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">{{ formatCurrency(ihtData?.gross_estate_value || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right font-medium text-gray-900">{{ formatCurrency(projection.at_death.assets || 0) }}</td>
+            </tr>
+
+            <!-- Liabilities -->
+            <tr v-if="ihtData?.liabilities > 0 || projection.current.liabilities > 0">
+              <td class="px-4 py-3 text-sm text-gray-600">Less: Liabilities</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(ihtData?.liabilities || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(projection.at_death.liabilities + projection.at_death.mortgages || 0) }}</td>
+            </tr>
+
+            <!-- Net Estate -->
+            <tr class="bg-purple-50">
+              <td class="px-4 py-3 text-sm font-semibold text-purple-800">Gross Estate</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-purple-800">{{ formatCurrency(ihtData?.net_estate_value || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-purple-800">{{ formatCurrency(projection.at_death.net_estate || 0) }}</td>
+            </tr>
+
+            <!-- NRB Individual -->
+            <tr>
+              <td class="px-4 py-3 text-sm text-gray-600">Less: NRB (Individual)</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(ihtData?.nrb || 325000) }}</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(ihtData?.nrb || 325000) }}</td>
+            </tr>
+
+            <!-- NRB from Spouse -->
+            <tr v-if="ihtData?.nrb_from_spouse > 0">
+              <td class="px-4 py-3 text-sm text-gray-600">
+                Less: NRB from Spouse
+                <span v-if="!hasSpouseLinked" class="ml-2 text-xs text-amber-600">(Default)</span>
+              </td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(ihtData.nrb_from_spouse) }}</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(ihtData.nrb_from_spouse) }}</td>
+            </tr>
+
+            <!-- RNRB -->
+            <tr v-if="ihtData?.rnrb_eligible && (ihtData?.rnrb_individual > 0 || ihtData?.rnrb_from_spouse > 0)">
+              <td class="px-4 py-3 text-sm text-gray-600">Less: RNRB (Total)</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency((ihtData?.rnrb_individual || 0) + (ihtData?.rnrb_from_spouse || 0)) }}</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency((ihtData?.rnrb_individual || 0) + (ihtData?.rnrb_from_spouse || 0)) }}</td>
+            </tr>
+
+            <!-- Taxable Estate -->
+            <tr class="bg-gray-50">
+              <td class="px-4 py-3 text-sm font-semibold text-gray-900">Taxable Estate</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-gray-900">{{ formatCurrency(ihtData?.taxable_estate || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-gray-900">{{ formatCurrency(Math.max(0, projection.at_death.net_estate - (ihtData?.nrb || 325000) - (ihtData?.nrb_from_spouse || 0) - ((ihtData?.rnrb_individual || 0) + (ihtData?.rnrb_from_spouse || 0)))) }}</td>
+            </tr>
+
+            <!-- IHT Liability -->
+            <tr class="bg-red-50">
+              <td class="px-4 py-3 text-sm font-semibold text-red-800">IHT Liability (40%)</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-red-800">{{ formatCurrency(ihtData?.estate_iht_liability || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right font-bold text-red-800">{{ formatCurrency(projection.at_death.iht_liability || 0) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Fallback: Old list style if no projection data -->
+      <div v-else class="space-y-3 mb-6">
         <h4 class="text-sm font-semibold text-gray-700 mb-3">Estate Calculation</h4>
 
         <div class="flex justify-between items-center py-2 border-b border-gray-200">
@@ -84,24 +271,30 @@
           <span class="text-sm font-bold text-purple-800">{{ formatCurrency(ihtData?.net_estate_value || 0) }}</span>
         </div>
 
-        <div v-if="ihtData?.spouse_exemption_applies && ihtData?.spouse_exemption > 0" class="flex justify-between items-center py-2 border-b border-gray-200 bg-green-50">
-          <span class="text-sm font-medium text-green-800">Less: Spouse Exemption ({{ formatPercent((ihtData.spouse_exemption / ihtData.net_estate_value)) }})</span>
-          <span class="text-sm font-semibold text-green-800">-{{ formatCurrency(ihtData.spouse_exemption) }}</span>
-        </div>
-
-        <div v-if="ihtData?.spouse_exemption_applies && ihtData?.spouse_exemption > 0" class="flex justify-between items-center py-2 border-b border-gray-200 bg-blue-50">
-          <span class="text-sm font-semibold text-blue-800">Estate Subject to IHT</span>
-          <span class="text-sm font-bold text-blue-800">{{ formatCurrency(ihtData?.taxable_net_estate || 0) }}</span>
-        </div>
-
         <div class="flex justify-between items-center py-2 border-b border-gray-200">
-          <span class="text-sm text-gray-600">Less: NRB{{ ihtData?.nrb_from_spouse > 0 ? ' (inc. transferred £' + formatNumber(ihtData.nrb_from_spouse) + ')' : '' }}</span>
-          <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData?.nrb_available_for_estate || 325000) }}</span>
+          <span class="text-sm text-gray-600">Less: NRB (Individual)</span>
+          <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData?.nrb || 325000) }}</span>
         </div>
 
-        <div v-if="ihtData?.rnrb_eligible" class="flex justify-between items-center py-2 border-b border-gray-200">
-          <span class="text-sm text-gray-600">Less: RNRB</span>
-          <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData?.rnrb || 0) }}</span>
+        <div v-if="ihtData?.nrb_from_spouse > 0" class="flex justify-between items-center py-2 border-b border-gray-200">
+          <span class="text-sm text-gray-600">
+            Less: NRB from Spouse
+            <span v-if="!hasSpouseLinked" class="ml-2 text-xs text-amber-600">(Default - verify by linking spouse)</span>
+          </span>
+          <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData.nrb_from_spouse) }}</span>
+        </div>
+
+        <div v-if="ihtData?.rnrb_eligible && ihtData?.rnrb_individual > 0" class="flex justify-between items-center py-2 border-b border-gray-200">
+          <span class="text-sm text-gray-600">Less: RNRB (Individual)</span>
+          <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData?.rnrb_individual || 0) }}</span>
+        </div>
+
+        <div v-if="ihtData?.rnrb_eligible && ihtData?.rnrb_from_spouse > 0" class="flex justify-between items-center py-2 border-b border-gray-200">
+          <span class="text-sm text-gray-600">
+            Less: RNRB from Spouse
+            <span v-if="!hasSpouseLinked" class="ml-2 text-xs text-amber-600">(Default - verify by linking spouse)</span>
+          </span>
+          <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData?.rnrb_from_spouse || 0) }}</span>
         </div>
 
         <div class="flex justify-between items-center py-3 bg-gray-50 rounded">
@@ -170,8 +363,33 @@
       </div>
     </div>
 
-    <!-- Recommendations -->
-    <div v-if="ihtData?.iht_liability > 0" class="bg-red-50 border-l-4 border-red-500 p-4">
+    <!-- Dual Gifting Timeline (Married Users Only) -->
+    <DualGiftingTimeline
+      v-if="isMarried && secondDeathData?.user_gifting_timeline"
+      :user-timeline="secondDeathData.user_gifting_timeline"
+      :spouse-timeline="secondDeathData.spouse_gifting_timeline"
+      :data-sharing-enabled="secondDeathData.data_sharing_enabled"
+      class="mb-8"
+    />
+
+    <!-- IHT Mitigation Strategies (Married Users with Second Death Data) -->
+    <IHTMitigationStrategies
+      v-if="isMarried && secondDeathData?.mitigation_strategies"
+      :strategies="secondDeathData.mitigation_strategies"
+      :iht-liability="secondDeathData.effective_iht_liability || secondDeathData.second_death_analysis?.iht_calculation?.iht_liability || 0"
+      class="mb-8"
+    />
+
+    <!-- Life Cover Recommendations (Married Users with Second Death Data) -->
+    <LifeCoverRecommendations
+      v-if="isMarried && secondDeathData?.life_cover_recommendations"
+      :recommendations="secondDeathData.life_cover_recommendations"
+      :iht-liability="secondDeathData.effective_iht_liability || secondDeathData.second_death_analysis?.iht_calculation?.iht_liability || 0"
+      class="mb-8"
+    />
+
+    <!-- Standard Recommendations (Non-Married Users OR Married without full second death data) -->
+    <div v-if="!secondDeathData?.mitigation_strategies && ihtData?.iht_liability > 0" class="bg-red-50 border-l-4 border-red-500 p-4">
       <div class="flex">
         <div class="flex-shrink-0">
           <svg
@@ -205,7 +423,7 @@
       </div>
     </div>
 
-    <div v-else class="bg-green-50 border-l-4 border-green-500 p-4">
+    <div v-else-if="ihtData && ihtData.iht_liability === 0" class="bg-green-50 border-l-4 border-green-500 p-4">
       <div class="flex">
         <div class="flex-shrink-0">
           <svg
@@ -295,13 +513,32 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
+import SpouseExemptionNotice from './SpouseExemptionNotice.vue';
+import MissingDataAlert from './MissingDataAlert.vue';
+import DualGiftingTimeline from './DualGiftingTimeline.vue';
+import IHTMitigationStrategies from './IHTMitigationStrategies.vue';
+import LifeCoverRecommendations from './LifeCoverRecommendations.vue';
 
 export default {
   name: 'IHTPlanning',
 
+  components: {
+    SpouseExemptionNotice,
+    MissingDataAlert,
+    DualGiftingTimeline,
+    IHTMitigationStrategies,
+    LifeCoverRecommendations,
+  },
+
   data() {
     return {
       ihtData: null,
+      secondDeathData: null,
+      projection: null,
+      userGender: 'male',
+      isMarried: false,
+      hasSpouse: false,
+      showSpouseExemptionNotice: false,
       loading: false,
       error: null,
     };
@@ -310,6 +547,10 @@ export default {
   computed: {
     ...mapState('estate', ['analysis', 'gifts']),
     ...mapGetters('estate', ['netWorthValue', 'ihtLiability', 'ihtExemptAssets']),
+
+    hasSpouseLinked() {
+      return this.hasSpouse;
+    },
 
     formattedIHTLiability() {
       return this.formatCurrency(this.ihtData?.iht_liability || 0);
@@ -372,6 +613,7 @@ export default {
   },
 
   mounted() {
+    this.checkUserMaritalStatus();
     this.loadIHTCalculation();
   },
 
@@ -383,20 +625,74 @@ export default {
   },
 
   methods: {
-    ...mapActions('estate', ['calculateIHT']),
+    ...mapActions('estate', ['calculateIHT', 'calculateSecondDeathIHTPlanning']),
+
+    checkUserMaritalStatus() {
+      const user = this.$store.state.auth?.user;
+      if (user) {
+        this.isMarried = user.marital_status === 'married';
+        this.hasSpouse = user.spouse_id !== null;
+        this.userGender = user.gender || 'male';
+      }
+    },
 
     async loadIHTCalculation() {
       this.loading = true;
       this.error = null;
+
       try {
-        const response = await this.calculateIHT();
-        this.ihtData = response.data;
+        if (this.isMarried) {
+          // Call second death endpoint for married users
+          console.log('🔍 Calling second death IHT planning...');
+          const response = await this.calculateSecondDeathIHTPlanning();
+          console.log('📊 Second Death Response:', response);
+
+          if (response.success) {
+            this.secondDeathData = response;
+            this.showSpouseExemptionNotice = response.show_spouse_exemption_notice;
+            console.log('✅ Second death data set:', this.secondDeathData);
+
+            // Extract projection data from response
+            if (response.projection) {
+              this.projection = response.projection;
+              console.log('✅ Projection data extracted from second death response:', this.projection);
+            }
+
+            // Handle cases where spouse not linked - use returned calculation data
+            if (response.requires_spouse_link && response.user_iht_calculation) {
+              console.log('⚠️ Spouse link required - using user IHT calculation from response');
+              this.ihtData = response.user_iht_calculation;
+              console.log('✅ User IHT data from second death response:', this.ihtData);
+              this.error = null; // Clear any errors
+            }
+          } else {
+            console.error('❌ Response success = false', response);
+          }
+        } else {
+          // Standard IHT calculation for non-married users
+          console.log('🔍 Calling standard IHT calculation...');
+          const response = await this.calculateIHT();
+          this.ihtData = response.data;
+          this.projection = response.projection; // Set projection data
+          console.log('✅ IHT data set:', this.ihtData);
+          console.log('✅ Projection data set:', this.projection);
+        }
       } catch (error) {
-        console.error('Failed to load IHT calculation:', error);
+        console.error('❌ Failed to load IHT calculation:', error);
         this.error = error.message || 'Failed to calculate IHT liability';
       } finally {
         this.loading = false;
       }
+    },
+
+    getMissingDataMessage() {
+      if (!this.secondDeathData?.missing_data) return '';
+
+      const missingItems = this.secondDeathData.missing_data;
+      if (missingItems.includes('spouse_account')) {
+        return 'Link your spouse account to enable full second death IHT planning.';
+      }
+      return 'Some information is required to complete the second death IHT calculation.';
     },
 
     formatCurrency(value) {

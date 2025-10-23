@@ -4,10 +4,169 @@ declare(strict_types=1);
 
 namespace App\Services\Estate;
 
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class FutureValueCalculator
 {
+    /**
+     * Get life expectancy for user based on UK ONS actuarial tables
+     *
+     * @param  User  $user
+     * @return array [years_remaining, death_age, death_year]
+     */
+    public function getLifeExpectancy(User $user): array
+    {
+        if (! $user->date_of_birth) {
+            // Default to age 85 if no DOB
+            return [
+                'years_remaining' => 30,
+                'death_age' => 85,
+                'death_year' => now()->year + 30,
+            ];
+        }
+
+        $currentAge = Carbon::parse($user->date_of_birth)->age;
+        $gender = strtolower($user->gender ?? 'male');
+
+        $lifeExpectancy = $this->lookupLifeExpectancy($currentAge, $gender);
+
+        return [
+            'years_remaining' => round($lifeExpectancy, 1),
+            'death_age' => $currentAge + (int) round($lifeExpectancy),
+            'death_year' => now()->year + (int) round($lifeExpectancy),
+            'current_age' => $currentAge,
+        ];
+    }
+
+    /**
+     * Lookup life expectancy from UK ONS tables (2021-2023 data)
+     *
+     * @param  int  $age  Current age
+     * @param  string  $gender  'male' or 'female'
+     * @return float Years remaining
+     */
+    private function lookupLifeExpectancy(int $age, string $gender): float
+    {
+        $tables = config('uk_life_expectancy');
+
+        // Normalize gender
+        $gender = in_array($gender, ['male', 'female']) ? $gender : 'male';
+
+        // Get the lookup table
+        $table = $tables[$gender] ?? $tables['male'];
+
+        // If exact age exists, return it
+        if (isset($table[$age])) {
+            return $table[$age];
+        }
+
+        // Linear interpolation for ages not in table
+        $ages = array_keys($table);
+        $minAge = min($ages);
+        $maxAge = max($ages);
+
+        if ($age < $minAge) {
+            // Younger than table, use minimum age + difference
+            return $table[$minAge] + ($minAge - $age);
+        }
+
+        if ($age > $maxAge) {
+            // Older than table, extrapolate (reduce by ~1 year per age)
+            return max(1, $table[$maxAge] - ($age - $maxAge));
+        }
+
+        // Find surrounding ages and interpolate
+        $lowerAge = null;
+        $upperAge = null;
+
+        foreach ($ages as $tableAge) {
+            if ($tableAge < $age) {
+                $lowerAge = $tableAge;
+            } elseif ($tableAge > $age && $upperAge === null) {
+                $upperAge = $tableAge;
+                break;
+            }
+        }
+
+        if ($lowerAge !== null && $upperAge !== null) {
+            $lowerValue = $table[$lowerAge];
+            $upperValue = $table[$upperAge];
+            $fraction = ($age - $lowerAge) / ($upperAge - $lowerAge);
+
+            return $lowerValue + ($upperValue - $lowerValue) * $fraction;
+        }
+
+        // Fallback
+        return 20.0;
+    }
+
+    /**
+     * Project mortgage balance at future date
+     *
+     * Handles:
+     * - Interest-only mortgages (balance stays the same)
+     * - Repayment mortgages (amortization)
+     * - Maturity dates (mortgage paid off if term ends)
+     *
+     * @param  float  $currentBalance
+     * @param  string  $mortgageType  'interest_only' or 'repayment'
+     * @param  int  $remainingTermMonths
+     * @param  float  $interestRate  Annual rate as percentage
+     * @param  float  $monthlyPayment
+     * @param  int  $years  Years to project
+     * @return float Projected balance (0 if matured)
+     */
+    public function projectMortgageBalance(
+        float $currentBalance,
+        string $mortgageType,
+        int $remainingTermMonths,
+        float $interestRate,
+        float $monthlyPayment,
+        int $years
+    ): float {
+        // Convert years to months
+        $monthsToProject = $years * 12;
+
+        // Check if mortgage matures before projection date
+        if ($remainingTermMonths <= $monthsToProject) {
+            // Mortgage will be paid off by projection date
+            return 0;
+        }
+
+        // Interest-only mortgage
+        if ($mortgageType === 'interest_only') {
+            // Balance stays the same (capital not repaid)
+            return $currentBalance;
+        }
+
+        // Repayment mortgage - amortize
+        if ($monthlyPayment > 0 && $interestRate > 0) {
+            $monthlyRate = ($interestRate / 100) / 12;
+
+            $remainingBalance = $currentBalance;
+            for ($month = 1; $month <= $monthsToProject; $month++) {
+                $interestPayment = $remainingBalance * $monthlyRate;
+                $principalPayment = $monthlyPayment - $interestPayment;
+                $remainingBalance -= $principalPayment;
+
+                if ($remainingBalance <= 0) {
+                    return 0;
+                }
+            }
+
+            return max(0, $remainingBalance);
+        }
+
+        // Fallback: linear amortization
+        $monthlyReduction = $currentBalance / $remainingTermMonths;
+        $projectedBalance = $currentBalance - ($monthlyReduction * $monthsToProject);
+
+        return max(0, $projectedBalance);
+    }
+
+
     /**
      * Calculate future value of an asset given current value, growth rate, and years
      *
