@@ -43,7 +43,8 @@ class EstateController extends Controller
         private \App\Services\Estate\FutureValueCalculator $fvCalculator,
         private SecondDeathIHTCalculator $secondDeathCalculator,
         private GiftingStrategyOptimizer $giftingOptimizer,
-        private LifeCoverCalculator $lifeCoverCalculator
+        private LifeCoverCalculator $lifeCoverCalculator,
+        private \App\Services\Estate\LifePolicyStrategyService $lifePolicyStrategy
     ) {}
 
     /**
@@ -771,6 +772,305 @@ class EstateController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete gift: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get planned gifting strategy based on life expectancy
+     */
+    public function getPlannedGiftingStrategy(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            // Validate user has required data
+            if (!$user->date_of_birth || !$user->gender) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Date of birth and gender are required to calculate life expectancy',
+                    'requires_profile_update' => true,
+                ], 422);
+            }
+
+            // ========== USE EXISTING IHT PLANNING CALCULATION ==========
+            // Just call the existing method instead of duplicating logic
+            $ihtPlanningResponse = $this->calculateSecondDeathIHTPlanning($request);
+            $ihtPlanningData = $ihtPlanningResponse->getData(true);
+
+            if (!$ihtPlanningData['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to calculate IHT planning data',
+                ], 500);
+            }
+
+            // Extract the projection data (has current and at_death IHT liability)
+            $projection = $ihtPlanningData['projection'];
+            $lifeExpectancy = $projection['life_expectancy'];
+            $yearsUntilDeath = (int) $lifeExpectancy['years_remaining'];
+
+            // Current IHT liability
+            $currentIHTLiability = $projection['current']['iht_liability'];
+
+            // Projected IHT liability at death
+            $projectedIHTLiability = $projection['at_death']['iht_liability'];
+            $projectedEstateValue = $projection['at_death']['net_estate'];
+
+            // Get IHT profile
+            $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
+            if (!$ihtProfile) {
+                $isMarried = in_array($user->marital_status, ['married']);
+                $config = config('uk_tax_config.inheritance_tax');
+                $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
+
+                $ihtProfile = new IHTProfile([
+                    'user_id' => $user->id,
+                    'marital_status' => $user->marital_status ?? 'single',
+                    'own_home' => false,
+                    'home_value' => 0,
+                    'nrb_transferred_from_spouse' => $defaultSpouseNRB,
+                    'charitable_giving_percent' => 0,
+                ]);
+            }
+
+            // Get current tax year for cash flow
+            $currentTaxYear = (int) date('Y');
+            $cashFlow = $this->cashFlowProjector->createPersonalPL($user->id, (string) $currentTaxYear);
+            $annualExpenditure = $cashFlow['total_expenses'] ?? 0;
+
+            // Calculate total NRB available
+            $taxConfig = config('uk_tax_config');
+            $ihtConfig = $taxConfig['inheritance_tax'];
+            $giftingConfig = $taxConfig['gifting_exemptions'];
+
+            // CRITICAL: For LIFETIME GIFTING, only the user's own NRB (£325k) applies
+            // Spouse NRB transfer ONLY applies on death for IHT calculation, NOT for lifetime gifts
+            $totalNRBAvailable = $ihtConfig['nil_rate_band']; // £325,000 - user's own NRB only
+
+            // Calculate RNRB if own home
+            $rnrbAvailable = 0;
+            if ($ihtProfile->own_home) {
+                $rnrbAvailable = $ihtConfig['residence_nil_rate_band'];
+            }
+
+            // Only calculate detailed strategy if there's actual projected IHT liability
+            $strategy = null;
+            if ($projectedIHTLiability > 0) {
+                $strategy = $this->giftingOptimizer->calculateOptimalGiftingStrategy(
+                    projectedEstateValue: $projectedEstateValue,
+                    currentIHTLiability: $projectedIHTLiability,
+                    yearsUntilDeath: $yearsUntilDeath,
+                    user: $user,
+                    totalNRBAvailable: $totalNRBAvailable,
+                    rnrbAvailable: $rnrbAvailable,
+                    annualExpenditure: $annualExpenditure
+                );
+            }
+
+            // Get current age and life expectancy details (already fetched above)
+            $currentAge = $user->date_of_birth->age;
+            $estimatedAgeAtDeath = $currentAge + $yearsUntilDeath;
+            $estimatedDateOfDeath = now()->addYears($yearsUntilDeath);
+
+            // Calculate number of complete 7-year PET cycles available
+            $complete7YearCycles = floor($yearsUntilDeath / 7);
+
+            // Calculate annual exemption totals
+            $annualExemption = $giftingConfig['annual_exemption'];
+            $totalAnnualExemptionGifts = $annualExemption * $yearsUntilDeath;
+            $annualExemptionIHTSaved = $totalAnnualExemptionGifts * $ihtConfig['standard_rate'];
+
+            // Create a clear annual gifting schedule
+            $annualGiftingSchedule = [];
+            for ($year = 0; $year < $yearsUntilDeath; $year++) {
+                $annualGiftingSchedule[] = [
+                    'year' => $year,
+                    'age' => $currentAge + $year,
+                    'annual_exemption' => $annualExemption,
+                    'date' => now()->addYears($year)->format('Y-m-d'),
+                ];
+            }
+
+            // Create PET cycle framework (educational, not specific amounts)
+            $petCycleFramework = [];
+            for ($cycle = 0; $cycle < $complete7YearCycles; $cycle++) {
+                $giftYear = $cycle * 7;
+                $exemptYear = $giftYear + 7;
+                $petCycleFramework[] = [
+                    'cycle_number' => $cycle + 1,
+                    'gift_year' => $giftYear,
+                    'gift_age' => $currentAge + $giftYear,
+                    'exempt_year' => $exemptYear,
+                    'exempt_age' => $currentAge + $exemptYear,
+                    'description' => "PET Cycle " . ($cycle + 1) . ": Gift at age " . ($currentAge + $giftYear) . ", becomes IHT-free at age " . ($currentAge + $exemptYear),
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'life_expectancy_analysis' => [
+                        'current_age' => $currentAge,
+                        'life_expectancy_years' => $lifeExpectancy['years_remaining'],
+                        'estimated_age_at_death' => $lifeExpectancy['death_age'],
+                        'estimated_date_of_death' => $estimatedDateOfDeath->format('Y-m-d'),
+                        'years_until_expected_death' => $yearsUntilDeath,
+                        'complete_7_year_pet_cycles' => $complete7YearCycles,
+                    ],
+                    'current_estate' => [
+                        'total_assets' => round($projection['current']['assets'], 2),
+                        'total_liabilities' => round($projection['current']['mortgages'] + $projection['current']['liabilities'], 2),
+                        'net_worth' => round($projection['current']['net_estate'], 2),
+                        'iht_liability' => round($currentIHTLiability, 2),
+                    ],
+                    'projected_estate_at_death' => [
+                        'total_assets' => round($projection['at_death']['assets'], 2),
+                        'total_liabilities' => round($projection['at_death']['mortgages'] + $projection['at_death']['liabilities'], 2),
+                        'net_estate' => round($projectedEstateValue, 2),
+                        'iht_liability' => round($projectedIHTLiability, 2),
+                        'years_from_now' => $yearsUntilDeath,
+                    ],
+                    'annual_exemption_plan' => [
+                        'annual_amount' => $annualExemption,
+                        'years_available' => $yearsUntilDeath,
+                        'total_over_lifetime' => round($totalAnnualExemptionGifts, 2),
+                        'total_iht_saved' => round($annualExemptionIHTSaved, 2),
+                        'schedule' => array_slice($annualGiftingSchedule, 0, 10), // First 10 years for display
+                        'total_entries' => count($annualGiftingSchedule),
+                    ],
+                    'pet_cycle_framework' => [
+                        'cycles_available' => $complete7YearCycles,
+                        'nil_rate_band' => $totalNRBAvailable,
+                        'maximum_per_cycle' => $totalNRBAvailable, // Can gift up to NRB per cycle
+                        'total_potential' => $totalNRBAvailable * $complete7YearCycles,
+                        'cycles' => $petCycleFramework,
+                        'has_iht_liability' => $projectedIHTLiability > 0,
+                    ],
+                    'gifting_strategy' => $strategy,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to calculate planned gifting strategy: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get life policy strategy (Whole of Life vs. Self-Insurance)
+     *
+     * Reuses existing IHT planning data to calculate optimal insurance strategy
+     */
+    public function getLifePolicyStrategy(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            // Validate user has required data
+            if (!$user->date_of_birth || !$user->gender) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Date of birth and gender are required to calculate life expectancy and premiums',
+                    'requires_profile_update' => true,
+                ], 422);
+            }
+
+            // ========== REUSE EXISTING IHT PLANNING DATA ==========
+            // Get IHT planning data (second death for married, standard for single)
+            $isMarried = $user->marital_status === 'married' && $user->spouse_id !== null;
+
+            if ($isMarried) {
+                // For married users, use second death IHT calculation
+                $ihtPlanningResponse = $this->calculateSecondDeathIHTPlanning($request);
+                $ihtPlanningData = $ihtPlanningResponse->getData(true);
+
+                if (!$ihtPlanningData['success']) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to retrieve IHT planning data',
+                    ], 500);
+                }
+
+                // Extract second death data
+                $secondDeathAnalysis = $ihtPlanningData['second_death_analysis'] ?? null;
+                if (!$secondDeathAnalysis) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Second death analysis not available',
+                    ], 500);
+                }
+
+                // Use second death (survivor) data
+                $survivorData = $secondDeathAnalysis['second_death'];
+                $ihtLiability = $secondDeathAnalysis['iht_calculation']['iht_liability'];
+                $yearsUntilDeath = (int) $survivorData['years_until_death'];
+                $currentAge = \Carbon\Carbon::parse($user->date_of_birth)->age;
+
+                // Get spouse data for joint policy calculation
+                $spouse = $user->spouse_id ? \App\Models\User::find($user->spouse_id) : null;
+                $spouseAge = $spouse && $spouse->date_of_birth ? \Carbon\Carbon::parse($spouse->date_of_birth)->age : null;
+                $spouseGender = $spouse ? $spouse->gender : null;
+
+            } else {
+                // For single users, use standard IHT calculation with projection
+                $ihtResponse = $this->calculateIHT($request);
+                $ihtData = $ihtResponse->getData(true);
+
+                if (!$ihtData['success']) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to retrieve IHT calculation',
+                    ], 500);
+                }
+
+                // Extract projection data
+                $projection = $ihtData['projection'] ?? null;
+                if (!$projection) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Life expectancy projection not available',
+                    ], 500);
+                }
+
+                $ihtLiability = $projection['at_death']['iht_liability'];
+                $yearsUntilDeath = (int) $projection['life_expectancy']['years_remaining'];
+                $currentAge = $projection['life_expectancy']['current_age'];
+
+                $spouseAge = null;
+                $spouseGender = null;
+            }
+
+            // If no IHT liability, return message
+            if ($ihtLiability <= 0) {
+                return response()->json([
+                    'success' => true,
+                    'no_iht_liability' => true,
+                    'message' => 'You have no projected IHT liability. Life insurance for IHT planning is not required.',
+                    'data' => null,
+                ]);
+            }
+
+            // Calculate life policy strategy using the service
+            $strategy = $this->lifePolicyStrategy->calculateStrategy(
+                coverAmount: $ihtLiability,
+                yearsUntilDeath: $yearsUntilDeath,
+                currentAge: $currentAge,
+                gender: $user->gender,
+                spouseAge: $spouseAge,
+                spouseGender: $spouseGender
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $strategy,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to calculate life policy strategy: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1515,7 +1815,8 @@ class EstateController extends Controller
                 );
 
                 // Calculate effective IHT liability for display (potential second death liability)
-                $totalNRB = $ihtCalculation['total_nrb'] ?? 650000;
+                $config = config('uk_tax_config.inheritance_tax');
+                $totalNRB = $ihtCalculation['total_nrb'] ?? $config['nil_rate_band'];
                 $rnrb = $ihtCalculation['rnrb'] ?? 0;
                 $totalAllowance = $totalNRB + $rnrb;
                 $taxableNetEstate = $ihtCalculation['taxable_net_estate'] ?? 0;
@@ -1573,7 +1874,7 @@ class EstateController extends Controller
                     $currentIHT = $ihtCalculation['iht_liability'] ?? 0;
 
                     // Calculate projected IHT based on projected net estate
-                    $totalNRB = $ihtCalculation['total_nrb'] ?? 650000;
+                    $totalNRB = $ihtCalculation['total_nrb'] ?? $config['nil_rate_band'];
                     $rnrb = $ihtCalculation['rnrb'] ?? 0;
                     $projectedTaxableEstate = max(0, $projectedNetEstate - $totalNRB - $rnrb);
                     $projectedIHT = $projectedTaxableEstate * 0.40;
@@ -1699,7 +2000,12 @@ class EstateController extends Controller
             $projectedIHTLiability = $secondDeathAnalysis['iht_calculation']['iht_liability'];
             $projectedEstateValue = $secondDeathAnalysis['second_death']['projected_combined_estate_at_second_death'];
             $yearsUntilSecondDeath = $secondDeathAnalysis['second_death']['years_until_death'];
-            $totalNRB = $secondDeathAnalysis['iht_calculation']['total_nrb'];
+
+            // CRITICAL: For LIFETIME GIFTING, use ONLY the survivor's own NRB (£325k)
+            // Even though total_nrb includes inherited spouse NRB for IHT on death,
+            // lifetime PET gifts are limited to the individual's own NRB only
+            $config = config('uk_tax_config.inheritance_tax');
+            $totalNRB = $config['nil_rate_band']; // £325,000 - survivor's own NRB only
             $rnrb = $secondDeathAnalysis['iht_calculation']['rnrb'];
 
             // Determine which user survives (for income/expenditure check)
@@ -2202,7 +2508,8 @@ class EstateController extends Controller
         if ($ihtLiability === 0 && $taxableNetEstate > 0) {
             // Married user with spouse exemption - calculate potential IHT on taxable net estate
             // This is the estate that will be subject to IHT on second death
-            $totalNRB = $secondDeathAnalysis['iht_calculation']['total_nrb'] ?? 650000;
+            $config = config('uk_tax_config.inheritance_tax');
+            $totalNRB = $secondDeathAnalysis['iht_calculation']['total_nrb'] ?? $config['nil_rate_band'];
             $totalAllowance = $totalNRB + $rnrb;
             $potentialTaxableEstate = max(0, $taxableNetEstate - $totalAllowance);
             $effectiveIHTLiability = $potentialTaxableEstate * 0.40; // 40% IHT rate
@@ -2218,21 +2525,31 @@ class EstateController extends Controller
 
         // 1. Gifting Strategy (if effective)
         if ($giftingStrategy && isset($giftingStrategy['summary']['total_iht_saved']) && $giftingStrategy['summary']['total_iht_saved'] > 0) {
+            // Build useful summary of gifting strategy
+            $giftingSummary = [];
+
+            foreach ($giftingStrategy['strategies'] as $strategy) {
+                // Only include strategies that actually save IHT
+                if (($strategy['iht_saved'] ?? 0) > 0) {
+                    $giftingSummary[] = sprintf(
+                        '%s: Gift £%s over lifetime → Saves £%s IHT',
+                        $strategy['strategy_name'],
+                        number_format($strategy['total_gifted'] ?? 0, 0),
+                        number_format($strategy['iht_saved'] ?? 0, 0)
+                    );
+                }
+            }
+
             $strategies[] = [
                 'priority' => 1,
                 'strategy_name' => 'Gifting Strategy',
                 'effectiveness' => 'High',
                 'iht_saved' => $giftingStrategy['summary']['total_iht_saved'],
                 'implementation_complexity' => 'Medium',
-                'description' => 'Reduce estate value through strategic gifting (PETs, annual exemptions, income gifts)',
-                'specific_actions' => array_map(function ($strategy) {
-                    return [
-                        'action' => $strategy['strategy_name'],
-                        'amount' => $strategy['total_gifted'] ?? 0,
-                        'iht_saved' => $strategy['iht_saved'],
-                        'steps' => $strategy['implementation_steps'],
-                    ];
-                }, $giftingStrategy['strategies']),
+                'description' => 'Reduce estate value through strategic lifetime gifting to eliminate or reduce IHT liability',
+                'specific_actions' => $giftingSummary,
+                'total_gifted' => $giftingStrategy['summary']['total_gifted'] ?? 0,
+                'reduction_percentage' => $giftingStrategy['summary']['reduction_percentage'] ?? 0,
             ];
         }
 

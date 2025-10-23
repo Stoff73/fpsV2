@@ -286,10 +286,14 @@ Route::middleware('auth:sanctum')->prefix('estate')->group(function () {
 
     // Gifts
     Route::prefix('gifts')->group(function () {
+        Route::get('/planned-strategy', [EstateController::class, 'getPlannedGiftingStrategy']);
         Route::post('/', [EstateController::class, 'storeGift']);
         Route::put('/{id}', [EstateController::class, 'updateGift']);
         Route::delete('/{id}', [EstateController::class, 'destroyGift']);
     });
+
+    // Life Policy Strategy
+    Route::get('/life-policy-strategy', [EstateController::class, 'getLifePolicyStrategy']);
 
     // Trusts
     Route::prefix('trusts')->group(function () {

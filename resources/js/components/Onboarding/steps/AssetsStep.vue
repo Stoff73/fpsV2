@@ -264,6 +264,7 @@
       <p v-if="properties.length === 0" class="text-body-sm text-gray-500 italic">
         You can skip this step and add properties later from your dashboard.
       </p>
+      </div>
     </div>
   </OnboardingStep>
 </template>

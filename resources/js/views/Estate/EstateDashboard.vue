@@ -92,13 +92,16 @@
         <!-- Tab Content -->
         <div class="p-6">
           <!-- IHT Planning Tab -->
-          <IHTPlanning v-if="activeTab === 'iht'" @will-updated="reloadIHTCalculation" />
+          <IHTPlanning v-if="activeTab === 'iht'" @will-updated="reloadIHTCalculation" @switch-tab="switchTab" />
 
           <!-- Will Tab -->
           <WillPlanning v-else-if="activeTab === 'will'" @will-updated="reloadIHTCalculation" />
 
           <!-- Gifting Strategy Tab -->
           <GiftingStrategy v-else-if="activeTab === 'gifting'" />
+
+          <!-- Life Policy Strategy Tab -->
+          <LifePolicyStrategy v-else-if="activeTab === 'life-policy'" />
 
           <!-- Trust Planning Tab -->
           <TrustPlanning v-else-if="activeTab === 'trusts'" />
@@ -120,6 +123,7 @@ import { mapState, mapActions } from 'vuex';
 import AppLayout from '@/layouts/AppLayout.vue';
 import IHTPlanning from '@/components/Estate/IHTPlanning.vue';
 import GiftingStrategy from '@/components/Estate/GiftingStrategy.vue';
+import LifePolicyStrategy from '@/components/Estate/LifePolicyStrategy.vue';
 import TrustPlanning from '@/components/Estate/TrustPlanning.vue';
 import WillPlanning from '@/components/Estate/WillPlanning.vue';
 import Recommendations from '@/components/Estate/Recommendations.vue';
@@ -132,6 +136,7 @@ export default {
     AppLayout,
     IHTPlanning,
     GiftingStrategy,
+    LifePolicyStrategy,
     TrustPlanning,
     WillPlanning,
     Recommendations,
@@ -146,6 +151,7 @@ export default {
         { id: 'iht', label: 'IHT Planning' },
         { id: 'will', label: 'Will' },
         { id: 'gifting', label: 'Gifting Strategy' },
+        { id: 'life-policy', label: 'Life Policy Strategy' },
         { id: 'trusts', label: 'Trust Planning' },
         { id: 'recommendations', label: 'Recommendations' },
         { id: 'scenarios', label: 'What-If Scenarios' },
@@ -180,6 +186,11 @@ export default {
         // IHTPlanning component will reload automatically
         this.$forceUpdate();
       }
+    },
+
+    switchTab(tabId) {
+      // Switch to a specific tab (e.g., from IHT Planning to Gifting)
+      this.activeTab = tabId;
     },
   },
 };

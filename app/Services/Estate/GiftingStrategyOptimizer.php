@@ -211,13 +211,11 @@ class GiftingStrategyOptimizer
         // Calculate how many complete 7-year cycles we have
         $complete7YearCycles = floor($yearsUntilDeath / 7);
 
-        // Amount to gift per cycle to eliminate IHT
-        $targetReduction = $remainingIHTLiability / $ihtRate; // Estate reduction needed
-        $amountPerCycle = $complete7YearCycles > 0 ?
-            $targetReduction / $complete7YearCycles :
-            $targetReduction;
+        // CRITICAL: PETs should NEVER exceed NRB to avoid immediate IHT charge
+        // Gift up to NRB per cycle - this is the maximum tax-efficient amount
+        $amountPerCycle = $totalNRBAvailable; // Always gift NRB amount per cycle
 
-        // Cap at remaining estate value
+        // Cap at remaining estate value if necessary
         $amountPerCycle = min($amountPerCycle, $remainingEstateValue);
 
         $totalGifted = $amountPerCycle * $complete7YearCycles;

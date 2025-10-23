@@ -15,7 +15,7 @@
     <!-- Strategies accordion -->
     <div v-else class="space-y-3">
       <div
-        v-for="(strategy, index) in strategies"
+        v-for="(strategy, index) in enhancedStrategies"
         :key="index"
         class="border rounded-lg overflow-hidden"
         :class="getStrategyBorderClass(strategy.priority)"
@@ -57,6 +57,12 @@
                 <div v-if="strategy.iht_saved" class="text-green-600 font-medium">
                   IHT Saved: {{ formatCurrency(strategy.iht_saved) }}
                 </div>
+                <div v-if="strategy.total_gifted" class="text-blue-600 font-medium">
+                  Total Gifted: {{ formatCurrency(strategy.total_gifted) }}
+                </div>
+                <div v-if="strategy.reduction_percentage" class="text-purple-600 font-medium">
+                  {{ strategy.reduction_percentage }}% Reduction
+                </div>
                 <div v-if="strategy.implementation_complexity" class="text-gray-500">
                   Complexity: {{ strategy.implementation_complexity }}
                 </div>
@@ -82,41 +88,39 @@
 
         <!-- Strategy Details (expandable) -->
         <div v-show="expandedStrategies[index]" class="px-4 pb-4 bg-gray-50">
-          <!-- Specific Actions for gifting strategy (array of objects) -->
-          <div v-if="strategy.specific_actions && Array.isArray(strategy.specific_actions) && typeof strategy.specific_actions[0] === 'object'" class="space-y-3">
-            <h5 class="text-sm font-medium text-gray-900 mb-2">Implementation Plan:</h5>
-
-            <div
-              v-for="(action, actionIndex) in strategy.specific_actions"
-              :key="actionIndex"
-              class="bg-white rounded p-3 border border-gray-200"
-            >
-              <div class="flex justify-between items-start mb-2">
-                <h6 class="text-sm font-semibold text-gray-900">{{ action.action }}</h6>
-                <span v-if="action.iht_saved" class="text-sm font-medium text-green-600">
-                  Saves {{ formatCurrency(action.iht_saved) }}
-                </span>
+          <!-- Gifting Strategy - Special Layout with Link -->
+          <div v-if="strategy.strategy_name === 'Gifting Strategy'" class="space-y-3">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h5 class="text-sm font-semibold text-blue-900 mb-1">Gifting Strategy Summary</h5>
+                  <p class="text-xs text-blue-700">Strategic lifetime gifts to reduce IHT liability</p>
+                </div>
+                <button
+                  @click="$emit('navigate-to-gifting')"
+                  class="inline-flex items-center px-3 py-1.5 border border-blue-400 rounded-md text-xs font-medium text-blue-800 bg-white hover:bg-blue-50 transition shadow-sm"
+                >
+                  <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                  View Full Timeline
+                </button>
               </div>
 
-              <p v-if="action.amount" class="text-xs text-gray-600 mb-2">
-                Total to gift: {{ formatCurrency(action.amount) }}
-              </p>
-
-              <!-- Steps -->
-              <ul v-if="action.steps" class="space-y-1">
-                <li
-                  v-for="(step, stepIndex) in action.steps"
-                  :key="stepIndex"
-                  class="text-xs text-gray-700 flex items-start"
+              <!-- Strategy breakdown -->
+              <div v-if="strategy.specific_actions && strategy.specific_actions.length > 0" class="space-y-2">
+                <div
+                  v-for="(action, actionIndex) in strategy.specific_actions"
+                  :key="actionIndex"
+                  class="text-sm text-blue-900 bg-white rounded px-3 py-2 border border-blue-100"
                 >
-                  <span class="text-blue-600 mr-2">→</span>
-                  <span>{{ step }}</span>
-                </li>
-              </ul>
+                  ✓ {{ action }}
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Specific Actions for other strategies (simple list) -->
+          <!-- Other Strategies - Standard List -->
           <div v-else-if="strategy.specific_actions && Array.isArray(strategy.specific_actions)" class="mt-3">
             <h5 class="text-sm font-medium text-gray-900 mb-2">Implementation Steps:</h5>
             <ul class="space-y-2">
@@ -159,7 +163,7 @@
     </div>
 
     <!-- Total potential savings -->
-    <div v-if="ihtLiability > 0 && strategies.length > 0" class="mt-6 pt-6 border-t border-gray-200">
+    <div v-if="ihtLiability > 0 && enhancedStrategies.length > 0" class="mt-6 pt-6 border-t border-gray-200">
       <div class="bg-green-50 rounded-lg p-4">
         <div class="flex justify-between items-center">
           <div>
@@ -188,6 +192,10 @@ export default {
       type: Number,
       required: true,
     },
+    giftingStrategyData: {
+      type: Object,
+      default: null,
+    },
   },
 
   data() {
@@ -197,14 +205,84 @@ export default {
   },
 
   computed: {
+    // Merge strategies with actual gifting data from Gifting tab
+    enhancedStrategies() {
+      console.log('[IHTMitigationStrategies] enhancedStrategies computed');
+      console.log('[IHTMitigationStrategies] giftingStrategyData:', this.giftingStrategyData);
+      console.log('[IHTMitigationStrategies] strategies:', this.strategies);
+
+      return this.strategies.map(strategy => {
+        // If this is the Gifting Strategy, override with actual data from Gifting tab
+        if (strategy.strategy_name === 'Gifting Strategy' && this.giftingStrategyData) {
+          console.log('[IHTMitigationStrategies] Found Gifting Strategy, looking for PET data...');
+
+          const petStrategy = this.giftingStrategyData.gifting_strategy?.strategies?.find(
+            s => s.strategy_name === 'Potentially Exempt Transfers (PETs)'
+          );
+
+          console.log('[IHTMitigationStrategies] PET Strategy found:', petStrategy);
+
+          if (petStrategy) {
+            // Get Annual Exemption totals
+            const annualIHTSaved = this.giftingStrategyData.annual_exemption_plan?.total_iht_saved || 0;
+            const annualTotalGifted = this.giftingStrategyData.annual_exemption_plan?.total_over_lifetime || 0;
+
+            console.log('[IHTMitigationStrategies] Annual IHT Saved:', annualIHTSaved);
+            console.log('[IHTMitigationStrategies] Annual Total Gifted:', annualTotalGifted);
+
+            // Calculate combined totals (Annual + PET)
+            const combinedIHTSaved = petStrategy.iht_saved + annualIHTSaved;
+            const combinedTotalGifted = petStrategy.total_gifted + annualTotalGifted;
+
+            console.log('[IHTMitigationStrategies] Combined IHT Saved:', combinedIHTSaved);
+            console.log('[IHTMitigationStrategies] Combined Total Gifted:', combinedTotalGifted);
+
+            const enhanced = {
+              ...strategy,
+              iht_saved: combinedIHTSaved,
+              total_gifted: combinedTotalGifted,
+              specific_actions: this.buildGiftingActions(petStrategy),
+            };
+            console.log('[IHTMitigationStrategies] Enhanced strategy:', enhanced);
+            return enhanced;
+          }
+        }
+        return strategy;
+      });
+    },
+
     totalSavings() {
-      return this.strategies.reduce((sum, strategy) => sum + (strategy.iht_saved || 0), 0);
+      return this.enhancedStrategies.reduce((sum, strategy) => sum + (strategy.iht_saved || 0), 0);
     },
   },
 
   methods: {
+    buildGiftingActions(petStrategy) {
+      if (!petStrategy) return [];
+
+      const actions = [];
+
+      // Add number of cycles info
+      if (petStrategy.number_of_cycles) {
+        actions.push(`Gift ${this.formatCurrency(petStrategy.amount_per_cycle)} every 7 years for ${petStrategy.number_of_cycles} cycle(s)`);
+      }
+
+      // Add total gifted
+      if (petStrategy.total_gifted) {
+        actions.push(`Total lifetime gifts: ${this.formatCurrency(petStrategy.total_gifted)}`);
+      }
+
+      // Add IHT saved
+      if (petStrategy.iht_saved) {
+        actions.push(`IHT saved: ${this.formatCurrency(petStrategy.iht_saved)}`);
+      }
+
+      return actions;
+    },
+
     toggleStrategy(index) {
-      this.$set(this.expandedStrategies, index, !this.expandedStrategies[index]);
+      // Vue 3 - no need for $set, direct assignment works with Proxy-based reactivity
+      this.expandedStrategies[index] = !this.expandedStrategies[index];
     },
 
     getStrategyBorderClass(priority) {

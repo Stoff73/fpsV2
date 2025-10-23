@@ -377,6 +377,8 @@
       v-if="isMarried && secondDeathData?.mitigation_strategies"
       :strategies="secondDeathData.mitigation_strategies"
       :iht-liability="secondDeathData.effective_iht_liability || secondDeathData.second_death_analysis?.iht_calculation?.iht_liability || 0"
+      :gifting-strategy-data="giftingStrategyData"
+      @navigate-to-gifting="navigateToGiftingTab"
       class="mb-8"
     />
 
@@ -541,6 +543,7 @@ export default {
       showSpouseExemptionNotice: false,
       loading: false,
       error: null,
+      giftingStrategyData: null,
     };
   },
 
@@ -615,6 +618,7 @@ export default {
   mounted() {
     this.checkUserMaritalStatus();
     this.loadIHTCalculation();
+    this.loadGiftingStrategyData();
   },
 
   watch: {
@@ -633,6 +637,30 @@ export default {
         this.isMarried = user.marital_status === 'married';
         this.hasSpouse = user.spouse_id !== null;
         this.userGender = user.gender || 'male';
+      }
+    },
+
+    navigateToGiftingTab() {
+      // Emit event to parent EstateDashboard to switch to Gifting tab
+      this.$emit('switch-tab', 'gifting');
+    },
+
+    async loadGiftingStrategyData() {
+      try {
+        const user = this.$store.state.auth?.user;
+        if (!user || !user.date_of_birth || !user.gender) {
+          // Skip if user doesn't have required data
+          return;
+        }
+
+        const response = await this.$http.get('/api/estate/gifting/planned-strategy');
+        if (response.data.success) {
+          this.giftingStrategyData = response.data.data;
+          console.log('✅ Gifting strategy data loaded:', this.giftingStrategyData);
+        }
+      } catch (error) {
+        // Silently fail - this is supplementary data
+        console.warn('Could not load gifting strategy data:', error);
       }
     },
 

@@ -190,6 +190,24 @@ const estateService = {
         return response.data;
     },
 
+    /**
+     * Get planned gifting strategy based on life expectancy
+     * @returns {Promise} Planned gifting strategy with PET cycles and timeline
+     */
+    async getPlannedGiftingStrategy() {
+        const response = await api.get('/estate/gifts/planned-strategy');
+        return response.data;
+    },
+
+    /**
+     * Get life policy strategy (Whole of Life vs. Self-Insurance)
+     * @returns {Promise} Life policy strategy comparison with premiums and future value calculations
+     */
+    async getLifePolicyStrategy() {
+        const response = await api.get('/estate/life-policy-strategy');
+        return response.data;
+    },
+
     // ==================== TRUSTS ====================
 
     /**
