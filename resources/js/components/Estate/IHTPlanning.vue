@@ -520,6 +520,7 @@ import MissingDataAlert from './MissingDataAlert.vue';
 import DualGiftingTimeline from './DualGiftingTimeline.vue';
 import IHTMitigationStrategies from './IHTMitigationStrategies.vue';
 import LifeCoverRecommendations from './LifeCoverRecommendations.vue';
+import estateService from '../../services/estateService';
 
 export default {
   name: 'IHTPlanning',
@@ -653,9 +654,9 @@ export default {
           return;
         }
 
-        const response = await this.$http.get('/api/estate/gifting/planned-strategy');
-        if (response.data.success) {
-          this.giftingStrategyData = response.data.data;
+        const response = await estateService.getPlannedGiftingStrategy();
+        if (response.success) {
+          this.giftingStrategyData = response.data;
           console.log('✅ Gifting strategy data loaded:', this.giftingStrategyData);
         }
       } catch (error) {
