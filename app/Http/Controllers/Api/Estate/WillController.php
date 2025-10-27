@@ -1,0 +1,254 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Api\Estate;
+
+use App\Http\Controllers\Controller;
+use App\Models\Estate\Bequest;
+use App\Models\Estate\Trust;
+use App\Models\Estate\Will;
+use App\Services\Trust\IHTPeriodicChargeCalculator;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+
+class WillController extends Controller
+{
+    public function __construct(
+        private IHTPeriodicChargeCalculator $periodicChargeCalculator
+    ) {}
+
+    public function getUpcomingTaxReturns(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $monthsAhead = $request->input('months_ahead', 12);
+
+        // Get upcoming periodic charges
+        $upcomingCharges = $this->periodicChargeCalculator->getUpcomingCharges($user->id, $monthsAhead);
+
+        // Get all active trusts with tax return due dates
+        $trusts = Trust::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->get();
+
+        $taxReturns = $trusts->map(function ($trust) {
+            $taxReturn = $this->periodicChargeCalculator->calculateTaxReturnDueDates($trust);
+
+            return [
+                'trust_id' => $trust->id,
+                'trust_name' => $trust->trust_name,
+                'trust_type' => $trust->trust_type,
+                'tax_year_end' => $taxReturn['tax_year_end'],
+                'return_due_date' => $taxReturn['return_due_date'],
+                'days_until_due' => $taxReturn['days_until_due'],
+                'is_overdue' => $taxReturn['is_overdue'],
+            ];
+        })->sortBy('return_due_date');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'upcoming_periodic_charges' => $upcomingCharges,
+                'tax_returns' => $taxReturns->values(),
+            ],
+        ]);
+    }
+
+    // ============ WILL & BEQUEST CRUD ============
+
+    /**
+     * Get user's will
+     */
+    public function getWill(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $will = Will::where('user_id', $user->id)->with('bequests')->first();
+
+        // If no will exists, create default
+        if (! $will) {
+            $isMarried = in_array($user->marital_status, ['married']) && $user->spouse_id !== null;
+            $will = Will::create([
+                'user_id' => $user->id,
+                'death_scenario' => 'user_only',
+                'spouse_primary_beneficiary' => $isMarried,
+                'spouse_bequest_percentage' => $isMarried ? 100.00 : 0.00,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $will,
+        ]);
+    }
+
+    /**
+     * Create or update will
+     */
+    public function storeOrUpdateWill(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'death_scenario' => 'required|in:user_only,both_simultaneous',
+            'spouse_primary_beneficiary' => 'boolean',
+            'spouse_bequest_percentage' => 'nullable|numeric|min:0|max:100',
+            'executor_notes' => 'nullable|string',
+            'last_reviewed_date' => 'nullable|date',
+        ]);
+
+        $validated['user_id'] = $user->id;
+
+        $will = Will::updateOrCreate(
+            ['user_id' => $user->id],
+            $validated
+        );
+
+        // Invalidate IHT cache
+        Cache::forget("estate_analysis_{$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Will saved successfully',
+            'data' => $will->fresh()->load('bequests'),
+        ]);
+    }
+
+    /**
+     * Get all bequests for user's will
+     */
+    public function getBequests(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $will = Will::where('user_id', $user->id)->first();
+
+        if (! $will) {
+            return response()->json([
+                'success' => true,
+                'data' => [],
+            ]);
+        }
+
+        $bequests = Bequest::where('will_id', $will->id)->orderBy('priority_order')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $bequests,
+        ]);
+    }
+
+    /**
+     * Create a bequest
+     */
+    public function storeBequest(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        // Get or create will first
+        $will = Will::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'death_scenario' => 'user_only',
+                'spouse_primary_beneficiary' => false,
+                'spouse_bequest_percentage' => 0.00,
+            ]
+        );
+
+        $validated = $request->validate([
+            'beneficiary_name' => 'required|string|max:255',
+            'beneficiary_user_id' => 'nullable|exists:users,id',
+            'bequest_type' => 'required|in:percentage,specific_amount,specific_asset,residuary',
+            'percentage_of_estate' => 'nullable|numeric|min:0|max:100',
+            'specific_amount' => 'nullable|numeric|min:0',
+            'specific_asset_description' => 'nullable|string',
+            'asset_id' => 'nullable|exists:assets,id',
+            'priority_order' => 'nullable|integer|min:1',
+            'conditions' => 'nullable|string',
+        ]);
+
+        $validated['will_id'] = $will->id;
+        $validated['user_id'] = $user->id;
+
+        // Auto-set priority order if not provided
+        if (! isset($validated['priority_order'])) {
+            $maxPriority = Bequest::where('will_id', $will->id)->max('priority_order') ?? 0;
+            $validated['priority_order'] = $maxPriority + 1;
+        }
+
+        $bequest = Bequest::create($validated);
+
+        // Invalidate cache
+        Cache::forget("estate_analysis_{$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bequest created successfully',
+            'data' => $bequest,
+        ], 201);
+    }
+
+    /**
+     * Update a bequest
+     */
+    public function updateBequest(Request $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'beneficiary_name' => 'sometimes|string|max:255',
+            'beneficiary_user_id' => 'nullable|exists:users,id',
+            'bequest_type' => 'sometimes|in:percentage,specific_amount,specific_asset,residuary',
+            'percentage_of_estate' => 'nullable|numeric|min:0|max:100',
+            'specific_amount' => 'nullable|numeric|min:0',
+            'specific_asset_description' => 'nullable|string',
+            'asset_id' => 'nullable|exists:assets,id',
+            'priority_order' => 'nullable|integer|min:1',
+            'conditions' => 'nullable|string',
+        ]);
+
+        $bequest = Bequest::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $bequest->update($validated);
+
+        // Invalidate cache
+        Cache::forget("estate_analysis_{$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bequest updated successfully',
+            'data' => $bequest->fresh(),
+        ]);
+    }
+
+    /**
+     * Delete a bequest
+     */
+    public function deleteBequest(Request $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+
+        $bequest = Bequest::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $bequest->delete();
+
+        // Invalidate cache
+        Cache::forget("estate_analysis_{$user->id}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bequest deleted successfully',
+        ]);
+    }
+
+    /**
+     * Calculate IHT for surviving spouse scenario
+     *
+     * This endpoint calculates IHT as if the user is a surviving spouse,
+     * projecting their estate to expected death date and including
+     * transferred NRB from deceased spouse.
+     */
+}

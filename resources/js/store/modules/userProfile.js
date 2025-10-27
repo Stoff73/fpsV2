@@ -51,8 +51,42 @@ const state = {
 
 const getters = {
   profile: (state) => state.profile,
+  user: (state, getters, rootState, rootGetters) => {
+    // Get user from auth store which has the most up-to-date user object
+    return rootGetters['auth/user'];
+  },
+  domicileInfo: (state) => {
+    // Return domicile info from profile data
+    return state.profile?.domicile_info || null;
+  },
   personalInfo: (state) => state.personalInfo,
   familyMembers: (state) => state.familyMembers,
+  spouse: (state, getters, rootState, rootGetters) => {
+    // Get current user from auth store
+    const currentUser = rootGetters['auth/user'];
+
+    if (!currentUser || !currentUser.spouse_id) {
+      return null;
+    }
+
+    // Try to find spouse in family members first (has more details)
+    const spouseInFamily = state.familyMembers.find(member => member.relationship === 'spouse');
+    if (spouseInFamily) {
+      // Add the spouse_id to the object for consistency
+      return {
+        ...spouseInFamily,
+        id: currentUser.spouse_id,
+      };
+    }
+
+    // If not in family members, return basic spouse info from current user
+    // The PropertyForm just needs id and name for the dropdown
+    return {
+      id: currentUser.spouse_id,
+      name: 'Spouse', // Placeholder name
+      relationship: 'spouse',
+    };
+  },
   incomeOccupation: (state) => state.incomeOccupation,
   totalAnnualIncome: (state) => {
     if (!state.incomeOccupation) return 0;
@@ -189,6 +223,34 @@ const actions = {
       return response;
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to update income/occupation';
+      commit('setError', errorMessage);
+      throw error;
+    } finally {
+      commit('setLoading', false);
+    }
+  },
+
+  /**
+   * Update expenditure information
+   */
+  async updateExpenditure({ commit }, data) {
+    commit('setLoading', true);
+    commit('setError', null);
+
+    try {
+      const response = await userProfileService.updateExpenditure(data);
+
+      if (response.success) {
+        // Refresh the full profile to get updated expenditure
+        const profileResponse = await userProfileService.getProfile();
+        if (profileResponse.success) {
+          commit('setProfile', profileResponse.data.profile);
+        }
+      }
+
+      return response;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update expenditure';
       commit('setError', errorMessage);
       throw error;
     } finally {

@@ -44,6 +44,11 @@ const getters = {
 
     // IHT liability from analysis
     ihtLiability: (state) => {
+        // For married users, use second death IHT liability if available
+        if (state.secondDeathPlanning?.second_death_analysis?.iht_calculation?.iht_liability !== undefined) {
+            return state.secondDeathPlanning.second_death_analysis.iht_calculation.iht_liability;
+        }
+        // Otherwise use standard analysis
         return state.analysis?.iht_liability || 0;
     },
 
@@ -125,11 +130,14 @@ const getters = {
     // Taxable estate value (AFTER allowances - NRB/RNRB)
     // This is what's actually subject to IHT at 40%
     taxableEstate: (state, getters) => {
-        // Use taxable_estate from IHT analysis (estate value after allowances)
-        if (state.analysis && state.analysis.taxable_estate !== undefined) {
+        // For married users, use second death taxable estate if available
+        if (state.secondDeathPlanning?.second_death_analysis?.iht_calculation?.taxable_estate !== undefined) {
+            return state.secondDeathPlanning.second_death_analysis.iht_calculation.taxable_estate;
+        }
+        // Otherwise use standard analysis
+        if (state.analysis?.taxable_estate !== undefined) {
             return state.analysis.taxable_estate;
         }
-
         // Fallback if no analysis: return 0 (need IHT calc to get proper taxable estate)
         return 0;
     },
@@ -183,7 +191,8 @@ const actions = {
 
         try {
             const response = await estateService.analyzeEstate(data);
-            commit('setAnalysis', response.data);
+            // Extract the actual analysis data from the response
+            commit('setAnalysis', response.data?.data || response.data);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Analysis failed';
@@ -219,8 +228,8 @@ const actions = {
 
         try {
             const response = await estateService.calculateIHT(data);
-            // Commit the IHT analysis data to state
-            commit('setAnalysis', response.data);
+            // Extract the actual analysis data from the response
+            commit('setAnalysis', response.data?.data || response.data);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'IHT calculation failed';
@@ -433,6 +442,13 @@ const actions = {
         try {
             const response = await estateService.calculateSecondDeathIHTPlanning();
             commit('setSecondDeathPlanning', response.data);
+
+            // If spouse is not linked, the backend returns user_iht_calculation
+            // Store this in analysis state so the dashboard getters can access it
+            if (response.data?.requires_spouse_link && response.data?.user_iht_calculation) {
+                commit('setAnalysis', response.data.user_iht_calculation);
+            }
+
             return response;
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || 'Failed to calculate second death IHT planning';

@@ -155,7 +155,7 @@ class MigrateSavingsToCash extends Command
             'notice_period_days' => $account->notice_period_days,
             'maturity_date' => $account->maturity_date,
             'purpose' => $purpose,
-            'ownership_type' => 'sole', // Default, can be updated manually
+            'ownership_type' => 'individual', // Default, can be updated manually
             'ownership_percentage' => 100,
             'is_joint' => false,
             'joint_owner_name' => null,

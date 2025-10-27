@@ -21,6 +21,7 @@ class BusinessInterest extends Model
         'business_type',
         'ownership_type',
         'ownership_percentage',
+        'country',
         'current_valuation',
         'valuation_date',
         'valuation_method',

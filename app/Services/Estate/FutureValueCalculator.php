@@ -243,7 +243,7 @@ class FutureValueCalculator
         $totalFutureValue = 0;
 
         foreach ($assets as $asset) {
-            $currentValue = $asset->current_value ?? 0;
+            $currentValue = (float) ($asset->current_value ?? 0);
             $assetType = $asset->asset_type ?? 'other';
 
             // Get growth rate for this asset type, or use default

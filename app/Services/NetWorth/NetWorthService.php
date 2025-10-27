@@ -12,11 +12,16 @@ use App\Models\BusinessInterest;
 use App\Models\Chattel;
 use App\Models\Mortgage;
 use App\Models\PersonalAccount;
+use App\Services\Shared\CrossModuleAssetAggregator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class NetWorthService
 {
+    public function __construct(
+        private CrossModuleAssetAggregator $assetAggregator
+    ) {}
+
     /**
      * Calculate net worth for a user
      *
@@ -29,17 +34,20 @@ class NetWorthService
         $asOfDate = $asOfDate ?? Carbon::now();
         $userId = $user->id;
 
-        // Calculate assets
-        $propertyValue = $this->calculatePropertyValue($userId);
-        $investmentValue = $this->calculateInvestmentValue($userId);
-        $cashValue = $this->calculateCashValue($userId);
+        // Use CrossModuleAssetAggregator for cross-module assets
+        $assetTotals = $this->assetAggregator->getAssetTotals($userId);
+        $propertyValue = $assetTotals['property'];
+        $investmentValue = $assetTotals['investment'];
+        $cashValue = $assetTotals['cash'];
+
+        // Calculate Estate-specific assets
         $businessValue = $this->calculateBusinessValue($userId);
         $chattelValue = $this->calculateChattelValue($userId);
 
         $totalAssets = $propertyValue + $investmentValue + $cashValue + $businessValue + $chattelValue;
 
-        // Calculate liabilities
-        $mortgages = $this->calculateMortgages($userId);
+        // Use CrossModuleAssetAggregator for mortgages
+        $mortgages = $this->assetAggregator->calculateMortgageTotal($userId);
         $otherLiabilities = $this->calculateOtherLiabilities($userId);
 
         $totalLiabilities = $mortgages + $otherLiabilities;
@@ -66,49 +74,6 @@ class NetWorthService
         ];
     }
 
-    /**
-     * Calculate total property value (with ownership percentage)
-     *
-     * @param int $userId
-     * @return float
-     */
-    private function calculatePropertyValue(int $userId): float
-    {
-        return Property::where('user_id', $userId)
-            ->get()
-            ->sum(function ($property) {
-                $ownershipPercentage = $property->ownership_percentage ?? 100;
-                return $property->current_value * ($ownershipPercentage / 100);
-            });
-    }
-
-    /**
-     * Calculate total investment value (with ownership percentage)
-     *
-     * @param int $userId
-     * @return float
-     */
-    private function calculateInvestmentValue(int $userId): float
-    {
-        return InvestmentAccount::where('user_id', $userId)
-            ->get()
-            ->sum(function ($account) {
-                $ownershipPercentage = $account->ownership_percentage ?? 100;
-                return $account->current_value * ($ownershipPercentage / 100);
-            });
-    }
-
-    /**
-     * Calculate total cash value from savings accounts
-     *
-     * @param int $userId
-     * @return float
-     */
-    private function calculateCashValue(int $userId): float
-    {
-        return (float) SavingsAccount::where('user_id', $userId)
-            ->sum('current_balance');
-    }
 
     /**
      * Calculate total business value (with ownership percentage)
@@ -142,17 +107,6 @@ class NetWorthService
             });
     }
 
-    /**
-     * Calculate total mortgage liabilities
-     *
-     * @param int $userId
-     * @return float
-     */
-    private function calculateMortgages(int $userId): float
-    {
-        return (float) Mortgage::where('user_id', $userId)
-            ->sum('outstanding_balance');
-    }
 
     /**
      * Calculate other liabilities from personal accounts
@@ -238,18 +192,21 @@ class NetWorthService
     {
         $userId = $user->id;
 
+        // Use CrossModuleAssetAggregator for cross-module asset breakdowns
+        $breakdown = $this->assetAggregator->getAssetBreakdown($userId);
+
         return [
             'property' => [
-                'count' => Property::where('user_id', $userId)->count(),
-                'total_value' => $this->calculatePropertyValue($userId),
+                'count' => $breakdown['property']['count'],
+                'total_value' => $breakdown['property']['total'],
             ],
             'investments' => [
-                'count' => InvestmentAccount::where('user_id', $userId)->count(),
-                'total_value' => $this->calculateInvestmentValue($userId),
+                'count' => $breakdown['investment']['count'],
+                'total_value' => $breakdown['investment']['total'],
             ],
             'cash' => [
-                'count' => SavingsAccount::where('user_id', $userId)->count(),
-                'total_value' => $this->calculateCashValue($userId),
+                'count' => $breakdown['cash']['count'],
+                'total_value' => $breakdown['cash']['total'],
             ],
             'business' => [
                 'count' => BusinessInterest::where('user_id', $userId)->count(),

@@ -26,6 +26,7 @@ class UpdatePropertyRequest extends FormRequest
             'trust_id' => ['sometimes', 'nullable', 'exists:trusts,id'],
             'property_type' => ['sometimes', Rule::in(['main_residence', 'second_home', 'buy_to_let', 'commercial', 'land'])],
             'ownership_type' => ['sometimes', Rule::in(['individual', 'joint', 'trust'])],
+            'country' => ['sometimes', 'nullable', 'string', 'max:255'],
             'ownership_percentage' => ['sometimes', 'numeric', 'min:0', 'max:100'],
 
             // Address

@@ -37,6 +37,13 @@
         </p>
       </div>
 
+      <!-- Profile Completeness Alert -->
+      <ProfileCompletenessAlert
+        v-if="profileCompleteness && !loadingCompleteness"
+        :completenessData="profileCompleteness"
+        :dismissible="true"
+      />
+
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -127,6 +134,8 @@ import GapAnalysis from '@/components/Protection/GapAnalysis.vue';
 import Recommendations from '@/components/Protection/Recommendations.vue';
 import WhatIfScenarios from '@/components/Protection/WhatIfScenarios.vue';
 import PolicyDetails from '@/components/Protection/PolicyDetails.vue';
+import ProfileCompletenessAlert from '@/components/Shared/ProfileCompletenessAlert.vue';
+import api from '@/services/api';
 
 export default {
   name: 'ProtectionDashboard',
@@ -138,6 +147,7 @@ export default {
     Recommendations,
     WhatIfScenarios,
     PolicyDetails,
+    ProfileCompletenessAlert,
   },
 
   data() {
@@ -151,6 +161,8 @@ export default {
         { id: 'details', label: 'Policy Details' },
       ],
       showAddPolicyModal: false,
+      profileCompleteness: null,
+      loadingCompleteness: false,
     };
   },
 
@@ -160,6 +172,7 @@ export default {
 
   mounted() {
     this.loadProtectionData();
+    this.loadProfileCompleteness();
   },
 
   methods: {
@@ -170,6 +183,18 @@ export default {
         await this.fetchProtectionData();
       } catch (error) {
         console.error('Failed to load protection data:', error);
+      }
+    },
+
+    async loadProfileCompleteness() {
+      this.loadingCompleteness = true;
+      try {
+        const response = await api.get('/user/profile/completeness');
+        this.profileCompleteness = response.data.data;
+      } catch (error) {
+        console.error('Failed to load profile completeness:', error);
+      } finally {
+        this.loadingCompleteness = false;
       }
     },
 

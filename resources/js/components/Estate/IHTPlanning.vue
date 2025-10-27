@@ -372,16 +372,6 @@
       class="mb-8"
     />
 
-    <!-- IHT Mitigation Strategies (Married Users with Second Death Data) -->
-    <IHTMitigationStrategies
-      v-if="isMarried && secondDeathData?.mitigation_strategies"
-      :strategies="secondDeathData.mitigation_strategies"
-      :iht-liability="secondDeathData.effective_iht_liability || secondDeathData.second_death_analysis?.iht_calculation?.iht_liability || 0"
-      :gifting-strategy-data="giftingStrategyData"
-      @navigate-to-gifting="navigateToGiftingTab"
-      class="mb-8"
-    />
-
     <!-- Life Cover Recommendations (Married Users with Second Death Data) -->
     <LifeCoverRecommendations
       v-if="isMarried && secondDeathData?.life_cover_recommendations"
@@ -518,7 +508,6 @@ import { mapState, mapGetters, mapActions } from 'vuex';
 import SpouseExemptionNotice from './SpouseExemptionNotice.vue';
 import MissingDataAlert from './MissingDataAlert.vue';
 import DualGiftingTimeline from './DualGiftingTimeline.vue';
-import IHTMitigationStrategies from './IHTMitigationStrategies.vue';
 import LifeCoverRecommendations from './LifeCoverRecommendations.vue';
 import estateService from '../../services/estateService';
 
@@ -529,7 +518,6 @@ export default {
     SpouseExemptionNotice,
     MissingDataAlert,
     DualGiftingTimeline,
-    IHTMitigationStrategies,
     LifeCoverRecommendations,
   },
 
@@ -544,7 +532,6 @@ export default {
       showSpouseExemptionNotice: false,
       loading: false,
       error: null,
-      giftingStrategyData: null,
     };
   },
 
@@ -619,7 +606,6 @@ export default {
   mounted() {
     this.checkUserMaritalStatus();
     this.loadIHTCalculation();
-    this.loadGiftingStrategyData();
   },
 
   watch: {
@@ -644,25 +630,6 @@ export default {
     navigateToGiftingTab() {
       // Emit event to parent EstateDashboard to switch to Gifting tab
       this.$emit('switch-tab', 'gifting');
-    },
-
-    async loadGiftingStrategyData() {
-      try {
-        const user = this.$store.state.auth?.user;
-        if (!user || !user.date_of_birth || !user.gender) {
-          // Skip if user doesn't have required data
-          return;
-        }
-
-        const response = await estateService.getPlannedGiftingStrategy();
-        if (response.success) {
-          this.giftingStrategyData = response.data;
-          console.log('✅ Gifting strategy data loaded:', this.giftingStrategyData);
-        }
-      } catch (error) {
-        // Silently fail - this is supplementary data
-        console.warn('Could not load gifting strategy data:', error);
-      }
     },
 
     async loadIHTCalculation() {

@@ -20,6 +20,7 @@ class Property extends Model
         'trust_id',
         'property_type',
         'ownership_type',
+        'country',
         'ownership_percentage',
         'address_line_1',
         'address_line_2',

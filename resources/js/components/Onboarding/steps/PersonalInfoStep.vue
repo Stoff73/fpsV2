@@ -1,7 +1,7 @@
 <template>
   <OnboardingStep
-    title="Confirm Your Information"
-    description="Let's confirm the information from your registration"
+    title="Personal Information"
+    description="Tell us about yourself to help us tailor your estate plan"
     :can-go-back="false"
     :can-skip="false"
     :loading="loading"
@@ -9,43 +9,183 @@
     @next="handleNext"
   >
     <div class="space-y-6">
-      <!-- Display marital status from registration -->
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <p class="text-body-sm text-gray-600">Name</p>
-            <p class="text-body font-medium text-gray-900">{{ userName }}</p>
-          </div>
-          <div>
-            <p class="text-body-sm text-gray-600">Date of Birth</p>
-            <p class="text-body font-medium text-gray-900">{{ userDob }}</p>
-          </div>
-          <div>
-            <p class="text-body-sm text-gray-600">Marital Status</p>
-            <p class="text-body font-medium text-gray-900">{{ maritalStatusLabel }}</p>
-          </div>
-          <div>
-            <p class="text-body-sm text-gray-600">Gender</p>
-            <p class="text-body font-medium text-gray-900">{{ userGender }}</p>
-          </div>
-        </div>
-        <p class="mt-3 text-body-sm text-gray-500 italic">
-          This information was taken from your registration. You can update it later in your profile if needed.
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p class="text-body-sm text-blue-800">
+          <strong>Why this matters:</strong> Personal information helps us calculate your estate value, available tax reliefs, and provide personalized estate planning advice.
         </p>
       </div>
 
-      <!-- Confirmation checkbox -->
-      <div>
-        <label class="inline-flex items-start">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Date of Birth -->
+        <div>
+          <label for="date_of_birth" class="label">
+            Date of Birth <span class="text-red-500">*</span>
+          </label>
           <input
-            v-model="formData.confirmed"
-            type="checkbox"
-            class="form-checkbox text-primary-600 mt-1"
+            id="date_of_birth"
+            v-model="formData.date_of_birth"
+            type="date"
+            class="input-field"
+            :max="maxDob"
+            required
           >
-          <span class="ml-3 text-body text-gray-700">
-            I confirm this information is correct and I'm ready to proceed with estate planning setup.
-          </span>
-        </label>
+          <p class="mt-1 text-body-sm text-gray-500">
+            Used for age-based calculations and projections
+          </p>
+        </div>
+
+        <!-- Gender -->
+        <div>
+          <label for="gender" class="label">
+            Gender <span class="text-red-500">*</span>
+          </label>
+          <select
+            id="gender"
+            v-model="formData.gender"
+            class="input-field"
+            required
+          >
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <!-- Marital Status -->
+        <div>
+          <label for="marital_status" class="label">
+            Marital Status <span class="text-red-500">*</span>
+          </label>
+          <select
+            id="marital_status"
+            v-model="formData.marital_status"
+            class="input-field"
+            required
+          >
+            <option value="">Select marital status</option>
+            <option value="single">Single</option>
+            <option value="married">Married</option>
+            <option value="divorced">Divorced</option>
+            <option value="widowed">Widowed</option>
+          </select>
+          <p class="mt-1 text-body-sm text-gray-500">
+            Affects spouse exemption and transferable nil rate band
+          </p>
+        </div>
+
+        <!-- National Insurance Number -->
+        <div>
+          <label for="national_insurance_number" class="label">
+            National Insurance Number
+          </label>
+          <input
+            id="national_insurance_number"
+            v-model="formData.national_insurance_number"
+            type="text"
+            class="input-field"
+            placeholder="AB123456C"
+            maxlength="9"
+            @input="formatNI"
+          >
+          <p class="mt-1 text-body-sm text-gray-500">
+            Optional - Format: AB123456C
+          </p>
+        </div>
+      </div>
+
+      <!-- Address Section -->
+      <div class="border-t pt-6">
+        <h4 class="text-body font-medium text-gray-900 mb-4">
+          Address
+        </h4>
+
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <label for="address_line_1" class="label">
+              Address Line 1 <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="address_line_1"
+              v-model="formData.address_line_1"
+              type="text"
+              class="input-field"
+              placeholder="123 Test Street"
+              required
+            >
+          </div>
+
+          <div>
+            <label for="address_line_2" class="label">
+              Address Line 2
+            </label>
+            <input
+              id="address_line_2"
+              v-model="formData.address_line_2"
+              type="text"
+              class="input-field"
+              placeholder="Apartment, suite, etc. (optional)"
+            >
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label for="city" class="label">
+                City <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="city"
+                v-model="formData.city"
+                type="text"
+                class="input-field"
+                placeholder="London"
+                required
+              >
+            </div>
+
+            <div>
+              <label for="county" class="label">
+                County
+              </label>
+              <input
+                id="county"
+                v-model="formData.county"
+                type="text"
+                class="input-field"
+                placeholder="Greater London"
+              >
+            </div>
+
+            <div>
+              <label for="postcode" class="label">
+                Postcode <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="postcode"
+                v-model="formData.postcode"
+                type="text"
+                class="input-field"
+                placeholder="SW1A 1AA"
+                maxlength="8"
+                required
+                @input="formatPostcode"
+              >
+            </div>
+          </div>
+
+          <div>
+            <label for="phone" class="label">
+              Phone Number
+            </label>
+            <input
+              id="phone"
+              v-model="formData.phone"
+              type="tel"
+              class="input-field"
+              placeholder="07700 900000"
+            >
+          </div>
+        </div>
       </div>
     </div>
   </OnboardingStep>
@@ -69,33 +209,74 @@ export default {
     const store = useStore();
 
     const formData = ref({
-      confirmed: false,
+      date_of_birth: '',
+      gender: '',
+      marital_status: '',
+      national_insurance_number: '',
+      address_line_1: '',
+      address_line_2: '',
+      city: '',
+      county: '',
+      postcode: '',
+      phone: '',
     });
 
     const loading = ref(false);
     const error = ref(null);
 
-    const currentUser = computed(() => store.getters['auth/currentUser']);
+    const maxDob = computed(() => {
+      // Max DOB is 18 years ago (minimum age)
+      const date = new Date();
+      date.setFullYear(date.getFullYear() - 18);
+      return date.toISOString().split('T')[0];
+    });
 
-    const userName = computed(() => currentUser.value?.name || 'Not provided');
-    const userDob = computed(() => {
-      if (!currentUser.value?.date_of_birth) return 'Not provided';
-      return new Date(currentUser.value.date_of_birth).toLocaleDateString('en-GB');
-    });
-    const maritalStatusLabel = computed(() => {
-      const status = currentUser.value?.marital_status;
-      if (!status) return 'Not provided';
-      return status.charAt(0).toUpperCase() + status.slice(1);
-    });
-    const userGender = computed(() => {
-      const gender = currentUser.value?.gender;
-      if (!gender) return 'Not provided';
-      return gender.charAt(0).toUpperCase() + gender.slice(1);
-    });
+    const formatNI = (event) => {
+      // Simple NI number formatting - uppercase
+      formData.value.national_insurance_number = event.target.value.toUpperCase();
+    };
+
+    const formatPostcode = (event) => {
+      // Simple postcode formatting - uppercase
+      formData.value.postcode = event.target.value.toUpperCase();
+    };
+
+    const validateForm = () => {
+      if (!formData.value.date_of_birth) {
+        error.value = 'Please enter your date of birth';
+        return false;
+      }
+
+      if (!formData.value.gender) {
+        error.value = 'Please select your gender';
+        return false;
+      }
+
+      if (!formData.value.marital_status) {
+        error.value = 'Please select your marital status';
+        return false;
+      }
+
+      if (!formData.value.address_line_1) {
+        error.value = 'Please enter your address';
+        return false;
+      }
+
+      if (!formData.value.city) {
+        error.value = 'Please enter your city';
+        return false;
+      }
+
+      if (!formData.value.postcode) {
+        error.value = 'Please enter your postcode';
+        return false;
+      }
+
+      return true;
+    };
 
     const handleNext = async () => {
-      if (!formData.value.confirmed) {
-        error.value = 'Please confirm your information to proceed';
+      if (!validateForm()) {
         return;
       }
 
@@ -103,25 +284,46 @@ export default {
       error.value = null;
 
       try {
-        // Just mark step as complete, data already exists in user profile
         await store.dispatch('onboarding/saveStepData', {
           stepName: 'personal_info',
-          data: { confirmed: true },
+          data: formData.value,
         });
 
         emit('next');
       } catch (err) {
-        error.value = err.message || 'Failed to save. Please try again.';
+        error.value = err.message || 'Failed to save personal information. Please try again.';
       } finally {
         loading.value = false;
       }
     };
 
     onMounted(async () => {
-      // Load existing data if available
-      const existingData = await store.dispatch('onboarding/fetchStepData', 'personal_info');
-      if (existingData?.confirmed) {
-        formData.value.confirmed = true;
+      // Load existing user data if available
+      const currentUser = store.getters['auth/currentUser'];
+      if (currentUser) {
+        formData.value = {
+          date_of_birth: currentUser.date_of_birth || '',
+          gender: currentUser.gender || '',
+          marital_status: currentUser.marital_status || '',
+          national_insurance_number: currentUser.national_insurance_number || '',
+          address_line_1: currentUser.address_line_1 || '',
+          address_line_2: currentUser.address_line_2 || '',
+          city: currentUser.city || '',
+          county: currentUser.county || '',
+          postcode: currentUser.postcode || '',
+          phone: currentUser.phone || '',
+        };
+      }
+
+      // Load existing step data if available
+      try {
+        const stepData = await store.dispatch('onboarding/fetchStepData', 'personal_info');
+        if (stepData && Object.keys(stepData).length > 0) {
+          formData.value = { ...formData.value, ...stepData };
+        }
+      } catch (err) {
+        // No existing data, start fresh
+        console.log('No existing personal info data');
       }
     });
 
@@ -129,10 +331,9 @@ export default {
       formData,
       loading,
       error,
-      userName,
-      userDob,
-      maritalStatusLabel,
-      userGender,
+      maxDob,
+      formatNI,
+      formatPostcode,
       handleNext,
     };
   },

@@ -1,11 +1,54 @@
 <template>
   <div class="max-w-5xl mx-auto">
     <div class="text-center mb-8">
-      <h2 class="text-h2 font-display text-gray-900 mb-2">
-        What brings you to FPS?
+      <h1 class="text-h1 font-display text-gray-900 mb-4">
+        Welcome to FPS
+      </h1>
+      <h2 class="text-h3 font-display text-gray-700 mb-4">
+        Your Comprehensive Financial Planning System
       </h2>
-      <p class="text-body text-gray-600">
-        Choose the area you'd like to focus on. We'll guide you through the information we need.
+      <div class="max-w-3xl mx-auto mb-6 text-left bg-white rounded-lg border border-gray-200 p-6">
+        <p class="text-body text-gray-700 mb-4">
+          FPS is designed to help UK individuals and families take control of their financial future. Our system provides:
+        </p>
+        <ul class="space-y-2 text-body-sm text-gray-600">
+          <li class="flex items-start">
+            <svg class="w-5 h-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span><strong>Estate Planning:</strong> Calculate IHT liability, optimize gifting strategies, and plan for second death scenarios</span>
+          </li>
+          <li class="flex items-start">
+            <svg class="w-5 h-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span><strong>Protection Analysis:</strong> Assess coverage gaps and ensure your family is financially secure</span>
+          </li>
+          <li class="flex items-start">
+            <svg class="w-5 h-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span><strong>Retirement Planning:</strong> Project pension pots and ensure retirement readiness</span>
+          </li>
+          <li class="flex items-start">
+            <svg class="w-5 h-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span><strong>Net Worth Tracking:</strong> Monitor all assets and liabilities in one place</span>
+          </li>
+          <li class="flex items-start">
+            <svg class="w-5 h-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span><strong>UK Tax Compliance:</strong> Built for UK tax year 2025/26 with all current allowances</span>
+          </li>
+        </ul>
+      </div>
+      <p class="text-body text-gray-600 mb-2">
+        <strong>Choose a focus area below to get started,</strong>
+      </p>
+      <p class="text-body-sm text-gray-500">
+        or <button @click="skipOnboarding" class="text-primary-600 hover:text-primary-700 underline font-medium">skip setup and explore the dashboard</button>
       </p>
     </div>
 
@@ -111,6 +154,7 @@
 <script>
 import { ref } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'FocusAreaSelection',
@@ -119,6 +163,7 @@ export default {
 
   setup(props, { emit }) {
     const store = useStore();
+    const router = useRouter();
     const loading = ref(false);
     const error = ref(null);
 
@@ -136,10 +181,15 @@ export default {
       }
     };
 
+    const skipOnboarding = () => {
+      router.push({ name: 'Dashboard' });
+    };
+
     return {
       loading,
       error,
       selectFocusArea,
+      skipOnboarding,
     };
   },
 };

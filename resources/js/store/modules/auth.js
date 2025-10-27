@@ -10,6 +10,7 @@ const state = {
 const getters = {
   isAuthenticated: (state) => !!state.token,
   currentUser: (state) => state.user,
+  user: (state) => state.user, // Alias for currentUser
   isAdmin: (state) => state.user?.is_admin === true || state.user?.is_admin === 1,
   loading: (state) => state.loading,
   error: (state) => state.error,
@@ -56,12 +57,15 @@ const actions = {
     }
   },
 
-  async logout({ commit }) {
+  async logout({ commit, dispatch }) {
     commit('setLoading', true);
 
     try {
       await authService.logout();
       commit('clearAuth');
+
+      // Reset all module states on logout
+      dispatch('netWorth/resetState', null, { root: true }).catch(() => {});
     } catch (error) {
       console.error('Logout error:', error);
       commit('clearAuth');

@@ -29,7 +29,8 @@ class ProtectionController extends Controller
      * Create a new controller instance.
      */
     public function __construct(
-        private ProtectionAgent $protectionAgent
+        private ProtectionAgent $protectionAgent,
+        private \App\Services\Protection\ComprehensiveProtectionPlanService $comprehensiveProtectionPlan
     ) {}
 
     /**
@@ -683,6 +684,28 @@ class ProtectionController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete sickness/illness policy: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get comprehensive protection plan
+     */
+    public function getComprehensiveProtectionPlan(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            $plan = $this->comprehensiveProtectionPlan->generateComprehensiveProtectionPlan($user);
+
+            return response()->json([
+                'success' => true,
+                'data' => $plan,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate comprehensive protection plan: '.$e->getMessage(),
             ], 500);
         }
     }

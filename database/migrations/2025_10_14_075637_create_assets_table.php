@@ -17,7 +17,7 @@ return new class extends Migration
             $table->enum('asset_type', ['property', 'pension', 'investment', 'business', 'other']);
             $table->string('asset_name');
             $table->decimal('current_value', 15, 2);
-            $table->enum('ownership_type', ['sole', 'joint', 'trust']);
+            $table->enum('ownership_type', ['individual', 'joint', 'trust']);
             $table->string('beneficiary_designation')->nullable();
             $table->boolean('is_iht_exempt')->default(false);
             $table->string('exemption_reason')->nullable();

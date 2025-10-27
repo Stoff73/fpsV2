@@ -241,6 +241,67 @@
         </div>
       </div>
 
+      <!-- Tax Calculations -->
+      <div v-if="incomeOccupation?.net_income" class="card p-6 bg-gradient-to-r from-blue-50 to-blue-100">
+        <h3 class="text-h5 font-semibold text-gray-900 mb-4">UK Tax & NI Calculations</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Gross Income -->
+          <div class="flex justify-between items-center p-3 bg-white rounded-lg">
+            <span class="text-body-sm font-medium text-gray-700">Gross Annual Income</span>
+            <span class="text-body font-semibold text-gray-900">{{ formatCurrency(incomeOccupation.gross_income) }}</span>
+          </div>
+
+          <!-- Income Tax -->
+          <div class="flex justify-between items-center p-3 bg-white rounded-lg">
+            <span class="text-body-sm font-medium text-gray-700">Income Tax</span>
+            <span class="text-body font-semibold text-error-600">-{{ formatCurrency(incomeOccupation.income_tax) }}</span>
+          </div>
+
+          <!-- National Insurance -->
+          <div class="flex justify-between items-center p-3 bg-white rounded-lg">
+            <span class="text-body-sm font-medium text-gray-700">National Insurance</span>
+            <span class="text-body font-semibold text-error-600">-{{ formatCurrency(incomeOccupation.national_insurance) }}</span>
+          </div>
+
+          <!-- Total Deductions -->
+          <div class="flex justify-between items-center p-3 bg-white rounded-lg">
+            <span class="text-body-sm font-medium text-gray-700">Total Deductions</span>
+            <span class="text-body font-semibold text-error-600">-{{ formatCurrency(incomeOccupation.total_deductions) }}</span>
+          </div>
+        </div>
+
+        <!-- Net Income (Prominent Display) -->
+        <div class="mt-6 p-4 bg-white rounded-lg border-2 border-success-500">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-body-sm font-medium text-gray-700">Net Annual Income (Take-Home)</p>
+              <p class="text-body-xs text-gray-500 mt-1">After tax and NI deductions</p>
+            </div>
+            <div class="text-right">
+              <p class="text-h4 font-bold text-success-700">{{ formatCurrency(incomeOccupation.net_income) }}</p>
+              <p class="text-body-sm text-gray-600">{{ formatCurrency(incomeOccupation.net_income / 12) }}/month</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Effective Tax Rate -->
+        <div class="mt-4 p-3 bg-white rounded-lg">
+          <div class="flex justify-between items-center">
+            <span class="text-body-sm font-medium text-gray-700">Effective Tax Rate</span>
+            <span class="text-body font-semibold text-gray-900">{{ incomeOccupation.effective_tax_rate }}%</span>
+          </div>
+        </div>
+
+        <!-- Info Note -->
+        <div class="mt-4 p-3 bg-blue-100 rounded-lg">
+          <p class="text-body-xs text-blue-800">
+            <strong>Note:</strong> Tax calculations use 2025/26 UK tax rates.
+            Personal Allowance: £12,570 | Basic Rate: 20% | Higher Rate: 40% | Additional Rate: 45%
+          </p>
+        </div>
+      </div>
+
       <!-- Action Buttons -->
       <div class="flex justify-end space-x-4">
         <button
@@ -392,6 +453,15 @@ export default {
       errorMessage.value = '';
     };
 
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(amount || 0);
+    };
+
     return {
       form,
       isEditing,
@@ -399,8 +469,10 @@ export default {
       successMessage,
       errorMessage,
       totalIncome,
+      incomeOccupation,
       handleSubmit,
       handleCancel,
+      formatCurrency,
     };
   },
 };

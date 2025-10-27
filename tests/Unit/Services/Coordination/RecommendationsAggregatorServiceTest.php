@@ -1,26 +1,26 @@
 <?php
 
+use App\Agents\ProtectionAgent;
 use App\Models\User;
 use App\Services\Coordination\RecommendationsAggregatorService;
-use App\Services\Estate\EstateAnalyzer;
+use App\Services\Estate\NetWorthAnalyzer;
 use App\Services\Investment\PortfolioAnalyzer;
-use App\Services\Protection\ProtectionAgent;
-use App\Services\Retirement\RetirementProjector;
-use App\Services\Savings\EmergencyFundAnalyzer;
+use App\Services\Retirement\PensionProjector;
+use App\Services\Savings\EmergencyFundCalculator;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
 
-    // Mock all the services
-    $this->protectionAgent = Mockery::mock(ProtectionAgent::class);
-    $this->savingsAnalyzer = Mockery::mock(EmergencyFundAnalyzer::class);
+    // Mock all the services with correct types
+    $this->protectionEngine = Mockery::mock(ProtectionAgent::class);
+    $this->savingsCalculator = Mockery::mock(EmergencyFundCalculator::class);
     $this->investmentAnalyzer = Mockery::mock(PortfolioAnalyzer::class);
-    $this->retirementProjector = Mockery::mock(RetirementProjector::class);
-    $this->estateAnalyzer = Mockery::mock(EstateAnalyzer::class);
+    $this->retirementProjector = Mockery::mock(PensionProjector::class);
+    $this->estateAnalyzer = Mockery::mock(NetWorthAnalyzer::class);
 
     $this->service = new RecommendationsAggregatorService(
-        $this->protectionAgent,
-        $this->savingsAnalyzer,
+        $this->protectionEngine,
+        $this->savingsCalculator,
         $this->investmentAnalyzer,
         $this->retirementProjector,
         $this->estateAnalyzer
@@ -29,8 +29,8 @@ beforeEach(function () {
 
 test('aggregateRecommendations returns recommendations from all modules', function () {
     // Setup mock responses
-    $this->protectionAgent->shouldReceive('analyze')->andReturn([]);
-    $this->protectionAgent->shouldReceive('generateRecommendations')->andReturn([
+    $this->protectionEngine->shouldReceive('analyze')->andReturn([]);
+    $this->protectionEngine->shouldReceive('generateRecommendations')->andReturn([
         [
             'recommendation_id' => 'prot_1',
             'recommendation_text' => 'Increase life insurance coverage',
@@ -39,7 +39,7 @@ test('aggregateRecommendations returns recommendations from all modules', functi
         ],
     ]);
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn([
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn([
         'recommendations' => [
             [
                 'recommendation_id' => 'sav_1',
@@ -68,12 +68,12 @@ test('aggregateRecommendations returns recommendations from all modules', functi
 });
 
 test('aggregateRecommendations sorts by priority score descending', function () {
-    $this->protectionAgent->shouldReceive('analyze')->andReturn([]);
-    $this->protectionAgent->shouldReceive('generateRecommendations')->andReturn([
+    $this->protectionEngine->shouldReceive('analyze')->andReturn([]);
+    $this->protectionEngine->shouldReceive('generateRecommendations')->andReturn([
         ['recommendation_id' => 'prot_1', 'recommendation_text' => 'Test 1', 'priority_score' => 50.0],
     ]);
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn([
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn([
         'recommendations' => [
             ['recommendation_id' => 'sav_1', 'recommendation' => 'Test 2', 'priority' => 90.0],
         ],
@@ -100,8 +100,8 @@ test('aggregateRecommendations sorts by priority score descending', function () 
 });
 
 test('formatRecommendations normalizes different recommendation formats', function () {
-    $this->protectionAgent->shouldReceive('analyze')->andReturn([]);
-    $this->protectionAgent->shouldReceive('generateRecommendations')->andReturn([
+    $this->protectionEngine->shouldReceive('analyze')->andReturn([]);
+    $this->protectionEngine->shouldReceive('generateRecommendations')->andReturn([
         [
             'recommendation_id' => 'prot_1',
             'recommendation_text' => 'Test recommendation',
@@ -109,7 +109,7 @@ test('formatRecommendations normalizes different recommendation formats', functi
         ],
     ]);
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn([
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn([
         'recommendations' => [
             [
                 'id' => 'sav_1',
@@ -136,15 +136,15 @@ test('formatRecommendations normalizes different recommendation formats', functi
 });
 
 test('determineTimeline assigns correct timeline based on priority score', function () {
-    $this->protectionAgent->shouldReceive('analyze')->andReturn([]);
-    $this->protectionAgent->shouldReceive('generateRecommendations')->andReturn([
+    $this->protectionEngine->shouldReceive('analyze')->andReturn([]);
+    $this->protectionEngine->shouldReceive('generateRecommendations')->andReturn([
         ['recommendation_id' => 'p1', 'recommendation_text' => 'Immediate', 'priority_score' => 85.0],
         ['recommendation_id' => 'p2', 'recommendation_text' => 'Short term', 'priority_score' => 65.0],
         ['recommendation_id' => 'p3', 'recommendation_text' => 'Medium term', 'priority_score' => 45.0],
         ['recommendation_id' => 'p4', 'recommendation_text' => 'Long term', 'priority_score' => 25.0],
     ]);
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn(['recommendations' => []]);
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn(['recommendations' => []]);
     // Mock user's investmentAccounts relationship
     $this->user->setRelation('investmentAccounts', collect([]));
     $this->retirementProjector->shouldReceive('analyze')->andReturn(['recommendations' => []]);
@@ -159,14 +159,14 @@ test('determineTimeline assigns correct timeline based on priority score', funct
 });
 
 test('determineImpact assigns correct impact based on priority score', function () {
-    $this->protectionAgent->shouldReceive('analyze')->andReturn([]);
-    $this->protectionAgent->shouldReceive('generateRecommendations')->andReturn([
+    $this->protectionEngine->shouldReceive('analyze')->andReturn([]);
+    $this->protectionEngine->shouldReceive('generateRecommendations')->andReturn([
         ['recommendation_id' => 'p1', 'recommendation_text' => 'High', 'priority_score' => 75.0],
         ['recommendation_id' => 'p2', 'recommendation_text' => 'Medium', 'priority_score' => 50.0],
         ['recommendation_id' => 'p3', 'recommendation_text' => 'Low', 'priority_score' => 30.0],
     ]);
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn(['recommendations' => []]);
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn(['recommendations' => []]);
     // Mock user's investmentAccounts relationship
     $this->user->setRelation('investmentAccounts', collect([]));
     $this->retirementProjector->shouldReceive('analyze')->andReturn(['recommendations' => []]);
@@ -180,12 +180,12 @@ test('determineImpact assigns correct impact based on priority score', function 
 });
 
 test('getRecommendationsByModule filters correctly', function () {
-    $this->protectionAgent->shouldReceive('analyze')->andReturn([]);
-    $this->protectionAgent->shouldReceive('generateRecommendations')->andReturn([
+    $this->protectionEngine->shouldReceive('analyze')->andReturn([]);
+    $this->protectionEngine->shouldReceive('generateRecommendations')->andReturn([
         ['recommendation_id' => 'p1', 'recommendation_text' => 'Protection rec', 'priority_score' => 75.0],
     ]);
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn([
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn([
         'recommendations' => [
             ['recommendation_id' => 's1', 'recommendation' => 'Savings rec', 'priority' => 80.0],
         ],
@@ -206,13 +206,13 @@ test('getRecommendationsByModule filters correctly', function () {
 });
 
 test('getRecommendationsByPriority filters correctly', function () {
-    $this->protectionAgent->shouldReceive('analyze')->andReturn([]);
-    $this->protectionAgent->shouldReceive('generateRecommendations')->andReturn([
+    $this->protectionEngine->shouldReceive('analyze')->andReturn([]);
+    $this->protectionEngine->shouldReceive('generateRecommendations')->andReturn([
         ['recommendation_id' => 'p1', 'recommendation_text' => 'High priority', 'priority_score' => 75.0],
         ['recommendation_id' => 'p2', 'recommendation_text' => 'Low priority', 'priority_score' => 30.0],
     ]);
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn(['recommendations' => []]);
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn(['recommendations' => []]);
     // Mock user's investmentAccounts relationship
     $this->user->setRelation('investmentAccounts', collect([]));
     $this->retirementProjector->shouldReceive('analyze')->andReturn(['recommendations' => []]);
@@ -226,8 +226,8 @@ test('getRecommendationsByPriority filters correctly', function () {
 });
 
 test('getTopRecommendations returns limited results', function () {
-    $this->protectionAgent->shouldReceive('analyze')->andReturn([]);
-    $this->protectionAgent->shouldReceive('generateRecommendations')->andReturn([
+    $this->protectionEngine->shouldReceive('analyze')->andReturn([]);
+    $this->protectionEngine->shouldReceive('generateRecommendations')->andReturn([
         ['recommendation_id' => 'p1', 'recommendation_text' => 'Rec 1', 'priority_score' => 90.0],
         ['recommendation_id' => 'p2', 'recommendation_text' => 'Rec 2', 'priority_score' => 80.0],
         ['recommendation_id' => 'p3', 'recommendation_text' => 'Rec 3', 'priority_score' => 70.0],
@@ -235,7 +235,7 @@ test('getTopRecommendations returns limited results', function () {
         ['recommendation_id' => 'p5', 'recommendation_text' => 'Rec 5', 'priority_score' => 50.0],
     ]);
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn(['recommendations' => []]);
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn(['recommendations' => []]);
     // Mock user's investmentAccounts relationship
     $this->user->setRelation('investmentAccounts', collect([]));
     $this->retirementProjector->shouldReceive('analyze')->andReturn(['recommendations' => []]);
@@ -249,8 +249,8 @@ test('getTopRecommendations returns limited results', function () {
 });
 
 test('getSummary calculates correct statistics', function () {
-    $this->protectionAgent->shouldReceive('analyze')->andReturn([]);
-    $this->protectionAgent->shouldReceive('generateRecommendations')->andReturn([
+    $this->protectionEngine->shouldReceive('analyze')->andReturn([]);
+    $this->protectionEngine->shouldReceive('generateRecommendations')->andReturn([
         [
             'recommendation_id' => 'p1',
             'recommendation_text' => 'High priority protection',
@@ -260,7 +260,7 @@ test('getSummary calculates correct statistics', function () {
         ],
     ]);
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn([
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn([
         'recommendations' => [
             [
                 'recommendation_id' => 's1',
@@ -289,9 +289,9 @@ test('getSummary calculates correct statistics', function () {
 });
 
 test('aggregateRecommendations handles service exceptions gracefully', function () {
-    $this->protectionAgent->shouldReceive('analyze')->andThrow(new \Exception('Protection service error'));
+    $this->protectionEngine->shouldReceive('analyze')->andThrow(new \Exception('Protection service error'));
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn([
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn([
         'recommendations' => [
             ['recommendation_id' => 's1', 'recommendation' => 'Savings rec', 'priority' => 80.0],
         ],
@@ -310,12 +310,12 @@ test('aggregateRecommendations handles service exceptions gracefully', function 
 });
 
 test('determineCategory assigns correct category based on module', function () {
-    $this->protectionAgent->shouldReceive('analyze')->andReturn([]);
-    $this->protectionAgent->shouldReceive('generateRecommendations')->andReturn([
+    $this->protectionEngine->shouldReceive('analyze')->andReturn([]);
+    $this->protectionEngine->shouldReceive('generateRecommendations')->andReturn([
         ['recommendation_id' => 'p1', 'recommendation_text' => 'Protection', 'priority_score' => 75.0],
     ]);
 
-    $this->savingsAnalyzer->shouldReceive('analyze')->andReturn([
+    $this->savingsCalculator->shouldReceive('analyze')->andReturn([
         'recommendations' => [
             ['recommendation_id' => 's1', 'recommendation' => 'Savings', 'priority' => 75.0],
         ],

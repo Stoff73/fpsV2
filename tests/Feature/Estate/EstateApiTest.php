@@ -25,7 +25,7 @@ describe('GET /api/estate', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -66,7 +66,7 @@ describe('POST /api/estate/analyze', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 600000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -103,7 +103,7 @@ describe('GET /api/estate/recommendations', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 600000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -137,7 +137,7 @@ describe('POST /api/estate/scenarios', function () {
             'asset_type' => 'investment',
             'asset_name' => 'Portfolio',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -175,7 +175,7 @@ describe('POST /api/estate/calculate-iht', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 600000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -220,7 +220,7 @@ describe('GET /api/estate/net-worth', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -262,7 +262,7 @@ describe('Asset CRUD operations', function () {
             'asset_type' => 'property',
             'asset_name' => 'Investment Property',
             'current_value' => 350000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'is_iht_exempt' => false,
             'valuation_date' => '2024-01-01',
         ]);
@@ -287,7 +287,7 @@ describe('Asset CRUD operations', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -296,7 +296,7 @@ describe('Asset CRUD operations', function () {
         ]);
 
         $response->assertOk()
-            ->assertJsonPath('data.current_value', '550000.00');
+            ->assertJsonPath('data.current_value', 550000);
     });
 
     it('prevents updating another users asset', function () {
@@ -306,7 +306,7 @@ describe('Asset CRUD operations', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -323,7 +323,7 @@ describe('Asset CRUD operations', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -364,7 +364,7 @@ describe('Liability CRUD operations', function () {
         ]);
 
         $response->assertOk()
-            ->assertJsonPath('data.current_balance', '190000.00');
+            ->assertJsonPath('data.current_balance', 190000);
     });
 
     it('deletes a liability', function () {
@@ -412,7 +412,7 @@ describe('Gift CRUD operations', function () {
         ]);
 
         $response->assertOk()
-            ->assertJsonPath('data.gift_value', '55000.00');
+            ->assertJsonPath('data.gift_value', 55000);
     });
 
     it('deletes a gift', function () {
@@ -469,7 +469,7 @@ describe('POST /api/estate/profile', function () {
 
         $response->assertOk()
             ->assertJsonPath('data.marital_status', 'married')
-            ->assertJsonPath('data.home_value', '600000.00');
+            ->assertJsonPath('data.home_value', 600000);
 
         $this->assertDatabaseCount('iht_profiles', 1);
     });

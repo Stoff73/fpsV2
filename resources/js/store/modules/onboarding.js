@@ -39,7 +39,7 @@ const getters = {
 };
 
 const actions = {
-  async fetchOnboardingStatus({ commit }) {
+  async fetchOnboardingStatus({ commit, state }) {
     commit('SET_LOADING', true);
     commit('SET_ERROR', null);
 
@@ -58,7 +58,7 @@ const actions = {
 
       // If user has a focus area, fetch the steps
       if (data.focus_area) {
-        await actions.fetchSteps({ commit });
+        await actions.fetchSteps({ commit, state });
       }
 
       return data;

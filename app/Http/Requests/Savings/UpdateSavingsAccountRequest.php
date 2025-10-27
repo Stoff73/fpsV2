@@ -26,6 +26,7 @@ class UpdateSavingsAccountRequest extends FormRequest
             'maturity_date' => 'nullable|date',
             'is_emergency_fund' => 'sometimes|boolean',
             'is_isa' => 'sometimes|boolean',
+            'country' => 'sometimes|nullable|string|max:255',
             'isa_type' => 'nullable|in:cash,stocks_shares,LISA',
             'isa_subscription_year' => 'nullable|string',
             'isa_subscription_amount' => 'nullable|numeric|min:0',

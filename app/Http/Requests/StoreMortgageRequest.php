@@ -26,6 +26,7 @@ class StoreMortgageRequest extends FormRequest
             'lender_name' => ['required', 'string', 'max:255'],
             'mortgage_account_number' => ['nullable', 'string', 'max:50'],
             'mortgage_type' => ['required', Rule::in(['repayment', 'interest_only'])],
+            'country' => ['nullable', 'string', 'max:255'],
 
             // Loan details
             'original_loan_amount' => ['required', 'numeric', 'min:0'],

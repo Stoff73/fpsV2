@@ -56,6 +56,16 @@
             </select>
           </div>
 
+          <div>
+            <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Property Country</label>
+            <CountrySelector
+              v-model="form.country"
+              placeholder="Select country where property is located"
+              id="country"
+            />
+            <p class="text-sm text-gray-500 mt-1">Country where the mortgaged property is located</p>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="original_loan_amount" class="block text-sm font-medium text-gray-700 mb-1">Original Loan Amount (£) <span class="text-red-500">*</span></label>
@@ -258,9 +268,14 @@
 
 <script>
 import { mapActions } from 'vuex';
+import CountrySelector from '@/components/Shared/CountrySelector.vue';
 
 export default {
   name: 'MortgageForm',
+
+  components: {
+    CountrySelector,
+  },
 
   props: {
     mortgage: {
@@ -279,6 +294,7 @@ export default {
         lender_name: '',
         mortgage_account_number: '',
         mortgage_type: '',
+        country: 'United Kingdom',
         original_loan_amount: null,
         outstanding_balance: null,
         interest_rate: null,
@@ -287,7 +303,7 @@ export default {
         monthly_payment: null,
         start_date: '',
         maturity_date: '',
-        ownership_type: 'sole',
+        ownership_type: 'individual',
         joint_owner_id: null,
       },
       submitting: false,

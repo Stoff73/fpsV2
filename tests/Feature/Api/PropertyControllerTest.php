@@ -62,7 +62,7 @@ class PropertyControllerTest extends TestCase
     {
         $propertyData = [
             'property_type' => 'main_residence',
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'ownership_percentage' => 100,
             'address_line_1' => '123 Test Street',
             'city' => 'London',
@@ -315,7 +315,7 @@ class PropertyControllerTest extends TestCase
     {
         $propertyData = [
             'property_type' => 'buy_to_let',
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'ownership_percentage' => 100,
             'address_line_1' => '456 Rental Street',
             'city' => 'Manchester',

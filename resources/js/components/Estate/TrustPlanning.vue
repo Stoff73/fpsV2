@@ -1,5 +1,27 @@
 <template>
   <div class="space-y-6">
+    <!-- Planned Trust Strategy Section -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Planned Trust Strategy</h2>
+          <p class="text-gray-600 mt-1">Explore trust planning options with CLT taxation rules</p>
+        </div>
+      </div>
+
+      <!-- Trust Planning Strategy Component -->
+      <TrustPlanningStrategy @navigate-to-assets="navigateToEstateAssets" />
+    </div>
+
+    <!-- Divider -->
+    <div class="border-t-2 border-gray-200 my-8"></div>
+
+    <!-- Actual Trusts Section Header -->
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Trusts Created (Actual)</h2>
+      <p class="text-gray-600">Track trusts you've actually established and monitor their IHT impact</p>
+    </div>
+
     <!-- Trust List -->
     <div class="bg-white shadow rounded-lg p-6">
       <div class="flex justify-between items-center mb-4">
@@ -189,6 +211,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import TrustForm from './TrustForm.vue';
+import TrustPlanningStrategy from './TrustPlanningStrategy.vue';
 import estateService from '@/services/estateService';
 
 export default {
@@ -196,6 +219,7 @@ export default {
 
   components: {
     TrustForm,
+    TrustPlanningStrategy,
   },
 
   data() {
@@ -368,6 +392,11 @@ export default {
         month: 'short',
         day: 'numeric',
       });
+    },
+
+    navigateToEstateAssets() {
+      // Navigate to estate planning assets section
+      this.$router.push({ path: '/estate', query: { tab: 'assets' } });
     },
   },
 };

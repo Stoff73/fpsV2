@@ -11,77 +11,41 @@ use App\Models\Investment\InvestmentAccount;
 use App\Models\Property;
 use App\Models\SavingsAccount;
 use App\Models\Mortgage;
+use App\Services\Shared\CrossModuleAssetAggregator;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class NetWorthAnalyzer
 {
+    public function __construct(
+        private CrossModuleAssetAggregator $assetAggregator
+    ) {}
     /**
      * Calculate current net worth for a user
      */
     public function calculateNetWorth(int $userId): array
     {
-        // Get all manually entered assets
+        // Get all manually entered assets (Estate module specific)
         $manualAssets = Asset::where('user_id', $userId)->get();
 
-        // Get investment accounts from Investment module
-        $investmentAccounts = InvestmentAccount::where('user_id', $userId)->get();
-        $investmentTotalValue = $investmentAccounts->sum('current_value');
+        // Get cross-module assets using shared aggregator (eliminates duplication)
+        $crossModuleAssets = $this->assetAggregator->getAllAssets($userId);
 
-        // Convert investment accounts to asset format for composition analysis
-        $investmentAssets = $investmentAccounts->map(function ($account) {
-            return (object) [
-                'asset_type' => 'investment',
-                'current_value' => $account->current_value,
-                'asset_name' => $account->provider . ' - ' . strtoupper($account->account_type),
-            ];
-        });
+        // Get totals for each cross-module asset type
+        $assetTotals = $this->assetAggregator->getAssetTotals($userId);
+        $investmentTotalValue = $assetTotals['investment'];
+        $propertyTotalValue = $assetTotals['property'];
+        $savingsTotalValue = $assetTotals['cash'];
 
-        // Get properties from Property module
-        $properties = Property::where('user_id', $userId)->get();
-        $propertyTotalValue = $properties->sum(function ($property) {
-            $ownershipPercentage = $property->ownership_percentage ?? 100;
-            return $property->current_value * ($ownershipPercentage / 100);
-        });
-
-        // Convert properties to asset format for composition analysis
-        $propertyAssets = $properties->map(function ($property) {
-            $ownershipPercentage = $property->ownership_percentage ?? 100;
-            $userValue = $property->current_value * ($ownershipPercentage / 100);
-
-            return (object) [
-                'asset_type' => 'property',
-                'current_value' => $userValue,
-                'asset_name' => $property->address_line_1 ?: 'Property',
-            ];
-        });
-
-        // Get savings/cash accounts from Savings module
-        $savingsAccounts = SavingsAccount::where('user_id', $userId)->get();
-        $savingsTotalValue = $savingsAccounts->sum('current_balance');
-
-        // Convert savings accounts to asset format for composition analysis
-        $savingsAssets = $savingsAccounts->map(function ($account) {
-            return (object) [
-                'asset_type' => 'cash',
-                'current_value' => $account->current_balance,
-                'asset_name' => $account->institution . ' - ' . ucfirst($account->account_type),
-            ];
-        });
-
-        // Merge all assets
-        $allAssets = $manualAssets
-            ->concat($investmentAssets)
-            ->concat($propertyAssets)
-            ->concat($savingsAssets);
+        // Merge all assets (manual + cross-module)
+        $allAssets = $manualAssets->concat($crossModuleAssets);
         $totalAssets = $allAssets->sum('current_value');
 
         // Get all liabilities (manual + mortgages)
         $liabilities = Liability::where('user_id', $userId)->get();
-        $mortgages = Mortgage::where('user_id', $userId)->get();
+        $mortgagesTotal = $this->assetAggregator->calculateMortgageTotal($userId);
 
         $manualLiabilitiesTotal = $liabilities->sum('current_balance');
-        $mortgagesTotal = $mortgages->sum('outstanding_balance');
         $totalLiabilities = $manualLiabilitiesTotal + $mortgagesTotal;
 
         // Calculate net worth
@@ -90,7 +54,8 @@ class NetWorthAnalyzer
         // Analyze asset composition
         $assetComposition = $this->analyzeAssetComposition($allAssets);
 
-        // Analyze liability composition (include mortgages)
+        // Analyze liability composition (include mortgages from aggregator)
+        $mortgages = $this->assetAggregator->getMortgages($userId);
         $liabilityComposition = $this->analyzeLiabilityComposition($liabilities, $mortgages);
 
         // Calculate ratios

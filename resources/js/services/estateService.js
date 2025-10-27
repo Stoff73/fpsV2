@@ -200,11 +200,52 @@ const estateService = {
     },
 
     /**
+     * Get personalized asset-based gifting strategy
+     * Analyzes user's actual assets and their liquidity to provide tailored gifting recommendations
+     * @returns {Promise} Personalized gifting strategy with asset-specific guidance
+     */
+    async getPersonalizedGiftingStrategy() {
+        const response = await api.get('/estate/gifts/personalized-strategy');
+        return response.data;
+    },
+
+    /**
+     * Get personalized trust planning strategy with CLT taxation
+     * Analyzes user's assets for trust planning with proper CLT taxation rules:
+     * - 20% lifetime charge on amounts exceeding £325,000 NRB
+     * - Additional charge to 40% if death within 7 years (with taper relief)
+     * - 7-year rolling window for cumulative CLTs
+     * @returns {Promise} Personalized trust strategy with CLT scenarios and taxation
+     */
+    async getPersonalizedTrustStrategy() {
+        const response = await api.get('/estate/gifts/trust-strategy');
+        return response.data;
+    },
+
+    /**
      * Get life policy strategy (Whole of Life vs. Self-Insurance)
      * @returns {Promise} Life policy strategy comparison with premiums and future value calculations
      */
     async getLifePolicyStrategy() {
         const response = await api.get('/estate/life-policy-strategy');
+        return response.data;
+    },
+
+    /**
+     * Get comprehensive estate plan combining all strategies
+     * Generates a complete estate plan document that includes:
+     * - User profile and estate overview
+     * - Current IHT position
+     * - Gifting strategy
+     * - Trust planning strategy
+     * - Life policy strategy
+     * - Optimized combined recommendations with priorities
+     * - Implementation timeline
+     * - Next steps categorized by timeframe
+     * @returns {Promise} Comprehensive estate plan document
+     */
+    async getComprehensiveEstatePlan() {
+        const response = await api.get('/estate/comprehensive-plan');
         return response.data;
     },
 

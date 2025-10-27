@@ -16,6 +16,7 @@ class Liability extends Model
     protected $fillable = [
         'user_id',
         'liability_type',
+        'country',
         'liability_name',
         'current_balance',
         'monthly_payment',

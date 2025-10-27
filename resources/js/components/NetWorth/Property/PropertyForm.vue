@@ -147,6 +147,18 @@
               </div>
             </div>
 
+            <!-- Country Selector -->
+            <div>
+              <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Property Country <span class="text-red-500">*</span></label>
+              <CountrySelector
+                v-model="form.country"
+                placeholder="Select country where property is located"
+                id="country"
+                :required="true"
+              />
+              <p class="text-sm text-gray-500 mt-1">Country where the property is located</p>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label for="purchase_date" class="block text-sm font-medium text-gray-700 mb-1">Purchase Date <span class="text-red-500">*</span></label>
@@ -253,7 +265,7 @@
                 min="0"
                 max="100"
                 required
-                :disabled="form.ownership_type === 'sole'"
+                :disabled="form.ownership_type === 'individual'"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
               />
               <p class="text-sm text-gray-500 mt-1">For sole ownership, this is automatically set to 100%</p>
@@ -544,8 +556,14 @@
 </template>
 
 <script>
+import CountrySelector from '@/components/Shared/CountrySelector.vue';
+
 export default {
   name: 'PropertyForm',
+
+  components: {
+    CountrySelector,
+  },
 
   props: {
     property: {
@@ -571,6 +589,7 @@ export default {
         current_value: null,
         valuation_date: '',
         ownership_type: 'individual',
+        country: 'United Kingdom',
         ownership_percentage: 100,
         joint_owner_id: null,
         household_id: null,
@@ -601,6 +620,7 @@ export default {
     isEditMode() {
       return this.property !== null;
     },
+
     spouse() {
       return this.$store.getters['userProfile/spouse'];
     },
@@ -625,6 +645,7 @@ export default {
       // Direct top-level fields
       this.form.property_type = this.property.property_type || '';
       this.form.ownership_type = this.property.ownership_type || 'individual';
+      this.form.country = this.property.country || 'United Kingdom';
       this.form.ownership_percentage = this.property.ownership_percentage || 100;
       this.form.joint_owner_id = this.property.joint_owner_id || null;
       this.form.household_id = this.property.household_id || null;

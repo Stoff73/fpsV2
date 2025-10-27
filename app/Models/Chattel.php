@@ -20,6 +20,7 @@ class Chattel extends Model
         'name',
         'description',
         'ownership_type',
+        'country',
         'ownership_percentage',
         'purchase_price',
         'purchase_date',

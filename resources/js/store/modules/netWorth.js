@@ -64,6 +64,32 @@ const mutations = {
         state.error = null;
     },
 
+    RESET_STATE(state) {
+        state.overview = {
+            totalAssets: 0,
+            totalLiabilities: 0,
+            netWorth: 0,
+            breakdown: {},
+            liabilitiesBreakdown: {},
+            asOfDate: null,
+        };
+        state.trend = [];
+        state.assetsSummary = {
+            property: { count: 0, total_value: 0 },
+            investments: { count: 0, total_value: 0 },
+            cash: { count: 0, total_value: 0 },
+            business: { count: 0, total_value: 0 },
+            chattels: { count: 0, total_value: 0 },
+        };
+        state.jointAssets = [];
+        state.properties = [];
+        state.selectedProperty = null;
+        state.mortgages = [];
+        state.selectedMortgage = null;
+        state.loading = false;
+        state.error = null;
+    },
+
     // Property mutations
     SET_PROPERTIES(state, properties) {
         state.properties = properties;
@@ -574,6 +600,10 @@ const actions = {
             commit('SET_ERROR', errorMessage);
             throw error;
         }
+    },
+
+    resetState({ commit }) {
+        commit('RESET_STATE');
     },
 };
 

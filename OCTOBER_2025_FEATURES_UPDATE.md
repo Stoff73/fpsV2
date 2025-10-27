@@ -1,8 +1,8 @@
 # October 2025 Features Update
 
-**Date**: October 21, 2025
-**Version**: 0.1.2
-**Status**: Features Complete, Documentation Updated
+**Date**: October 21-25, 2025
+**Version**: 0.1.2.4
+**Status**: Features Complete, Bug Fixes Applied, Documentation Updated
 
 ---
 
@@ -1633,6 +1633,76 @@ nothing.png (screenshot)
 
 ---
 
+## 🐛 Bug Fixes (v0.1.2.4 - October 25, 2025)
+
+### Fixed: Comprehensive Protection Plan Endpoint Error
+
+**Issue**: API endpoint `/api/protection/comprehensive-plan` was returning 500 error with message "Undefined array key 'life_insurance'"
+
+**Root Cause**:
+- `ComprehensiveProtectionPlanService::generateNextSteps()` method (line 479) was accessing non-existent array keys
+- Code was using old structure: `$gaps['life_insurance']`, `$gaps['critical_illness']`, `$gaps['income_protection']`
+- Actual structure from `CoverageGapAnalyzer`: `$gaps['total_gap']` and `$gaps['gaps_by_category'][...]`
+
+**Fix Applied**:
+```php
+// OLD (incorrect):
+if ($gaps['life_insurance'] > 0 || $gaps['critical_illness'] > 0 || $gaps['income_protection'] > 0)
+
+// NEW (correct):
+$totalGap = $gaps['total_gap'] ?? 0;
+$hasGaps = $totalGap > 0
+    || ($gapsByCategory['human_capital_gap'] ?? 0) > 0
+    || ($gapsByCategory['debt_protection_gap'] ?? 0) > 0
+    || ($gapsByCategory['income_protection_gap'] ?? 0) > 0;
+```
+
+**File Modified**: `app/Services/Protection/ComprehensiveProtectionPlanService.php`
+
+---
+
+### Fixed: Income Not Displaying in Financial Summary
+
+**Issue**: Comprehensive Protection Plan was showing "annual_income: 0" even when users had income data
+
+**Root Cause**:
+- `buildFinancialSummary()` was reading from `protection_profiles.annual_income` (legacy field, often 0)
+- Actual income data stored in `users` table (employment_income, self_employment_income, etc.)
+- ProtectionAgent correctly calculated `total_annual_income` but financial summary ignored it
+
+**Fix Applied**:
+- Updated `buildFinancialSummary()` to use `total_annual_income` from user table instead of legacy field
+- Added `monthly_income` calculation for display
+- Added detailed `income_breakdown` showing all income sources:
+  - Employment income
+  - Self-employment income
+  - Rental income
+  - Dividend income
+  - Other income
+
+**File Modified**: `app/Services/Protection/ComprehensiveProtectionPlanService.php`
+
+**New Response Structure**:
+```json
+"financial_summary": {
+  "total_annual_income": 75000,
+  "monthly_income": 6250,
+  "income_breakdown": {
+    "employment_income": 0,
+    "self_employment_income": 75000,
+    "rental_income": 0,
+    "dividend_income": 0,
+    "other_income": 0
+  },
+  "monthly_expenditure": 0,
+  "annual_expenditure": 0,
+  "debt_breakdown": {...},
+  "total_debt": 0
+}
+```
+
+---
+
 ## 🐛 Known Issues & Future Enhancements
 
 ### Known Issues:
@@ -2616,6 +2686,317 @@ MODIFIED: resources/js/views/Estate/EstateDashboard.vue (+5 lines)
 
 ---
 
+### 16. Comprehensive Protection Plan
+
+**Status**: ✅ Complete
+**Implementation Date**: October 25, 2025
+**Version**: v0.1.2.3
+
+#### Overview:
+
+The **Comprehensive Protection Plan** is a detailed, professional-quality report that consolidates all protection module data into a single, comprehensive document. Similar in format and detail to the Comprehensive Estate Plan, this feature provides users with a complete overview of their protection situation, including current coverage, gaps, recommendations, and actionable strategies.
+
+#### Purpose:
+
+This feature transforms raw protection data into a structured, easy-to-understand plan that users can:
+1. Review their complete protection situation at a glance
+2. Understand their coverage gaps and adequacy scores
+3. Get personalized recommendations for improving protection
+4. Share with family members or financial advisers
+5. Print or download as PDF for record-keeping
+
+#### Key Features:
+
+**1. Executive Summary**:
+- Overall adequacy score (0-100) with visual gauge
+- Individual scores for Life Insurance, Critical Illness, and Income Protection
+- Color-coded rating system (Excellent, Good, Fair, Poor)
+- Critical gaps highlighted with amounts
+- Recommended action based on score
+
+**2. User Profile Section**:
+- Personal details (name, age, gender, marital status)
+- Health information (smoker status, health status)
+- Family situation (number of dependents, ages)
+- Occupation and retirement age
+
+**3. Financial Summary**:
+- Annual income breakdown (gross and net)
+- Monthly expenditure analysis
+- Debt breakdown (mortgage and other liabilities)
+- Total debt exposure
+
+**4. Current Coverage Display**:
+- **Life Insurance**: Total coverage, policy count, individual policies with provider, type, sum assured, and annual premium
+- **Critical Illness**: Total coverage, policy count, individual policies
+- **Income Protection**: Monthly benefit, policy count, individual policies with benefit amounts and deferred periods
+- **Premium Summary**: Total annual and monthly premiums across all policies
+
+**5. Protection Needs Analysis**:
+- **Total Need Calculation**: Based on human capital, debt protection, education funding, and final expenses
+- **Breakdown by Category**:
+  - Human Capital: Income replacement need
+  - Debt Protection: Mortgage and other liabilities
+  - Education Funding: (placeholder for future implementation)
+  - Final Expenses: Funeral and estate costs
+- **Income Analysis**:
+  - Gross vs. Net income
+  - Income that stops vs. continues after death
+  - Net income difference (actual family loss)
+- **Spouse Information**: Spouse income tracking and impact on protection need
+
+**6. Coverage Gap Analysis**:
+- **Life Insurance**: Need vs. Coverage vs. Gap with percentage and color-coded status
+- **Critical Illness**: 3x annual income benchmark vs. current coverage
+- **Income Protection**: 70% of net income vs. current monthly benefit
+- Visual progress bars showing coverage percentage
+- Adequacy scores for each protection type
+
+**7. Recommendations**:
+- Detailed recommendations from ProtectionAgent
+- Prioritized by importance
+- Category-specific advice (Life, CI, IP)
+
+**8. Scenario Analysis**:
+- **Death Scenario**: Financial impact on family if user passes away
+- **Critical Illness Scenario**: Financial impact of serious illness diagnosis
+- **Disability Scenario**: Long-term disability and income loss impact
+
+**9. Optimized Protection Strategy**:
+- **Priority 1: Life Insurance Gap** (if total gap > £10k)
+  - Recommended coverage increase
+  - Estimated monthly premium (based on age, smoker status)
+  - Timeframe and importance level
+- **Priority 2: Critical Illness Gap** (if CI gap > £10k based on 3x income)
+  - Recommended CI coverage
+  - Estimated monthly premium
+- **Priority 3: Income Protection Gap** (if monthly gap > £100)
+  - Recommended monthly benefit increase
+  - Estimated monthly premium
+- **Strategy Summary**:
+  - Total coverage increase recommended
+  - Total estimated monthly cost
+  - Total estimated annual cost
+  - Affordability percentage (vs. 10% of expenditure guideline)
+
+**10. Implementation Timeline**:
+- Prioritized action items from recommendations
+- Categorized by protection type
+- Immediate vs. short-term actions
+- Clear next steps
+
+**11. Next Steps & Action Items**:
+- Categorized by timeframe:
+  - **Immediate (This Week)**
+  - **Short-term (This Month)**
+  - **Medium-term (Next 3 Months)**
+- Specific, actionable tasks
+- Professional guidance notes
+
+**12. Professional Disclaimer**:
+- Clear statement that plan is for educational/demonstration purposes
+- Not regulated financial advice
+- Recommendation to consult qualified financial adviser
+- Important notes about assumptions and limitations
+
+#### Technical Implementation:
+
+**Backend Components**:
+
+1. **ComprehensiveProtectionPlanService.php** (NEW - 650+ lines)
+   - Location: `app/Services/Protection/ComprehensiveProtectionPlanService.php`
+   - Main orchestration service that generates the complete plan
+   - Methods:
+     - `generateComprehensiveProtectionPlan(User $user)`: Main entry point
+     - `generateExecutiveSummary()`: Adequacy scores and critical gaps
+     - `buildUserProfile()`: Personal and family information
+     - `buildFinancialSummary()`: Income, expenditure, and debt analysis
+     - `buildCurrentCoverage()`: All current policies with details
+     - `buildProtectionNeeds()`: Calculated protection needs breakdown
+     - `buildCoverageAnalysis()`: Gap analysis for each protection type
+     - `buildRecommendations()`: ProtectionAgent recommendations
+     - `buildScenarioAnalysis()`: Death, CI, and disability scenarios
+     - `generateOptimizedStrategy()`: Prioritized recommendations with cost estimates
+     - `buildImplementationTimeline()`: Action items timeline
+     - `generateNextSteps()`: Categorized next steps by timeframe
+     - Premium estimation methods: `estimateLifePremium()`, `estimateCIPremium()`, `estimateIPPremium()`
+     - Helper methods: `convertToAnnualPremium()`, `formatCurrency()`, `getCoverageStatus()`, etc.
+
+2. **ProtectionController.php** (MODIFIED)
+   - Added `getComprehensiveProtectionPlan()` method
+   - Endpoint: `GET /api/protection/comprehensive-plan`
+   - Returns complete protection plan JSON
+
+3. **routes/api.php** (MODIFIED)
+   - Added route: `Route::get('/comprehensive-plan', [ProtectionController::class, 'getComprehensiveProtectionPlan']);`
+   - Under `auth:sanctum` middleware and `protection` prefix
+
+**Frontend Components**:
+
+1. **ComprehensiveProtectionPlan.vue** (NEW - 850+ lines)
+   - Location: `resources/js/views/Protection/ComprehensiveProtectionPlan.vue`
+   - Full-page document-style component
+   - Sections:
+     - Document header with logo and generation date
+     - Executive summary with radial gauge chart for adequacy score
+     - User profile grid layout
+     - Financial summary with color-coded cards
+     - Current coverage tables for Life, CI, and IP
+     - Protection needs breakdown with visual bars
+     - Coverage gap analysis with progress bars and color coding
+     - Recommendations list
+     - Scenario analysis cards
+     - Optimized strategy with priority badges
+     - Implementation timeline
+     - Next steps categorized by timeframe
+     - Professional disclaimer
+   - Print/PDF functionality via browser print dialog
+   - Responsive design (mobile to desktop)
+   - Professional styling with blue/white color scheme
+
+2. **protectionService.js** (MODIFIED)
+   - Added `getComprehensiveProtectionPlan()` method
+   - API call to `/api/protection/comprehensive-plan`
+
+3. **router/index.js** (MODIFIED)
+   - Added route: `/protection-plan` → `ComprehensiveProtectionPlan` component
+   - Breadcrumb navigation support
+
+4. **QuickActions.vue** (MODIFIED - Dashboard Plans Card)
+   - Updated "Protection Plan" button to navigate to `/protection-plan`
+   - Changed from generic protection dashboard to specific plan
+
+#### Data Flow:
+
+```
+User clicks "Protection Plan" button
+    ↓
+Router navigates to /protection-plan
+    ↓
+ComprehensiveProtectionPlan.vue mounted()
+    ↓
+Calls protectionService.getComprehensiveProtectionPlan()
+    ↓
+API: GET /api/protection/comprehensive-plan
+    ↓
+ProtectionController::getComprehensiveProtectionPlan()
+    ↓
+ComprehensiveProtectionPlanService::generateComprehensiveProtectionPlan()
+    ↓
+Calls ProtectionAgent::analyze() to get base data
+    ↓
+Transforms data through 11 builder methods
+    ↓
+Returns complete plan structure (JSON)
+    ↓
+Vue component renders plan sections
+```
+
+#### Key Calculations:
+
+**1. Protection Needs**:
+- Human Capital: Uses ProtectionAgent's calculation (net income difference × multiplier × years to retirement)
+- Debt Protection: Sum of mortgages + other liabilities
+- Education Funding: £0 (placeholder for future phase)
+- Final Expenses: £7,500 (standard)
+- Total Need: Sum of all categories
+
+**2. Coverage Gap Analysis**:
+- **Life Insurance Gap**: Total need - Total life coverage
+- **Critical Illness Gap**: (Gross income × 3) - Total CI coverage
+- **Income Protection Gap**: (Net monthly income × 70%) - Current monthly benefit
+
+**3. Premium Estimates** (Simplified Model):
+- **Life Insurance**: (Coverage ÷ 1000) × Base rate (age-adjusted, smoker-adjusted)
+  - Base rate: £0.50-£2.00 per £1,000 coverage depending on age/smoker status
+- **Critical Illness**: (Coverage ÷ 1000) × Base rate (typically 1.5-3x life premium)
+- **Income Protection**: Monthly benefit × 3.5% (standard rate)
+
+**4. Adequacy Scores** (from ProtectionAgent):
+- 0-100 scale for each protection type
+- Overall score: Weighted average of Life (50%), CI (30%), IP (20%)
+- Color coding: Green (80+), Blue (60-79), Amber (40-59), Red (<40)
+
+#### Bug Fixes Applied:
+
+**Issue 1: Array Key Mismatch**
+- **Problem**: Service was accessing `$data['coverage']['life_insurance']` but ProtectionAgent returns `$data['coverage']['life_coverage']`
+- **Fix**: Updated all array key accesses to match ProtectionAgent's actual data structure:
+  - `life_coverage`, `critical_illness_coverage`, `income_protection_coverage`
+  - `total_gap`, `gaps_by_category`
+  - Proper needs structure: `human_capital`, `debt_protection`, `total_need`
+
+**Issue 2: Type Errors with `str_replace()`**
+- **Problem**: `str_replace(): Argument #3 ($subject) must be of type array|string, int given`
+- **Root Cause**: Integer values (policy_type IDs, array indices) being passed to `str_replace()`
+- **Fixes**:
+  1. Added type checking for `$policy['policy_type']` before `str_replace()`
+  2. Fixed income protection policy data access (no `premium_amount` or `benefit_period_months`)
+  3. Added type checking for `$user->marital_status` (could be null or int)
+  4. Added type checking for `$category` in foreach loop (could be array index)
+  5. Added null coalescing and fallback values throughout
+
+**Issue 3: Income Protection Data Structure**
+- **Problem**: Service tried to access `premium_amount`, `premium_frequency`, and `benefit_period_months` which don't exist in ProtectionAgent response
+- **Fix**: Updated to use correct fields: `benefit_amount`, `benefit_frequency`, `deferred_period_weeks`
+
+#### Files Created:
+1. `app/Services/Protection/ComprehensiveProtectionPlanService.php` (NEW - 650+ lines)
+2. `resources/js/views/Protection/ComprehensiveProtectionPlan.vue` (NEW - 850+ lines)
+
+#### Files Modified:
+1. `app/Http/Controllers/Api/ProtectionController.php` (added getComprehensiveProtectionPlan method)
+2. `routes/api.php` (added /protection/comprehensive-plan route)
+3. `resources/js/services/protectionService.js` (added getComprehensiveProtectionPlan method)
+4. `resources/js/router/index.js` (added /protection-plan route)
+5. `resources/js/components/Dashboard/QuickActions.vue` (updated Protection Plan button)
+
+#### Benefits:
+
+**For Users**:
+1. **Complete Overview**: All protection data in one professional document
+2. **Visual Understanding**: Color-coded scores, progress bars, and charts
+3. **Actionable Insights**: Clear recommendations with priority and cost estimates
+4. **Financial Planning**: See exact coverage needs, gaps, and costs
+5. **Print/PDF Ready**: Professional format for sharing or record-keeping
+6. **Family Communication**: Easy to share with spouse or dependents
+
+**For Advisers**:
+1. **Professional Report**: Client-ready protection analysis
+2. **Conversation Starter**: Visual gaps and recommendations spark discussion
+3. **Time Savings**: Automated calculations vs. manual spreadsheets
+4. **Comprehensive**: All protection types in one document
+5. **Educational**: Clear explanations help clients understand their needs
+
+#### Design Patterns Used:
+
+1. **Service Layer Pattern**: ComprehensiveProtectionPlanService orchestrates data transformation
+2. **Data Aggregation**: Combines data from ProtectionAgent, models, and calculations
+3. **Progressive Disclosure**: Summary first, then detailed breakdowns
+4. **Visual Hierarchy**: Important information (scores, gaps) prominently displayed
+5. **Responsive Design**: Mobile-first approach with adaptive layout
+6. **Print Optimization**: Clean, professional layout for PDF generation
+
+#### Color Coding System:
+
+- **Green (#10B981)**: Excellent/Good coverage (80%+)
+- **Blue (#3B82F6)**: Fair coverage (60-79%)
+- **Amber (#F59E0B)**: Poor coverage (40-59%)
+- **Red (#EF4444)**: Critical gap (<40%)
+
+#### Future Enhancements (Not Implemented):
+
+1. **PDF Export**: Server-side PDF generation (currently uses browser print)
+2. **Email Delivery**: Send plan to user's email
+3. **Historical Comparison**: Track changes in coverage over time
+4. **Provider Comparison**: Compare quotes from multiple insurers
+5. **Health Questionnaire**: Adjust premium estimates based on health
+6. **Policy Renewal Tracking**: Alert when policies are due for renewal
+7. **Budget Optimization**: Suggest coverage levels based on affordability
+8. **Scenario Customization**: Allow users to model different scenarios
+
+---
+
 ## 🎯 Summary
 
 This October 2025 update represents a major milestone in the FPS application with the addition of:
@@ -2635,31 +3016,113 @@ This October 2025 update represents a major milestone in the FPS application wit
 - **Comprehensive bug fixes & UX improvements** (16 files updated across Property, Protection, Estate, and User Profile modules)
 - **Second Death IHT Planning** with complete cross-module data integration (NEW - October 23, 2025)
 - **Life Policy Strategy** with Whole of Life vs. Self-Insurance comparison (NEW - October 23, 2025)
+- **Comprehensive Protection Plan** with professional report generation and PDF export (NEW - October 25, 2025)
+- **Critical Bug Fixes (v0.1.2.4)**: Fixed Protection Plan endpoint error and income display issues (October 25, 2025)
 
 All features have been tested (723 passing tests) and are ready for production deployment after proper email configuration.
 
 ### Statistics:
-- **Total Features**: 16 major features (15 new features + comprehensive bug fixes & UX improvements)
-- **Files Created**: 78 new files (models, migrations, services, components, tests, admin system, onboarding system, second death IHT, life policy strategy)
-- **Files Modified**: 95+ files across backend and frontend (including 24 tax year updates + 16 bug fix updates + second death implementation + life policy strategy)
+- **Total Features**: 17 major features (16 new features + comprehensive bug fixes & UX improvements)
+- **Files Created**: 80 new files (models, migrations, services, components, tests, admin system, onboarding system, second death IHT, life policy strategy, comprehensive protection plan)
+- **Files Modified**: 100+ files across backend and frontend (including 24 tax year updates + 16 bug fix updates + second death implementation + life policy strategy + protection plan)
 - **Tests Passing**: 723 tests (3,092 assertions)
 - **Database Tables**: 7 new tables (wills, bequests, spouse_permissions, uk_life_expectancy_tables, users.is_admin, onboarding fields in users, onboarding_progress)
-- **API Endpoints**: 40+ new endpoints (13 core + 16 admin + 9 onboarding + 1 second death IHT + 1 life policy strategy)
-- **Lines of Code**: ~18,800+ lines added/modified
+- **API Endpoints**: 41+ new endpoints (13 core + 16 admin + 9 onboarding + 1 second death IHT + 1 life policy strategy + 1 comprehensive protection plan)
+- **Lines of Code**: ~20,300+ lines added/modified
 - **Tax Year Updated**: 24 files (19 application files + 5 test files)
 - **Admin System**: 13 new files, ~3,600 lines, 100% complete
 - **Onboarding System**: 29 new files, ~3,100 lines, 100% complete
 - **Second Death IHT System**: 18 new files, ~3,400 lines, 100% complete ✨
 - **Life Policy Strategy System**: 2 new files, ~1,541 lines, 100% complete ✨
+- **Comprehensive Protection Plan**: 2 new files, ~1,500 lines, 100% complete ✨
 
 ---
 
-**Documentation Status**: ✅ Complete (8 documentation files - OCTOBER_2025_FEATURES_UPDATE.md updated October 23)
-**Code Status**: ✅ All Changes Committed (October 23, 2025 - v0.1.2.2)
+---
+
+## 🐛 Bug Fixes - October 27, 2025
+
+### Estate Planning - Gifting Strategy Tab Fixes
+
+**Date**: October 27, 2025
+**Issue**: Gifting Strategy tab in Estate Planning module failing with 500 errors
+**Status**: ✅ Fixed
+
+#### Fix 1: Unhandled 'cash' Asset Type in Liquidity Analyzer
+
+**Error**: `Unhandled match case 'cash'`
+
+**Root Cause**:
+- `AssetLiquidityAnalyzer` service uses PHP match statement to classify assets by type
+- Match statement handled: investment, pension, property, business, other
+- Did NOT handle 'cash' asset type from cash accounts (savings_accounts table)
+- When users had cash accounts, personalized gifting strategy crashed
+
+**Solution**:
+- Added 'cash' case to match statement in `AssetLiquidityAnalyzer::classifyAsset()`
+- Classified cash as 'liquid' (highest liquidity)
+- Marked as giftable with UK-specific considerations:
+  - Annual exemption (£3,000/year)
+  - Small gifts exemption (£250 per person per year)
+  - Regular gifts from surplus income (unlimited exemption)
+  - PET rules (exempt after 7 years)
+  - Cash ISA tax-free status lost when gifted
+
+**Files Changed**:
+- `app/Services/Estate/AssetLiquidityAnalyzer.php` (lines 113-126)
+
+---
+
+#### Fix 2: Type Error in Income-Based Gifting Strategy
+
+**Error**: `round(): Argument #1 ($num) must be of type int|float, string given`
+
+**Root Cause**:
+- `PersonalizedGiftingStrategyService::buildGiftingFromIncomeStrategy()` reads income/expenditure from User model
+- Database DECIMAL fields return strings in MySQL/Laravel (e.g., "61200.00")
+- Strings were passed to `round()` function without type casting
+- PHP 8+ strict typing requires `round()` to receive int or float
+
+**Solution**:
+- Cast all database DECIMAL values to float before calculations
+- Added explicit `(float)` casting for:
+  - `annual_employment_income`
+  - `annual_self_employment_income`
+  - `annual_rental_income`
+  - `annual_dividend_income`
+  - `annual_other_income`
+  - `annual_expenditure`
+
+**Files Changed**:
+- `app/Services/Estate/PersonalizedGiftingStrategyService.php` (lines 344-351)
+
+**Code**:
+```php
+// Cast all database values to float to prevent type errors
+$totalIncome = (float) ($user->annual_employment_income ?? 0) +
+               (float) ($user->annual_self_employment_income ?? 0) +
+               (float) ($user->annual_rental_income ?? 0) +
+               (float) ($user->annual_dividend_income ?? 0) +
+               (float) ($user->annual_other_income ?? 0);
+
+$annualExpenditure = (float) ($user->annual_expenditure ?? 0);
+```
+
+**Impact**:
+- ✅ Gifting Strategy tab now loads successfully with all asset types
+- ✅ Cash accounts properly classified as immediately giftable
+- ✅ Income-based gifting strategies calculate correctly
+- ✅ Type-safe calculations prevent PHP 8+ errors
+- ✅ Personalized recommendations based on actual asset portfolio
+
+---
+
+**Documentation Status**: ✅ Complete (8 documentation files - OCTOBER_2025_FEATURES_UPDATE.md updated October 27)
+**Code Status**: ✅ All Changes Committed (October 27, 2025 - v0.1.2.4)
 **Testing Status**: ✅ 723 Tests Passing (Manual Testing Complete)
 **Deployment Status**: ✅ Ready for Production Deployment
-**Version**: v0.1.2.2 (updated October 23, 2025)
-**Release Date**: 21-23 October 2025
+**Version**: v0.1.2.4 (updated October 27, 2025)
+**Release Date**: 21-27 October 2025
 
 ---
 

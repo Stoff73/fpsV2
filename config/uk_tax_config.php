@@ -417,4 +417,117 @@ return [
             'calculation' => 'proportionate', // Proportionate to time since last 10-year charge
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Domicile Rules (Post-April 2025)
+    |--------------------------------------------------------------------------
+    |
+    | UK Residence-Based Domicile System
+    |
+    | As of April 6, 2025, the deemed domicile rules were replaced with a
+    | residence-based tax system. However, for IHT and estate planning purposes,
+    | domicile status remains important.
+    |
+    | Deemed Domicile Rules (Historical - for users who arrived before 2025):
+    | - An individual is deemed UK domiciled if they have been UK resident for
+    |   at least 15 of the last 20 tax years
+    | - Once deemed domiciled, worldwide assets are subject to UK IHT
+    |
+    | IHT Implications:
+    | - UK Domiciled: Worldwide assets subject to UK IHT
+    | - Non-UK Domiciled: Only UK-situs assets subject to UK IHT
+    |
+    */
+
+    'domicile' => [
+        'deemed_domicile_threshold' => 15, // Years of UK residence (out of 20)
+        'lookback_period' => 20, // Years
+
+        'iht_implications' => [
+            'uk_domiciled' => [
+                'worldwide_assets_liable' => true,
+                'nil_rate_band' => 325000,
+                'residence_nil_rate_band' => 175000,
+                'spouse_exemption' => 'unlimited',
+            ],
+            'non_uk_domiciled' => [
+                'worldwide_assets_liable' => false,
+                'uk_situs_assets_only' => true,
+                'nil_rate_band' => 325000,
+                'residence_nil_rate_band' => 175000,
+                'spouse_exemption' => 'limited_if_spouse_non_domiciled',
+            ],
+        ],
+
+        'uk_situs_assets' => [
+            'uk_property' => true,
+            'uk_bank_accounts' => true,
+            'uk_investment_accounts' => true,
+            'uk_business_interests' => true,
+            'uk_chattels_located_in_uk' => true,
+            'foreign_property' => false,
+            'foreign_bank_accounts' => false,
+            'foreign_investments' => false,
+        ],
+
+        'countries' => [
+            // Major countries list for country selector
+            'United Kingdom',
+            'United States',
+            'Canada',
+            'Australia',
+            'New Zealand',
+            'Ireland',
+            'France',
+            'Germany',
+            'Spain',
+            'Italy',
+            'Portugal',
+            'Netherlands',
+            'Belgium',
+            'Switzerland',
+            'Austria',
+            'Sweden',
+            'Norway',
+            'Denmark',
+            'Finland',
+            'Poland',
+            'Czech Republic',
+            'Greece',
+            'Turkey',
+            'Russia',
+            'China',
+            'Japan',
+            'South Korea',
+            'India',
+            'Pakistan',
+            'Bangladesh',
+            'Singapore',
+            'Malaysia',
+            'Thailand',
+            'Vietnam',
+            'Indonesia',
+            'Philippines',
+            'United Arab Emirates',
+            'Saudi Arabia',
+            'South Africa',
+            'Nigeria',
+            'Kenya',
+            'Egypt',
+            'Brazil',
+            'Argentina',
+            'Mexico',
+            'Chile',
+            'Colombia',
+            // Add more as needed
+        ],
+
+        'notes' => [
+            'As of April 6, 2025, deemed domicile rules ended and were replaced with a residence-based system.',
+            'For users who arrived in UK before 2025, the 15/20 year rule still helps determine historical domicile status.',
+            'Domicile status affects IHT liability on worldwide vs UK-situs assets only.',
+            'Professional advice should be sought for complex domicile situations.',
+        ],
+    ],
 ];

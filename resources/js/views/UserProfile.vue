@@ -62,8 +62,15 @@
           <!-- Tab Content Components -->
           <div v-else>
             <PersonalInformation v-show="activeTab === 'personal'" />
+            <DomicileInformation
+              v-show="activeTab === 'domicile'"
+              :user="user"
+              :domicile-info="domicileInfo"
+              @updated="handleDomicileUpdated"
+            />
             <FamilyMembers v-show="activeTab === 'family'" />
             <IncomeOccupation v-show="activeTab === 'income'" />
+            <ExpenditureOverview v-show="activeTab === 'expenditure'" />
             <AssetsOverview v-show="activeTab === 'assets'" />
             <LiabilitiesOverview v-show="activeTab === 'liabilities'" />
             <PersonalAccounts v-show="activeTab === 'accounts'" />
@@ -80,8 +87,10 @@ import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PersonalInformation from '@/components/UserProfile/PersonalInformation.vue';
+import DomicileInformation from '@/components/UserProfile/DomicileInformation.vue';
 import FamilyMembers from '@/components/UserProfile/FamilyMembers.vue';
 import IncomeOccupation from '@/components/UserProfile/IncomeOccupation.vue';
+import ExpenditureOverview from '@/components/UserProfile/ExpenditureOverview.vue';
 import AssetsOverview from '@/components/UserProfile/AssetsOverview.vue';
 import LiabilitiesOverview from '@/components/UserProfile/LiabilitiesOverview.vue';
 import PersonalAccounts from '@/components/UserProfile/PersonalAccounts.vue';
@@ -93,8 +102,10 @@ export default {
   components: {
     AppLayout,
     PersonalInformation,
+    DomicileInformation,
     FamilyMembers,
     IncomeOccupation,
+    ExpenditureOverview,
     AssetsOverview,
     LiabilitiesOverview,
     PersonalAccounts,
@@ -107,8 +118,10 @@ export default {
 
     const tabs = [
       { id: 'personal', label: 'Personal Info' },
+      { id: 'domicile', label: 'Domicile Status' },
       { id: 'family', label: 'Family' },
       { id: 'income', label: 'Income & Occupation' },
+      { id: 'expenditure', label: 'Expenditure' },
       { id: 'assets', label: 'Assets' },
       { id: 'liabilities', label: 'Liabilities' },
       { id: 'accounts', label: 'Personal Accounts' },
@@ -117,6 +130,8 @@ export default {
 
     const loading = computed(() => store.getters['userProfile/loading']);
     const error = computed(() => store.getters['userProfile/error']);
+    const user = computed(() => store.getters['userProfile/user']);
+    const domicileInfo = computed(() => store.getters['userProfile/domicileInfo']);
 
     const loadProfile = async () => {
       try {
@@ -124,6 +139,11 @@ export default {
       } catch (err) {
         console.error('Failed to load profile:', err);
       }
+    };
+
+    const handleDomicileUpdated = (updatedUser) => {
+      // Reload the full profile to get updated domicile info
+      loadProfile();
     };
 
     onMounted(() => {
@@ -135,7 +155,10 @@ export default {
       tabs,
       loading,
       error,
+      user,
+      domicileInfo,
       loadProfile,
+      handleDomicileUpdated,
     };
   },
 };

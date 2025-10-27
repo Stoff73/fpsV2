@@ -23,6 +23,7 @@ class CashAccount extends Model
         'account_type',
         'purpose',
         'ownership_type',
+        'country',
         'ownership_percentage',
         'current_balance',
         'interest_rate',

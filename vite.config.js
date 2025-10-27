@@ -4,8 +4,8 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
     // Development: use root path
-    // Production: use '/fps/build/' for subdirectory deployment
-    base: '/',
+    // Production: use '/fpsv2/build/' for subdirectory deployment at csjones.co/fpsv2
+    base: process.env.NODE_ENV === 'production' ? '/fpsv2/build/' : '/',
     server: {
         host: '127.0.0.1',
         port: 5173,

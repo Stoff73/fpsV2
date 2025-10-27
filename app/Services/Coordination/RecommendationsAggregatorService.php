@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Coordination;
 
+use App\Agents\ProtectionAgent;
 use App\Models\User;
 use App\Services\Estate\NetWorthAnalyzer;
 use App\Services\Investment\PortfolioAnalyzer;
-use App\Services\Protection\RecommendationEngine as ProtectionRecommendationEngine;
 use App\Services\Retirement\PensionProjector;
 use App\Services\Savings\EmergencyFundCalculator;
 use Illuminate\Support\Facades\Log;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 class RecommendationsAggregatorService
 {
     public function __construct(
-        private ProtectionRecommendationEngine $protectionEngine,
+        private ProtectionAgent $protectionEngine,
         private EmergencyFundCalculator $savingsCalculator,
         private PortfolioAnalyzer $investmentAnalyzer,
         private PensionProjector $retirementProjector,
@@ -24,60 +24,71 @@ class RecommendationsAggregatorService
 
     /**
      * Aggregate recommendations from all modules.
-     *
-     * TODO: This is a placeholder implementation. Each module needs proper integration
-     * when their respective analyze() methods are available.
      */
     public function aggregateRecommendations(int $userId): array
     {
         $user = User::findOrFail($userId);
         $allRecommendations = [];
 
-        // Protection module - TODO: Implement when protection analysis is ready
+        // Protection module
         try {
-            Log::info("Protection recommendations placeholder for user {$userId}");
-            // Placeholder - no recommendations yet
+            $protectionAnalysis = $this->protectionEngine->analyze($userId);
+            $protectionRecs = $this->protectionEngine->generateRecommendations($protectionAnalysis);
+            $formattedProtection = $this->formatRecommendations($protectionRecs, 'protection');
+            $allRecommendations = array_merge($allRecommendations, $formattedProtection);
         } catch (\Exception $e) {
-            Log::warning("Failed to get protection recommendations for user {$userId}: " . $e->getMessage());
+            Log::warning("Failed to get protection recommendations for user {$userId}: ".$e->getMessage());
         }
 
-        // Savings module - TODO: Implement when savings analysis is ready
+        // Savings module
         try {
-            Log::info("Savings recommendations placeholder for user {$userId}");
-            // Placeholder - no recommendations yet
+            $savingsAnalysis = $this->savingsCalculator->analyze($userId);
+            $savingsRecs = $savingsAnalysis['recommendations'] ?? [];
+            $formattedSavings = $this->formatRecommendations($savingsRecs, 'savings');
+            $allRecommendations = array_merge($allRecommendations, $formattedSavings);
         } catch (\Exception $e) {
-            Log::warning("Failed to get savings recommendations for user {$userId}: " . $e->getMessage());
+            Log::warning("Failed to get savings recommendations for user {$userId}: ".$e->getMessage());
         }
 
-        // Investment module - TODO: Implement when investment analysis is ready
+        // Investment module
         try {
             $investmentAccounts = $user->investmentAccounts;
             if ($investmentAccounts->isNotEmpty()) {
-                Log::info("Investment accounts found for user {$userId}");
-                // Placeholder - no recommendations yet
+                // Investment analyzer may not have recommendations structure yet
+                // This is a safe guard for future implementation
+                $investmentRecs = [];
+                $formattedInvestment = $this->formatRecommendations($investmentRecs, 'investment');
+                $allRecommendations = array_merge($allRecommendations, $formattedInvestment);
             }
         } catch (\Exception $e) {
-            Log::warning("Failed to get investment recommendations for user {$userId}: " . $e->getMessage());
+            Log::warning("Failed to get investment recommendations for user {$userId}: ".$e->getMessage());
         }
 
-        // Retirement module - TODO: Implement when retirement analysis is ready
+        // Retirement module
         try {
-            Log::info("Retirement recommendations placeholder for user {$userId}");
-            // Placeholder - no recommendations yet
+            $retirementAnalysis = $this->retirementProjector->analyze($userId);
+            $retirementRecs = $retirementAnalysis['recommendations'] ?? [];
+            $formattedRetirement = $this->formatRecommendations($retirementRecs, 'retirement');
+            $allRecommendations = array_merge($allRecommendations, $formattedRetirement);
         } catch (\Exception $e) {
-            Log::warning("Failed to get retirement recommendations for user {$userId}: " . $e->getMessage());
+            Log::warning("Failed to get retirement recommendations for user {$userId}: ".$e->getMessage());
         }
 
-        // Estate module - TODO: Implement when estate analysis is ready
+        // Estate module
         try {
-            Log::info("Estate recommendations placeholder for user {$userId}");
-            // Placeholder - no recommendations yet
+            $estateAnalysis = $this->estateAnalyzer->analyze($userId);
+            $estateRecs = $estateAnalysis['recommendations'] ?? [];
+            $formattedEstate = $this->formatRecommendations($estateRecs, 'estate');
+            $allRecommendations = array_merge($allRecommendations, $formattedEstate);
         } catch (\Exception $e) {
-            Log::warning("Failed to get estate recommendations for user {$userId}: " . $e->getMessage());
+            Log::warning("Failed to get estate recommendations for user {$userId}: ".$e->getMessage());
         }
 
-        // Return empty recommendations array for now
-        // This will allow the frontend to render without errors
+        // Sort by priority score descending (highest priority first)
+        usort($allRecommendations, function ($a, $b) {
+            return $b['priority_score'] <=> $a['priority_score'];
+        });
+
         return $allRecommendations;
     }
 

@@ -182,6 +182,19 @@
               </label>
             </div>
 
+            <!-- Country Selector (hidden for ISAs - UK only by law) -->
+            <div v-if="!formData.is_isa">
+              <label for="country" class="block text-sm font-medium text-gray-700 mb-1">
+                Account Country
+              </label>
+              <CountrySelector
+                v-model="formData.country"
+                placeholder="Select country where account is held"
+                id="country"
+              />
+              <p class="text-sm text-gray-500 mt-1">Country where the savings account is held</p>
+            </div>
+
             <!-- ISA Details (if is_isa is true) -->
             <div v-if="formData.is_isa" class="space-y-4 pl-6 border-l-2 border-blue-200">
               <!-- ISA Type -->
@@ -317,8 +330,14 @@
 </template>
 
 <script>
+import CountrySelector from '@/components/Shared/CountrySelector.vue';
+
 export default {
   name: 'SaveAccountModal',
+
+  components: {
+    CountrySelector,
+  },
 
   props: {
     account: {
@@ -345,10 +364,11 @@ export default {
         maturity_date: '',
         is_emergency_fund: false,
         is_isa: false,
+        country: 'United Kingdom',
         isa_type: '',
         isa_subscription_year: '2025/26',
         isa_subscription_amount: null,
-        ownership_type: 'sole',
+        ownership_type: 'individual',
         joint_owner_id: null,
       },
     };
@@ -379,10 +399,11 @@ export default {
         maturity_date: this.account.maturity_date || '',
         is_emergency_fund: this.account.is_emergency_fund || false,
         is_isa: this.account.is_isa || false,
+        country: this.account.country || 'United Kingdom',
         isa_type: this.account.isa_type || '',
         isa_subscription_year: this.account.isa_subscription_year || '2025/26',
         isa_subscription_amount: this.account.isa_subscription_amount ? parseFloat(this.account.isa_subscription_amount) : null,
-        ownership_type: this.account.ownership_type || 'sole',
+        ownership_type: this.account.ownership_type || 'individual',
         joint_owner_id: this.account.joint_owner_id || null,
       };
     },
@@ -412,6 +433,7 @@ export default {
         maturity_date: this.formData.access_type === 'fixed' ? this.formData.maturity_date : null,
         is_emergency_fund: this.formData.is_emergency_fund,
         is_isa: this.formData.is_isa,
+        country: this.formData.is_isa ? 'United Kingdom' : this.formData.country,
         isa_type: this.formData.is_isa ? this.formData.isa_type : null,
         isa_subscription_year: this.formData.is_isa ? this.formData.isa_subscription_year : null,
         isa_subscription_amount: this.formData.is_isa ? this.formData.isa_subscription_amount : null,

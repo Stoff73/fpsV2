@@ -20,36 +20,50 @@ class EstateOnboardingFlow
                 'required' => true,
                 'skip_reason' => 'Personal information helps us calculate your estate value and available tax reliefs. Without this, we cannot provide personalized estate planning advice.',
                 'fields' => [
+                    'date_of_birth' => ['required' => true],
+                    'gender' => ['required' => true],
                     'marital_status' => ['required' => true],
-                    'number_of_dependents' => ['required' => false],
-                    'has_will' => ['required' => false],
+                    'national_insurance_number' => ['required' => false],
+                    'address_line_1' => ['required' => true],
+                    'city' => ['required' => true],
+                    'postcode' => ['required' => true],
+                    'phone' => ['required' => false],
                 ],
             ],
             'income' => [
                 'name' => 'income',
-                'title' => 'Income Information',
-                'description' => 'Your income sources help us understand your financial position',
+                'title' => 'Employment & Income',
+                'description' => 'Your income and employment details help us understand your financial position',
                 'order' => 2,
                 'required' => true,
                 'skip_reason' => 'Income information is essential for calculating your estate\'s Inheritance Tax liability and understanding your protection needs. Without this, we cannot provide accurate IHT projections or determine if your family would be financially secure.',
                 'fields' => [
+                    'occupation' => ['required' => false],
+                    'employer' => ['required' => false],
+                    'industry' => ['required' => false],
+                    'employment_status' => ['required' => true],
                     'annual_employment_income' => ['required' => false],
                     'annual_self_employment_income' => ['required' => false],
                     'annual_rental_income' => ['required' => false],
                     'annual_dividend_income' => ['required' => false],
                     'annual_other_income' => ['required' => false],
+                    'monthly_expenditure' => ['required' => true],
+                    'annual_expenditure' => ['required' => true],
                 ],
             ],
-            'protection_policies' => [
-                'name' => 'protection_policies',
-                'title' => 'Protection Policies',
-                'description' => 'Tell us about your existing life insurance and protection coverage',
+            'domicile_info' => [
+                'name' => 'domicile_info',
+                'title' => 'Domicile Information',
+                'description' => 'Your domicile status affects your UK tax liability and IHT calculations',
                 'order' => 3,
-                'required' => false,
-                'skip_reason' => 'Protection policies can provide liquidity for your estate to pay IHT bills. Knowing about these helps us ensure your beneficiaries have enough funds to settle tax liabilities.',
+                'required' => true,
+                'skip_reason' => 'Domicile status is crucial for IHT planning. Non-UK domiciled individuals have different IHT rules and exemptions. Without this information, we cannot calculate your accurate IHT liability.',
                 'fields' => [
-                    'has_life_insurance' => ['required' => false],
-                    'life_insurance_policies' => ['required' => false],
+                    'domicile_status' => ['required' => true],
+                    'country_of_birth' => ['required' => true],
+                    'uk_arrival_date' => ['required' => false], // Only if non-UK domiciled
+                    'years_uk_resident' => ['required' => false],
+                    'deemed_domicile_date' => ['required' => false],
                 ],
             ],
             'assets' => [
@@ -80,11 +94,23 @@ class EstateOnboardingFlow
                     'has_credit_cards' => ['required' => false],
                 ],
             ],
+            'protection_policies' => [
+                'name' => 'protection_policies',
+                'title' => 'Protection Policies',
+                'description' => 'Tell us about your existing life insurance and protection coverage',
+                'order' => 6,
+                'required' => false,
+                'skip_reason' => 'Protection policies can provide liquidity for your estate to pay IHT bills. Knowing about these helps us ensure your beneficiaries have enough funds to settle tax liabilities.',
+                'fields' => [
+                    'has_life_insurance' => ['required' => false],
+                    'life_insurance_policies' => ['required' => false],
+                ],
+            ],
             'family_info' => [
                 'name' => 'family_info',
                 'title' => 'Family & Beneficiaries',
                 'description' => 'Tell us about your family members and who you want to benefit from your estate',
-                'order' => 6,
+                'order' => 7,
                 'required' => false,
                 'skip_reason' => 'Beneficiary information helps us calculate available reliefs (like spouse exemption and RNRB) and model different bequest scenarios to minimize IHT.',
                 'fields' => [
@@ -97,7 +123,7 @@ class EstateOnboardingFlow
                 'name' => 'will_info',
                 'title' => 'Will Information',
                 'description' => 'Tell us about your will and estate planning documents',
-                'order' => 7,
+                'order' => 8,
                 'required' => false,
                 'skip_reason' => 'Will status is crucial for probate readiness scoring and understanding how your estate would be distributed. This helps identify gaps in your estate plan.',
                 'fields' => [
@@ -110,7 +136,7 @@ class EstateOnboardingFlow
                 'name' => 'trust_info',
                 'title' => 'Trust Information',
                 'description' => 'Tell us about any trusts you have created or benefit from',
-                'order' => 8,
+                'order' => 9,
                 'required' => false,
                 'conditional' => true, // Only show if certain conditions are met
                 'skip_reason' => 'Existing trusts can affect your IHT calculation due to Potentially Exempt Transfers (PETs) and Chargeable Lifetime Transfers (CLTs). Skipping this may lead to inaccurate tax projections.',
@@ -123,7 +149,7 @@ class EstateOnboardingFlow
                 'name' => 'completion',
                 'title' => 'Setup Complete',
                 'description' => 'You\'re all set! Here\'s what happens next',
-                'order' => 9,
+                'order' => 10,
                 'required' => true,
                 'skip_reason' => null, // Cannot skip completion
                 'fields' => [],
@@ -170,10 +196,10 @@ class EstateOnboardingFlow
         // 1. User indicated trust ownership elsewhere
         // 2. Or estimated estate value > £2m (RNRB taper threshold)
         if ($stepName === 'trust_info') {
-            $hasThrusts = $userData['has_trusts'] ?? false;
+            $hasTrusts = $userData['has_trusts'] ?? false;
             $estateValue = $this->calculateEstimatedEstateValue($userData);
 
-            return $hasThrusts || $estateValue > 2000000;
+            return $hasTrusts || $estateValue > 2000000;
         }
 
         // Family Info - show spouse section only if married

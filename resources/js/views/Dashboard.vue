@@ -234,15 +234,17 @@ export default {
   methods: {
     async loadAllData() {
       // Load all module data in parallel with Promise.allSettled
+      // Check if user is married to determine which IHT calculation to use
+      const user = this.$store.state.auth?.user;
+      const isMarried = user?.marital_status === 'married';
+
       const moduleLoaders = [
         { name: 'netWorth', action: 'netWorth/fetchOverview' },
         { name: 'protection', action: 'protection/fetchProtectionData' },
         { name: 'retirement', action: 'retirement/fetchRetirementData' },
         { name: 'retirement', action: 'retirement/analyzeRetirement' },
         { name: 'estate', action: 'estate/fetchEstateData' },
-        { name: 'estate', action: 'estate/calculateIHT' },
-        { name: 'recommendations', action: 'recommendations/fetchRecommendations' },
-        { name: 'trusts', action: 'trusts/fetchTrusts' },
+        { name: 'estate', action: isMarried ? 'estate/calculateSecondDeathIHTPlanning' : 'estate/calculateIHT', payload: {} },
       ];
 
       // Set all modules to loading
@@ -253,7 +255,7 @@ export default {
 
       // Create promises for all module loads
       const promises = moduleLoaders.map(loader =>
-        this.$store.dispatch(loader.action)
+        this.$store.dispatch(loader.action, loader.payload)
           .then(() => ({ module: loader.name, success: true }))
           .catch(error => ({
             module: loader.name,
@@ -311,12 +313,10 @@ export default {
         await this.$store.dispatch('netWorth/refreshNetWorth');
         // Load other module data
         await Promise.allSettled([
-          this.$store.dispatch('protection/fetchOverview'),
+          this.$store.dispatch('protection/fetchProtectionData'),
           this.$store.dispatch('savings/fetchSavingsData'),
-          this.$store.dispatch('investment/fetchOverview'),
-          this.$store.dispatch('retirement/fetchOverview'),
-          this.$store.dispatch('estate/fetchOverview'),
-          this.$store.dispatch('ukTaxes/fetchAllowances'),
+          this.$store.dispatch('investment/fetchInvestmentData'),
+          this.$store.dispatch('estate/fetchEstateData'),
         ]);
       } catch (error) {
         console.error('Error refreshing dashboard:', error);

@@ -37,6 +37,13 @@
         </p>
       </div>
 
+      <!-- Profile Completeness Alert -->
+      <ProfileCompletenessAlert
+        v-if="profileCompleteness && !loadingCompleteness"
+        :completenessData="profileCompleteness"
+        :dismissible="true"
+      />
+
       <!-- Loading State -->
       <div v-if="initialLoading" class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -128,6 +135,8 @@ import TrustPlanning from '@/components/Estate/TrustPlanning.vue';
 import WillPlanning from '@/components/Estate/WillPlanning.vue';
 import Recommendations from '@/components/Estate/Recommendations.vue';
 import WhatIfScenarios from '@/components/Estate/WhatIfScenarios.vue';
+import ProfileCompletenessAlert from '@/components/Shared/ProfileCompletenessAlert.vue';
+import api from '@/services/api';
 
 export default {
   name: 'EstateDashboard',
@@ -141,6 +150,7 @@ export default {
     WillPlanning,
     Recommendations,
     WhatIfScenarios,
+    ProfileCompletenessAlert,
   },
 
   data() {
@@ -152,10 +162,12 @@ export default {
         { id: 'will', label: 'Will' },
         { id: 'gifting', label: 'Gifting Strategy' },
         { id: 'life-policy', label: 'Life Policy Strategy' },
-        { id: 'trusts', label: 'Trust Planning' },
+        { id: 'trusts', label: 'Trust Strategy' },
         { id: 'recommendations', label: 'Recommendations' },
         { id: 'scenarios', label: 'What-If Scenarios' },
       ],
+      profileCompleteness: null,
+      loadingCompleteness: false,
     };
   },
 
@@ -165,6 +177,7 @@ export default {
 
   mounted() {
     this.loadEstateData();
+    this.loadProfileCompleteness();
   },
 
   methods: {
@@ -177,6 +190,18 @@ export default {
         console.error('Failed to load estate data:', error);
       } finally {
         this.initialLoading = false;
+      }
+    },
+
+    async loadProfileCompleteness() {
+      this.loadingCompleteness = true;
+      try {
+        const response = await api.get('/user/profile/completeness');
+        this.profileCompleteness = response.data.data;
+      } catch (error) {
+        console.error('Failed to load profile completeness:', error);
+      } finally {
+        this.loadingCompleteness = false;
       }
     },
 

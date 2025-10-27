@@ -66,6 +66,16 @@
               <p v-if="errors.provider" class="mt-1 text-sm text-red-600">{{ errors.provider }}</p>
             </div>
 
+            <!-- Country Selector -->
+            <div>
+              <CountrySelector
+                v-model="formData.country"
+                label="Country"
+                :required="true"
+                default-country="United Kingdom"
+              />
+            </div>
+
             <!-- Platform -->
             <div>
               <label for="platform" class="block text-sm font-medium text-gray-700 mb-1">
@@ -295,8 +305,14 @@
 </template>
 
 <script>
+import CountrySelector from '@/components/Shared/CountrySelector.vue';
+
 export default {
   name: 'AccountForm',
+
+  components: {
+    CountrySelector,
+  },
 
   props: {
     show: {
@@ -315,6 +331,7 @@ export default {
         account_type: '',
         provider: '',
         platform: '',
+        country: 'United Kingdom',
         current_value: null,
         tax_year: '2025/26',
         contributions_ytd: null,

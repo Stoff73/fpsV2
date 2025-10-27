@@ -3,7 +3,7 @@
     <!-- Header with Add Button -->
     <div class="mb-6 flex justify-between items-center">
       <div>
-        <h3 class="text-lg font-semibold text-gray-900">Your Savings Accounts</h3>
+        <h3 class="text-lg font-semibold text-gray-900">Your Accounts</h3>
         <p class="text-sm text-gray-600 mt-1">
           {{ accounts.length }} {{ accounts.length === 1 ? 'account' : 'accounts' }}
         </p>

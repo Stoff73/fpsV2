@@ -46,7 +46,7 @@ describe('Complete estate planning workflow', function () {
             'asset_type' => 'pension',
             'asset_name' => 'DC Pension',
             'current_value' => 300000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'is_iht_exempt' => true,
             'exemption_reason' => 'Nominated beneficiary',
             'valuation_date' => '2024-01-01',
@@ -56,7 +56,7 @@ describe('Complete estate planning workflow', function () {
             'asset_type' => 'investment',
             'asset_name' => 'ISA Portfolio',
             'current_value' => 150000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'is_iht_exempt' => false,
             'valuation_date' => '2024-01-01',
         ])->assertCreated();
@@ -113,9 +113,9 @@ describe('Complete estate planning workflow', function () {
 
         // Verify net worth calculation
         $analysisData = $analysisResponse->json('data');
-        expect($analysisData['net_worth']['total_assets'])->toBe(1050000.0)
-            ->and($analysisData['net_worth']['total_liabilities'])->toBe(200000.0)
-            ->and($analysisData['net_worth']['net_worth'])->toBe(850000.0);
+        expect($analysisData['net_worth']['total_assets'])->toBe(1050000)
+            ->and($analysisData['net_worth']['total_liabilities'])->toBe(200000)
+            ->and($analysisData['net_worth']['net_worth'])->toBe(850000);
 
         // 8. Calculate IHT liability specifically
         $ihtResponse = $this->postJson('/api/estate/calculate-iht');
@@ -215,7 +215,7 @@ describe('IHT calculation with multiple scenarios', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => '2024-01-01',
         ]);
 
@@ -223,7 +223,7 @@ describe('IHT calculation with multiple scenarios', function () {
             'asset_type' => 'investment',
             'asset_name' => 'Portfolio',
             'current_value' => 600000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => '2024-01-01',
         ]);
 
@@ -264,7 +264,7 @@ describe('IHT calculation with multiple scenarios', function () {
             'asset_type' => 'investment',
             'asset_name' => 'Portfolio',
             'current_value' => 800000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => '2024-01-01',
         ]);
 
@@ -305,7 +305,7 @@ describe('Cache behavior', function () {
             'asset_type' => 'investment',
             'asset_name' => 'Portfolio',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -339,7 +339,7 @@ describe('Cache behavior', function () {
             'asset_type' => 'investment',
             'asset_name' => 'Portfolio',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -357,6 +357,6 @@ describe('Cache behavior', function () {
         $secondNetWorth = $secondResponse->json('data.net_worth.net_worth');
 
         expect($secondNetWorth)->not()->toBe($firstNetWorth)
-            ->and($secondNetWorth)->toBe(600000.0);
+            ->and($secondNetWorth)->toBe(600000);
     });
 });

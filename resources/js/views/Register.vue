@@ -90,67 +90,6 @@
             >
           </div>
 
-          <div>
-            <label for="date_of_birth" class="label">
-              Date of Birth
-            </label>
-            <input
-              id="date_of_birth"
-              v-model="form.date_of_birth"
-              type="date"
-              required
-              class="input-field"
-              :class="{ 'border-error-600': errors.date_of_birth }"
-            >
-            <p v-if="errors.date_of_birth" class="mt-1 text-body-sm text-error-600">
-              {{ errors.date_of_birth[0] }}
-            </p>
-          </div>
-
-          <div>
-            <label for="gender" class="label">
-              Gender
-            </label>
-            <select
-              id="gender"
-              v-model="form.gender"
-              required
-              class="input-field"
-              :class="{ 'border-error-600': errors.gender }"
-            >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-              <option value="prefer_not_to_say">Prefer not to say</option>
-            </select>
-            <p v-if="errors.gender" class="mt-1 text-body-sm text-error-600">
-              {{ errors.gender[0] }}
-            </p>
-          </div>
-
-          <div>
-            <label for="marital_status" class="label">
-              Marital Status
-            </label>
-            <select
-              id="marital_status"
-              v-model="form.marital_status"
-              required
-              class="input-field"
-              :class="{ 'border-error-600': errors.marital_status }"
-            >
-              <option value="">Select marital status</option>
-              <option value="single">Single</option>
-              <option value="married">Married</option>
-              <option value="civil_partnership">Civil Partnership</option>
-              <option value="divorced">Divorced</option>
-              <option value="widowed">Widowed</option>
-            </select>
-            <p v-if="errors.marital_status" class="mt-1 text-body-sm text-error-600">
-              {{ errors.marital_status[0] }}
-            </p>
-          </div>
         </div>
 
         <div>
@@ -190,9 +129,6 @@ export default {
       email: '',
       password: '',
       password_confirmation: '',
-      date_of_birth: '',
-      gender: '',
-      marital_status: '',
     });
 
     const errors = ref({});

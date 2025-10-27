@@ -183,6 +183,8 @@ export default {
   },
 
   async mounted() {
+    // Fetch family members to ensure spouse data is available
+    await this.$store.dispatch('userProfile/fetchFamilyMembers');
     await this.fetchProperties();
   },
 };

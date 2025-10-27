@@ -23,6 +23,7 @@ class InvestmentAccount extends Model
         'ownership_type',
         'ownership_percentage',
         'account_type',
+        'country',
         'provider',
         'account_number',
         'platform',

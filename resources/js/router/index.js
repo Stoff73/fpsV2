@@ -15,10 +15,12 @@ const PropertyDetail = () => import('@/components/NetWorth/Property/PropertyDeta
 const BusinessInterestsList = () => import('@/components/NetWorth/BusinessInterestsList.vue');
 const ChattelsList = () => import('@/components/NetWorth/ChattelsList.vue');
 const ProtectionDashboard = () => import('@/views/Protection/ProtectionDashboard.vue');
+const ComprehensiveProtectionPlan = () => import('@/views/Protection/ComprehensiveProtectionPlan.vue');
 const SavingsDashboard = () => import('@/views/Savings/SavingsDashboard.vue');
 const InvestmentDashboard = () => import('@/views/Investment/InvestmentDashboard.vue');
 const RetirementDashboard = () => import('@/views/Retirement/RetirementDashboard.vue');
 const EstateDashboard = () => import('@/views/Estate/EstateDashboard.vue');
+const ComprehensiveEstatePlan = () => import('@/views/Estate/ComprehensiveEstatePlan.vue');
 const TrustsDashboard = () => import('@/views/Trusts/TrustsDashboard.vue');
 const HolisticPlan = () => import('@/views/HolisticPlan.vue');
 const UKTaxesDashboard = () => import('@/views/UKTaxes/UKTaxesDashboard.vue');
@@ -145,6 +147,18 @@ const routes = [
     },
   },
   {
+    path: '/protection-plan',
+    name: 'ComprehensiveProtectionPlan',
+    component: ComprehensiveProtectionPlan,
+    meta: {
+      requiresAuth: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Comprehensive Protection Plan', path: '/protection-plan' },
+      ],
+    },
+  },
+  {
     path: '/savings',
     name: 'Savings',
     component: SavingsDashboard,
@@ -189,6 +203,18 @@ const routes = [
       breadcrumb: [
         { label: 'Home', path: '/dashboard' },
         { label: 'Estate Planning', path: '/estate' },
+      ],
+    },
+  },
+  {
+    path: '/estate-plan',
+    name: 'ComprehensiveEstatePlan',
+    component: ComprehensiveEstatePlan,
+    meta: {
+      requiresAuth: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Comprehensive Estate Plan', path: '/estate-plan' },
       ],
     },
   },

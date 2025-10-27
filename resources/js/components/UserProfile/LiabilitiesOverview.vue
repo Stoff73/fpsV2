@@ -83,12 +83,16 @@
             <div>
               <p class="text-body-base font-medium text-gray-900">{{ liability.description }}</p>
               <p class="text-body-sm text-gray-600">
-                Type: {{ formatLiabilityType(liability.liability_type) }}
+                {{ formatLiabilityType(liability.liability_type) }}
+                <span v-if="liability.interest_rate"> • {{ formatInterestRate(liability.interest_rate) }}% interest</span>
               </p>
             </div>
             <div class="text-right">
               <p class="text-body-base font-semibold text-gray-900">
                 {{ formatCurrency(liability.amount) }}
+              </p>
+              <p v-if="liability.monthly_payment" class="text-body-sm text-gray-600">
+                {{ formatCurrency(liability.monthly_payment) }}/mo
               </p>
             </div>
           </div>
@@ -128,8 +132,7 @@ export default {
     });
 
     const otherLiabilities = computed(() => {
-      // Future: other liabilities like loans, credit cards
-      return [];
+      return liabilitiesSummary.value?.other?.items || [];
     });
 
     const formatCurrency = (amount) => {
@@ -147,7 +150,8 @@ export default {
     };
 
     const formatInterestRate = (rate) => {
-      return Number(rate).toFixed(2);
+      // Convert decimal to percentage (e.g., 0.27 -> 27.00)
+      return (Number(rate) * 100).toFixed(2);
     };
 
     return {

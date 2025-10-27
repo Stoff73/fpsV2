@@ -42,28 +42,13 @@
           <p class="text-sm text-gray-500">Add your monthly expenditure to calculate emergency fund runway</p>
         </div>
 
-        <!-- Show expenditure breakdown if data exists -->
-        <div v-else class="space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Housing</span>
-            <span class="font-semibold">{{ formatCurrency(expenditure.housing) }}</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Food & Groceries</span>
-            <span class="font-semibold">{{ formatCurrency(expenditure.food) }}</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Utilities & Bills</span>
-            <span class="font-semibold">{{ formatCurrency(expenditure.utilities) }}</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Other Essentials</span>
-            <span class="font-semibold">{{ formatCurrency(expenditure.other) }}</span>
-          </div>
-          <div class="pt-3 border-t flex justify-between items-center">
-            <span class="font-semibold text-gray-900">Total Monthly</span>
-            <span class="text-lg font-bold text-gray-900">{{ formatCurrency(monthlyTotal) }}</span>
-          </div>
+        <!-- Show total expenditure if data exists -->
+        <div v-else class="text-center py-8">
+          <p class="text-sm text-gray-600 mb-2">Total Monthly Expenditure</p>
+          <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(monthlyTotal) }}</p>
+          <p class="text-sm text-gray-500 mt-2">
+            <router-link to="/profile" class="text-blue-600 hover:text-blue-700">Update in User Profile</router-link>
+          </p>
         </div>
       </div>
 
@@ -175,17 +160,22 @@ export default {
       }
 
       return {
-        housing: this.expenditureProfile.monthly_housing || 0,
-        food: this.expenditureProfile.monthly_food || 0,
-        utilities: this.expenditureProfile.monthly_utilities || 0,
-        other: (this.expenditureProfile.monthly_transport || 0) +
-               (this.expenditureProfile.monthly_insurance || 0) +
-               (this.expenditureProfile.monthly_loans || 0) +
-               (this.expenditureProfile.monthly_discretionary || 0),
+        housing: parseFloat(this.expenditureProfile.monthly_housing) || 0,
+        food: parseFloat(this.expenditureProfile.monthly_food) || 0,
+        utilities: parseFloat(this.expenditureProfile.monthly_utilities) || 0,
+        other: (parseFloat(this.expenditureProfile.monthly_transport) || 0) +
+               (parseFloat(this.expenditureProfile.monthly_insurance) || 0) +
+               (parseFloat(this.expenditureProfile.monthly_loans) || 0) +
+               (parseFloat(this.expenditureProfile.monthly_discretionary) || 0),
       };
     },
 
     monthlyTotal() {
+      // Use total_monthly_expenditure directly since we don't have breakdown
+      if (this.expenditureProfile?.total_monthly_expenditure) {
+        return parseFloat(this.expenditureProfile.total_monthly_expenditure) || 0;
+      }
+      // Fallback to summing breakdown if it exists
       return Object.values(this.expenditure).reduce((sum, val) => sum + val, 0);
     },
 

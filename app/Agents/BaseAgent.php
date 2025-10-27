@@ -30,10 +30,20 @@ abstract class BaseAgent
 
     /**
      * Get cached data or execute callback and cache result.
+     *
+     * @param  string  $key  Cache key
+     * @param  callable  $callback  Callback to execute if cache miss
+     * @param  int|null  $ttl  Time to live in seconds (null uses default)
+     * @param  array  $tags  Cache tags for tagged caching (empty array = no tags)
      */
-    protected function remember(string $key, callable $callback, ?int $ttl = null): mixed
+    protected function remember(string $key, callable $callback, ?int $ttl = null, array $tags = []): mixed
     {
         $ttl = $ttl ?? $this->cacheTtl;
+
+        // Use tagged caching if tags provided
+        if (! empty($tags)) {
+            return Cache::tags($tags)->remember($key, $ttl, $callback);
+        }
 
         return Cache::remember($key, $ttl, $callback);
     }

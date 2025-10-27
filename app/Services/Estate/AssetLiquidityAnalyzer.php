@@ -1,0 +1,251 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services\Estate;
+
+use App\Models\Estate\Asset;
+use Illuminate\Support\Collection;
+
+/**
+ * Analyzes asset liquidity for gifting strategy purposes
+ *
+ * Classifies assets based on how easily they can be gifted for IHT planning:
+ * - Liquid: Cash, investments, ISAs (can gift immediately up to any amount)
+ * - Semi-Liquid: Rental properties, second homes (can be gifted but with planning)
+ * - Illiquid: Main residence (cannot be gifted while living in it - gift with reservation of benefit)
+ */
+class AssetLiquidityAnalyzer
+{
+    /**
+     * Analyze all user assets and classify by liquidity
+     *
+     * @param  Collection  $assets  Collection of Asset models
+     * @return array Liquidity analysis with giftable amounts
+     */
+    public function analyzeAssetLiquidity(Collection $assets): array
+    {
+        $liquidAssets = [];
+        $semiLiquidAssets = [];
+        $illiquidAssets = [];
+
+        $totalLiquid = 0;
+        $totalSemiLiquid = 0;
+        $totalIlliquid = 0;
+
+        foreach ($assets as $asset) {
+            $classification = $this->classifyAsset($asset);
+
+            $assetData = [
+                'id' => $asset->id,
+                'name' => $asset->asset_name,
+                'type' => $asset->asset_type,
+                'value' => $asset->current_value,
+                'is_giftable' => $classification['is_giftable'],
+                'not_giftable_reason' => $classification['not_giftable_reason'],
+                'gifting_considerations' => $classification['gifting_considerations'],
+            ];
+
+            if ($classification['liquidity'] === 'liquid') {
+                $liquidAssets[] = $assetData;
+                $totalLiquid += $asset->current_value;
+            } elseif ($classification['liquidity'] === 'semi_liquid') {
+                $semiLiquidAssets[] = $assetData;
+                $totalSemiLiquid += $asset->current_value;
+            } else {
+                $illiquidAssets[] = $assetData;
+                $totalIlliquid += $asset->current_value;
+            }
+        }
+
+        return [
+            'liquid' => [
+                'assets' => $liquidAssets,
+                'total_value' => round($totalLiquid, 2),
+                'count' => count($liquidAssets),
+                'description' => 'Easily giftable - can be gifted immediately without restriction',
+            ],
+            'semi_liquid' => [
+                'assets' => $semiLiquidAssets,
+                'total_value' => round($totalSemiLiquid, 2),
+                'count' => count($semiLiquidAssets),
+                'description' => 'Can be gifted with planning - consider tax implications and practicalities',
+            ],
+            'illiquid' => [
+                'assets' => $illiquidAssets,
+                'total_value' => round($totalIlliquid, 2),
+                'count' => count($illiquidAssets),
+                'description' => 'Cannot be gifted in current form - alternative strategies required',
+            ],
+            'summary' => [
+                'total_giftable_value' => round($totalLiquid + $totalSemiLiquid, 2),
+                'total_value' => round($totalLiquid + $totalSemiLiquid + $totalIlliquid, 2),
+                'giftable_percentage' => round((($totalLiquid + $totalSemiLiquid) / ($totalLiquid + $totalSemiLiquid + $totalIlliquid)) * 100, 1),
+            ],
+        ];
+    }
+
+    /**
+     * Classify a single asset by liquidity and giftability
+     *
+     * @param  Asset  $asset
+     * @return array Classification data
+     */
+    public function classifyAsset(Asset $asset): array
+    {
+        // Main residence - cannot be gifted while living in it
+        if ($asset->is_main_residence || ($asset->asset_type === 'property' && $this->isProbablyMainResidence($asset))) {
+            return [
+                'liquidity' => 'illiquid',
+                'is_giftable' => false,
+                'not_giftable_reason' => 'Main residence - gift with reservation of benefit (cannot gift while living in it)',
+                'gifting_considerations' => [
+                    'You cannot gift your main residence while continuing to live in it',
+                    'This is called a "gift with reservation of benefit" and is treated as still being in your estate',
+                    'Strategy: Consider downsizing once dependants leave home',
+                    'Downsizing can release equity which can then be gifted',
+                    'Alternatively: Move out and pay market rent to continue living there (complex)',
+                ],
+            ];
+        }
+
+        // Classify by asset type
+        return match ($asset->asset_type) {
+            'cash' => [
+                'liquidity' => 'liquid',
+                'is_giftable' => true,
+                'not_giftable_reason' => null,
+                'gifting_considerations' => [
+                    'Cash is the most liquid asset and can be gifted immediately',
+                    'Use annual exemption (£3,000/year) first',
+                    'Small gifts (£250 per person per year) are immediately exempt',
+                    'Regular gifts from surplus income are fully exempt (no limit)',
+                    'Larger gifts are Potentially Exempt Transfers (PETs) - exempt after 7 years',
+                    'Cash ISAs lose tax-free status when gifted',
+                ],
+            ],
+            'investment' => [
+                'liquidity' => 'liquid',
+                'is_giftable' => true,
+                'not_giftable_reason' => null,
+                'gifting_considerations' => [
+                    'Investment assets are highly liquid and easily giftable',
+                    'Can gift shares, funds, or cash from sales',
+                    'Consider Capital Gains Tax (CGT) on disposal before gifting',
+                    'ISAs lose tax-free status when gifted (become normal investments)',
+                    'Consider using annual exemption (£3,000) for regular small gifts',
+                    'Large gifts are Potentially Exempt Transfers (PETs) - exempt after 7 years',
+                ],
+            ],
+            'pension' => [
+                'liquidity' => 'liquid', // Pensions are outside estate anyway
+                'is_giftable' => false,
+                'not_giftable_reason' => 'Pensions are already outside your estate (no need to gift)',
+                'gifting_considerations' => [
+                    'Pensions are NOT part of your taxable estate for IHT',
+                    'No need to gift - they already pass IHT-free to beneficiaries',
+                    'Ensure beneficiaries are nominated on all pension schemes',
+                    'Consider maximizing pension contributions instead of gifting',
+                    'Pension funds pass tax-free if you die before age 75',
+                ],
+            ],
+            'property' => [
+                'liquidity' => 'semi_liquid',
+                'is_giftable' => true,
+                'not_giftable_reason' => null,
+                'gifting_considerations' => [
+                    'Rental or second properties can be gifted',
+                    'Consider Stamp Duty Land Tax (SDLT) on transfer',
+                    'Capital Gains Tax (CGT) may apply on gift (treated as disposal at market value)',
+                    'Recipient assumes CGT base cost at market value on gift date',
+                    'Can gift property in stages (e.g., transfer 10% per year)',
+                    'Consider setting up a trust for property gifts',
+                    'Large gifts are PETs - become exempt after 7 years',
+                ],
+            ],
+            'business' => [
+                'liquidity' => 'semi_liquid',
+                'is_giftable' => true,
+                'not_giftable_reason' => null,
+                'gifting_considerations' => [
+                    'Business assets may qualify for Business Property Relief (BPR)',
+                    'BPR provides 50% or 100% IHT relief if owned for 2+ years',
+                    'Gifting may lose BPR benefits - professional advice essential',
+                    'Consider transferring business shares gradually',
+                    'Capital Gains Tax relief available for some business disposals',
+                    'Hold until 2-year BPR qualifying period if recently acquired',
+                ],
+            ],
+            'other' => [
+                'liquidity' => 'liquid', // Default to liquid for cash and other
+                'is_giftable' => true,
+                'not_giftable_reason' => null,
+                'gifting_considerations' => [
+                    'Cash and similar assets are highly liquid',
+                    'Use annual exemption (£3,000/year) first',
+                    'Small gifts (£250 per person per year) are immediately exempt',
+                    'Larger gifts are PETs - exempt after 7 years',
+                    'Consider regular gifts from surplus income (unlimited exemption)',
+                ],
+            ],
+        };
+    }
+
+    /**
+     * Heuristic to determine if a property is likely the main residence
+     *
+     * @param  Asset  $asset
+     * @return bool
+     */
+    private function isProbablyMainResidence(Asset $asset): bool
+    {
+        // Check asset name for indicators
+        $name = strtolower($asset->asset_name);
+
+        $mainResidenceKeywords = [
+            'main',
+            'primary',
+            'family home',
+            'residence',
+            'home',
+            'house',
+        ];
+
+        foreach ($mainResidenceKeywords as $keyword) {
+            if (str_contains($name, $keyword)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Calculate maximum giftable amount from liquid assets
+     *
+     * Provides a conservative estimate of how much can be gifted immediately
+     *
+     * @param  Collection  $assets
+     * @return array
+     */
+    public function calculateMaximumGiftableAmount(Collection $assets): array
+    {
+        $analysis = $this->analyzeAssetLiquidity($assets);
+
+        // Liquid assets can be gifted immediately
+        $immediatelyGiftable = $analysis['liquid']['total_value'];
+
+        // Semi-liquid assets require planning but are giftable
+        $giftableWithPlanning = $analysis['semi_liquid']['total_value'];
+
+        return [
+            'immediately_giftable' => round($immediatelyGiftable, 2),
+            'giftable_with_planning' => round($giftableWithPlanning, 2),
+            'total_giftable' => round($immediatelyGiftable + $giftableWithPlanning, 2),
+            'not_giftable' => round($analysis['illiquid']['total_value'], 2),
+            'liquid_asset_count' => $analysis['liquid']['count'],
+            'semi_liquid_asset_count' => $analysis['semi_liquid']['count'],
+            'illiquid_asset_count' => $analysis['illiquid']['count'],
+        ];
+    }
+}

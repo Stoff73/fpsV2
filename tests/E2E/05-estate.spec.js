@@ -32,7 +32,7 @@ test.describe('Estate Module', () => {
     await selectOption(page, 'select[id*="asset_type"]', 'property');
     await fillField(page, 'input[placeholder*="name"]', 'Main Residence');
     await fillField(page, 'input[placeholder*="value"]', '350000');
-    await selectOption(page, 'select[id*="ownership"]', 'sole');
+    await selectOption(page, 'select[id*="ownership"]', 'individual');
 
     // Submit
     await page.click('button[type="submit"]:has-text("Save")');

@@ -31,6 +31,27 @@ A comprehensive financial planning web application designed for UK individuals a
 
 ## 🆕 Recent Updates (October 2025)
 
+### Version 0.1.2.3 - Comprehensive Protection Plan
+
+**Release Date**: October 25, 2025
+
+**Major Features**:
+- ✅ **Comprehensive Protection Plan**: Professional report generation with complete protection analysis
+- ✅ **Executive Summary**: Overall adequacy score (0-100) with visual gauge
+- ✅ **Coverage Gap Analysis**: Life Insurance, Critical Illness, and Income Protection gaps
+- ✅ **Optimized Strategy**: Prioritized recommendations with cost estimates
+- ✅ **Print/PDF Export**: Professional format for sharing with advisers
+- ✅ **Scenario Analysis**: Death, critical illness, and disability impact modeling
+
+### Version 0.1.2.2 - Second Death IHT & Life Policy Strategy
+
+**Release Date**: October 23, 2025
+
+**Major Features**:
+- ✅ **Second Death IHT Planning**: Complete married couple IHT analysis with actuarial projections
+- ✅ **Life Policy Strategy**: Whole of Life vs. Self-Insurance comparison with premium calculations
+- ✅ **Future Value Projections**: Estate growth modeling for surviving spouse scenarios
+
 ### Version 0.1.2 - Spouse Management & Joint Ownership
 
 **Release Date**: October 21, 2025
@@ -933,11 +954,11 @@ For issues, questions, or contributions:
 
 ---
 
-**Current Version**: 0.1.2 (Beta)
+**Current Version**: 0.1.2.3 (Beta)
 
-**Last Updated**: 21 October 2025
+**Last Updated**: 25 October 2025
 
-**Status**: 🚀 Active Development - Core Features Complete, Spouse Management & Joint Ownership Implemented
+**Status**: 🚀 Active Development - Core Features Complete, Comprehensive Protection Plan Added
 
 ---
 

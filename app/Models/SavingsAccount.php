@@ -26,6 +26,7 @@ class SavingsAccount extends Model
         'maturity_date',
         'is_emergency_fund',
         'is_isa',
+        'country',
         'isa_type',
         'isa_subscription_year',
         'isa_subscription_amount',

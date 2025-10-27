@@ -7,13 +7,15 @@ use App\Models\Estate\Liability;
 use App\Models\Estate\NetWorthStatement;
 use App\Models\User;
 use App\Services\Estate\NetWorthAnalyzer;
+use App\Services\Shared\CrossModuleAssetAggregator;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->analyzer = new NetWorthAnalyzer;
+    $aggregator = new CrossModuleAssetAggregator;
+    $this->analyzer = new NetWorthAnalyzer($aggregator);
     $this->user = User::factory()->create();
 });
 
@@ -24,7 +26,7 @@ describe('calculateNetWorth', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -33,7 +35,7 @@ describe('calculateNetWorth', function () {
             'asset_type' => 'investment',
             'asset_name' => 'ISA',
             'current_value' => 50000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -215,7 +217,7 @@ describe('generateSummary', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 500000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -239,7 +241,7 @@ describe('generateSummary', function () {
             'asset_type' => 'investment',
             'asset_name' => 'Portfolio',
             'current_value' => 100000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 
@@ -257,7 +259,7 @@ describe('generateSummary', function () {
             'asset_type' => 'property',
             'asset_name' => 'Home',
             'current_value' => 300000,
-            'ownership_type' => 'sole',
+            'ownership_type' => 'individual',
             'valuation_date' => Carbon::now(),
         ]);
 

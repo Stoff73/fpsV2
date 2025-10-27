@@ -97,6 +97,11 @@ class OnboardingController extends Controller
         }
 
         try {
+            \Log::info('Saving step progress', [
+                'step_name' => $request->input('step_name'),
+                'data' => $request->input('data'),
+            ]);
+
             $progress = $this->onboardingService->saveStepProgress(
                 $request->user()->id,
                 $request->input('step_name'),
@@ -119,6 +124,11 @@ class OnboardingController extends Controller
                 'message' => 'Step progress saved successfully',
             ]);
         } catch (\Exception $e) {
+            \Log::error('Failed to save step progress', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to save step progress',

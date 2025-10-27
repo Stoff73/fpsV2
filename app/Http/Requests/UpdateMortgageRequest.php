@@ -26,6 +26,7 @@ class UpdateMortgageRequest extends FormRequest
             'lender_name' => ['sometimes', 'string', 'max:255'],
             'mortgage_account_number' => ['sometimes', 'nullable', 'string', 'max:50'],
             'mortgage_type' => ['sometimes', Rule::in(['repayment', 'interest_only'])],
+            'country' => ['sometimes', 'nullable', 'string', 'max:255'],
 
             // Loan details
             'original_loan_amount' => ['sometimes', 'numeric', 'min:0'],

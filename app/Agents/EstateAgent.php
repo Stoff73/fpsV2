@@ -8,10 +8,12 @@ use App\Models\Estate\Asset;
 use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Liability;
+use App\Models\User;
 use App\Services\Estate\CashFlowProjector;
 use App\Services\Estate\GiftingStrategy;
 use App\Services\Estate\IHTCalculator;
 use App\Services\Estate\NetWorthAnalyzer;
+use App\Services\UserProfile\ProfileCompletenessChecker;
 
 class EstateAgent extends BaseAgent
 {
@@ -19,7 +21,8 @@ class EstateAgent extends BaseAgent
         private IHTCalculator $ihtCalculator,
         private GiftingStrategy $giftingStrategy,
         private NetWorthAnalyzer $netWorthAnalyzer,
-        private CashFlowProjector $cashFlowProjector
+        private CashFlowProjector $cashFlowProjector,
+        private ProfileCompletenessChecker $completenessChecker
     ) {}
 
     /**
@@ -76,6 +79,10 @@ class EstateAgent extends BaseAgent
                 'iht_liability' => $ihtLiability['iht_liability'],
             ]);
 
+            // Check profile completeness
+            $user = User::findOrFail($userId);
+            $profileCompleteness = $this->completenessChecker->checkCompleteness($user);
+
             return [
                 'net_worth' => $netWorthAnalysis,
                 'iht_liability' => $ihtLiability,
@@ -86,6 +93,7 @@ class EstateAgent extends BaseAgent
                 'discretionary_income' => $discretionaryIncome,
                 'probate_readiness_score' => $probateReadinessScore,
                 'summary' => $this->generateSummary($netWorthAnalysis, $ihtLiability, $probateReadinessScore),
+                'profile_completeness' => $profileCompleteness,
             ];
         });
     }

@@ -9,6 +9,7 @@ use App\Services\Protection\AdequacyScorer;
 use App\Services\Protection\CoverageGapAnalyzer;
 use App\Services\Protection\RecommendationEngine;
 use App\Services\Protection\ScenarioBuilder;
+use App\Services\UserProfile\ProfileCompletenessChecker;
 use Illuminate\Support\Facades\Cache;
 
 class ProtectionAgent extends BaseAgent
@@ -20,7 +21,8 @@ class ProtectionAgent extends BaseAgent
         private CoverageGapAnalyzer $gapAnalyzer,
         private AdequacyScorer $adequacyScorer,
         private RecommendationEngine $recommendationEngine,
-        private ScenarioBuilder $scenarioBuilder
+        private ScenarioBuilder $scenarioBuilder,
+        private ProfileCompletenessChecker $completenessChecker
     ) {}
 
     /**
@@ -29,6 +31,7 @@ class ProtectionAgent extends BaseAgent
     public function analyze(int $userId): array
     {
         $cacheKey = "protection_analysis_{$userId}";
+        $cacheTags = ['protection', 'user_'.$userId];
 
         return $this->remember($cacheKey, function () use ($userId) {
             $user = User::with([
@@ -95,6 +98,9 @@ class ProtectionAgent extends BaseAgent
             $mortgageDebt = $user->mortgages()->sum('outstanding_balance');
             $otherDebt = $user->liabilities()->sum('current_balance');
 
+            // Check profile completeness
+            $profileCompleteness = $this->completenessChecker->checkCompleteness($user);
+
             return $this->response(
                 true,
                 'Protection analysis completed successfully.',
@@ -160,9 +166,10 @@ class ProtectionAgent extends BaseAgent
                             'conditions_covered' => $p->conditions_covered,
                         ]),
                     ],
+                    'profile_completeness' => $profileCompleteness,
                 ]
             );
-        });
+        }, null, $cacheTags);
     }
 
     /**
@@ -257,7 +264,7 @@ class ProtectionAgent extends BaseAgent
      */
     public function invalidateCache(int $userId): void
     {
-        $cacheKey = "protection_analysis_{$userId}";
-        Cache::forget($cacheKey);
+        // Use tagged cache flush to match how cache is stored
+        Cache::tags(['protection', 'user_'.$userId])->flush();
     }
 }

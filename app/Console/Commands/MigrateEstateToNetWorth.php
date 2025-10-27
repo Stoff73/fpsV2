@@ -172,8 +172,8 @@ class MigrateEstateToNetWorth extends Command
             'purchase_price' => $asset->current_valuation, // Assume same as current value
             'purchase_date' => $asset->valuation_date,
             'valuation_date' => $asset->valuation_date,
-            'ownership_type' => $asset->ownership_type === 'sole' ? 'individual' : 'joint',
-            'ownership_percentage' => $asset->ownership_type === 'sole' ? 100 : 50, // Assume 50/50 for joint
+            'ownership_type' => $asset->ownership_type === 'individual' ? 'individual' : 'joint',
+            'ownership_percentage' => $asset->ownership_type === 'individual' ? 100 : 50, // Assume 50/50 for joint
             'is_main_residence' => false, // Will be updated manually if needed
             'is_iht_exempt' => $asset->is_iht_exempt,
             'exemption_reason' => $asset->exemption_reason,
@@ -193,10 +193,10 @@ class MigrateEstateToNetWorth extends Command
             'trust_id' => null,
             'business_name' => $asset->asset_name,
             'business_type' => 'other', // Default
-            'ownership_percentage' => $asset->ownership_type === 'sole' ? 100 : 50,
+            'ownership_percentage' => $asset->ownership_type === 'individual' ? 100 : 50,
             'current_valuation' => $asset->current_valuation,
             'valuation_date' => $asset->valuation_date,
-            'ownership_type' => $asset->ownership_type === 'sole' ? 'individual' : 'joint',
+            'ownership_type' => $asset->ownership_type === 'individual' ? 'individual' : 'joint',
             'is_trading' => true, // Assume trading
             'is_iht_exempt' => $asset->is_iht_exempt,
             'exemption_reason' => $asset->exemption_reason,
@@ -220,8 +220,8 @@ class MigrateEstateToNetWorth extends Command
             'acquisition_cost' => $asset->current_valuation,
             'acquisition_date' => $asset->valuation_date,
             'valuation_date' => $asset->valuation_date,
-            'ownership_type' => $asset->ownership_type === 'sole' ? 'individual' : 'joint',
-            'ownership_percentage' => $asset->ownership_type === 'sole' ? 100 : 50,
+            'ownership_type' => $asset->ownership_type === 'individual' ? 'individual' : 'joint',
+            'ownership_percentage' => $asset->ownership_type === 'individual' ? 100 : 50,
             'is_set' => false,
             'set_value' => null,
             'is_iht_exempt' => $asset->is_iht_exempt,

@@ -31,7 +31,7 @@
 
     <!-- Account List -->
     <div class="bg-white rounded-lg border border-gray-200 p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Your Savings Accounts</h3>
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Your Accounts</h3>
       <div v-if="accounts.length > 0" class="space-y-4">
         <div
           v-for="account in accounts"

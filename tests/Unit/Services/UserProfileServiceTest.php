@@ -7,13 +7,15 @@ use App\Models\Household;
 use App\Models\FamilyMember;
 use App\Models\Property;
 use App\Models\Investment\InvestmentAccount;
+use App\Services\Shared\CrossModuleAssetAggregator;
 use App\Services\UserProfile\UserProfileService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->service = new UserProfileService();
+    $aggregator = new CrossModuleAssetAggregator();
+    $this->service = new UserProfileService($aggregator);
 
     // Create a household
     $this->household = Household::factory()->create();
@@ -138,7 +140,7 @@ describe('getCompleteProfile', function () {
             'cash',
             'investments',
             'properties',
-            'business_interests',
+            'business',
             'chattels',
             'pensions',
             'total',
@@ -148,8 +150,8 @@ describe('getCompleteProfile', function () {
     test('calculates assets summary correctly', function () {
         $profile = $this->service->getCompleteProfile($this->user);
 
-        expect($profile['assets_summary']['properties'])->toBe(500000.00);
-        expect($profile['assets_summary']['investments'])->toBe(50000.00);
+        expect($profile['assets_summary']['properties']['total'])->toBe(500000.00);
+        expect($profile['assets_summary']['investments']['total'])->toBe(50000.00);
         expect($profile['assets_summary']['total'])->toBeGreaterThan(0);
     });
 });

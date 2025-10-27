@@ -26,6 +26,7 @@ class StorePropertyRequest extends FormRequest
             'trust_id' => ['nullable', 'exists:trusts,id'],
             'property_type' => ['required', Rule::in(['main_residence', 'secondary_residence', 'buy_to_let', 'commercial', 'land'])],
             'ownership_type' => ['nullable', Rule::in(['individual', 'joint', 'trust'])],
+            'country' => ['nullable', 'string', 'max:255'],
             'ownership_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
             // Address - simplified (address is a virtual field, actual column is address_line_1)

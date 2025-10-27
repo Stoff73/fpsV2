@@ -175,9 +175,8 @@
             required
           >
             <option value="">Select joint owner</option>
-            <option v-for="member in familyMembers" :key="member.id" :value="member.user_id">
-              {{ member.first_name }} {{ member.last_name }} ({{ member.relationship }})
-            </option>
+            <option v-if="spouse" :value="spouse.id">{{ spouse.name }} (Spouse)</option>
+            <option v-if="!spouse" value="" disabled>No spouse linked - add spouse in Family Members</option>
           </select>
         </div>
 
@@ -249,6 +248,10 @@ export default {
   computed: {
     isEdit() {
       return this.property && this.property.id;
+    },
+
+    spouse() {
+      return this.$store.getters['userProfile/spouse'];
     },
   },
 

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdatePersonalInfoRequest;
 use App\Http\Requests\UpdateIncomeOccupationRequest;
+use App\Http\Requests\UpdateDomicileInfoRequest;
 use App\Services\UserProfile\UserProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -73,12 +74,20 @@ class UserProfileController extends Controller
 
         // Clear protection analysis cache when income changes
         // This ensures protection needs recalculate with new income
-        \Cache::tags(['protection', 'user_' . $user->id])->flush();
+        try {
+            \Cache::tags(['protection', 'user_' . $user->id])->flush();
+        } catch (\BadMethodCallException $e) {
+            // Array driver doesn't support tags, skip
+        }
 
         // If user has spouse, also clear their protection cache
         // (spouse's protection calculation depends on this user's income)
         if ($user->spouse_id) {
-            \Cache::tags(['protection', 'user_' . $user->spouse_id])->flush();
+            try {
+                \Cache::tags(['protection', 'user_' . $user->spouse_id])->flush();
+            } catch (\BadMethodCallException $e) {
+                // Array driver doesn't support tags, skip
+            }
         }
 
         return response()->json([
@@ -86,6 +95,93 @@ class UserProfileController extends Controller
             'message' => 'Income and occupation information updated successfully',
             'data' => [
                 'user' => $updatedUser,
+            ],
+        ]);
+    }
+
+    /**
+     * Update expenditure information
+     */
+    public function updateExpenditure(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'monthly_expenditure' => 'nullable|numeric|min:0',
+            'annual_expenditure' => 'nullable|numeric|min:0',
+        ]);
+
+        $user->update($validated);
+
+        // Create/update expenditure profile with only the total (no fake breakdown)
+        if ($validated['monthly_expenditure'] ?? null) {
+            $monthly = $validated['monthly_expenditure'];
+
+            \App\Models\ExpenditureProfile::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'monthly_housing' => 0,
+                    'monthly_food' => 0,
+                    'monthly_utilities' => 0,
+                    'monthly_transport' => 0,
+                    'monthly_insurance' => 0,
+                    'monthly_loans' => 0,
+                    'monthly_discretionary' => 0,
+                    'total_monthly_expenditure' => $monthly,
+                ]
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Expenditure information updated successfully',
+            'data' => [
+                'user' => $user->fresh(),
+            ],
+        ]);
+    }
+
+    /**
+     * Update domicile information
+     *
+     * PUT /api/user/profile/domicile
+     */
+    public function updateDomicileInfo(UpdateDomicileInfoRequest $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $updatedUser = $this->userProfileService->updateDomicileInfo(
+            $user,
+            $request->validated()
+        );
+
+        // Clear estate analysis cache when domicile status changes
+        // This affects IHT calculations and estate planning strategies
+        try {
+            \Cache::tags(['estate', 'user_' . $user->id])->flush();
+        } catch (\BadMethodCallException $e) {
+            // Array driver doesn't support tags, skip
+        }
+        \Cache::forget("estate_analysis_{$user->id}");
+        \Cache::forget("profile_completeness_{$user->id}");
+
+        // If user has spouse, also clear their estate cache
+        if ($user->spouse_id) {
+            try {
+                \Cache::tags(['estate', 'user_' . $user->spouse_id])->flush();
+            } catch (\BadMethodCallException $e) {
+                // Array driver doesn't support tags, skip
+            }
+            \Cache::forget("estate_analysis_{$user->spouse_id}");
+            \Cache::forget("profile_completeness_{$user->spouse_id}");
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Domicile information updated successfully',
+            'data' => [
+                'user' => $updatedUser,
+                'domicile_info' => $updatedUser->getDomicileInfo(),
             ],
         ]);
     }

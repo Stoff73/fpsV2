@@ -1,216 +1,261 @@
 <template>
   <div class="gifting-strategy-tab">
-    <!-- Planned Gifting Strategy Section -->
-    <div v-if="plannedStrategy" class="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+    <!-- Personalized Asset-Based Gifting Strategy Section -->
+    <div v-if="personalizedStrategy" class="mb-8 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg p-6 border border-emerald-200">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-bold text-gray-900">Planned Gifting Strategy</h2>
+        <h2 class="text-2xl font-bold text-gray-900">Your Personalized Gifting Strategy</h2>
         <button
-          @click="refreshPlannedStrategy"
-          class="text-sm text-blue-600 hover:text-blue-800 flex items-center"
-          :disabled="loadingStrategy"
+          @click="refreshPersonalizedStrategy"
+          class="text-sm text-emerald-600 hover:text-emerald-800 flex items-center"
+          :disabled="loadingPersonalizedStrategy"
         >
-          <svg v-if="!loadingStrategy" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg v-if="!loadingPersonalizedStrategy" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          <div v-else class="animate-spin h-4 w-4 mr-1 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+          <div v-else class="animate-spin h-4 w-4 mr-1 border-2 border-emerald-600 border-t-transparent rounded-full"></div>
           Refresh
         </button>
       </div>
 
-      <!-- Life Expectancy Summary -->
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <div class="bg-white rounded-lg p-4 border border-blue-100">
-          <p class="text-sm text-gray-600 mb-1">Current Age</p>
-          <p class="text-2xl font-bold text-gray-900">{{ plannedStrategy.life_expectancy_analysis.current_age }}</p>
+      <p class="text-gray-700 mb-6">
+        Based on your specific assets and their liquidity, here's a tailored gifting strategy to reduce your IHT liability.
+      </p>
+
+      <!-- Liquidity Summary -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg p-4 border border-emerald-100">
+          <p class="text-sm text-gray-600 mb-1">Total Estate Value</p>
+          <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(personalizedStrategy.liquidity_analysis.summary.total_value) }}</p>
         </div>
-        <div class="bg-white rounded-lg p-4 border border-blue-100">
-          <p class="text-sm text-gray-600 mb-1">Life Expectancy</p>
-          <p class="text-2xl font-bold text-gray-900">{{ plannedStrategy.life_expectancy_analysis.life_expectancy_years }} years</p>
+        <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+          <p class="text-sm text-green-700 mb-1 font-medium">Immediately Giftable</p>
+          <p class="text-2xl font-bold text-green-900">{{ formatCurrency(personalizedStrategy.giftable_amounts.immediately_giftable) }}</p>
+          <p class="text-xs text-green-600">{{ personalizedStrategy.giftable_amounts.liquid_asset_count }} liquid assets</p>
         </div>
-        <div class="bg-white rounded-lg p-4 border border-blue-100">
-          <p class="text-sm text-gray-600 mb-1">Years Until Death</p>
-          <p class="text-2xl font-bold text-gray-900">{{ plannedStrategy.life_expectancy_analysis.years_until_expected_death }}</p>
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <p class="text-sm text-blue-700 mb-1 font-medium">Giftable with Planning</p>
+          <p class="text-2xl font-bold text-blue-900">{{ formatCurrency(personalizedStrategy.giftable_amounts.giftable_with_planning) }}</p>
+          <p class="text-xs text-blue-600">{{ personalizedStrategy.giftable_amounts.semi_liquid_asset_count }} semi-liquid assets</p>
         </div>
-        <div class="bg-white rounded-lg p-4 border border-green-100">
-          <p class="text-sm text-green-700 mb-1 font-medium">Complete PET Cycles</p>
-          <p class="text-2xl font-bold text-green-900">{{ plannedStrategy.life_expectancy_analysis.complete_7_year_pet_cycles }}</p>
-          <p class="text-xs text-green-600">7-year cycles available</p>
-        </div>
-        <div class="bg-white rounded-lg p-4 border border-blue-100">
-          <p class="text-sm text-gray-600 mb-1">Current IHT Liability</p>
-          <p class="text-2xl font-bold text-red-600">{{ formatCurrency(plannedStrategy.current_estate.iht_liability) }}</p>
+        <div class="bg-amber-50 rounded-lg p-4 border border-amber-200">
+          <p class="text-sm text-amber-700 mb-1 font-medium">Not Giftable</p>
+          <p class="text-2xl font-bold text-amber-900">{{ formatCurrency(personalizedStrategy.giftable_amounts.not_giftable) }}</p>
+          <p class="text-xs text-amber-600">{{ personalizedStrategy.giftable_amounts.illiquid_asset_count }} illiquid assets</p>
         </div>
       </div>
 
-      <!-- Annual Exemption Plan -->
-      <div v-if="plannedStrategy.annual_exemption_plan" class="bg-white rounded-lg p-6 border border-green-200 mb-4">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">Annual Exemption (£3,000/year)</h3>
-          <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-            Immediately Exempt - No Risk
-          </span>
-        </div>
+      <!-- Asset-Based Strategies -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Your Asset-Based Strategies</h3>
 
-        <p class="text-gray-700 mb-4">
-          You can gift £{{ formatNumber(plannedStrategy.annual_exemption_plan.annual_amount) }} per year using the annual exemption. These gifts are immediately exempt from IHT with no 7-year waiting period.
-        </p>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div class="bg-green-50 rounded p-3">
-            <p class="text-sm text-green-700 font-medium">Annual Gift</p>
-            <p class="text-2xl font-bold text-green-900">{{ formatCurrency(plannedStrategy.annual_exemption_plan.annual_amount) }}</p>
-            <p class="text-xs text-green-600 mt-1">Every year</p>
-          </div>
-          <div class="bg-blue-50 rounded p-3">
-            <p class="text-sm text-blue-700 font-medium">Total Over Lifetime</p>
-            <p class="text-2xl font-bold text-blue-900">{{ formatCurrency(plannedStrategy.annual_exemption_plan.total_over_lifetime) }}</p>
-            <p class="text-xs text-blue-600 mt-1">{{ plannedStrategy.annual_exemption_plan.years_available }} years</p>
-          </div>
-          <div class="bg-purple-50 rounded p-3">
-            <p class="text-sm text-purple-700 font-medium">IHT Savings</p>
-            <p class="text-2xl font-bold text-purple-900">{{ formatCurrency(plannedStrategy.annual_exemption_plan.total_iht_saved) }}</p>
-            <p class="text-xs text-purple-600 mt-1">40% of gifts</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- PET Cycle Framework -->
-      <div v-if="plannedStrategy.pet_cycle_framework" class="bg-white rounded-lg p-6 border border-indigo-200 mb-4">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">PET Gifting Cycles (Every 7 Years)</h3>
-          <span class="px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-            {{ plannedStrategy.pet_cycle_framework.cycles_available }} Cycles Available
-          </span>
-        </div>
-
-        <div v-if="!plannedStrategy.pet_cycle_framework.has_iht_liability" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-          <p class="text-blue-900 font-medium mb-2">Educational Framework</p>
-          <p class="text-blue-800 text-sm">
-            You currently have no IHT liability. However, you have <strong>{{ plannedStrategy.pet_cycle_framework.cycles_available }} complete 7-year cycles</strong> available over your lifetime.
-            This means you could potentially gift up to <strong>{{ formatCurrency(plannedStrategy.pet_cycle_framework.maximum_per_cycle) }}</strong> (your Nil Rate Band)
-            every 7 years, for a total of <strong>{{ formatCurrency(plannedStrategy.pet_cycle_framework.total_potential) }}</strong> over {{ plannedStrategy.pet_cycle_framework.cycles_available }} cycles.
-          </p>
-        </div>
-
-        <div v-else-if="petStrategy" class="mb-4">
-          <p class="text-gray-700 mb-4">{{ petStrategy.description }}</p>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div class="bg-blue-50 rounded p-3">
-              <p class="text-sm text-blue-700 font-medium">Recommended Per Cycle</p>
-              <p class="text-2xl font-bold text-blue-900">{{ formatCurrency(petStrategy.amount_per_cycle) }}</p>
-            </div>
-            <div class="bg-purple-50 rounded p-3">
-              <p class="text-sm text-purple-700 font-medium">Total Over {{ petStrategy.number_of_cycles }} Cycles</p>
-              <p class="text-2xl font-bold text-purple-900">{{ formatCurrency(petStrategy.total_gifted) }}</p>
-            </div>
-            <div class="bg-green-50 rounded p-3">
-              <p class="text-sm text-green-700 font-medium">Total IHT Savings</p>
-              <p class="text-2xl font-bold text-green-900">{{ formatCurrency(petStrategy.iht_saved) }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- PET Timeline -->
-        <div class="mt-6">
-          <h4 class="text-md font-semibold text-gray-900 mb-3">PET Cycle Timeline</h4>
-          <div class="space-y-3">
-            <div
-              v-for="(cycle, index) in plannedStrategy.pet_cycle_framework.cycles"
-              :key="index"
-              class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200"
-            >
-              <div class="flex-shrink-0 w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
-                {{ cycle.cycle_number }}
+        <div
+          v-for="(strategy, index) in personalizedStrategy.strategies"
+          :key="index"
+          class="bg-white rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow"
+        >
+          <!-- Strategy Header -->
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                  Priority {{ strategy.priority }}
+                </span>
+                <span
+                  class="px-2 py-1 rounded text-xs font-medium"
+                  :class="getRiskLevelClass(strategy.risk_level)"
+                >
+                  {{ strategy.risk_level }} Risk
+                </span>
+                <span
+                  v-if="strategy.category"
+                  class="px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-700"
+                >
+                  {{ formatCategory(strategy.category) }}
+                </span>
               </div>
-              <div class="ml-4 flex-1">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="font-semibold text-gray-900">
-                      PET Cycle {{ cycle.cycle_number }}
-                    </p>
-                    <p class="text-sm text-gray-600">Year {{ cycle.gift_year }} (Age {{ cycle.gift_age }}): Make gift</p>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-sm text-gray-600">Becomes IHT-free:</p>
-                    <p class="font-semibold text-green-600">
-                      Year {{ cycle.exempt_year }} (Age {{ cycle.exempt_age }})
-                    </p>
-                  </div>
+              <h4 class="text-lg font-semibold text-gray-900">{{ strategy.strategy_name }}</h4>
+              <p class="text-sm text-gray-600 mt-1">{{ strategy.description }}</p>
+            </div>
+            <div v-if="strategy.iht_saved > 0" class="text-right ml-4">
+              <p class="text-sm text-gray-600">IHT Saved</p>
+              <p class="text-2xl font-bold text-green-600">{{ formatCurrency(strategy.iht_saved) }}</p>
+            </div>
+          </div>
+
+          <!-- Strategy Details -->
+          <div v-if="strategy.total_gifted > 0" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 bg-gray-50 rounded p-3">
+            <div v-if="strategy.annual_amount">
+              <p class="text-xs text-gray-600">Annual Amount</p>
+              <p class="text-lg font-bold text-gray-900">{{ formatCurrency(strategy.annual_amount) }}</p>
+            </div>
+            <div v-if="strategy.total_gifted">
+              <p class="text-xs text-gray-600">Total to Gift</p>
+              <p class="text-lg font-bold text-gray-900">{{ formatCurrency(strategy.total_gifted) }}</p>
+            </div>
+            <div v-if="strategy.years">
+              <p class="text-xs text-gray-600">Timeframe</p>
+              <p class="text-lg font-bold text-gray-900">{{ strategy.years }} years</p>
+            </div>
+          </div>
+
+          <!-- Available Assets -->
+          <div v-if="strategy.available_assets" class="mb-3 p-3 bg-blue-50 rounded border border-blue-100">
+            <p class="text-xs font-medium text-blue-800 mb-1">Available Assets:</p>
+            <p class="text-sm text-blue-900">{{ strategy.available_assets }}</p>
+          </div>
+
+          <!-- Main Residence Info -->
+          <div v-if="strategy.main_residence" class="mb-3 p-3 bg-amber-50 rounded border border-amber-200">
+            <p class="text-xs font-medium text-amber-800 mb-1">Main Residence:</p>
+            <p class="text-sm text-amber-900 font-medium">{{ strategy.main_residence }}</p>
+            <p class="text-sm text-amber-800 mt-1">Value: {{ formatCurrency(strategy.current_value) }}</p>
+            <p class="text-xs text-amber-700 mt-2 italic">{{ strategy.not_giftable_reason }}</p>
+          </div>
+
+          <!-- Gift Schedule (for PET strategies) -->
+          <div v-if="strategy.gift_schedule && strategy.gift_schedule.length > 0" class="mb-3">
+            <p class="text-sm font-medium text-gray-900 mb-2">Gift Schedule:</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+              <div
+                v-for="(gift, idx) in strategy.gift_schedule"
+                :key="idx"
+                class="p-2 bg-indigo-50 rounded border border-indigo-100"
+              >
+                <p class="text-xs text-indigo-700">Year {{ gift.year }}</p>
+                <p class="text-sm font-bold text-indigo-900">{{ formatCurrency(gift.amount) }}</p>
+                <p class="text-xs text-indigo-600">Exempt: Year {{ gift.becomes_exempt }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tax Considerations -->
+          <div v-if="strategy.tax_considerations" class="mb-3 p-3 bg-purple-50 rounded border border-purple-100">
+            <p class="text-xs font-medium text-purple-800 mb-2">Tax Considerations:</p>
+            <div class="text-xs text-purple-900 space-y-1">
+              <p v-if="strategy.tax_considerations.cgt_rate">
+                <span class="font-medium">CGT:</span> {{ strategy.tax_considerations.cgt_rate }}
+              </p>
+              <p v-if="strategy.tax_considerations.sdlt">
+                <span class="font-medium">SDLT:</span> {{ strategy.tax_considerations.sdlt }}
+              </p>
+              <p v-if="strategy.tax_considerations.iht_treatment">
+                <span class="font-medium">IHT:</span> {{ strategy.tax_considerations.iht_treatment }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Implementation Steps -->
+          <div class="border-t border-gray-200 pt-3 mt-3">
+            <p class="text-sm font-medium text-gray-900 mb-2">Implementation Steps:</p>
+            <ul class="space-y-1">
+              <li
+                v-for="(step, stepIdx) in strategy.implementation_steps"
+                :key="stepIdx"
+                class="flex items-start text-sm text-gray-700"
+              >
+                <svg class="w-4 h-4 mr-2 mt-0.5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span>{{ step }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Alternative Strategies (for main residence) -->
+          <div v-if="strategy.alternative_strategies" class="border-t border-gray-200 pt-3 mt-3">
+            <p class="text-sm font-medium text-gray-900 mb-2">Alternative Strategies:</p>
+            <ul class="space-y-1">
+              <li
+                v-for="(alt, altIdx) in strategy.alternative_strategies"
+                :key="altIdx"
+                class="flex items-start text-sm text-gray-700"
+              >
+                <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                <span>{{ alt }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Asset Details (expandable) -->
+          <div v-if="strategy.asset_details && strategy.asset_details.length > 0" class="border-t border-gray-200 pt-3 mt-3">
+            <button
+              @click="toggleAssetDetails(index)"
+              class="w-full flex items-center justify-between text-sm font-medium text-gray-900 hover:text-gray-700"
+            >
+              <span>View Asset Details ({{ strategy.asset_details.length }} assets)</span>
+              <svg
+                class="w-5 h-5 transition-transform"
+                :class="{ 'rotate-180': expandedAssetDetails[index] }"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <div v-if="expandedAssetDetails[index]" class="mt-3 space-y-2">
+              <div
+                v-for="(asset, assetIdx) in strategy.asset_details"
+                :key="assetIdx"
+                class="p-3 bg-gray-50 rounded border border-gray-200"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <p class="font-medium text-gray-900">{{ asset.name }}</p>
+                  <p class="text-sm font-bold text-gray-900">{{ formatCurrency(asset.value) }}</p>
+                </div>
+                <p class="text-xs text-gray-600 mb-2">Type: {{ formatAssetType(asset.type) }}</p>
+                <div v-if="asset.gifting_considerations" class="text-xs text-gray-700">
+                  <p class="font-medium mb-1">Gifting Considerations:</p>
+                  <ul class="list-disc list-inside space-y-0.5 pl-2">
+                    <li v-for="(consideration, cIdx) in asset.gifting_considerations.slice(0, 3)" :key="cIdx">
+                      {{ consideration }}
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        <div class="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <h4 class="text-sm font-semibold text-gray-900 mb-2">How PETs Work</h4>
-          <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
-            <li>You can gift any amount as a Potentially Exempt Transfer (PET)</li>
-            <li>If you survive 7 years, the gift becomes completely IHT-free</li>
-            <li>Taper relief applies from year 3-7 if death occurs before 7 years</li>
-            <li>Gifting up to £{{ formatNumber(plannedStrategy.pet_cycle_framework.nil_rate_band) }} (NRB) every 7 years maximizes IHT efficiency</li>
-            <li>Over {{ plannedStrategy.pet_cycle_framework.cycles_available }} cycles, you could gift up to {{ formatCurrency(plannedStrategy.pet_cycle_framework.total_potential) }} IHT-free</li>
-          </ul>
-        </div>
       </div>
 
-      <!-- Other Strategies -->
-      <div v-if="otherStrategies.length > 0" class="space-y-3">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3">Additional Strategies</h3>
-        <div
-          v-for="(strategy, index) in otherStrategies"
-          :key="index"
-          class="bg-white rounded-lg p-4 border border-gray-200"
-        >
-          <div class="flex items-center justify-between mb-2">
-            <h4 class="font-semibold text-gray-900">{{ strategy.strategy_name }}</h4>
-            <span class="text-sm font-medium text-green-600">Save {{ formatCurrency(strategy.iht_saved) }}</span>
-          </div>
-          <p class="text-sm text-gray-700 mb-2">{{ strategy.description }}</p>
-          <div class="flex items-center justify-between text-sm">
-            <span v-if="strategy.annual_amount" class="text-gray-600">Annual: {{ formatCurrency(strategy.annual_amount) }}</span>
-            <span v-if="strategy.gift_amount" class="text-gray-600">Gift Amount: {{ formatCurrency(strategy.gift_amount) }}</span>
-            <span class="text-gray-600">Priority: {{ strategy.priority }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Summary -->
-      <div v-if="plannedStrategy.gifting_strategy && plannedStrategy.gifting_strategy.summary" class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3">Strategy Impact Summary</h3>
+      <!-- Overall Summary -->
+      <div class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Overall Strategy Impact</h3>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <p class="text-sm text-gray-600">Original IHT Liability</p>
-            <p class="text-lg font-bold text-red-600">{{ formatCurrency(plannedStrategy.gifting_strategy.summary.original_iht_liability) }}</p>
+            <p class="text-lg font-bold text-red-600">{{ formatCurrency(personalizedStrategy.summary.original_iht_liability) }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Total to Gift</p>
+            <p class="text-lg font-bold text-blue-600">{{ formatCurrency(personalizedStrategy.summary.total_gifted) }}</p>
           </div>
           <div>
             <p class="text-sm text-gray-600">Total IHT Saved</p>
-            <p class="text-lg font-bold text-green-600">{{ formatCurrency(plannedStrategy.gifting_strategy.summary.total_iht_saved) }}</p>
+            <p class="text-lg font-bold text-green-600">{{ formatCurrency(personalizedStrategy.summary.total_iht_saved) }}</p>
           </div>
           <div>
-            <p class="text-sm text-gray-600">Remaining IHT Liability</p>
-            <p class="text-lg font-bold text-gray-900">{{ formatCurrency(plannedStrategy.gifting_strategy.summary.remaining_iht_liability) }}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-600">Reduction</p>
-            <p class="text-lg font-bold text-blue-600">{{ plannedStrategy.gifting_strategy.summary.reduction_percentage }}%</p>
+            <p class="text-sm text-gray-600">IHT Reduction</p>
+            <p class="text-lg font-bold text-emerald-600">{{ personalizedStrategy.summary.reduction_percentage }}%</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Error/Info Messages for Planning -->
-    <div v-if="strategyError" class="mb-6 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg">
+    <!-- Error/Info Messages for Personalized Strategy -->
+    <div v-if="personalizedStrategyError && !personalizedStrategy" class="mb-6 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg">
       <div class="flex items-start">
         <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
         </svg>
         <div>
-          <p class="font-medium">{{ strategyError }}</p>
-          <p v-if="requiresProfileUpdate" class="text-sm mt-1">
-            Please update your profile with your date of birth and gender to calculate your personalized gifting strategy.
-            <router-link to="/settings" class="underline font-medium">Go to Profile Settings</router-link>
+          <p class="font-medium">{{ personalizedStrategyError }}</p>
+          <p v-if="requiresAssets" class="text-sm mt-1">
+            Please add assets in the Estate Planning module to generate your personalized gifting strategy.
+            <router-link to="/estate" class="underline font-medium">Go to Estate Planning</router-link>
           </p>
         </div>
       </div>
@@ -419,6 +464,11 @@ export default {
       loadingStrategy: false,
       strategyError: null,
       requiresProfileUpdate: false,
+      personalizedStrategy: null,
+      loadingPersonalizedStrategy: false,
+      personalizedStrategyError: null,
+      requiresAssets: false,
+      expandedAssetDetails: {},
     };
   },
 
@@ -464,6 +514,7 @@ export default {
 
   mounted() {
     this.loadPlannedStrategy();
+    this.loadPersonalizedStrategy();
   },
 
   methods: {
@@ -503,6 +554,76 @@ export default {
 
     async refreshPlannedStrategy() {
       await this.loadPlannedStrategy();
+    },
+
+    async loadPersonalizedStrategy() {
+      this.loadingPersonalizedStrategy = true;
+      this.personalizedStrategyError = null;
+      this.requiresAssets = false;
+
+      try {
+        console.log('[GiftingStrategy] Loading personalized strategy...');
+        const response = await estateService.getPersonalizedGiftingStrategy();
+        console.log('[GiftingStrategy] Personalized API Response:', response);
+
+        if (response.success) {
+          this.personalizedStrategy = response.data;
+          console.log('[GiftingStrategy] Personalized strategy loaded:', this.personalizedStrategy);
+        } else {
+          this.personalizedStrategyError = response.message || 'Failed to load personalized gifting strategy';
+          this.requiresAssets = response.requires_assets || false;
+          console.error('[GiftingStrategy] API returned error:', this.personalizedStrategyError);
+        }
+      } catch (error) {
+        console.error('[GiftingStrategy] Failed to load personalized strategy:', error);
+        console.error('[GiftingStrategy] Error response:', error.response);
+        if (error.response?.status === 422) {
+          this.personalizedStrategyError = error.response.data.message;
+          this.requiresAssets = error.response.data.requires_assets || false;
+        } else {
+          this.personalizedStrategyError = 'Unable to calculate personalized strategy. Please ensure you have assets added.';
+        }
+      } finally {
+        this.loadingPersonalizedStrategy = false;
+      }
+    },
+
+    async refreshPersonalizedStrategy() {
+      await this.loadPersonalizedStrategy();
+    },
+
+    getRiskLevelClass(riskLevel) {
+      const riskLower = (riskLevel || '').toLowerCase();
+      if (riskLower === 'low') return 'bg-green-100 text-green-800';
+      if (riskLower === 'medium') return 'bg-amber-100 text-amber-800';
+      if (riskLower === 'high') return 'bg-red-100 text-red-800';
+      return 'bg-gray-100 text-gray-800';
+    },
+
+    formatCategory(category) {
+      const categories = {
+        immediate_exemption: 'Immediate Exemption',
+        liquid_assets: 'Liquid Assets',
+        property: 'Property',
+        main_residence: 'Main Residence',
+        income: 'From Income',
+      };
+      return categories[category] || category;
+    },
+
+    formatAssetType(type) {
+      const types = {
+        property: 'Property',
+        investment: 'Investment',
+        pension: 'Pension',
+        business: 'Business',
+        other: 'Cash/Other',
+      };
+      return types[type] || type;
+    },
+
+    toggleAssetDetails(index) {
+      this.$set(this.expandedAssetDetails, index, !this.expandedAssetDetails[index]);
     },
 
     formatCurrency(value) {

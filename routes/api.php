@@ -3,6 +3,11 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EstateController;
+use App\Http\Controllers\Api\Estate\IHTController;
+use App\Http\Controllers\Api\Estate\GiftingController;
+use App\Http\Controllers\Api\Estate\LifePolicyController;
+use App\Http\Controllers\Api\Estate\TrustController;
+use App\Http\Controllers\Api\Estate\WillController;
 use App\Http\Controllers\Api\FamilyMembersController;
 use App\Http\Controllers\Api\HolisticPlanningController;
 use App\Http\Controllers\Api\InvestmentController;
@@ -18,6 +23,7 @@ use App\Http\Controllers\Api\SavingsController;
 use App\Http\Controllers\Api\SpousePermissionController;
 use App\Http\Controllers\Api\UKTaxesController;
 use App\Http\Controllers\Api\UserProfileController;
+use App\Http\Controllers\Api\ProfileCompletenessController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -62,6 +68,9 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::get('/profile', [UserProfileController::class, 'getProfile']);
     Route::put('/profile/personal', [UserProfileController::class, 'updatePersonalInfo']);
     Route::put('/profile/income-occupation', [UserProfileController::class, 'updateIncomeOccupation']);
+    Route::put('/profile/expenditure', [UserProfileController::class, 'updateExpenditure']);
+    Route::put('/profile/domicile', [UserProfileController::class, 'updateDomicileInfo']);
+    Route::get('/profile/completeness', [ProfileCompletenessController::class, 'check']);
 
     // Family Members CRUD
     Route::prefix('family-members')->group(function () {
@@ -147,6 +156,9 @@ Route::middleware('auth:sanctum')->prefix('protection')->group(function () {
     Route::post('/analyze', [ProtectionController::class, 'analyze']);
     Route::get('/recommendations', [ProtectionController::class, 'recommendations']);
     Route::post('/scenarios', [ProtectionController::class, 'scenarios']);
+
+    // Comprehensive Protection Plan
+    Route::get('/comprehensive-plan', [ProtectionController::class, 'getComprehensiveProtectionPlan']);
 
     // Protection profile
     Route::post('/profile', [ProtectionController::class, 'storeProfile']);
@@ -261,14 +273,17 @@ Route::middleware('auth:sanctum')->prefix('estate')->group(function () {
     Route::post('/scenarios', [EstateController::class, 'scenarios']);
 
     // IHT calculation and net worth
-    Route::post('/calculate-iht', [EstateController::class, 'calculateIHT']);
-    Route::post('/calculate-surviving-spouse-iht', [EstateController::class, 'calculateSurvivingSpouseIHT']);
-    Route::post('/calculate-second-death-iht-planning', [EstateController::class, 'calculateSecondDeathIHTPlanning']);
+    Route::post('/calculate-iht', [IHTController::class, 'calculateIHT']);
+    Route::post('/calculate-surviving-spouse-iht', [IHTController::class, 'calculateSurvivingSpouseIHT']);
+    Route::post('/calculate-second-death-iht-planning', [IHTController::class, 'calculateSecondDeathIHTPlanning']);
     Route::get('/net-worth', [EstateController::class, 'getNetWorth']);
     Route::get('/cash-flow', [EstateController::class, 'getCashFlow']);
 
+    // Comprehensive Estate Plan
+    Route::get('/comprehensive-plan', [EstateController::class, 'getComprehensiveEstatePlan']);
+
     // IHT Profile
-    Route::post('/profile', [EstateController::class, 'storeOrUpdateIHTProfile']);
+    Route::post('/profile', [IHTController::class, 'storeOrUpdateIHTProfile']);
 
     // Assets
     Route::prefix('assets')->group(function () {
@@ -284,42 +299,44 @@ Route::middleware('auth:sanctum')->prefix('estate')->group(function () {
         Route::delete('/{id}', [EstateController::class, 'destroyLiability']);
     });
 
-    // Gifts
+    // Gifts (CRUD in EstateController, Strategy in GiftingController)
     Route::prefix('gifts')->group(function () {
-        Route::get('/planned-strategy', [EstateController::class, 'getPlannedGiftingStrategy']);
+        Route::get('/planned-strategy', [GiftingController::class, 'getPlannedGiftingStrategy']);
+        Route::get('/personalized-strategy', [GiftingController::class, 'getPersonalizedGiftingStrategy']);
+        Route::get('/trust-strategy', [GiftingController::class, 'getPersonalizedTrustStrategy']);
         Route::post('/', [EstateController::class, 'storeGift']);
         Route::put('/{id}', [EstateController::class, 'updateGift']);
         Route::delete('/{id}', [EstateController::class, 'destroyGift']);
     });
 
     // Life Policy Strategy
-    Route::get('/life-policy-strategy', [EstateController::class, 'getLifePolicyStrategy']);
+    Route::get('/life-policy-strategy', [LifePolicyController::class, 'getLifePolicyStrategy']);
 
     // Trusts
     Route::prefix('trusts')->group(function () {
-        Route::get('/', [EstateController::class, 'getTrusts']);
-        Route::post('/', [EstateController::class, 'createTrust']);
-        Route::put('/{id}', [EstateController::class, 'updateTrust']);
-        Route::delete('/{id}', [EstateController::class, 'deleteTrust']);
-        Route::get('/{id}/analyze', [EstateController::class, 'analyzeTrust']);
-        Route::get('/{id}/assets', [EstateController::class, 'getTrustAssets']);
-        Route::post('/{id}/calculate-iht-impact', [EstateController::class, 'calculateTrustIHTImpact']);
+        Route::get('/', [TrustController::class, 'getTrusts']);
+        Route::post('/', [TrustController::class, 'createTrust']);
+        Route::put('/{id}', [TrustController::class, 'updateTrust']);
+        Route::delete('/{id}', [TrustController::class, 'deleteTrust']);
+        Route::get('/{id}/analyze', [TrustController::class, 'analyzeTrust']);
+        Route::get('/{id}/assets', [TrustController::class, 'getTrustAssets']);
+        Route::post('/{id}/calculate-iht-impact', [TrustController::class, 'calculateTrustIHTImpact']);
     });
 
     // Trust planning and tax returns
-    Route::get('/trust-recommendations', [EstateController::class, 'getTrustRecommendations']);
-    Route::get('/trusts/upcoming-tax-returns', [EstateController::class, 'getUpcomingTaxReturns']);
+    Route::get('/trust-recommendations', [TrustController::class, 'getTrustRecommendations']);
+    Route::get('/trusts/upcoming-tax-returns', [WillController::class, 'getUpcomingTaxReturns']);
 
     // Will and Bequests
-    Route::get('/will', [EstateController::class, 'getWill']);
-    Route::post('/will', [EstateController::class, 'storeOrUpdateWill']);
+    Route::get('/will', [WillController::class, 'getWill']);
+    Route::post('/will', [WillController::class, 'storeOrUpdateWill']);
     Route::prefix('bequests')->group(function () {
-        Route::get('/', [EstateController::class, 'getBequests']);
-        Route::post('/', [EstateController::class, 'storeBequest']);
-        Route::put('/{id}', [EstateController::class, 'updateBequest']);
-        Route::delete('/{id}', [EstateController::class, 'deleteBequest']);
+        Route::get('/', [WillController::class, 'getBequests']);
+        Route::post('/', [WillController::class, 'storeBequest']);
+        Route::put('/{id}', [WillController::class, 'updateBequest']);
+        Route::delete('/{id}', [WillController::class, 'deleteBequest']);
     });
-    Route::post('/calculate-discount', [EstateController::class, 'calculateDiscountedGiftDiscount']);
+    Route::post('/calculate-discount', [GiftingController::class, 'calculateDiscountedGiftDiscount']);
 });
 
 // Retirement module routes

@@ -18,6 +18,10 @@ class Asset extends Model
         'asset_type',
         'asset_name',
         'current_value',
+        'liquidity',
+        'is_giftable',
+        'not_giftable_reason',
+        'is_main_residence',
         'ownership_type',
         'beneficiary_designation',
         'is_iht_exempt',
@@ -28,6 +32,8 @@ class Asset extends Model
     protected $casts = [
         'current_value' => 'float',
         'is_iht_exempt' => 'boolean',
+        'is_giftable' => 'boolean',
+        'is_main_residence' => 'boolean',
         'valuation_date' => 'date',
     ];
 

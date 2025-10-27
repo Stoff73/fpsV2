@@ -59,6 +59,7 @@ import FocusAreaSelection from './FocusAreaSelection.vue';
 import SkipConfirmationModal from './SkipConfirmationModal.vue';
 import PersonalInfoStep from './steps/PersonalInfoStep.vue';
 import IncomeStep from './steps/IncomeStep.vue';
+import DomicileInformationStep from './steps/DomicileInformationStep.vue';
 import ProtectionPoliciesStep from './steps/ProtectionPoliciesStep.vue';
 import AssetsStep from './steps/AssetsStep.vue';
 import LiabilitiesStep from './steps/LiabilitiesStep.vue';
@@ -75,6 +76,7 @@ export default {
     SkipConfirmationModal,
     PersonalInfoStep,
     IncomeStep,
+    DomicileInformationStep,
     ProtectionPoliciesStep,
     AssetsStep,
     LiabilitiesStep,
@@ -104,6 +106,7 @@ export default {
       const componentMap = {
         personal_info: 'PersonalInfoStep',
         income: 'IncomeStep',
+        domicile_info: 'DomicileInformationStep',
         protection_policies: 'ProtectionPoliciesStep',
         assets: 'AssetsStep',
         liabilities: 'LiabilitiesStep',

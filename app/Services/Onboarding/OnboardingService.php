@@ -118,12 +118,16 @@ class OnboardingService
     protected function processStepData(int $userId, string $stepName, array $data): void
     {
         switch ($stepName) {
-            case 'family_info':
-                $this->processFamilyInfo($userId, $data);
+            case 'personal_info':
+                $this->processPersonalInfo($userId, $data);
                 break;
 
             case 'income':
                 $this->processIncomeInfo($userId, $data);
+                break;
+
+            case 'domicile_info':
+                $this->processDomicileInfo($userId, $data);
                 break;
 
             case 'assets':
@@ -138,8 +142,57 @@ class OnboardingService
                 $this->processProtectionPolicies($userId, $data);
                 break;
 
+            case 'family_info':
+                $this->processFamilyInfo($userId, $data);
+                break;
+
             // Add more cases as we implement other steps
         }
+    }
+
+    /**
+     * Process personal information and update user record
+     */
+    protected function processPersonalInfo(int $userId, array $data): void
+    {
+        $user = User::findOrFail($userId);
+
+        // Update user personal information fields
+        $user->update([
+            'date_of_birth' => $data['date_of_birth'] ?? null,
+            'gender' => $data['gender'] ?? null,
+            'marital_status' => $data['marital_status'] ?? null,
+            'national_insurance_number' => $data['national_insurance_number'] ?? null,
+            'address_line_1' => $data['address_line_1'] ?? null,
+            'address_line_2' => $data['address_line_2'] ?? null,
+            'city' => $data['city'] ?? null,
+            'county' => $data['county'] ?? null,
+            'postcode' => $data['postcode'] ?? null,
+            'phone' => $data['phone'] ?? null,
+        ]);
+    }
+
+    /**
+     * Process domicile information and update user record
+     */
+    protected function processDomicileInfo(int $userId, array $data): void
+    {
+        $user = User::findOrFail($userId);
+
+        // Update user domicile fields
+        $updateData = [
+            'domicile_status' => $data['domicile_status'] ?? null,
+            'country_of_birth' => $data['country_of_birth'] ?? null,
+        ];
+
+        // Only update these fields if non-UK domiciled
+        if (isset($data['domicile_status']) && $data['domicile_status'] === 'non_uk_domiciled') {
+            $updateData['uk_arrival_date'] = $data['uk_arrival_date'] ?? null;
+            $updateData['years_uk_resident'] = $data['years_uk_resident'] ?? null;
+            $updateData['deemed_domicile_date'] = $data['deemed_domicile_date'] ?? null;
+        }
+
+        $user->update($updateData);
     }
 
     /**
@@ -188,13 +241,19 @@ class OnboardingService
     {
         $user = User::findOrFail($userId);
 
-        // Update user income fields
+        // Update user income and employment fields
         $user->update([
+            'occupation' => $data['occupation'] ?? null,
+            'employer' => $data['employer'] ?? null,
+            'industry' => $data['industry'] ?? null,
+            'employment_status' => $data['employment_status'] ?? null,
             'annual_employment_income' => $data['annual_employment_income'] ?? 0,
             'annual_self_employment_income' => $data['annual_self_employment_income'] ?? 0,
             'annual_rental_income' => $data['annual_rental_income'] ?? 0,
             'annual_dividend_income' => $data['annual_dividend_income'] ?? 0,
             'annual_other_income' => $data['annual_other_income'] ?? 0,
+            'monthly_expenditure' => $data['monthly_expenditure'] ?? 0,
+            'annual_expenditure' => $data['annual_expenditure'] ?? 0,
         ]);
     }
 
@@ -203,24 +262,145 @@ class OnboardingService
      */
     protected function processAssets(int $userId, array $data): void
     {
-        if (!isset($data['properties']) || !is_array($data['properties'])) {
-            return;
+        // Process Properties
+        if (isset($data['properties']) && is_array($data['properties'])) {
+            $totalMonthlyRentalIncome = 0;
+
+            foreach ($data['properties'] as $propertyData) {
+                $monthlyRental = $propertyData['monthly_rental_income'] ?? 0;
+
+                // Create property record
+                $property = \App\Models\Property::create([
+                    'user_id' => $userId,
+                    'property_type' => $propertyData['property_type'],
+                    'ownership_type' => $propertyData['ownership_type'] ?? 'individual',
+                    'address_line_1' => $propertyData['address_line_1'],
+                    'address_line_2' => $propertyData['address_line_2'] ?? null,
+                    'city' => $propertyData['city'] ?? null,
+                    'postcode' => $propertyData['postcode'],
+                    'country' => $propertyData['country'] ?? 'United Kingdom',
+                    'current_value' => $propertyData['current_value'],
+                    'outstanding_mortgage' => $propertyData['outstanding_mortgage'] ?? 0,
+                    'monthly_rental_income' => $monthlyRental,
+                    'annual_rental_income' => $monthlyRental * 12,
+                ]);
+
+                // Accumulate rental income for updating user's total rental income
+                if ($monthlyRental > 0) {
+                    $totalMonthlyRentalIncome += $monthlyRental;
+                }
+
+                // If property has a mortgage, create a mortgage record linked to this property
+                if (isset($propertyData['outstanding_mortgage']) && $propertyData['outstanding_mortgage'] > 0) {
+                    \App\Models\Mortgage::create([
+                        'property_id' => $property->id,
+                        'user_id' => $userId,
+                        'lender_name' => 'Mortgage Provider', // Default name from onboarding
+                        'mortgage_type' => 'repayment', // Default to repayment
+                        'original_loan_amount' => $propertyData['outstanding_mortgage'], // Use current balance as original
+                        'outstanding_balance' => $propertyData['outstanding_mortgage'],
+                        'interest_rate' => 0.0350, // Default 3.5% if not provided
+                        'rate_type' => 'fixed',
+                        'monthly_payment' => $this->calculateMortgagePayment(
+                            $propertyData['outstanding_mortgage'],
+                            0.0350,
+                            25
+                        ),
+                        'start_date' => now()->subYears(5), // Default 5 years ago
+                        'maturity_date' => now()->addYears(20), // Default 20 years remaining
+                        'remaining_term_months' => 240, // 20 years * 12 months
+                    ]);
+                }
+            }
+
+            // Update user's rental income if any buy-to-let properties were added
+            if ($totalMonthlyRentalIncome > 0) {
+                $user = User::find($userId);
+                $user->update([
+                    'annual_rental_income' => $totalMonthlyRentalIncome * 12,
+                ]);
+            }
         }
 
-        foreach ($data['properties'] as $propertyData) {
-            // Create property record
-            \App\Models\Property::create([
-                'user_id' => $userId,
-                'property_type' => $propertyData['property_type'],
-                'ownership_type' => $propertyData['ownership_type'] ?? 'individual',
-                'address_line_1' => $propertyData['address_line_1'],
-                'address_line_2' => $propertyData['address_line_2'] ?? null,
-                'city' => $propertyData['city'] ?? null,
-                'postcode' => $propertyData['postcode'],
-                'current_value' => $propertyData['current_value'],
-                'outstanding_mortgage' => $propertyData['outstanding_mortgage'] ?? 0,
-            ]);
+        // Process Investment Accounts
+        if (isset($data['investments']) && is_array($data['investments'])) {
+            foreach ($data['investments'] as $investmentData) {
+                // Map frontend account types to database enum values
+                $accountTypeMap = [
+                    'stocks_shares_isa' => 'isa',
+                    'gia' => 'gia',
+                    'offshore_bond' => 'offshore_bond',
+                    'other' => 'gia', // Default 'other' to GIA
+                ];
+
+                $accountType = $accountTypeMap[$investmentData['account_type']] ?? 'gia';
+
+                \App\Models\Investment\InvestmentAccount::create([
+                    'user_id' => $userId,
+                    'provider' => $investmentData['institution'],
+                    'account_type' => $accountType,
+                    'country' => $investmentData['country'] ?? 'United Kingdom',
+                    'current_value' => $investmentData['current_value'],
+                    'ownership_type' => $investmentData['ownership_type'] ?? 'individual',
+                    'isa_subscription_current_year' => $investmentData['isa_allowance_used'] ?? 0,
+                    'tax_year' => '2025/26',
+                    'isa_type' => $accountType === 'isa' ? 'stocks_and_shares' : null,
+                ]);
+            }
         }
+
+        // Process Cash/Savings Accounts
+        if (isset($data['cash']) && is_array($data['cash'])) {
+            foreach ($data['cash'] as $cashData) {
+                $isCashISA = $cashData['account_type'] === 'cash_isa';
+
+                \App\Models\SavingsAccount::create([
+                    'user_id' => $userId,
+                    'institution' => $cashData['institution'],
+                    'account_type' => $cashData['account_type'],
+                    'country' => $cashData['country'] ?? 'United Kingdom',
+                    'current_balance' => $cashData['current_balance'],
+                    'interest_rate' => isset($cashData['interest_rate']) ? $cashData['interest_rate'] / 100 : 0,
+                    'ownership_type' => $cashData['ownership_type'] ?? 'individual',
+                    'is_isa' => $isCashISA,
+                    'isa_type' => $isCashISA ? 'cash' : null,
+                    'isa_subscription_year' => $isCashISA ? '2025/26' : null,
+                    'isa_subscription_amount' => $isCashISA ? ($cashData['isa_allowance_used'] ?? 0) : null,
+                    'access_type' => $this->mapAccessType($cashData['account_type']),
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Map account type to access type for savings accounts
+     */
+    private function mapAccessType(string $accountType): string
+    {
+        return match($accountType) {
+            'current_account', 'cash_isa', 'easy_access' => 'immediate',
+            'notice_account' => 'notice',
+            'fixed_term' => 'fixed',
+            default => 'immediate',
+        };
+    }
+
+    /**
+     * Calculate approximate monthly mortgage payment
+     */
+    private function calculateMortgagePayment(float $principal, float $annualRate, int $years): float
+    {
+        if ($annualRate == 0) {
+            return $principal / ($years * 12);
+        }
+
+        $monthlyRate = $annualRate / 12;
+        $numPayments = $years * 12;
+
+        $payment = $principal * ($monthlyRate * pow(1 + $monthlyRate, $numPayments)) /
+                   (pow(1 + $monthlyRate, $numPayments) - 1);
+
+        return round($payment, 2);
     }
 
     /**
@@ -233,14 +413,25 @@ class OnboardingService
         }
 
         foreach ($data['liabilities'] as $liabilityData) {
+            // Skip mortgages - they should be linked to properties and created in processAssets
+            if ($liabilityData['type'] === 'mortgage') {
+                continue;
+            }
+
+            // Convert interest rate from percentage to decimal (e.g., 27 -> 0.27)
+            $interestRate = isset($liabilityData['interest_rate'])
+                ? $liabilityData['interest_rate'] / 100
+                : null;
+
             // Create liability record
             \App\Models\Estate\Liability::create([
                 'user_id' => $userId,
                 'liability_type' => $liabilityData['type'],
                 'liability_name' => $liabilityData['lender'],
+                'country' => $liabilityData['country'] ?? 'United Kingdom',
                 'current_balance' => $liabilityData['outstanding_balance'],
                 'monthly_payment' => $liabilityData['monthly_payment'] ?? null,
-                'interest_rate' => $liabilityData['interest_rate'] ?? null,
+                'interest_rate' => $interestRate,
                 'notes' => $liabilityData['purpose'] ?? null,
             ]);
         }
@@ -293,7 +484,7 @@ class OnboardingService
             $termYears = $start->diffInYears($end);
         }
 
-        \App\Models\Protection\LifeInsurancePolicy::create([
+        \App\Models\LifeInsurancePolicy::create([
             'user_id' => $userId,
             'policy_type' => 'term', // Default to term for onboarding
             'provider' => $data['provider'],
@@ -322,7 +513,7 @@ class OnboardingService
             $termYears = $start->diffInYears($end);
         }
 
-        \App\Models\Protection\CriticalIllnessPolicy::create([
+        \App\Models\CriticalIllnessPolicy::create([
             'user_id' => $userId,
             'policy_type' => 'standalone', // Default
             'provider' => $data['provider'],
@@ -342,7 +533,7 @@ class OnboardingService
     {
         $startDate = !empty($data['start_date']) ? $data['start_date'] : now()->toDateString();
 
-        \App\Models\Protection\IncomeProtectionPolicy::create([
+        \App\Models\IncomeProtectionPolicy::create([
             'user_id' => $userId,
             'provider' => $data['provider'],
             'policy_number' => $data['policy_number'] ?? null,

@@ -34,11 +34,21 @@
             >
               <option value="">Select type</option>
               <option value="personal_loan">Personal Loan</option>
-              <option value="car_finance">Car Finance</option>
+              <option value="hire_purchase">Car Finance / Hire Purchase</option>
               <option value="credit_card">Credit Card</option>
               <option value="student_loan">Student Loan</option>
               <option value="other">Other</option>
             </select>
+          </div>
+
+          <!-- Country Selector -->
+          <div>
+            <CountrySelector
+              v-model="currentLiability.country"
+              label="Country"
+              :required="true"
+              default-country="United Kingdom"
+            />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -224,12 +234,14 @@
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import OnboardingStep from '../OnboardingStep.vue';
+import CountrySelector from '@/components/Shared/CountrySelector.vue';
 
 export default {
   name: 'LiabilitiesStep',
 
   components: {
     OnboardingStep,
+    CountrySelector,
   },
 
   emits: ['next', 'back', 'skip'],
@@ -243,6 +255,7 @@ export default {
     const currentLiability = ref({
       type: '',
       lender: '',
+      country: 'United Kingdom',
       outstanding_balance: 0,
       monthly_payment: 0,
       interest_rate: 0,
@@ -262,6 +275,7 @@ export default {
       currentLiability.value = {
         type: '',
         lender: '',
+        country: 'United Kingdom',
         outstanding_balance: 0,
         monthly_payment: 0,
         interest_rate: 0,

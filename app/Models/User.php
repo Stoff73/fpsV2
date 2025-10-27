@@ -51,12 +51,20 @@ class User extends Authenticatable
         'annual_rental_income',
         'annual_dividend_income',
         'annual_other_income',
+        'monthly_expenditure',
+        'annual_expenditure',
+        'liabilities_reviewed',
         'onboarding_completed',
         'onboarding_focus_area',
         'onboarding_current_step',
         'onboarding_skipped_steps',
         'onboarding_started_at',
         'onboarding_completed_at',
+        'domicile_status',
+        'country_of_birth',
+        'uk_arrival_date',
+        'years_uk_resident',
+        'deemed_domicile_date',
     ];
 
     /**
@@ -86,10 +94,15 @@ class User extends Authenticatable
         'annual_rental_income' => 'decimal:2',
         'annual_dividend_income' => 'decimal:2',
         'annual_other_income' => 'decimal:2',
+        'monthly_expenditure' => 'decimal:2',
+        'annual_expenditure' => 'decimal:2',
+        'liabilities_reviewed' => 'boolean',
         'onboarding_completed' => 'boolean',
         'onboarding_skipped_steps' => 'array',
         'onboarding_started_at' => 'datetime',
         'onboarding_completed_at' => 'datetime',
+        'uk_arrival_date' => 'date',
+        'deemed_domicile_date' => 'date',
     ];
 
     /**
@@ -310,5 +323,101 @@ class User extends Authenticatable
         })->where('status', 'accepted')->first();
 
         return $permission !== null;
+    }
+
+    /**
+     * Calculate years of UK residence based on uk_arrival_date
+     *
+     * @return int|null Number of complete years, or null if no arrival date set
+     */
+    public function calculateYearsUKResident(): ?int
+    {
+        if (!$this->uk_arrival_date) {
+            return null;
+        }
+
+        $arrivalDate = \Carbon\Carbon::parse($this->uk_arrival_date);
+        $now = \Carbon\Carbon::now();
+
+        return $arrivalDate->diffInYears($now);
+    }
+
+    /**
+     * Check if user is deemed domiciled under the 15/20 year rule
+     *
+     * UK residence-based system (post-April 2025):
+     * - User is deemed domiciled if they have been UK resident for at least 15 of the last 20 years
+     * - For simplicity, we calculate based on continuous residence from uk_arrival_date
+     *
+     * @return bool True if deemed domiciled, false otherwise
+     */
+    public function isDeemedDomiciled(): bool
+    {
+        // If explicitly set as UK domiciled, return true
+        if ($this->domicile_status === 'uk_domiciled') {
+            return true;
+        }
+
+        // If no UK arrival date, cannot calculate deemed domicile
+        if (!$this->uk_arrival_date) {
+            return false;
+        }
+
+        $yearsResident = $this->calculateYearsUKResident();
+
+        // Deemed domiciled if resident for 15+ years
+        return $yearsResident !== null && $yearsResident >= 15;
+    }
+
+    /**
+     * Get domicile status with explanation
+     *
+     * @return array
+     */
+    public function getDomicileInfo(): array
+    {
+        $yearsResident = $this->calculateYearsUKResident();
+        $isDeemedDomiciled = $this->isDeemedDomiciled();
+
+        return [
+            'domicile_status' => $this->domicile_status,
+            'country_of_birth' => $this->country_of_birth,
+            'uk_arrival_date' => $this->uk_arrival_date?->format('Y-m-d'),
+            'years_uk_resident' => $yearsResident,
+            'is_deemed_domiciled' => $isDeemedDomiciled,
+            'deemed_domicile_date' => $this->deemed_domicile_date?->format('Y-m-d'),
+            'explanation' => $this->getDomicileExplanation($yearsResident, $isDeemedDomiciled),
+        ];
+    }
+
+    /**
+     * Get human-readable explanation of domicile status
+     *
+     * @param int|null $yearsResident
+     * @param bool $isDeemedDomiciled
+     * @return string
+     */
+    private function getDomicileExplanation(?int $yearsResident, bool $isDeemedDomiciled): string
+    {
+        if ($this->domicile_status === 'uk_domiciled') {
+            return 'You are UK domiciled.';
+        }
+
+        if ($this->domicile_status === 'non_uk_domiciled') {
+            if ($isDeemedDomiciled) {
+                return "You are deemed UK domiciled for tax purposes. You have been UK resident for {$yearsResident} years, which exceeds the 15-year threshold.";
+            }
+
+            if ($yearsResident !== null) {
+                $yearsRemaining = max(0, 15 - $yearsResident);
+                if ($yearsRemaining > 0) {
+                    return "You are non-UK domiciled. You need {$yearsRemaining} more year(s) of UK residence to become deemed domiciled (15 of 20 year rule).";
+                }
+            }
+
+            return 'You are non-UK domiciled.';
+        }
+
+        return 'Domicile status not set. Please update your profile.';
     }
 }
