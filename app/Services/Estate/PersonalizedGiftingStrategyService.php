@@ -59,6 +59,9 @@ class PersonalizedGiftingStrategyService
                     'original_iht_liability' => 0,
                     'total_iht_saved' => 0,
                     'remaining_iht_liability' => 0,
+                    'total_gifted' => 0,
+                    'reduction_percentage' => 0,
+                    'implementation_timeframe' => $yearsUntilDeath.' years',
                 ],
             ];
         }
