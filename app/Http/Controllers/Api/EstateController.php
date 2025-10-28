@@ -7,14 +7,12 @@ namespace App\Http\Controllers\Api;
 use App\Agents\EstateAgent;
 use App\Http\Controllers\Controller;
 use App\Models\Estate\Asset;
-use App\Models\Estate\Bequest;
 use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Liability;
 use App\Models\Estate\Trust;
 use App\Models\Estate\Will;
 use App\Models\Investment\InvestmentAccount;
-use App\Models\Mortgage;
 use App\Services\Estate\CashFlowProjector;
 use App\Services\Estate\NetWorthAnalyzer;
 use Illuminate\Http\JsonResponse;
@@ -57,11 +55,11 @@ class EstateController extends Controller
             }
 
             return [
-                'id' => 'investment_' . $account->id,
+                'id' => 'investment_'.$account->id,
                 'source' => 'investment_module',
                 'investment_account_id' => $account->id,
                 'asset_type' => 'investment',
-                'asset_name' => $account->provider . ' - ' . strtoupper($account->account_type) . ($account->platform ? ' (' . $account->platform . ')' : ''),
+                'asset_name' => $account->provider.' - '.strtoupper($account->account_type).($account->platform ? ' ('.$account->platform.')' : ''),
                 'account_type' => $account->account_type,
                 'current_value' => $account->current_value,
                 'is_iht_exempt' => $isIhtExempt,
@@ -172,7 +170,7 @@ class EstateController extends Controller
             $investmentAssets = $investmentAccounts->map(function ($account) {
                 return (object) [
                     'asset_type' => 'investment',
-                    'asset_name' => $account->provider . ' - ' . strtoupper($account->account_type),
+                    'asset_name' => $account->provider.' - '.strtoupper($account->account_type),
                     'current_value' => $account->current_value,
                     'is_iht_exempt' => false, // ISAs are IHT taxable
                 ];
@@ -199,7 +197,7 @@ class EstateController extends Controller
                 // All cash accounts are included in IHT estate value
                 return (object) [
                     'asset_type' => 'cash',
-                    'asset_name' => $account->institution . ' - ' . ucfirst($account->account_type),
+                    'asset_name' => $account->institution.' - '.ucfirst($account->account_type),
                     'current_value' => $account->current_balance,
                     'is_iht_exempt' => false, // Cash ISAs are IHT taxable
                 ];

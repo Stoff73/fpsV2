@@ -5,6 +5,8 @@ const state = {
   spouse: null,
   permission: null,
   canViewSpouseData: false,
+  requiresAccountLink: false,
+  message: '',
   loading: false,
   error: null,
 };
@@ -28,6 +30,8 @@ const mutations = {
     state.spouse = data.spouse || null;
     state.permission = data.permission || null;
     state.canViewSpouseData = data.can_view_spouse_data || false;
+    state.requiresAccountLink = data.requires_account_link || false;
+    state.message = data.message || '';
   },
 
   setLoading(state, loading) {

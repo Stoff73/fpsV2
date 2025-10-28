@@ -19,7 +19,7 @@ test('allows admin user to proceed', function () {
         return response('Success', 200);
     };
 
-    $middleware = new CheckAdminRole();
+    $middleware = new CheckAdminRole;
     $response = $middleware->handle($request, $next);
 
     expect($response->getStatusCode())->toBe(200);
@@ -38,7 +38,7 @@ test('blocks non-admin user with 403 forbidden', function () {
         return response('Success', 200);
     };
 
-    $middleware = new CheckAdminRole();
+    $middleware = new CheckAdminRole;
     $response = $middleware->handle($request, $next);
 
     expect($response->getStatusCode())->toBe(403);
@@ -56,7 +56,7 @@ test('blocks unauthenticated user with 401 unauthorized', function () {
         return response('Success', 200);
     };
 
-    $middleware = new CheckAdminRole();
+    $middleware = new CheckAdminRole;
     $response = $middleware->handle($request, $next);
 
     expect($response->getStatusCode())->toBe(401);

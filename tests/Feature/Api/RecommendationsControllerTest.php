@@ -2,7 +2,6 @@
 
 use App\Models\RecommendationTracking;
 use App\Models\User;
-use App\Services\Coordination\RecommendationsAggregatorService;
 use App\Services\Estate\EstateAnalyzer;
 use App\Services\Investment\PortfolioAnalyzer;
 use App\Services\Protection\ProtectionAgent;
@@ -70,7 +69,7 @@ test('GET /api/recommendations filters by module', function () {
     $response->assertStatus(200);
 
     $data = $response->json('data');
-    if (!empty($data)) {
+    if (! empty($data)) {
         foreach ($data as $rec) {
             expect($rec['module'])->toBe('protection');
         }
@@ -83,7 +82,7 @@ test('GET /api/recommendations filters by priority', function () {
     $response->assertStatus(200);
 
     $data = $response->json('data');
-    if (!empty($data)) {
+    if (! empty($data)) {
         foreach ($data as $rec) {
             expect($rec['impact'])->toBe('high');
         }
@@ -96,7 +95,7 @@ test('GET /api/recommendations filters by timeline', function () {
     $response->assertStatus(200);
 
     $data = $response->json('data');
-    if (!empty($data)) {
+    if (! empty($data)) {
         foreach ($data as $rec) {
             expect($rec['timeline'])->toBe('immediate');
         }
@@ -159,7 +158,7 @@ test('GET /api/recommendations/top returns limited high-priority recommendations
 });
 
 test('POST /api/recommendations/{id}/mark-done creates tracking record', function () {
-    $recommendationId = 'test_rec_' . uniqid();
+    $recommendationId = 'test_rec_'.uniqid();
 
     $response = $this->postJson("/api/recommendations/{$recommendationId}/mark-done", [
         'module' => 'protection',
@@ -182,7 +181,7 @@ test('POST /api/recommendations/{id}/mark-done creates tracking record', functio
 });
 
 test('POST /api/recommendations/{id}/in-progress creates tracking record', function () {
-    $recommendationId = 'test_rec_' . uniqid();
+    $recommendationId = 'test_rec_'.uniqid();
 
     $response = $this->postJson("/api/recommendations/{$recommendationId}/in-progress", [
         'module' => 'savings',
@@ -204,7 +203,7 @@ test('POST /api/recommendations/{id}/in-progress creates tracking record', funct
 });
 
 test('POST /api/recommendations/{id}/dismiss creates tracking record', function () {
-    $recommendationId = 'test_rec_' . uniqid();
+    $recommendationId = 'test_rec_'.uniqid();
 
     $response = $this->postJson("/api/recommendations/{$recommendationId}/dismiss", [
         'module' => 'investment',
@@ -227,7 +226,7 @@ test('POST /api/recommendations/{id}/dismiss creates tracking record', function 
 test('PATCH /api/recommendations/{id}/notes updates notes', function () {
     $tracking = RecommendationTracking::create([
         'user_id' => $this->user->id,
-        'recommendation_id' => 'test_' . uniqid(),
+        'recommendation_id' => 'test_'.uniqid(),
         'module' => 'retirement',
         'recommendation_text' => 'Test recommendation',
         'priority_score' => 60.0,
@@ -252,7 +251,7 @@ test('PATCH /api/recommendations/{id}/notes updates notes', function () {
 test('PATCH /api/recommendations/{id}/notes validates notes field', function () {
     $tracking = RecommendationTracking::create([
         'user_id' => $this->user->id,
-        'recommendation_id' => 'test_' . uniqid(),
+        'recommendation_id' => 'test_'.uniqid(),
         'module' => 'estate',
         'recommendation_text' => 'Test recommendation',
     ]);
@@ -269,7 +268,7 @@ test('GET /api/recommendations/completed returns completed recommendations', fun
     // Create completed recommendation
     RecommendationTracking::create([
         'user_id' => $this->user->id,
-        'recommendation_id' => 'completed_' . uniqid(),
+        'recommendation_id' => 'completed_'.uniqid(),
         'module' => 'protection',
         'recommendation_text' => 'Completed recommendation',
         'status' => 'completed',
@@ -279,7 +278,7 @@ test('GET /api/recommendations/completed returns completed recommendations', fun
     // Create pending recommendation (should not be returned)
     RecommendationTracking::create([
         'user_id' => $this->user->id,
-        'recommendation_id' => 'pending_' . uniqid(),
+        'recommendation_id' => 'pending_'.uniqid(),
         'module' => 'savings',
         'recommendation_text' => 'Pending recommendation',
         'status' => 'pending',

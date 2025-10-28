@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
-use App\Models\Property;
-use App\Models\Investment\InvestmentAccount;
 use App\Models\CashAccount;
+use App\Models\Investment\InvestmentAccount;
+use App\Models\Property;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 

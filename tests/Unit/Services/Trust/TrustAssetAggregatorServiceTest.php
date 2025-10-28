@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Services\Trust\TrustAssetAggregatorService;
 
 beforeEach(function () {
-    $this->service = new TrustAssetAggregatorService();
+    $this->service = new TrustAssetAggregatorService;
     $this->user = User::factory()->create();
     $this->household = Household::factory()->create();
     $this->trust = Trust::factory()->create([
@@ -198,7 +198,7 @@ test('aggregates assets for multiple trusts for a user', function () {
 
     expect($result)->toHaveCount(2);
     expect($result->pluck('trust.trust_name'))->toContain('Test Family Trust', 'Second Trust');
-    $totalValue = $result->sum(fn($item) => (float) $item['total_value']);
+    $totalValue = $result->sum(fn ($item) => (float) $item['total_value']);
     expect($totalValue)->toBe(400000.0);
 });
 

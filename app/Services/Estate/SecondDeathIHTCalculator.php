@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Estate;
 
-use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
-use App\Models\Estate\Trust;
 use App\Models\Estate\Will;
 use App\Models\User;
 use Carbon\Carbon;
@@ -27,21 +25,21 @@ class SecondDeathIHTCalculator
      * This calculates IHT as if the user dies first, then projects the surviving
      * spouse's estate to their expected death date and calculates the full IHT.
      *
-     * @param User $user Current user (married)
-     * @param User $spouse Spouse of current user
-     * @param Collection $userAssets User's current assets
-     * @param Collection $spouseAssets Spouse's current assets
-     * @param IHTProfile $userProfile User's IHT profile
-     * @param IHTProfile|null $spouseProfile Spouse's IHT profile (if data sharing enabled)
-     * @param Collection|null $userGifts User's gifts
-     * @param Collection|null $spouseGifts Spouse's gifts (if data sharing enabled)
-     * @param Collection|null $userTrusts User's trusts
-     * @param Collection|null $spouseTrusts Spouse's trusts (if data sharing enabled)
-     * @param float $userLiabilities User's liabilities
-     * @param float $spouseLiabilities Spouse's liabilities (if data sharing enabled)
-     * @param Will|null $userWill User's will
-     * @param Will|null $spouseWill Spouse's will (if data sharing enabled)
-     * @param bool $dataSharingEnabled Whether spouse data sharing is enabled
+     * @param  User  $user  Current user (married)
+     * @param  User  $spouse  Spouse of current user
+     * @param  Collection  $userAssets  User's current assets
+     * @param  Collection  $spouseAssets  Spouse's current assets
+     * @param  IHTProfile  $userProfile  User's IHT profile
+     * @param  IHTProfile|null  $spouseProfile  Spouse's IHT profile (if data sharing enabled)
+     * @param  Collection|null  $userGifts  User's gifts
+     * @param  Collection|null  $spouseGifts  Spouse's gifts (if data sharing enabled)
+     * @param  Collection|null  $userTrusts  User's trusts
+     * @param  Collection|null  $spouseTrusts  Spouse's trusts (if data sharing enabled)
+     * @param  float  $userLiabilities  User's liabilities
+     * @param  float  $spouseLiabilities  Spouse's liabilities (if data sharing enabled)
+     * @param  Will|null  $userWill  User's will
+     * @param  Will|null  $spouseWill  Spouse's will (if data sharing enabled)
+     * @param  bool  $dataSharingEnabled  Whether spouse data sharing is enabled
      * @return array Second death IHT calculation
      */
     public function calculateSecondDeathIHT(
@@ -62,7 +60,7 @@ class SecondDeathIHTCalculator
         bool $dataSharingEnabled = false
     ): array {
         // Validate both users have required data for actuarial calculation
-        if (!$user->date_of_birth || !$user->gender) {
+        if (! $user->date_of_birth || ! $user->gender) {
             return [
                 'success' => false,
                 'error' => 'User must have date_of_birth and gender to calculate life expectancy',
@@ -70,7 +68,7 @@ class SecondDeathIHTCalculator
             ];
         }
 
-        if (!$spouse->date_of_birth || !$spouse->gender) {
+        if (! $spouse->date_of_birth || ! $spouse->gender) {
             return [
                 'success' => false,
                 'error' => 'Spouse must have date_of_birth and gender to calculate life expectancy',

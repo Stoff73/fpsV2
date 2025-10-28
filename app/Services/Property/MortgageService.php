@@ -12,11 +12,8 @@ class MortgageService
     /**
      * Calculate monthly mortgage payment
      *
-     * @param float $loanAmount
-     * @param float $annualInterestRate (e.g., 5.5 for 5.5%)
-     * @param int $termMonths
-     * @param string $mortgageType ('repayment' or 'interest_only')
-     * @return float
+     * @param  float  $annualInterestRate  (e.g., 5.5 for 5.5%)
+     * @param  string  $mortgageType  ('repayment' or 'interest_only')
      */
     public function calculateMonthlyPayment(
         float $loanAmount,
@@ -53,9 +50,6 @@ class MortgageService
 
     /**
      * Generate amortization schedule for a mortgage
-     *
-     * @param Mortgage $mortgage
-     * @return array
      */
     public function generateAmortizationSchedule(Mortgage $mortgage): array
     {
@@ -127,13 +121,10 @@ class MortgageService
 
     /**
      * Calculate remaining term in months
-     *
-     * @param Mortgage $mortgage
-     * @return int
      */
     public function calculateRemainingTerm(Mortgage $mortgage): int
     {
-        if (!$mortgage->maturity_date) {
+        if (! $mortgage->maturity_date) {
             return $mortgage->remaining_term_months ?? 0;
         }
 
@@ -149,9 +140,6 @@ class MortgageService
 
     /**
      * Calculate total interest to be paid over remaining term
-     *
-     * @param Mortgage $mortgage
-     * @return float
      */
     public function calculateTotalInterest(Mortgage $mortgage): float
     {
@@ -162,9 +150,6 @@ class MortgageService
 
     /**
      * Calculate equity being built per year
-     *
-     * @param Mortgage $mortgage
-     * @return array
      */
     public function calculateAnnualEquityBuild(Mortgage $mortgage): array
     {

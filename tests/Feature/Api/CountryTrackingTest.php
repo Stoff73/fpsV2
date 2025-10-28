@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
+use App\Models\Mortgage;
 use App\Models\Property;
 use App\Models\SavingsAccount;
-use App\Models\Mortgage;
+use App\Models\User;
 
 describe('Country Tracking API', function () {
     describe('Property Country Tracking', function () {

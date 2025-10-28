@@ -48,7 +48,7 @@ class TrustAssetAggregatorService
                 return [
                     'id' => $property->id,
                     'type' => 'property',
-                    'name' => $property->address_line_1 . ', ' . $property->city,
+                    'name' => $property->address_line_1.', '.$property->city,
                     'property_type' => $property->property_type,
                     'value' => $property->current_value * ($property->ownership_percentage / 100),
                     'full_value' => $property->current_value,

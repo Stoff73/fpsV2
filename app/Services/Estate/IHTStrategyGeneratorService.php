@@ -37,9 +37,9 @@ class IHTStrategyGeneratorService
             'total_gifted' => $totalAnnualGifting,
             'iht_saved' => $annualIhtSaved,
             'implementation_steps' => [
-                "Gift £3,000 per year using annual exemption",
-                "Both spouses can gift £3,000 each (£6,000 total per year)",
-                "Unused allowance from previous year can be carried forward one year",
+                'Gift £3,000 per year using annual exemption',
+                'Both spouses can gift £3,000 each (£6,000 total per year)',
+                'Unused allowance from previous year can be carried forward one year',
                 "Total potential saving over {$yearsToProject} years: £".number_format($annualIhtSaved, 0),
             ],
         ];
@@ -55,11 +55,11 @@ class IHTStrategyGeneratorService
             'total_gifted' => $petGifting,
             'iht_saved' => $petIhtSaved,
             'implementation_steps' => [
-                "Make lump sum gifts of £".number_format($petGifting, 0)." to family members",
-                "Gifts become fully exempt after 7 years",
-                "Taper relief applies if death occurs between 3-7 years",
-                "Consider gifting over multiple years to use annual exemptions",
-                "Potential IHT saving: £".number_format($petIhtSaved, 0)." (if you survive 7 years)",
+                'Make lump sum gifts of £'.number_format($petGifting, 0).' to family members',
+                'Gifts become fully exempt after 7 years',
+                'Taper relief applies if death occurs between 3-7 years',
+                'Consider gifting over multiple years to use annual exemptions',
+                'Potential IHT saving: £'.number_format($petIhtSaved, 0).' (if you survive 7 years)',
             ],
         ];
         $totalIhtSaved += $petIhtSaved;
@@ -70,12 +70,12 @@ class IHTStrategyGeneratorService
             'total_gifted' => 0, // Depends on user's income
             'iht_saved' => 0, // Variable
             'implementation_steps' => [
-                "Establish a regular pattern of gifts from surplus income",
-                "Must be from income (not capital)",
-                "Must leave you with sufficient income to maintain your standard of living",
-                "No 7-year rule - immediately exempt from IHT",
-                "Ideal for pension income or rental income",
-                "Add income and expenditure data to calculate your surplus",
+                'Establish a regular pattern of gifts from surplus income',
+                'Must be from income (not capital)',
+                'Must leave you with sufficient income to maintain your standard of living',
+                'No 7-year rule - immediately exempt from IHT',
+                'Ideal for pension income or rental income',
+                'Add income and expenditure data to calculate your surplus',
             ],
         ];
 

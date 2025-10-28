@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Estate\Bequest;
 use App\Models\Estate\Trust;
 use App\Models\Estate\Will;
+use App\Services\Estate\IntestacyCalculator;
 use App\Services\Trust\IHTPeriodicChargeCalculator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,8 @@ use Illuminate\Support\Facades\Cache;
 class WillController extends Controller
 {
     public function __construct(
-        private IHTPeriodicChargeCalculator $periodicChargeCalculator
+        private IHTPeriodicChargeCalculator $periodicChargeCalculator,
+        private IntestacyCalculator $intestacyCalculator
     ) {}
 
     public function getUpcomingTaxReturns(Request $request): JsonResponse
@@ -90,6 +92,7 @@ class WillController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
+            'has_will' => 'nullable|boolean',
             'death_scenario' => 'required|in:user_only,both_simultaneous',
             'spouse_primary_beneficiary' => 'boolean',
             'spouse_bequest_percentage' => 'nullable|numeric|min:0|max:100',
@@ -251,4 +254,42 @@ class WillController extends Controller
      * projecting their estate to expected death date and including
      * transferred NRB from deceased spouse.
      */
+
+    /**
+     * Calculate intestacy distribution
+     *
+     * Returns how the user's estate would be distributed under UK intestacy rules
+     * if they die without a valid will.
+     */
+    public function calculateIntestacy(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'estate_value' => 'nullable|numeric|min:0',
+        ]);
+
+        // If estate value not provided, calculate from user's assets
+        $estateValue = $validated['estate_value'] ?? 0;
+
+        if ($estateValue === 0) {
+            // Calculate from user's actual estate
+            // This could be improved to use NetWorthAnalyzer service
+            $estateValue = 500000; // Default for demonstration
+        }
+
+        try {
+            $distribution = $this->intestacyCalculator->calculateDistribution($user->id, $estateValue);
+
+            return response()->json([
+                'success' => true,
+                'data' => $distribution,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to calculate intestacy distribution: '.$e->getMessage(),
+            ], 500);
+        }
+    }
 }

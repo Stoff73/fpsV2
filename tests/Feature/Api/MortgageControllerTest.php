@@ -15,7 +15,9 @@ class MortgageControllerTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private string $token;
+
     private Property $property;
 
     protected function setUp(): void

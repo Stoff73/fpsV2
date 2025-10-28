@@ -11,9 +11,13 @@ class IHTPeriodicChargeCalculator
 {
     // UK IHT rates and thresholds
     private const NRB = 325000; // Nil Rate Band
+
     private const IHT_RATE = 0.40; // 40% IHT rate
+
     private const PERIODIC_CHARGE_RATE = 0.06; // 6% charge every 10 years
+
     private const ENTRY_CHARGE_MAX = 0.20; // 20% max entry charge
+
     private const EXIT_CHARGE_MAX = 0.06; // 6% max exit charge
 
     /**
@@ -22,7 +26,7 @@ class IHTPeriodicChargeCalculator
     public function calculatePeriodicCharge(Trust $trust, ?Carbon $chargeDate = null): array
     {
         // Only relevant property trusts are subject to periodic charges
-        if (!$trust->isRelevantPropertyTrust()) {
+        if (! $trust->isRelevantPropertyTrust()) {
             return [
                 'charge_applicable' => false,
                 'reason' => 'Not a relevant property trust',
@@ -37,11 +41,11 @@ class IHTPeriodicChargeCalculator
 
         // Periodic charges apply every 10 years
         if ($yearsSinceCreation < 10 || $yearsSinceCreation % 10 !== 0) {
-            $nextChargeDate = $trustCreationDate->copy()->addYears((int)(($yearsSinceCreation / 10) + 1) * 10);
+            $nextChargeDate = $trustCreationDate->copy()->addYears((int) (($yearsSinceCreation / 10) + 1) * 10);
 
             return [
                 'charge_applicable' => false,
-                'reason' => 'Next periodic charge due on ' . $nextChargeDate->format('Y-m-d'),
+                'reason' => 'Next periodic charge due on '.$nextChargeDate->format('Y-m-d'),
                 'charge_amount' => 0,
                 'next_charge_date' => $nextChargeDate,
                 'years_until_next_charge' => $chargeDate->diffInYears($nextChargeDate, false),
@@ -77,7 +81,7 @@ class IHTPeriodicChargeCalculator
     public function calculateExitCharge(Trust $trust, float $assetValue, Carbon $exitDate): array
     {
         // Only relevant property trusts are subject to exit charges
-        if (!$trust->isRelevantPropertyTrust()) {
+        if (! $trust->isRelevantPropertyTrust()) {
             return [
                 'charge_applicable' => false,
                 'reason' => 'Not a relevant property trust',
@@ -143,7 +147,7 @@ class IHTPeriodicChargeCalculator
             : $trustCreationDate;
 
         // Calculate complete quarters
-        $quarters = (int)floor($lastChargeDate->diffInMonths($exitDate) / 3);
+        $quarters = (int) floor($lastChargeDate->diffInMonths($exitDate) / 3);
 
         // Cap at 40 quarters (10 years)
         return min($quarters, 40);
@@ -167,7 +171,7 @@ class IHTPeriodicChargeCalculator
 
             // Calculate next charge date
             $yearsSinceCreation = $trustCreationDate->diffInYears($now);
-            $nextChargeYears = (int)((floor($yearsSinceCreation / 10) + 1) * 10);
+            $nextChargeYears = (int) ((floor($yearsSinceCreation / 10) + 1) * 10);
             $nextChargeDate = $trustCreationDate->copy()->addYears($nextChargeYears);
 
             // Check if within the specified months ahead

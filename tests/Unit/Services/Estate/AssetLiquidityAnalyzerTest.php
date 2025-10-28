@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 use App\Models\Estate\Asset;
 use App\Services\Estate\AssetLiquidityAnalyzer;
-use Illuminate\Support\Collection;
 
 describe('AssetLiquidityAnalyzer', function () {
     beforeEach(function () {
-        $this->analyzer = new AssetLiquidityAnalyzer();
+        $this->analyzer = new AssetLiquidityAnalyzer;
     });
 
     describe('analyzeAssetLiquidity', function () {

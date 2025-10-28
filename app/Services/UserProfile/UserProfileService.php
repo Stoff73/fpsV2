@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\UserProfile;
 
 use App\Models\User;
-use App\Models\SavingsAccount;
 use App\Services\Shared\CrossModuleAssetAggregator;
 use App\Services\UKTaxCalculator;
 
@@ -166,14 +165,14 @@ class UserProfileService
         }
 
         // Calculate and set deemed_domicile_date if applicable
-        if ($user->isDeemedDomiciled() && !$user->deemed_domicile_date && $user->uk_arrival_date) {
+        if ($user->isDeemedDomiciled() && ! $user->deemed_domicile_date && $user->uk_arrival_date) {
             // Calculate the date when they became deemed domiciled (15 years after arrival)
             $arrivalDate = \Carbon\Carbon::parse($user->uk_arrival_date);
             $user->deemed_domicile_date = $arrivalDate->copy()->addYears(15);
         }
 
         // If they are no longer deemed domiciled (e.g., status changed to uk_domiciled), clear the date
-        if (!$user->isDeemedDomiciled() && $user->domicile_status !== 'uk_domiciled') {
+        if (! $user->isDeemedDomiciled() && $user->domicile_status !== 'uk_domiciled') {
             $user->deemed_domicile_date = null;
         }
 

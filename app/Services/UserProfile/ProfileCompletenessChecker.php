@@ -4,24 +4,21 @@ declare(strict_types=1);
 
 namespace App\Services\UserProfile;
 
-use App\Models\User;
+use App\Models\BusinessInterest;
+use App\Models\CashAccount;
+use App\Models\Chattel;
+use App\Models\DCPension;
 use App\Models\Estate\Asset;
 use App\Models\Estate\Liability;
+use App\Models\Investment\InvestmentAccount;
 use App\Models\Property;
 use App\Models\SavingsAccount;
-use App\Models\Investment\InvestmentAccount;
-use App\Models\DCPension;
-use App\Models\BusinessInterest;
-use App\Models\Chattel;
-use App\Models\CashAccount;
+use App\Models\User;
 
 class ProfileCompletenessChecker
 {
     /**
      * Check profile completeness for a user
-     *
-     * @param User $user
-     * @return array
      */
     public function checkCompleteness(User $user): array
     {
@@ -32,10 +29,10 @@ class ProfileCompletenessChecker
             : $this->checkSingleUser($user);
 
         $totalChecks = count($checks);
-        $passedChecks = count(array_filter($checks, fn($check) => $check['filled']));
+        $passedChecks = count(array_filter($checks, fn ($check) => $check['filled']));
         $completenessScore = $totalChecks > 0 ? round(($passedChecks / $totalChecks) * 100) : 0;
 
-        $missingFields = array_filter($checks, fn($check) => !$check['filled']);
+        $missingFields = array_filter($checks, fn ($check) => ! $check['filled']);
         $recommendations = $this->generateRecommendations($missingFields, $isMarried);
 
         return [
@@ -50,16 +47,13 @@ class ProfileCompletenessChecker
 
     /**
      * Check completeness for married user
-     *
-     * @param User $user
-     * @return array
      */
     private function checkMarriedUser(User $user): array
     {
         return [
             'spouse_linked' => [
                 'required' => true,
-                'filled' => !is_null($user->spouse_id),
+                'filled' => ! is_null($user->spouse_id),
                 'message' => 'Link your spouse account for accurate joint financial planning',
                 'priority' => 'high',
                 'link' => '/profile#family',
@@ -118,9 +112,6 @@ class ProfileCompletenessChecker
 
     /**
      * Check completeness for single user
-     *
-     * @param User $user
-     * @return array
      */
     private function checkSingleUser(User $user): array
     {
@@ -194,7 +185,7 @@ class ProfileCompletenessChecker
      */
     private function hasDomicileInfo(User $user): bool
     {
-        return !is_null($user->domicile_status) && !is_null($user->country_of_birth);
+        return ! is_null($user->domicile_status) && ! is_null($user->country_of_birth);
     }
 
     /**

@@ -7,7 +7,31 @@
       <p>You do not have a linked spouse. Add your spouse in the Family Members section to enable data sharing.</p>
     </div>
 
-    <!-- Has Spouse -->
+    <!-- Spouse Without Account Link -->
+    <div v-else-if="requiresAccountLink" class="space-y-4">
+      <div class="mb-6">
+        <p class="text-body-sm text-gray-600 mb-2">Spouse: <span class="font-medium text-gray-900">{{ spouse?.name || 'N/A' }}</span></p>
+        <p class="text-body-sm text-gray-600">Status: <span class="font-medium text-amber-600">Not linked</span></p>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3 flex-1">
+            <h4 class="text-body-sm font-medium text-amber-800">Account Link Required</h4>
+            <p class="mt-1 text-body-sm text-amber-700">
+              {{ permissionMessage || 'Your spouse needs an account to enable data sharing. Edit your spouse in the Family Members section and add their email address to create or link their account.' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Has Spouse With Linked Account -->
     <div v-else>
       <!-- Spouse Info -->
       <div class="mb-6">
@@ -197,6 +221,8 @@ export default {
     const loading = computed(() => store.getters['spousePermission/loading']);
     const error = computed(() => store.getters['spousePermission/error']);
     const currentUserId = computed(() => store.getters['auth/currentUser']?.id);
+    const requiresAccountLink = computed(() => store.state.spousePermission.requiresAccountLink || false);
+    const permissionMessage = computed(() => store.state.spousePermission.message || '');
 
     const formatDate = (date) => {
       if (!date) return 'N/A';
@@ -255,6 +281,8 @@ export default {
       loading,
       error,
       currentUserId,
+      requiresAccountLink,
+      permissionMessage,
       formatDate,
       handleRequestPermission,
       handleAcceptPermission,

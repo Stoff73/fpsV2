@@ -23,12 +23,12 @@ class MortgageFactory extends Factory
         $startDate = fake()->dateTimeBetween('-10 years', '-1 year');
         $termYears = fake()->numberBetween(15, 30);
         $maturityDate = (clone $startDate)->modify("+{$termYears} years");
-        $now = new \DateTime();
+        $now = new \DateTime;
         $remainingMonths = max(0, ($maturityDate->getTimestamp() - $now->getTimestamp()) / (30 * 24 * 60 * 60));
 
         return [
             'property_id' => \App\Models\Property::factory(),
-            'lender_name' => fake()->company() . ' Bank',
+            'lender_name' => fake()->company().' Bank',
             'mortgage_account_number' => fake()->optional()->numerify('MG########'),
             'mortgage_type' => $mortgageType,
             'original_loan_amount' => $originalAmount,

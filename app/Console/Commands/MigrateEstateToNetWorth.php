@@ -55,8 +55,9 @@ class MigrateEstateToNetWorth extends Command
         }
 
         // Check if old assets table exists
-        if (!DB::getSchemaBuilder()->hasTable('assets')) {
+        if (! DB::getSchemaBuilder()->hasTable('assets')) {
             $this->error('❌ Table "assets" not found. Migration cannot proceed.');
+
             return Command::FAILURE;
         }
 
@@ -65,14 +66,16 @@ class MigrateEstateToNetWorth extends Command
 
         if ($this->stats['total_assets'] === 0) {
             $this->info('✅ No assets found to migrate.');
+
             return Command::SUCCESS;
         }
 
         $this->info("Found {$this->stats['total_assets']} assets to migrate");
         $this->newLine();
 
-        if (!$isDryRun && !$this->confirm('Do you want to proceed with the migration?', true)) {
+        if (! $isDryRun && ! $this->confirm('Do you want to proceed with the migration?', true)) {
             $this->warn('Migration cancelled by user.');
+
             return Command::FAILURE;
         }
 
@@ -96,8 +99,9 @@ class MigrateEstateToNetWorth extends Command
             return Command::SUCCESS;
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->error('❌ Migration failed: ' . $e->getMessage());
-            $this->error('Stack trace: ' . $e->getTraceAsString());
+            $this->error('❌ Migration failed: '.$e->getMessage());
+            $this->error('Stack trace: '.$e->getTraceAsString());
+
             return Command::FAILURE;
         }
     }
@@ -143,7 +147,7 @@ class MigrateEstateToNetWorth extends Command
                 }
             } catch (\Exception $e) {
                 $this->stats['errors']++;
-                $this->error("\nError migrating asset ID {$asset->id}: " . $e->getMessage());
+                $this->error("\nError migrating asset ID {$asset->id}: ".$e->getMessage());
             }
 
             $progressBar->advance();

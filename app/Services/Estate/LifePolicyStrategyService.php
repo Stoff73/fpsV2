@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\Estate;
 
 use App\Models\User;
-use Carbon\Carbon;
 
 /**
  * Calculate Whole of Life Insurance Strategy vs. Self-Insurance
@@ -63,12 +62,12 @@ class LifePolicyStrategyService
     /**
      * Calculate whole of life policy strategy with self-insurance comparison
      *
-     * @param float $coverAmount The IHT liability amount to insure
-     * @param int $yearsUntilDeath Years until expected death
-     * @param int $currentAge User's current age
-     * @param string $gender User's gender ('male' or 'female')
-     * @param int|null $spouseAge Spouse age for joint life second death policy
-     * @param string|null $spouseGender Spouse gender for joint life policy
+     * @param  float  $coverAmount  The IHT liability amount to insure
+     * @param  int  $yearsUntilDeath  Years until expected death
+     * @param  int  $currentAge  User's current age
+     * @param  string  $gender  User's gender ('male' or 'female')
+     * @param  int|null  $spouseAge  Spouse age for joint life second death policy
+     * @param  string|null  $spouseGender  Spouse gender for joint life policy
      * @return array Strategy comparison
      */
     public function calculateStrategy(
@@ -250,7 +249,7 @@ class LifePolicyStrategyService
 
             'implementation_steps' => [
                 '1. Open tax-efficient investment wrapper (ISA, Investment Bond, or Pension)',
-                '2. Set up monthly Direct Debit for £' . number_format($annualPremium / 12, 2),
+                '2. Set up monthly Direct Debit for £'.number_format($annualPremium / 12, 2),
                 '3. Invest in diversified portfolio matching risk tolerance',
                 '4. Review quarterly and rebalance portfolio',
                 '5. Increase contributions for inflation (3-4% annually)',
@@ -283,7 +282,7 @@ class LifePolicyStrategyService
             $recommendations[] = [
                 'priority' => 1,
                 'option' => 'Self-Insurance',
-                'rationale' => 'Projected investment returns cover ' . round($selfInsuranceData['coverage_percentage'], 0) . '% of IHT liability. You keep control of funds and potential surplus.',
+                'rationale' => 'Projected investment returns cover '.round($selfInsuranceData['coverage_percentage'], 0).'% of IHT liability. You keep control of funds and potential surplus.',
                 'suitability' => 'Best if you have financial discipline and comfortable with investment risk',
             ];
             $recommendedApproach = 'Self-Insurance';
@@ -294,7 +293,7 @@ class LifePolicyStrategyService
             $recommendations[] = [
                 'priority' => $selfInsuranceData['coverage_percentage'] >= 100 ? 2 : 1,
                 'option' => 'Whole of Life Insurance',
-                'rationale' => 'Excellent value - you get £' . number_format($policyData['cost_benefit_ratio'], 2) . ' of cover for every £1 of premiums paid. Guaranteed payout.',
+                'rationale' => 'Excellent value - you get £'.number_format($policyData['cost_benefit_ratio'], 2).' of cover for every £1 of premiums paid. Guaranteed payout.',
                 'suitability' => 'Best if you want certainty and guaranteed IHT coverage',
             ];
 
@@ -305,7 +304,7 @@ class LifePolicyStrategyService
             $recommendations[] = [
                 'priority' => $selfInsuranceData['coverage_percentage'] >= 100 ? 2 : 1,
                 'option' => 'Whole of Life Insurance',
-                'rationale' => 'Guaranteed coverage but less cost-effective (£' . number_format($policyData['cost_benefit_ratio'], 2) . ' cover per £1 premiums).',
+                'rationale' => 'Guaranteed coverage but less cost-effective (£'.number_format($policyData['cost_benefit_ratio'], 2).' cover per £1 premiums).',
                 'suitability' => 'Suitable if you prioritize certainty over cost-effectiveness',
             ];
 
@@ -344,8 +343,8 @@ class LifePolicyStrategyService
                 ],
                 [
                     'aspect' => 'Cost Effectiveness',
-                    'insurance' => '£' . number_format($policyData['cost_benefit_ratio'], 2) . ' coverage per £1 of premiums',
-                    'self_insurance' => '£' . number_format($selfInsuranceData['coverage_percentage'] / 100, 2) . ' coverage per £1 invested (projected)',
+                    'insurance' => '£'.number_format($policyData['cost_benefit_ratio'], 2).' coverage per £1 of premiums',
+                    'self_insurance' => '£'.number_format($selfInsuranceData['coverage_percentage'] / 100, 2).' coverage per £1 invested (projected)',
                 ],
                 [
                     'aspect' => 'Early Death Risk',
@@ -512,8 +511,8 @@ class LifePolicyStrategyService
     ): string {
         $summaries = [
             'Whole of Life Insurance' => sprintf(
-                'Based on your age and life expectancy, whole of life insurance offers the best value. ' .
-                'You would pay £%s annually for guaranteed £%s coverage - a cost-benefit ratio of %.2f:1. ' .
+                'Based on your age and life expectancy, whole of life insurance offers the best value. '.
+                'You would pay £%s annually for guaranteed £%s coverage - a cost-benefit ratio of %.2f:1. '.
                 'This provides certainty and peace of mind for your beneficiaries.',
                 number_format($policyData['annual_premium'], 0),
                 number_format($coverAmount, 0),
@@ -521,8 +520,8 @@ class LifePolicyStrategyService
             ),
 
             'Self-Insurance' => sprintf(
-                'Self-insurance appears viable for your situation. Investing £%s annually at 4.7%% returns ' .
-                'is projected to accumulate £%s by expected death - covering %d%% of your IHT liability. ' .
+                'Self-insurance appears viable for your situation. Investing £%s annually at 4.7%% returns '.
+                'is projected to accumulate £%s by expected death - covering %d%% of your IHT liability. '.
                 'This approach offers flexibility and potential surplus for beneficiaries.',
                 number_format($selfInsuranceData['annual_investment'], 0),
                 number_format($selfInsuranceData['projected_fund_value'], 0),
@@ -530,8 +529,8 @@ class LifePolicyStrategyService
             ),
 
             'Hybrid Approach' => sprintf(
-                'A balanced approach is recommended. Consider purchasing 50-60%% insurance coverage (£%s-£%s) ' .
-                'for guaranteed base protection, and investing the remaining premium equivalent to potentially ' .
+                'A balanced approach is recommended. Consider purchasing 50-60%% insurance coverage (£%s-£%s) '.
+                'for guaranteed base protection, and investing the remaining premium equivalent to potentially '.
                 'cover the rest. This balances certainty with flexibility and cost-effectiveness.',
                 number_format($coverAmount * 0.5, 0),
                 number_format($coverAmount * 0.6, 0)

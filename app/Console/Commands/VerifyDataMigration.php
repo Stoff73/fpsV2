@@ -25,6 +25,7 @@ class VerifyDataMigration extends Command
      * Verification results
      */
     private array $results = [];
+
     private int $totalIssues = 0;
 
     /**
@@ -59,13 +60,14 @@ class VerifyDataMigration extends Command
     {
         $this->info('🔍 Verifying assets migration...');
 
-        if (!DB::getSchemaBuilder()->hasTable('assets')) {
+        if (! DB::getSchemaBuilder()->hasTable('assets')) {
             $this->results['assets'] = [
                 'status' => 'warning',
                 'message' => 'Old "assets" table not found',
                 'old_count' => 0,
                 'new_count' => 0,
             ];
+
             return;
         }
 
@@ -106,13 +108,14 @@ class VerifyDataMigration extends Command
     {
         $this->info('🔍 Verifying savings accounts migration...');
 
-        if (!DB::getSchemaBuilder()->hasTable('savings_accounts')) {
+        if (! DB::getSchemaBuilder()->hasTable('savings_accounts')) {
             $this->results['savings'] = [
                 'status' => 'warning',
                 'message' => 'Old "savings_accounts" table not found',
                 'old_count' => 0,
                 'new_count' => 0,
             ];
+
             return;
         }
 

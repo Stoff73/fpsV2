@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Api\UserProfileController;
 use App\Http\Controllers\Api\FamilyMembersController;
 use App\Http\Controllers\Api\PersonalAccountsController;
-use App\Services\UserProfile\UserProfileService;
-use App\Services\UserProfile\PersonalAccountsService;
+use App\Http\Controllers\Api\UserProfileController;
 use App\Http\Controllers\Controller;
+use App\Services\UserProfile\PersonalAccountsService;
+use App\Services\UserProfile\UserProfileService;
 
 /**
  * Phase 02 Architecture Tests

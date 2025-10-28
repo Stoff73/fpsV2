@@ -37,7 +37,7 @@ class GiftingController extends Controller
 
         try {
             // Validate user has required data
-            if (!$user->date_of_birth || !$user->gender) {
+            if (! $user->date_of_birth || ! $user->gender) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Date of birth and gender are required to calculate life expectancy',
@@ -50,7 +50,7 @@ class GiftingController extends Controller
             $ihtPlanningResponse = $this->ihtController->calculateSecondDeathIHTPlanning($request);
             $ihtPlanningData = $ihtPlanningResponse->getData(true);
 
-            if (!$ihtPlanningData['success']) {
+            if (! $ihtPlanningData['success']) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to calculate IHT planning data',
@@ -71,7 +71,7 @@ class GiftingController extends Controller
 
             // Get IHT profile
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
-            if (!$ihtProfile) {
+            if (! $ihtProfile) {
                 $isMarried = in_array($user->marital_status, ['married']);
                 $config = config('uk_tax_config.inheritance_tax');
                 $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
@@ -155,7 +155,7 @@ class GiftingController extends Controller
                     'gift_age' => $currentAge + $giftYear,
                     'exempt_year' => $exemptYear,
                     'exempt_age' => $currentAge + $exemptYear,
-                    'description' => "PET Cycle " . ($cycle + 1) . ": Gift at age " . ($currentAge + $giftYear) . ", becomes IHT-free at age " . ($currentAge + $exemptYear),
+                    'description' => 'PET Cycle '.($cycle + 1).': Gift at age '.($currentAge + $giftYear).', becomes IHT-free at age '.($currentAge + $exemptYear),
                 ];
             }
 
@@ -205,7 +205,7 @@ class GiftingController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to calculate planned gifting strategy: ' . $e->getMessage(),
+                'message' => 'Failed to calculate planned gifting strategy: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -248,7 +248,7 @@ class GiftingController extends Controller
             $ihtPlanningResponse = $this->ihtController->calculateSecondDeathIHTPlanning($request);
             $ihtPlanningData = $ihtPlanningResponse->getData(true);
 
-            if (!$ihtPlanningData['success']) {
+            if (! $ihtPlanningData['success']) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to calculate IHT planning data',
@@ -265,7 +265,7 @@ class GiftingController extends Controller
 
             // Get IHT profile
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
-            if (!$ihtProfile) {
+            if (! $ihtProfile) {
                 $isMarried = in_array($user->marital_status, ['married']);
                 $config = config('uk_tax_config.inheritance_tax');
                 $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
@@ -296,7 +296,7 @@ class GiftingController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate personalized gifting strategy: ' . $e->getMessage(),
+                'message' => 'Failed to generate personalized gifting strategy: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -341,7 +341,7 @@ class GiftingController extends Controller
             $ihtPlanningResponse = $this->ihtController->calculateSecondDeathIHTPlanning($request);
             $ihtPlanningData = $ihtPlanningResponse->getData(true);
 
-            if (!$ihtPlanningData['success']) {
+            if (! $ihtPlanningData['success']) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to calculate IHT planning data for trust strategy',
@@ -355,7 +355,7 @@ class GiftingController extends Controller
 
             // Get or create IHT profile
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
-            if (!$ihtProfile) {
+            if (! $ihtProfile) {
                 $config = config('uk_tax_config.inheritance_tax');
                 $ihtProfile = new IHTProfile([
                     'user_id' => $user->id,
@@ -383,7 +383,7 @@ class GiftingController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate personalized trust strategy: ' . $e->getMessage(),
+                'message' => 'Failed to generate personalized trust strategy: '.$e->getMessage(),
             ], 500);
         }
     }

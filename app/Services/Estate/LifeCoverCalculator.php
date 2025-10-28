@@ -17,12 +17,12 @@ class LifeCoverCalculator
      * 2. Life cover less gifting (covers IHT after gifting strategy)
      * 3. Self-insurance option (invest premiums instead of buying cover)
      *
-     * @param float $ihtLiability IHT liability at expected death
-     * @param float $ihtLiabilityAfterGifting IHT liability after gifting strategy applied
-     * @param int $yearsUntilDeath Years until expected death
-     * @param User $user User (for age calculation)
-     * @param User|null $spouse Spouse (for joint life second death policy)
-     * @param float $existingCover Existing life cover already in place
+     * @param  float  $ihtLiability  IHT liability at expected death
+     * @param  float  $ihtLiabilityAfterGifting  IHT liability after gifting strategy applied
+     * @param  int  $yearsUntilDeath  Years until expected death
+     * @param  User  $user  User (for age calculation)
+     * @param  User|null  $spouse  Spouse (for joint life second death policy)
+     * @param  float  $existingCover  Existing life cover already in place
      * @return array Life cover recommendations
      */
     public function calculateLifeCoverRecommendations(
@@ -33,7 +33,7 @@ class LifeCoverCalculator
         ?User $spouse = null,
         float $existingCover = 0
     ): array {
-        if (!$user->date_of_birth) {
+        if (! $user->date_of_birth) {
             return [
                 'success' => false,
                 'error' => 'User date of birth required for life cover calculation',
@@ -358,6 +358,7 @@ class LifeCoverCalculator
                 'rationale' => 'You have £'.number_format($existingCover, 0).' life cover, which exceeds your IHT liability of £'.number_format($originalIHT, 0),
                 'action' => 'Ensure policies are written in trust and review beneficiary nominations',
             ];
+
             return [
                 'recommended_approach' => 'Existing Cover is Sufficient',
                 'all_recommendations' => $recommendations,

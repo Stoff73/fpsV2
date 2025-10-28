@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\User;
+use App\Models\Estate\Asset;
 use App\Models\FamilyMember;
 use App\Models\ProtectionProfile;
-use App\Models\Estate\Asset;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 

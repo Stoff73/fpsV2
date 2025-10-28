@@ -135,7 +135,7 @@ class FamilyMembersController extends Controller
             try {
                 Mail::to($spouseUser->email)->send(new SpouseAccountLinked($spouseUser, $currentUser));
             } catch (\Exception $e) {
-                \Log::error('Failed to send spouse account linked email: ' . $e->getMessage());
+                \Log::error('Failed to send spouse account linked email: '.$e->getMessage());
             }
 
             return response()->json([
@@ -189,7 +189,7 @@ class FamilyMembersController extends Controller
         try {
             Mail::to($spouseEmail)->send(new SpouseAccountCreated($spouseUser, $currentUser, $temporaryPassword));
         } catch (\Exception $e) {
-            \Log::error('Failed to send spouse account created email: ' . $e->getMessage());
+            \Log::error('Failed to send spouse account created email: '.$e->getMessage());
             // Also log the temporary password so it can be retrieved if email fails
             \Log::info("Temporary password for {$spouseEmail}: {$temporaryPassword}");
         }

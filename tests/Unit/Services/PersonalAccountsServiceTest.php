@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
-use App\Models\Household;
-use App\Models\Property;
-use App\Models\Mortgage;
-use App\Models\Investment\InvestmentAccount;
 use App\Models\CashAccount;
+use App\Models\Household;
+use App\Models\Investment\InvestmentAccount;
+use App\Models\Mortgage;
+use App\Models\Property;
+use App\Models\User;
 use App\Services\UserProfile\PersonalAccountsService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,7 +15,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->service = new PersonalAccountsService();
+    $this->service = new PersonalAccountsService;
 
     // Create a household
     $this->household = Household::factory()->create();

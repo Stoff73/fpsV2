@@ -27,6 +27,7 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             // Higher limit for local development, lower for production
             $limit = app()->environment('local') ? 1000 : 60;
+
             return Limit::perMinute($limit)->by($request->user()?->id ?: $request->ip());
         });
 

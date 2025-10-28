@@ -4,7 +4,9 @@
       <div class="flex justify-between h-16">
         <div class="flex">
           <div class="flex-shrink-0 flex items-center">
-            <h1 class="font-display text-h4 text-primary-600">FPS</h1>
+            <router-link to="/dashboard" class="font-display text-h4 text-primary-600 hover:text-primary-700 transition-colors cursor-pointer">
+              FPS
+            </router-link>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
             <router-link

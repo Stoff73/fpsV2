@@ -11,9 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -437,7 +435,7 @@ class AdminController extends Controller
     {
         try {
             $dbName = config('database.connections.'.config('database.default').'.database');
-            $result = DB::select("SELECT SUM(data_length + index_length) as size FROM information_schema.TABLES WHERE table_schema = ?", [$dbName]);
+            $result = DB::select('SELECT SUM(data_length + index_length) as size FROM information_schema.TABLES WHERE table_schema = ?', [$dbName]);
 
             return $this->formatBytes($result[0]->size ?? 0);
         } catch (\Exception $e) {

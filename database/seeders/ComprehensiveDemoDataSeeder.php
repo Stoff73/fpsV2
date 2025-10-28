@@ -2,27 +2,27 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\FamilyMember;
+use App\Models\DBPension;
+use App\Models\DCPension;
 use App\Models\Estate\Asset;
-use App\Models\Estate\Liability;
 use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
+use App\Models\Estate\Liability;
 use App\Models\Estate\Will;
-use App\Models\Property;
+use App\Models\ExpenditureProfile;
+use App\Models\FamilyMember;
+use App\Models\Holding;
+use App\Models\InvestmentAccount;
+use App\Models\InvestmentGoal;
+use App\Models\LifeInsurancePolicy;
 use App\Models\Mortgage;
+use App\Models\Property;
+use App\Models\RetirementProfile;
+use App\Models\RiskProfile;
 use App\Models\SavingsAccount;
 use App\Models\SavingsGoal;
-use App\Models\InvestmentAccount;
-use App\Models\Holding;
-use App\Models\InvestmentGoal;
-use App\Models\RiskProfile;
-use App\Models\DCPension;
-use App\Models\DBPension;
 use App\Models\StatePension;
-use App\Models\RetirementProfile;
-use App\Models\LifeInsurancePolicy;
-use App\Models\ExpenditureProfile;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ComprehensiveDemoDataSeeder extends Seeder
@@ -37,8 +37,9 @@ class ComprehensiveDemoDataSeeder extends Seeder
         // Get the demo user
         $this->demoUser = User::where('email', 'demo@fps.com')->first();
 
-        if (!$this->demoUser) {
+        if (! $this->demoUser) {
             $this->command->error('Demo user not found. Please run DemoUserSeeder first.');
+
             return;
         }
 
@@ -54,7 +55,7 @@ class ComprehensiveDemoDataSeeder extends Seeder
             'industry' => 'Financial Services',
         ]);
 
-        $this->command->info('Seeding comprehensive demo data for: ' . $this->demoUser->email);
+        $this->command->info('Seeding comprehensive demo data for: '.$this->demoUser->email);
 
         // Seed all modules
         $this->seedFamilyMembers();
@@ -520,7 +521,7 @@ class ComprehensiveDemoDataSeeder extends Seeder
             'has_trust_provisions' => true,
             'main_beneficiaries' => json_encode([
                 'Spouse' => 'Sarah Demo',
-                'Children' => ['Emily Demo', 'Jack Demo']
+                'Children' => ['Emily Demo', 'Jack Demo'],
             ]),
         ]);
 

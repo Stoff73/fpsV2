@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Estate;
 
 use App\Http\Controllers\Controller;
-use App\Models\Estate\Asset;
 use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Liability;
 use App\Models\Estate\Trust;
 use App\Models\Estate\Will;
-use App\Models\Investment\InvestmentAccount;
 use App\Models\Mortgage;
 use App\Models\User;
 use App\Services\Estate\EstateAssetAggregatorService;
@@ -171,6 +169,7 @@ class IHTController extends Controller
             ], 500);
         }
     }
+
     public function storeOrUpdateIHTProfile(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -207,6 +206,7 @@ class IHTController extends Controller
             ], 500);
         }
     }
+
     public function calculateSurvivingSpouseIHT(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -304,6 +304,7 @@ class IHTController extends Controller
             ], 500);
         }
     }
+
     public function calculateSecondDeathIHTPlanning(Request $request): JsonResponse
     {
         $user = $request->user();

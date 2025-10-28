@@ -17,7 +17,7 @@ class HouseholdFactory extends Factory
     public function definition(): array
     {
         return [
-            'household_name' => fake()->lastName() . ' Family',
+            'household_name' => fake()->lastName().' Family',
             'notes' => fake()->optional()->sentence(),
         ];
     }

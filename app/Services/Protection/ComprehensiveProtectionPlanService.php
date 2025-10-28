@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services\Protection;
 
 use App\Agents\ProtectionAgent;
-use App\Models\User;
 use App\Models\ProtectionProfile;
+use App\Models\User;
 
 /**
  * Generates a comprehensive protection plan combining:
@@ -24,8 +24,7 @@ class ComprehensiveProtectionPlanService
         private CoverageGapAnalyzer $gapAnalyzer,
         private AdequacyScorer $adequacyScorer,
         private RecommendationEngine $recommendationEngine
-    ) {
-    }
+    ) {}
 
     /**
      * Generate comprehensive protection plan
@@ -35,14 +34,14 @@ class ComprehensiveProtectionPlanService
         // Get protection analysis from agent
         $analysis = $this->protectionAgent->analyze($user->id);
 
-        if (!$analysis['success']) {
+        if (! $analysis['success']) {
             throw new \Exception($analysis['message']);
         }
 
         $data = $analysis['data'];
         $profile = ProtectionProfile::where('user_id', $user->id)->first();
 
-        if (!$profile) {
+        if (! $profile) {
             throw new \Exception('Protection profile not found');
         }
 
@@ -81,7 +80,7 @@ class ComprehensiveProtectionPlanService
      */
     private function generateCompletenessWarning(?array $profileCompleteness): ?array
     {
-        if (!$profileCompleteness || $profileCompleteness['is_complete']) {
+        if (! $profileCompleteness || $profileCompleteness['is_complete']) {
             return null;
         }
 
@@ -89,14 +88,14 @@ class ComprehensiveProtectionPlanService
         $missingFields = $profileCompleteness['missing_fields'] ?? [];
 
         // Determine severity
-        $severity = match(true) {
+        $severity = match (true) {
             $score < 50 => 'critical',
             $score < 100 => 'warning',
             default => 'success',
         };
 
         // Build disclaimer text
-        $disclaimer = match($severity) {
+        $disclaimer = match ($severity) {
             'critical' => 'This protection plan is highly generic due to incomplete profile information. Key data is missing, which significantly limits the accuracy and personalization of recommendations. Please complete your profile to receive a comprehensive and tailored protection strategy.',
             'warning' => 'This protection plan is partially generic as some profile information is incomplete. Completing the missing fields will enable more accurate calculations and personalized recommendations.',
             default => 'Your profile is complete. This protection plan is fully personalized based on your circumstances.',
@@ -136,15 +135,15 @@ class ComprehensiveProtectionPlanService
         $gapsByCategory = $gaps['gaps_by_category'] ?? [];
 
         if ($totalGap > 0) {
-            $criticalGaps[] = 'Total Protection Gap: ' . $this->formatCurrency($totalGap);
+            $criticalGaps[] = 'Total Protection Gap: '.$this->formatCurrency($totalGap);
         }
 
         if (($gapsByCategory['human_capital_gap'] ?? 0) > 0) {
-            $criticalGaps[] = 'Income Replacement Need: ' . $this->formatCurrency($gapsByCategory['human_capital_gap']);
+            $criticalGaps[] = 'Income Replacement Need: '.$this->formatCurrency($gapsByCategory['human_capital_gap']);
         }
 
         if (($gapsByCategory['debt_protection_gap'] ?? 0) > 0) {
-            $criticalGaps[] = 'Debt Protection Need: ' . $this->formatCurrency($gapsByCategory['debt_protection_gap']);
+            $criticalGaps[] = 'Debt Protection Need: '.$this->formatCurrency($gapsByCategory['debt_protection_gap']);
         }
 
         return [
@@ -395,7 +394,7 @@ class ComprehensiveProtectionPlanService
         $completenessScore = $profileCompleteness['completeness_score'] ?? 100;
 
         // Determine plan type for recommendations
-        $planType = match(true) {
+        $planType = match (true) {
             $completenessScore >= 100 => 'Personalized',
             $completenessScore >= 70 => 'Mostly Personalized',
             $completenessScore >= 50 => 'Partially Generic',
@@ -407,7 +406,7 @@ class ComprehensiveProtectionPlanService
             'plan_type' => $planType,
             'is_complete' => $isComplete,
             'completeness_score' => $completenessScore,
-            'disclaimer' => !$isComplete
+            'disclaimer' => ! $isComplete
                 ? 'Some recommendations are generic due to incomplete profile information. Complete your profile for more personalized advice.'
                 : null,
             'categories' => $recommendations,
@@ -453,7 +452,7 @@ class ComprehensiveProtectionPlanService
                 'priority' => 1,
                 'category' => 'Life Insurance',
                 'action' => 'Increase Life Insurance Coverage',
-                'details' => 'Add £' . number_format($totalGap, 0) . ' life insurance coverage to protect your family',
+                'details' => 'Add £'.number_format($totalGap, 0).' life insurance coverage to protect your family',
                 'coverage_amount' => $totalGap,
                 'estimated_monthly_cost' => $estimatedMonthlyPremium,
                 'timeframe' => 'Immediate',
@@ -481,7 +480,7 @@ class ComprehensiveProtectionPlanService
                 'priority' => 2,
                 'category' => 'Critical Illness',
                 'action' => 'Add Critical Illness Coverage',
-                'details' => 'Add £' . number_format($ciGap, 0) . ' critical illness coverage for financial security',
+                'details' => 'Add £'.number_format($ciGap, 0).' critical illness coverage for financial security',
                 'coverage_amount' => $ciGap,
                 'estimated_monthly_cost' => $estimatedMonthlyPremium,
                 'timeframe' => 'Immediate',
@@ -508,7 +507,7 @@ class ComprehensiveProtectionPlanService
                 'priority' => 3,
                 'category' => 'Income Protection',
                 'action' => 'Add Income Protection Coverage',
-                'details' => 'Add £' . number_format($ipMonthlyGap, 0) . '/month income protection for long-term disability',
+                'details' => 'Add £'.number_format($ipMonthlyGap, 0).'/month income protection for long-term disability',
                 'monthly_benefit' => $ipMonthlyGap,
                 'estimated_monthly_cost' => $estimatedMonthlyPremium,
                 'timeframe' => 'Within 3 months',
@@ -570,7 +569,7 @@ class ComprehensiveProtectionPlanService
         $ongoing = [];
 
         // Add profile completeness steps if incomplete
-        if ($profileCompleteness && !$profileCompleteness['is_complete']) {
+        if ($profileCompleteness && ! $profileCompleteness['is_complete']) {
             $completenessScore = $profileCompleteness['completeness_score'];
 
             if ($completenessScore < 70) {
@@ -580,7 +579,7 @@ class ComprehensiveProtectionPlanService
                 $missingFields = $profileCompleteness['missing_fields'] ?? [];
                 foreach ($missingFields as $key => $field) {
                     if ($field['priority'] === 'high' && $field['required']) {
-                        $immediate[] = '  → ' . $field['message'];
+                        $immediate[] = '  → '.$field['message'];
                     }
                 }
             }
@@ -631,15 +630,22 @@ class ComprehensiveProtectionPlanService
 
     private function getCoverageStatus(float $score): string
     {
-        if ($score >= 80) return 'Excellent';
-        if ($score >= 60) return 'Good';
-        if ($score >= 40) return 'Fair';
+        if ($score >= 80) {
+            return 'Excellent';
+        }
+        if ($score >= 60) {
+            return 'Good';
+        }
+        if ($score >= 40) {
+            return 'Fair';
+        }
+
         return 'Poor';
     }
 
     private function convertToAnnualPremium(float $amount, string $frequency): float
     {
-        return match($frequency) {
+        return match ($frequency) {
             'monthly' => $amount * 12,
             'quarterly' => $amount * 4,
             'annually', 'annual' => $amount,
@@ -666,11 +672,12 @@ class ComprehensiveProtectionPlanService
     {
         // IP typically costs 1-3% of benefit per month
         $rate = 0.02 + (($age - 30) * 0.001);
+
         return $monthlyBenefit * $rate;
     }
 
     private function formatCurrency(float $amount): string
     {
-        return '£' . number_format($amount, 0);
+        return '£'.number_format($amount, 0);
     }
 }

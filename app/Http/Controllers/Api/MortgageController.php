@@ -66,7 +66,7 @@ class MortgageController extends Controller
         $validated['ownership_type'] = $validated['ownership_type'] ?? 'individual';
 
         // Calculate remaining_term_months if not provided
-        if (!isset($validated['remaining_term_months'])) {
+        if (! isset($validated['remaining_term_months'])) {
             $startDate = new \DateTime($validated['start_date']);
             $maturityDate = new \DateTime($validated['maturity_date']);
             $interval = $startDate->diff($maturityDate);
@@ -131,7 +131,7 @@ class MortgageController extends Controller
         $validated = $request->validated();
 
         // Calculate remaining_term_months if not provided but dates are
-        if (!isset($validated['remaining_term_months']) && isset($validated['start_date']) && isset($validated['maturity_date'])) {
+        if (! isset($validated['remaining_term_months']) && isset($validated['start_date']) && isset($validated['maturity_date'])) {
             $startDate = new \DateTime($validated['start_date']);
             $maturityDate = new \DateTime($validated['maturity_date']);
             $interval = $startDate->diff($maturityDate);
@@ -244,8 +244,9 @@ class MortgageController extends Controller
             ->first();
 
         // If no joint property found, we can't create the mortgage
-        if (!$jointProperty) {
+        if (! $jointProperty) {
             \Log::warning("Joint property not found for user {$jointOwnerId}. Mortgage will not be duplicated.");
+
             return;
         }
 

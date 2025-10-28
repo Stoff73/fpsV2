@@ -31,9 +31,6 @@ class CrossModuleAssetAggregator
      * - asset_type: string
      * - asset_name: string
      * - current_value: float
-     *
-     * @param int $userId
-     * @return Collection
      */
     public function getAllAssets(int $userId): Collection
     {
@@ -56,9 +53,6 @@ class CrossModuleAssetAggregator
 
     /**
      * Get property assets with ownership percentage applied
-     *
-     * @param int $userId
-     * @return Collection
      */
     public function getPropertyAssets(int $userId): Collection
     {
@@ -79,9 +73,6 @@ class CrossModuleAssetAggregator
 
     /**
      * Get investment account assets with ownership percentage applied
-     *
-     * @param int $userId
-     * @return Collection
      */
     public function getInvestmentAssets(int $userId): Collection
     {
@@ -94,7 +85,7 @@ class CrossModuleAssetAggregator
 
             return (object) [
                 'asset_type' => 'investment',
-                'asset_name' => $account->provider . ' - ' . strtoupper($account->account_type),
+                'asset_name' => $account->provider.' - '.strtoupper($account->account_type),
                 'current_value' => $userValue,
                 'is_iht_exempt' => false, // ISAs are IHT taxable
                 'account_type' => $account->account_type,
@@ -106,9 +97,6 @@ class CrossModuleAssetAggregator
 
     /**
      * Get savings/cash account assets
-     *
-     * @param int $userId
-     * @return Collection
      */
     public function getSavingsAssets(int $userId): Collection
     {
@@ -116,7 +104,7 @@ class CrossModuleAssetAggregator
             // Cash ISAs are NOT IHT-exempt - only exempt from income tax
             return (object) [
                 'asset_type' => 'cash',
-                'asset_name' => $account->institution . ' - ' . ucfirst($account->account_type),
+                'asset_name' => $account->institution.' - '.ucfirst($account->account_type),
                 'current_value' => $account->current_balance,
                 'is_iht_exempt' => false, // Cash ISAs are IHT taxable
                 'account_type' => $account->account_type,
@@ -128,9 +116,6 @@ class CrossModuleAssetAggregator
 
     /**
      * Calculate total asset values by type
-     *
-     * @param int $userId
-     * @return array
      */
     public function getAssetTotals(int $userId): array
     {
@@ -143,9 +128,6 @@ class CrossModuleAssetAggregator
 
     /**
      * Calculate total property value (with ownership percentage)
-     *
-     * @param int $userId
-     * @return float
      */
     public function calculatePropertyTotal(int $userId): float
     {
@@ -153,15 +135,13 @@ class CrossModuleAssetAggregator
             ->get()
             ->sum(function ($property) {
                 $ownershipPercentage = $property->ownership_percentage ?? 100;
+
                 return $property->current_value * ($ownershipPercentage / 100);
             });
     }
 
     /**
      * Calculate total investment value (with ownership percentage)
-     *
-     * @param int $userId
-     * @return float
      */
     public function calculateInvestmentTotal(int $userId): float
     {
@@ -169,15 +149,13 @@ class CrossModuleAssetAggregator
             ->get()
             ->sum(function ($account) {
                 $ownershipPercentage = $account->ownership_percentage ?? 100;
+
                 return $account->current_value * ($ownershipPercentage / 100);
             });
     }
 
     /**
      * Calculate total cash/savings value
-     *
-     * @param int $userId
-     * @return float
      */
     public function calculateCashTotal(int $userId): float
     {
@@ -187,9 +165,6 @@ class CrossModuleAssetAggregator
 
     /**
      * Get all mortgages for a user
-     *
-     * @param int $userId
-     * @return Collection
      */
     public function getMortgages(int $userId): Collection
     {
@@ -198,9 +173,6 @@ class CrossModuleAssetAggregator
 
     /**
      * Calculate total mortgage liabilities
-     *
-     * @param int $userId
-     * @return float
      */
     public function calculateMortgageTotal(int $userId): float
     {
@@ -210,9 +182,6 @@ class CrossModuleAssetAggregator
 
     /**
      * Get asset breakdown with counts
-     *
-     * @param int $userId
-     * @return array
      */
     public function getAssetBreakdown(int $userId): array
     {

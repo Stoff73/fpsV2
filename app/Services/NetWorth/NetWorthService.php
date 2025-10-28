@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\NetWorth;
 
-use App\Models\User;
-use App\Models\Property;
-use App\Models\Investment\InvestmentAccount;
-use App\Models\SavingsAccount;
 use App\Models\BusinessInterest;
 use App\Models\Chattel;
-use App\Models\Mortgage;
+use App\Models\Investment\InvestmentAccount;
 use App\Models\PersonalAccount;
+use App\Models\Property;
+use App\Models\User;
 use App\Services\Shared\CrossModuleAssetAggregator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -24,10 +22,6 @@ class NetWorthService
 
     /**
      * Calculate net worth for a user
-     *
-     * @param User $user
-     * @param Carbon|null $asOfDate
-     * @return array
      */
     public function calculateNetWorth(User $user, ?Carbon $asOfDate = null): array
     {
@@ -74,12 +68,8 @@ class NetWorthService
         ];
     }
 
-
     /**
      * Calculate total business value (with ownership percentage)
-     *
-     * @param int $userId
-     * @return float
      */
     private function calculateBusinessValue(int $userId): float
     {
@@ -87,15 +77,13 @@ class NetWorthService
             ->get()
             ->sum(function ($business) {
                 $ownershipPercentage = $business->ownership_percentage ?? 100;
+
                 return $business->current_valuation * ($ownershipPercentage / 100);
             });
     }
 
     /**
      * Calculate total chattel value (with ownership percentage)
-     *
-     * @param int $userId
-     * @return float
      */
     private function calculateChattelValue(int $userId): float
     {
@@ -103,16 +91,13 @@ class NetWorthService
             ->get()
             ->sum(function ($chattel) {
                 $ownershipPercentage = $chattel->ownership_percentage ?? 100;
+
                 return $chattel->current_value * ($ownershipPercentage / 100);
             });
     }
 
-
     /**
      * Calculate other liabilities from personal accounts
-     *
-     * @param int $userId
-     * @return float
      */
     private function calculateOtherLiabilities(int $userId): float
     {
@@ -123,10 +108,6 @@ class NetWorthService
 
     /**
      * Get net worth trend over specified number of months
-     *
-     * @param User $user
-     * @param int $months
-     * @return array
      */
     public function getNetWorthTrend(User $user, int $months = 12): array
     {
@@ -154,9 +135,6 @@ class NetWorthService
 
     /**
      * Get asset breakdown with percentages
-     *
-     * @param User $user
-     * @return array
      */
     public function getAssetBreakdown(User $user): array
     {
@@ -184,9 +162,6 @@ class NetWorthService
 
     /**
      * Get assets summary with counts and totals
-     *
-     * @param User $user
-     * @return array
      */
     public function getAssetsSummary(User $user): array
     {
@@ -221,9 +196,6 @@ class NetWorthService
 
     /**
      * Get joint assets for a user
-     *
-     * @param User $user
-     * @return array
      */
     public function getJointAssets(User $user): array
     {
@@ -253,7 +225,7 @@ class NetWorthService
                 return [
                     'type' => 'investment',
                     'id' => $investment->id,
-                    'description' => $investment->provider . ' - ' . $investment->account_type,
+                    'description' => $investment->provider.' - '.$investment->account_type,
                     'value' => $investment->current_value,
                     'ownership_percentage' => $investment->ownership_percentage,
                     'co_owner' => null, // Co-owner tracking not in schema
@@ -305,13 +277,10 @@ class NetWorthService
 
     /**
      * Get cached net worth or calculate and cache
-     *
-     * @param User $user
-     * @return array
      */
     public function getCachedNetWorth(User $user): array
     {
-        $cacheKey = "net_worth:user_{$user->id}:date_" . Carbon::now()->toDateString();
+        $cacheKey = "net_worth:user_{$user->id}:date_".Carbon::now()->toDateString();
 
         return Cache::remember($cacheKey, 1800, function () use ($user) {
             return $this->calculateNetWorth($user);
@@ -320,13 +289,10 @@ class NetWorthService
 
     /**
      * Invalidate net worth cache for a user
-     *
-     * @param int $userId
-     * @return void
      */
     public function invalidateCache(int $userId): void
     {
-        $cacheKey = "net_worth:user_{$userId}:date_" . Carbon::now()->toDateString();
+        $cacheKey = "net_worth:user_{$userId}:date_".Carbon::now()->toDateString();
         Cache::forget($cacheKey);
     }
 }

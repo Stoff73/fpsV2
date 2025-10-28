@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\UserProfile;
 
-use App\Models\User;
 use App\Models\SavingsAccount;
+use App\Models\User;
 use Carbon\Carbon;
 
 class PersonalAccountsService
@@ -152,6 +152,7 @@ class PersonalAccountsService
         $pensionContributions = $user->dcPensions->sum(function ($pension) use ($user) {
             $annualSalary = $pension->annual_salary ?? $user->annual_employment_income ?? 0;
             $employeePercent = $pension->employee_contribution_percent ?? 0;
+
             return $annualSalary * ($employeePercent / 100);
         });
 

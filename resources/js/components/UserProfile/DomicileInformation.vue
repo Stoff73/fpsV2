@@ -216,7 +216,7 @@ export default {
       form: {
         domicile_status: this.user?.domicile_status || '',
         country_of_birth: this.user?.country_of_birth || '',
-        uk_arrival_date: this.user?.uk_arrival_date || '',
+        uk_arrival_date: this.formatDateForInput(this.user?.uk_arrival_date) || '',
       },
       originalForm: {},
     };
@@ -235,7 +235,7 @@ export default {
           this.form = {
             domicile_status: newUser.domicile_status || '',
             country_of_birth: newUser.country_of_birth || '',
-            uk_arrival_date: newUser.uk_arrival_date || '',
+            uk_arrival_date: this.formatDateForInput(newUser.uk_arrival_date) || '',
           };
         }
       },
@@ -301,6 +301,13 @@ export default {
         month: 'long',
         year: 'numeric',
       });
+    },
+
+    formatDateForInput(dateString) {
+      if (!dateString) return '';
+      // Extract just the date portion from ISO 8601 format
+      // Handles both "2017-09-01" and "2017-09-01T00:00:00.000000Z" formats
+      return dateString.split('T')[0];
     },
   },
 };

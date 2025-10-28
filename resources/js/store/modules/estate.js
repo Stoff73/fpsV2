@@ -44,9 +44,13 @@ const getters = {
 
     // IHT liability from analysis
     ihtLiability: (state) => {
-        // For married users, use second death IHT liability if available
+        // For married users with linked spouse, use second death IHT liability
         if (state.secondDeathPlanning?.second_death_analysis?.iht_calculation?.iht_liability !== undefined) {
             return state.secondDeathPlanning.second_death_analysis.iht_calculation.iht_liability;
+        }
+        // For married users without linked spouse, use user_iht_calculation
+        if (state.secondDeathPlanning?.user_iht_calculation?.iht_liability !== undefined) {
+            return state.secondDeathPlanning.user_iht_calculation.iht_liability;
         }
         // Otherwise use standard analysis
         return state.analysis?.iht_liability || 0;
@@ -130,9 +134,13 @@ const getters = {
     // Taxable estate value (AFTER allowances - NRB/RNRB)
     // This is what's actually subject to IHT at 40%
     taxableEstate: (state, getters) => {
-        // For married users, use second death taxable estate if available
+        // For married users with linked spouse, use second death taxable estate
         if (state.secondDeathPlanning?.second_death_analysis?.iht_calculation?.taxable_estate !== undefined) {
             return state.secondDeathPlanning.second_death_analysis.iht_calculation.taxable_estate;
+        }
+        // For married users without linked spouse, use user_iht_calculation
+        if (state.secondDeathPlanning?.user_iht_calculation?.taxable_estate !== undefined) {
+            return state.secondDeathPlanning.user_iht_calculation.taxable_estate;
         }
         // Otherwise use standard analysis
         if (state.analysis?.taxable_estate !== undefined) {

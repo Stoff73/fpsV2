@@ -181,14 +181,14 @@ class EstateOnboardingFlow
     {
         $steps = $this->getSteps();
 
-        if (!isset($steps[$stepName])) {
+        if (! isset($steps[$stepName])) {
             return false;
         }
 
         $step = $steps[$stepName];
 
         // Always show non-conditional steps
-        if (!isset($step['conditional']) || !$step['conditional']) {
+        if (! isset($step['conditional']) || ! $step['conditional']) {
             return true;
         }
 
@@ -205,6 +205,7 @@ class EstateOnboardingFlow
         // Family Info - show spouse section only if married
         if ($stepName === 'family_info') {
             $maritalStatus = $userData['marital_status'] ?? null;
+
             // Always show family info, but content will be filtered inside the component
             return true;
         }
@@ -249,6 +250,7 @@ class EstateOnboardingFlow
     public function getSkipReason(string $stepName): ?string
     {
         $steps = $this->getSteps();
+
         return $steps[$stepName]['skip_reason'] ?? null;
     }
 

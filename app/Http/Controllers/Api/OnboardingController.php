@@ -263,7 +263,7 @@ class OnboardingController extends Controller
         try {
             $user = $request->user();
 
-            if (!$user->onboarding_focus_area) {
+            if (! $user->onboarding_focus_area) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Focus area not set',
@@ -299,7 +299,7 @@ class OnboardingController extends Controller
         try {
             $user = $request->user();
 
-            if (!$user->onboarding_focus_area) {
+            if (! $user->onboarding_focus_area) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Focus area not set',

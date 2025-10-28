@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Estate;
 
-use App\Models\User;
 use App\Models\Estate\IHTProfile;
 use App\Models\FamilyMember;
+use App\Models\User;
 use App\Services\UserProfile\ProfileCompletenessChecker;
 use Illuminate\Support\Collection;
 
@@ -27,8 +27,7 @@ class ComprehensiveEstatePlanService
         private IHTCalculator $ihtCalculator,
         private EstateAssetAggregatorService $assetAggregator,
         private ProfileCompletenessChecker $completenessChecker
-    ) {
-    }
+    ) {}
 
     /**
      * Generate comprehensive estate plan
@@ -42,7 +41,7 @@ class ComprehensiveEstatePlanService
 
         // Get IHT profile
         $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
-        if (!$ihtProfile) {
+        if (! $ihtProfile) {
             $config = config('uk_tax_config.inheritance_tax');
             $ihtProfile = new IHTProfile([
                 'user_id' => $user->id,
@@ -153,7 +152,7 @@ class ComprehensiveEstatePlanService
      */
     private function calculateYearsUntilDeath(User $user): int
     {
-        if (!$user->date_of_birth) {
+        if (! $user->date_of_birth) {
             return 20; // Default
         }
 
@@ -275,7 +274,7 @@ class ComprehensiveEstatePlanService
         // Property assets
         if ($assetsByType->has('property')) {
             $balanceSheetAssets['Property'] = [
-                'items' => $assetsByType['property']->map(fn($a) => [
+                'items' => $assetsByType['property']->map(fn ($a) => [
                     'name' => $a->asset_name,
                     'value' => $a->current_value,
                 ])->toArray(),
@@ -286,7 +285,7 @@ class ComprehensiveEstatePlanService
         // Investment assets
         if ($assetsByType->has('investment')) {
             $balanceSheetAssets['Investments'] = [
-                'items' => $assetsByType['investment']->map(fn($a) => [
+                'items' => $assetsByType['investment']->map(fn ($a) => [
                     'name' => $a->asset_name,
                     'value' => $a->current_value,
                 ])->toArray(),
@@ -297,7 +296,7 @@ class ComprehensiveEstatePlanService
         // Cash/Savings assets
         if ($assetsByType->has('cash')) {
             $balanceSheetAssets['Cash & Savings'] = [
-                'items' => $assetsByType['cash']->map(fn($a) => [
+                'items' => $assetsByType['cash']->map(fn ($a) => [
                     'name' => $a->asset_name,
                     'value' => $a->current_value,
                 ])->toArray(),
@@ -308,7 +307,7 @@ class ComprehensiveEstatePlanService
         // Pension assets
         if ($assetsByType->has('pension')) {
             $balanceSheetAssets['Pensions'] = [
-                'items' => $assetsByType['pension']->map(fn($a) => [
+                'items' => $assetsByType['pension']->map(fn ($a) => [
                     'name' => $a->asset_name,
                     'value' => $a->current_value,
                 ])->toArray(),
@@ -319,7 +318,7 @@ class ComprehensiveEstatePlanService
         // Business interests
         if ($assetsByType->has('business')) {
             $balanceSheetAssets['Business Interests'] = [
-                'items' => $assetsByType['business']->map(fn($a) => [
+                'items' => $assetsByType['business']->map(fn ($a) => [
                     'name' => $a->asset_name,
                     'value' => $a->current_value,
                 ])->toArray(),
@@ -332,7 +331,7 @@ class ComprehensiveEstatePlanService
         if ($otherTypes->isNotEmpty()) {
             $otherAssets = $assets->whereIn('asset_type', $otherTypes->toArray());
             $balanceSheetAssets['Other Assets'] = [
-                'items' => $otherAssets->map(fn($a) => [
+                'items' => $otherAssets->map(fn ($a) => [
                     'name' => $a->asset_name,
                     'value' => $a->current_value,
                 ])->toArray(),
@@ -405,7 +404,7 @@ class ComprehensiveEstatePlanService
                 ],
                 [
                     'action' => 'Establish discretionary trust within NRB',
-                    'details' => 'Transfer £' . number_format($profile->available_nrb ?? 325000, 0) . ' to discretionary trust',
+                    'details' => 'Transfer £'.number_format($profile->available_nrb ?? 325000, 0).' to discretionary trust',
                     'iht_saving' => ($profile->available_nrb ?? 325000) * 0.40,
                     'cost' => 0,
                     'timeframe' => 'Once-off (Year 1)',
@@ -423,7 +422,7 @@ class ComprehensiveEstatePlanService
                 'actions' => [
                     [
                         'action' => 'Implement PET gifting cycles',
-                        'details' => 'Gift liquid assets totaling £' . number_format($giftingPlan['summary']['total_gifted'], 0) . ' over 7 years',
+                        'details' => 'Gift liquid assets totaling £'.number_format($giftingPlan['summary']['total_gifted'], 0).' over 7 years',
                         'iht_saving' => $giftingPlan['summary']['total_iht_saved'],
                         'cost' => 0,
                         'timeframe' => '7 years',
@@ -443,7 +442,7 @@ class ComprehensiveEstatePlanService
                     'actions' => [
                         [
                             'action' => 'Establish Whole of Life policy in trust',
-                            'details' => 'Sum assured: £' . number_format($remainingLiability, 0) . ' | Premium: £' . number_format($lifePolicyPlan['estimated_monthly_premium'], 2) . '/month',
+                            'details' => 'Sum assured: £'.number_format($remainingLiability, 0).' | Premium: £'.number_format($lifePolicyPlan['estimated_monthly_premium'], 2).'/month',
                             'iht_saving' => 0, // Doesn't reduce IHT, but covers the cost
                             'cost' => $lifePolicyPlan['estimated_monthly_premium'] * 12,
                             'timeframe' => 'Ongoing',
@@ -491,7 +490,7 @@ class ComprehensiveEstatePlanService
      */
     private function generateCompletenessWarning(?array $profileCompleteness): ?array
     {
-        if (!$profileCompleteness || $profileCompleteness['is_complete']) {
+        if (! $profileCompleteness || $profileCompleteness['is_complete']) {
             return null;
         }
 
@@ -499,14 +498,14 @@ class ComprehensiveEstatePlanService
         $missingFields = $profileCompleteness['missing_fields'] ?? [];
 
         // Determine severity
-        $severity = match(true) {
+        $severity = match (true) {
             $score < 50 => 'critical',
             $score < 100 => 'warning',
             default => 'success',
         };
 
         // Build disclaimer text
-        $disclaimer = match($severity) {
+        $disclaimer = match ($severity) {
             'critical' => 'This estate plan is highly generic due to incomplete profile information. Key data is missing, which significantly limits the accuracy of IHT calculations and personalization of recommendations. Please complete your profile to receive a comprehensive and tailored estate strategy.',
             'warning' => 'This estate plan is partially generic as some profile information is incomplete. Completing the missing fields will enable more accurate IHT calculations and personalized recommendations.',
             default => 'Your profile is complete. This estate plan is fully personalized based on your circumstances.',
@@ -539,7 +538,7 @@ class ComprehensiveEstatePlanService
     private function generateExecutiveSummary(User $user, array $ihtAnalysis, array $optimizedStrategy, ?array $profileCompleteness): array
     {
         return [
-            'title' => 'Estate Planning Report for ' . $user->name,
+            'title' => 'Estate Planning Report for '.$user->name,
             'current_position' => [
                 'net_estate' => $ihtAnalysis['net_estate_value'] ?? 0,
                 'iht_liability' => $ihtAnalysis['iht_liability'] ?? 0,
@@ -586,7 +585,7 @@ class ComprehensiveEstatePlanService
         ];
 
         // Add profile completeness steps if incomplete
-        if ($profileCompleteness && !$profileCompleteness['is_complete']) {
+        if ($profileCompleteness && ! $profileCompleteness['is_complete']) {
             $completenessScore = $profileCompleteness['completeness_score'];
 
             if ($completenessScore < 70) {
@@ -596,7 +595,7 @@ class ComprehensiveEstatePlanService
                 $missingFields = $profileCompleteness['missing_fields'] ?? [];
                 foreach ($missingFields as $key => $field) {
                     if ($field['priority'] === 'high' && $field['required']) {
-                        $steps['Immediate (Within 1 month)'][] = '  → ' . $field['message'];
+                        $steps['Immediate (Within 1 month)'][] = '  → '.$field['message'];
                     }
                 }
             }

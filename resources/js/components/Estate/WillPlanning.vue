@@ -8,8 +8,62 @@
 
     <!-- Main Content -->
     <div v-else>
-      <!-- Will Configuration Card -->
+      <!-- Has Will Question -->
       <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Do you have a will?</h3>
+
+        <div class="space-y-3">
+          <label class="flex items-start cursor-pointer">
+            <input
+              type="radio"
+              v-model="form.has_will"
+              :value="true"
+              class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              @change="handleWillStatusChange"
+            />
+            <div class="ml-3">
+              <span class="block text-sm font-medium text-gray-900">Yes, I have a will</span>
+              <span class="block text-xs text-gray-500">Configure your existing will details</span>
+            </div>
+          </label>
+          <label class="flex items-start cursor-pointer">
+            <input
+              type="radio"
+              v-model="form.has_will"
+              :value="false"
+              class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              @change="handleWillStatusChange"
+            />
+            <div class="ml-3">
+              <span class="block text-sm font-medium text-gray-900">No, I don't have a will</span>
+              <span class="block text-xs text-gray-500">See how your estate would be distributed under intestacy rules</span>
+            </div>
+          </label>
+          <label class="flex items-start cursor-pointer">
+            <input
+              type="radio"
+              v-model="form.has_will"
+              :value="null"
+              class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              @change="handleWillStatusChange"
+            />
+            <div class="ml-3">
+              <span class="block text-sm font-medium text-gray-900">I'm not sure / I prefer not to say</span>
+              <span class="block text-xs text-gray-500">View intestacy information</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Intestacy Rules Display (shown when has_will is false or null) -->
+      <IntestacyRules
+        v-if="form.has_will === false || form.has_will === null"
+        :estate-value="netEstateValue"
+        @create-will="createWill"
+      />
+
+      <!-- Will Configuration Card (only shown when has_will is true) -->
+      <div v-if="form.has_will === true" class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Will Configuration</h3>
 
         <div class="space-y-6">
@@ -146,8 +200,8 @@
         </div>
       </div>
 
-      <!-- Bequests Section -->
-      <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <!-- Bequests Section (only shown when has_will is true) -->
+      <div v-if="form.has_will === true" class="bg-white rounded-lg border border-gray-200 p-6">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-900">Specific Bequests</h3>
           <button
@@ -226,9 +280,14 @@
 
 <script>
 import api from '@/services/api';
+import IntestacyRules from './IntestacyRules.vue';
 
 export default {
   name: 'WillPlanning',
+
+  components: {
+    IntestacyRules,
+  },
 
   data() {
     return {
@@ -236,6 +295,7 @@ export default {
       saving: false,
       will: null,
       form: {
+        has_will: null,
         death_scenario: 'user_only',
         spouse_primary_beneficiary: true,
         spouse_bequest_percentage: 100,
@@ -276,6 +336,7 @@ export default {
         this.will = response.data.data;
 
         this.form = {
+          has_will: this.will.has_will,
           death_scenario: this.will.death_scenario,
           spouse_primary_beneficiary: this.will.spouse_primary_beneficiary,
           spouse_bequest_percentage: parseFloat(this.will.spouse_bequest_percentage),
@@ -328,7 +389,16 @@ export default {
       }
     },
 
+    handleWillStatusChange() {
+      this.saveWill();
+    },
+
     handleScenarioChange() {
+      this.saveWill();
+    },
+
+    createWill() {
+      this.form.has_will = true;
       this.saveWill();
     },
 

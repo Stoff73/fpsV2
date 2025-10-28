@@ -21,7 +21,7 @@ class CashAccountFactory extends Factory
         $ownershipType = fake()->randomElement(['individual', 'joint']);
 
         return [
-            'account_name' => fake()->randomElement(['Main', 'Emergency Fund', 'Savings', 'Holiday Fund']) . ' Account',
+            'account_name' => fake()->randomElement(['Main', 'Emergency Fund', 'Savings', 'Holiday Fund']).' Account',
             'institution_name' => fake()->randomElement(['Barclays', 'HSBC', 'Lloyds', 'NatWest', 'Santander']),
             'account_number' => fake()->numerify('########'),
             'sort_code' => fake()->numerify('##-##-##'),

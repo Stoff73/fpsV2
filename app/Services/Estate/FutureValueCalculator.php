@@ -13,7 +13,6 @@ class FutureValueCalculator
     /**
      * Get life expectancy for user based on UK ONS actuarial tables
      *
-     * @param  User  $user
      * @return array [years_remaining, death_age, death_year]
      */
     public function getLifeExpectancy(User $user): array
@@ -110,11 +109,8 @@ class FutureValueCalculator
      * - Repayment mortgages (amortization)
      * - Maturity dates (mortgage paid off if term ends)
      *
-     * @param  float  $currentBalance
      * @param  string  $mortgageType  'interest_only' or 'repayment'
-     * @param  int  $remainingTermMonths
      * @param  float  $interestRate  Annual rate as percentage
-     * @param  float  $monthlyPayment
      * @param  int  $years  Years to project
      * @return float Projected balance (0 if matured)
      */
@@ -165,7 +161,6 @@ class FutureValueCalculator
 
         return max(0, $projectedBalance);
     }
-
 
     /**
      * Calculate future value of an asset given current value, growth rate, and years

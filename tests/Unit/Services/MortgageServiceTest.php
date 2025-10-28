@@ -16,12 +16,13 @@ class MortgageServiceTest extends TestCase
     use RefreshDatabase;
 
     private MortgageService $mortgageService;
+
     private User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mortgageService = new MortgageService();
+        $this->mortgageService = new MortgageService;
         $this->user = User::factory()->create();
     }
 

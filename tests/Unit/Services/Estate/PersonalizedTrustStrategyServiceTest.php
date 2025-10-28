@@ -1,13 +1,13 @@
 <?php
 
-use App\Models\User;
 use App\Models\Estate\Asset;
 use App\Models\Estate\IHTProfile;
-use App\Services\Estate\PersonalizedTrustStrategyService;
+use App\Models\User;
 use App\Services\Estate\AssetLiquidityAnalyzer;
+use App\Services\Estate\PersonalizedTrustStrategyService;
 
 beforeEach(function () {
-    $this->liquidityAnalyzer = new AssetLiquidityAnalyzer();
+    $this->liquidityAnalyzer = new AssetLiquidityAnalyzer;
     $this->service = new PersonalizedTrustStrategyService($this->liquidityAnalyzer);
 
     $this->user = new User([

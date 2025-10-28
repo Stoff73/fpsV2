@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\NetWorthController;
-use App\Services\NetWorth\NetWorthService;
 use App\Http\Controllers\Controller;
+use App\Services\NetWorth\NetWorthService;
 
 /**
  * Phase 03 Architecture Tests

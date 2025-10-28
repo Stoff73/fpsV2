@@ -2,9 +2,17 @@ import { createRouter, createWebHistory } from 'vue-router';
 import store from '@/store';
 
 // Lazy load components
+// Public pages
+const LandingPage = () => import('@/views/Public/LandingPage.vue');
+const CalculatorsPage = () => import('@/views/Public/CalculatorsPage.vue');
+const LearningCentre = () => import('@/views/Public/LearningCentre.vue');
+
+// Auth pages
 const Login = () => import('@/views/Login.vue');
 const Register = () => import('@/views/Register.vue');
 const Onboarding = () => import('@/views/Onboarding/OnboardingView.vue');
+
+// Authenticated pages
 const Dashboard = () => import('@/views/Dashboard.vue');
 const Settings = () => import('@/views/Settings.vue');
 const UserProfile = () => import('@/views/UserProfile.vue');
@@ -28,10 +36,27 @@ const AdminPanel = () => import('@/views/Admin/AdminPanel.vue');
 const Version = () => import('@/views/Version.vue');
 
 const routes = [
+  // Public routes
   {
     path: '/',
-    redirect: '/dashboard',
+    name: 'Home',
+    component: LandingPage,
+    meta: { public: true },
   },
+  {
+    path: '/calculators',
+    name: 'Calculators',
+    component: CalculatorsPage,
+    meta: { public: true },
+  },
+  {
+    path: '/learning-centre',
+    name: 'LearningCentre',
+    component: LearningCentre,
+    meta: { public: true },
+  },
+
+  // Auth routes
   {
     path: '/login',
     name: 'Login',

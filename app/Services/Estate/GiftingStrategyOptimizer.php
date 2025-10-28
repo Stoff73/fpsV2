@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\Estate;
 
 use App\Models\User;
-use Carbon\Carbon;
 
 class GiftingStrategyOptimizer
 {
@@ -18,13 +17,13 @@ class GiftingStrategyOptimizer
      *
      * Prioritizes PETs (every 7 years), uses annual exemptions, and CLTs as last resort
      *
-     * @param float $projectedEstateValue Estate value at expected death
-     * @param float $currentIHTLiability Current projected IHT liability
-     * @param int $yearsUntilDeath Years until expected death
-     * @param User $user User for income/expenditure check
-     * @param float $totalNRBAvailable Total NRB available (including spouse transfer)
-     * @param float $rnrbAvailable RNRB available
-     * @param float $annualExpenditure Annual expenditure for gifting from income calculation
+     * @param  float  $projectedEstateValue  Estate value at expected death
+     * @param  float  $currentIHTLiability  Current projected IHT liability
+     * @param  int  $yearsUntilDeath  Years until expected death
+     * @param  User  $user  User for income/expenditure check
+     * @param  float  $totalNRBAvailable  Total NRB available (including spouse transfer)
+     * @param  float  $rnrbAvailable  RNRB available
+     * @param  float  $annualExpenditure  Annual expenditure for gifting from income calculation
      * @return array Gifting strategy recommendations
      */
     public function calculateOptimalGiftingStrategy(
@@ -193,8 +192,8 @@ class GiftingStrategyOptimizer
                 'Document income sources and expenditure',
             ],
             'notes' => $canAfford ?
-                "You can afford to gift £".number_format($safeGiftingAmount, 0)." per year from surplus income" :
-                "Insufficient surplus income for this strategy (need income and expenditure data)",
+                'You can afford to gift £'.number_format($safeGiftingAmount, 0).' per year from surplus income' :
+                'Insufficient surplus income for this strategy (need income and expenditure data)',
         ];
     }
 
@@ -244,7 +243,7 @@ class GiftingStrategyOptimizer
             'exempt_immediately' => false,
             'taper_relief_from_year' => 3,
             'implementation_steps' => [
-                "Gift £".number_format($amountPerCycle, 0)." every 7 years to maximize IHT efficiency",
+                'Gift £'.number_format($amountPerCycle, 0).' every 7 years to maximize IHT efficiency',
                 'Consider gifting to discretionary trust for flexibility',
                 'Gifts must not have reservation of benefit',
                 'Keep detailed gift records with dates and amounts',
@@ -252,7 +251,7 @@ class GiftingStrategyOptimizer
             ],
             'notes' => $complete7YearCycles > 0 ?
                 "You have {$complete7YearCycles} complete 7-year cycle(s) before expected death" :
-                "Insufficient time for PET strategy (need at least 7 years)",
+                'Insufficient time for PET strategy (need at least 7 years)',
         ];
     }
 
@@ -286,7 +285,7 @@ class GiftingStrategyOptimizer
             'exempt_immediately' => false,
             'implementation_steps' => [
                 'Set up discretionary trust with professional trustees',
-                "Transfer £".number_format($targetGiftAmount, 0)." into trust",
+                'Transfer £'.number_format($targetGiftAmount, 0).' into trust',
                 'Pay immediate 20% IHT charge on transfer',
                 'Trust becomes exempt after 7 years',
                 'Consider 10-year anniversary charges (6% every 10 years)',

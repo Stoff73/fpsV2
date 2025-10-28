@@ -8,7 +8,7 @@ use App\Services\Protection\CoverageGapAnalyzer;
 use App\Services\UKTaxCalculator;
 
 beforeEach(function () {
-    $taxCalculator = new UKTaxCalculator();
+    $taxCalculator = new UKTaxCalculator;
     $this->analyzer = new CoverageGapAnalyzer($taxCalculator);
 });
 

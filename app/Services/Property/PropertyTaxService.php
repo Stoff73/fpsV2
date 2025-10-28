@@ -17,10 +17,7 @@ class PropertyTaxService
      * - First-time buyer relief: 0% up to £425k (properties up to £625k)
      * - Additional property: +3% surcharge on all bands
      *
-     * @param float $purchasePrice
-     * @param string $propertyType ('main_residence', 'second_home', 'buy_to_let')
-     * @param bool $isFirstHome
-     * @return array
+     * @param  string  $propertyType  ('main_residence', 'second_home', 'buy_to_let')
      */
     public function calculateSDLT(float $purchasePrice, string $propertyType, bool $isFirstHome = false): array
     {
@@ -133,12 +130,6 @@ class PropertyTaxService
      * - Annual exempt amount: £3,000
      * - Basic rate taxpayers: 18% on residential property
      * - Higher/additional rate taxpayers: 24% on residential property
-     *
-     * @param Property $property
-     * @param float $disposalPrice
-     * @param float $disposalCosts
-     * @param User $user
-     * @return array
      */
     public function calculateCGT(Property $property, float $disposalPrice, float $disposalCosts, User $user): array
     {
@@ -186,10 +177,6 @@ class PropertyTaxService
 
     /**
      * Calculate rental income tax liability
-     *
-     * @param Property $property
-     * @param User $user
-     * @return array
      */
     public function calculateRentalIncomeTax(Property $property, User $user): array
     {

@@ -48,19 +48,19 @@ class RecommendationsController extends Controller
 
             // Apply filters
             if ($request->has('module')) {
-                $recommendations = array_filter($recommendations, fn($rec) => $rec['module'] === $request->module);
+                $recommendations = array_filter($recommendations, fn ($rec) => $rec['module'] === $request->module);
             }
 
             if ($request->has('priority')) {
-                $recommendations = array_filter($recommendations, fn($rec) => $rec['impact'] === $request->priority);
+                $recommendations = array_filter($recommendations, fn ($rec) => $rec['impact'] === $request->priority);
             }
 
             if ($request->has('timeline')) {
-                $recommendations = array_filter($recommendations, fn($rec) => $rec['timeline'] === $request->timeline);
+                $recommendations = array_filter($recommendations, fn ($rec) => $rec['timeline'] === $request->timeline);
             }
 
             if ($request->has('status')) {
-                $recommendations = array_filter($recommendations, fn($rec) => $rec['status'] === $request->status);
+                $recommendations = array_filter($recommendations, fn ($rec) => $rec['status'] === $request->status);
             }
 
             // Apply limit
@@ -79,7 +79,7 @@ class RecommendationsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch recommendations: ' . $e->getMessage(),
+                'message' => 'Failed to fetch recommendations: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -103,7 +103,7 @@ class RecommendationsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch summary: ' . $e->getMessage(),
+                'message' => 'Failed to fetch summary: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -141,7 +141,7 @@ class RecommendationsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch top recommendations: ' . $e->getMessage(),
+                'message' => 'Failed to fetch top recommendations: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -160,7 +160,7 @@ class RecommendationsController extends Controller
                 ->where('recommendation_id', $recommendationId)
                 ->first();
 
-            if (!$tracking) {
+            if (! $tracking) {
                 // Create new tracking record
                 $tracking = RecommendationTracking::create([
                     'user_id' => $userId,
@@ -184,7 +184,7 @@ class RecommendationsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to mark recommendation as done: ' . $e->getMessage(),
+                'message' => 'Failed to mark recommendation as done: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -203,7 +203,7 @@ class RecommendationsController extends Controller
                 ->where('recommendation_id', $recommendationId)
                 ->first();
 
-            if (!$tracking) {
+            if (! $tracking) {
                 // Create new tracking record
                 $tracking = RecommendationTracking::create([
                     'user_id' => $userId,
@@ -226,7 +226,7 @@ class RecommendationsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to mark recommendation as in progress: ' . $e->getMessage(),
+                'message' => 'Failed to mark recommendation as in progress: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -245,7 +245,7 @@ class RecommendationsController extends Controller
                 ->where('recommendation_id', $recommendationId)
                 ->first();
 
-            if (!$tracking) {
+            if (! $tracking) {
                 // Create new tracking record
                 $tracking = RecommendationTracking::create([
                     'user_id' => $userId,
@@ -268,7 +268,7 @@ class RecommendationsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to dismiss recommendation: ' . $e->getMessage(),
+                'message' => 'Failed to dismiss recommendation: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -311,7 +311,7 @@ class RecommendationsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update notes: ' . $e->getMessage(),
+                'message' => 'Failed to update notes: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -339,7 +339,7 @@ class RecommendationsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch completed recommendations: ' . $e->getMessage(),
+                'message' => 'Failed to fetch completed recommendations: '.$e->getMessage(),
             ], 500);
         }
     }

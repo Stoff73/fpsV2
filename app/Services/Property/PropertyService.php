@@ -10,9 +10,6 @@ class PropertyService
 {
     /**
      * Calculate property equity (current value - outstanding mortgage balance)
-     *
-     * @param Property $property
-     * @return float
      */
     public function calculateEquity(Property $property): float
     {
@@ -36,9 +33,6 @@ class PropertyService
 
     /**
      * Calculate total annual costs for the property
-     *
-     * @param Property $property
-     * @return float
      */
     public function calculateTotalAnnualCosts(Property $property): float
     {
@@ -62,9 +56,6 @@ class PropertyService
 
     /**
      * Calculate net rental yield (%)
-     *
-     * @param Property $property
-     * @return float
      */
     public function calculateNetRentalYield(Property $property): float
     {
@@ -93,9 +84,6 @@ class PropertyService
 
     /**
      * Get comprehensive property summary
-     *
-     * @param Property $property
-     * @return array
      */
     public function getPropertySummary(Property $property): array
     {

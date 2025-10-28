@@ -8,7 +8,6 @@ use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class SpouseNRBTrackerService
 {

@@ -310,16 +310,16 @@ class User extends Authenticatable
      */
     public function hasAcceptedSpousePermission(): bool
     {
-        if (!$this->spouse_id) {
+        if (! $this->spouse_id) {
             return false;
         }
 
         $permission = SpousePermission::where(function ($query) {
             $query->where('user_id', $this->id)
-                  ->where('spouse_id', $this->spouse_id);
+                ->where('spouse_id', $this->spouse_id);
         })->orWhere(function ($query) {
             $query->where('user_id', $this->spouse_id)
-                  ->where('spouse_id', $this->id);
+                ->where('spouse_id', $this->id);
         })->where('status', 'accepted')->first();
 
         return $permission !== null;
@@ -332,7 +332,7 @@ class User extends Authenticatable
      */
     public function calculateYearsUKResident(): ?int
     {
-        if (!$this->uk_arrival_date) {
+        if (! $this->uk_arrival_date) {
             return null;
         }
 
@@ -359,7 +359,7 @@ class User extends Authenticatable
         }
 
         // If no UK arrival date, cannot calculate deemed domicile
-        if (!$this->uk_arrival_date) {
+        if (! $this->uk_arrival_date) {
             return false;
         }
 
@@ -371,8 +371,6 @@ class User extends Authenticatable
 
     /**
      * Get domicile status with explanation
-     *
-     * @return array
      */
     public function getDomicileInfo(): array
     {
@@ -392,10 +390,6 @@ class User extends Authenticatable
 
     /**
      * Get human-readable explanation of domicile status
-     *
-     * @param int|null $yearsResident
-     * @param bool $isDeemedDomiciled
-     * @return string
      */
     private function getDomicileExplanation(?int $yearsResident, bool $isDeemedDomiciled): string
     {

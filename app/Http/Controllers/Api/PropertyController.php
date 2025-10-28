@@ -55,17 +55,17 @@ class PropertyController extends Controller
         $validated['valuation_date'] = $validated['valuation_date'] ?? now();
 
         // Handle address field - populate address_line_1 from address if needed
-        if (isset($validated['address']) && !isset($validated['address_line_1'])) {
+        if (isset($validated['address']) && ! isset($validated['address_line_1'])) {
             $validated['address_line_1'] = $validated['address'];
         }
 
         // Ensure postcode is never null (database requires NOT NULL)
-        if (!isset($validated['postcode']) || $validated['postcode'] === null) {
+        if (! isset($validated['postcode']) || $validated['postcode'] === null) {
             $validated['postcode'] = '';
         }
 
         // Convert rental_income to monthly if provided
-        if (isset($validated['rental_income']) && !isset($validated['monthly_rental_income'])) {
+        if (isset($validated['rental_income']) && ! isset($validated['monthly_rental_income'])) {
             $validated['monthly_rental_income'] = $validated['rental_income'];
             $validated['annual_rental_income'] = $validated['rental_income'] * 12;
         }
@@ -299,6 +299,7 @@ class PropertyController extends Controller
         $annualRentalIncome = $user->properties->sum(function ($property) {
             $monthlyRental = $property->monthly_rental_income ?? 0;
             $ownershipPercentage = $property->ownership_percentage ?? 100;
+
             return ($monthlyRental * 12) * ($ownershipPercentage / 100);
         });
 

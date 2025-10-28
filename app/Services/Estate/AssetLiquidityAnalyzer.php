@@ -88,7 +88,6 @@ class AssetLiquidityAnalyzer
     /**
      * Classify a single asset by liquidity and giftability
      *
-     * @param  Asset  $asset
      * @return array Classification data
      */
     public function classifyAsset(Asset $asset): array
@@ -193,9 +192,6 @@ class AssetLiquidityAnalyzer
 
     /**
      * Heuristic to determine if a property is likely the main residence
-     *
-     * @param  Asset  $asset
-     * @return bool
      */
     private function isProbablyMainResidence(Asset $asset): bool
     {
@@ -224,9 +220,6 @@ class AssetLiquidityAnalyzer
      * Calculate maximum giftable amount from liquid assets
      *
      * Provides a conservative estimate of how much can be gifted immediately
-     *
-     * @param  Collection  $assets
-     * @return array
      */
     public function calculateMaximumGiftableAmount(Collection $assets): array
     {

@@ -31,7 +31,7 @@ class TrustFactory extends Factory
         return [
             'user_id' => User::factory(),
             'household_id' => Household::factory(),
-            'trust_name' => $this->faker->company . ' Trust',
+            'trust_name' => $this->faker->company.' Trust',
             'trust_type' => $trustType,
             'trust_creation_date' => $this->faker->dateTimeBetween('-20 years', '-1 year'),
             'initial_value' => $this->faker->randomFloat(2, 50000, 1000000),
@@ -49,8 +49,8 @@ class TrustFactory extends Factory
             'last_valuation_date' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'next_tax_return_due' => $this->faker->dateTimeBetween('now', '+6 months'),
             'total_asset_value' => $this->faker->randomFloat(2, 100000, 2000000),
-            'beneficiaries' => $this->faker->name . ', ' . $this->faker->name,
-            'trustees' => $this->faker->name . ', ' . $this->faker->name,
+            'beneficiaries' => $this->faker->name.', '.$this->faker->name,
+            'trustees' => $this->faker->name.', '.$this->faker->name,
             'purpose' => $this->faker->sentence,
             'notes' => $this->faker->optional()->paragraph,
             'is_active' => $this->faker->boolean(90), // 90% active

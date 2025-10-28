@@ -1,65 +1,65 @@
 <?php
 if ($_POST) {
-  // Sanitize input data
-  $name = htmlspecialchars(trim($_POST['name']));
-  $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
-  $message = htmlspecialchars(trim($_POST['message']));
+    // Sanitize input data
+    $name = htmlspecialchars(trim($_POST['name']));
+    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+    $message = htmlspecialchars(trim($_POST['message']));
 
-  // Validate required fields
-  if (empty($name) || empty($email) || empty($message)) {
-    $error_message = "Please fill in all required fields.";
-  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $error_message = "Please enter a valid email address.";
-  } else {
-    // Email settings (send to yourself)
-    $to = "c.jones@csjones.co";
-    $subject = "New Workflow Signup - " . $name;
-
-    $email_body = "You have received a new signup from your Workflow landing page.\n\n";
-    $email_body .= "Name: " . $name . "\n";
-    $email_body .= "Email: " . $email . "\n\n";
-    $email_body .= "What worries them about integrating AI:\n";
-    $email_body .= $message . "\n\n";
-    $email_body .= "---\n";
-    $email_body .= "Submitted on: " . date('F j, Y \a\t g:i A') . "\n";
-
-    $headers = "From: noreply@csjones.co\n";
-    $headers .= "Reply-To: " . $email;
-
-    // Send email
-    $mail_sent = mail($to, $subject, $email_body, $headers);
-
-    // ✅ SEND TO GOOGLE SHEET VIA APPS SCRIPT
-    $script_url = 'https://script.google.com/macros/s/AKfycbyTlz-LTjKnbV7byjL0pxMKb_LeDuQcPZymK5YzUnzvoxo8UkSM7gLjH3sLfvRjynGv/exec';
-
-    $postData = http_build_query([
-      'name' => $name,
-      'email' => $email,
-      'message' => $message
-    ]);
-
-    $context = stream_context_create([
-      'http' => [
-        'method'  => 'POST',
-        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-        'content' => $postData
-      ]
-    ]);
-
-    $response = file_get_contents($script_url, false, $context);
-
-    if ($response !== false) {
-      $result = json_decode($response, true);
-      if (isset($result['result']) && $result['result'] === 'success') {
-        $success_message = "Form submitted successfully!";
-        $show_modal = true; // Flag to show modal
-      } else {
-        $error_message = "Something went wrong with the spreadsheet submission.";
-      }
+    // Validate required fields
+    if (empty($name) || empty($email) || empty($message)) {
+        $error_message = 'Please fill in all required fields.';
+    } elseif (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_message = 'Please enter a valid email address.';
     } else {
-      $error_message = "Could not connect to Google Apps Script.";
+        // Email settings (send to yourself)
+        $to = 'c.jones@csjones.co';
+        $subject = 'New Workflow Signup - '.$name;
+
+        $email_body = "You have received a new signup from your Workflow landing page.\n\n";
+        $email_body .= 'Name: '.$name."\n";
+        $email_body .= 'Email: '.$email."\n\n";
+        $email_body .= "What worries them about integrating AI:\n";
+        $email_body .= $message."\n\n";
+        $email_body .= "---\n";
+        $email_body .= 'Submitted on: '.date('F j, Y \a\t g:i A')."\n";
+
+        $headers = "From: noreply@csjones.co\n";
+        $headers .= 'Reply-To: '.$email;
+
+        // Send email
+        $mail_sent = mail($to, $subject, $email_body, $headers);
+
+        // ✅ SEND TO GOOGLE SHEET VIA APPS SCRIPT
+        $script_url = 'https://script.google.com/macros/s/AKfycbyTlz-LTjKnbV7byjL0pxMKb_LeDuQcPZymK5YzUnzvoxo8UkSM7gLjH3sLfvRjynGv/exec';
+
+        $postData = http_build_query([
+            'name' => $name,
+            'email' => $email,
+            'message' => $message,
+        ]);
+
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'content' => $postData,
+            ],
+        ]);
+
+        $response = file_get_contents($script_url, false, $context);
+
+        if ($response !== false) {
+            $result = json_decode($response, true);
+            if (isset($result['result']) && $result['result'] === 'success') {
+                $success_message = 'Form submitted successfully!';
+                $show_modal = true; // Flag to show modal
+            } else {
+                $error_message = 'Something went wrong with the spreadsheet submission.';
+            }
+        } else {
+            $error_message = 'Could not connect to Google Apps Script.';
+        }
     }
-  }
 }
 ?>
 

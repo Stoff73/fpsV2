@@ -2,12 +2,12 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
-use App\Http\Controllers\Api\EstateController;
-use App\Http\Controllers\Api\Estate\IHTController;
 use App\Http\Controllers\Api\Estate\GiftingController;
+use App\Http\Controllers\Api\Estate\IHTController;
 use App\Http\Controllers\Api\Estate\LifePolicyController;
 use App\Http\Controllers\Api\Estate\TrustController;
 use App\Http\Controllers\Api\Estate\WillController;
+use App\Http\Controllers\Api\EstateController;
 use App\Http\Controllers\Api\FamilyMembersController;
 use App\Http\Controllers\Api\HolisticPlanningController;
 use App\Http\Controllers\Api\InvestmentController;
@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\MortgageController;
 use App\Http\Controllers\Api\NetWorthController;
 use App\Http\Controllers\Api\OnboardingController;
 use App\Http\Controllers\Api\PersonalAccountsController;
+use App\Http\Controllers\Api\ProfileCompletenessController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\ProtectionController;
 use App\Http\Controllers\Api\RecommendationsController;
@@ -23,7 +24,6 @@ use App\Http\Controllers\Api\SavingsController;
 use App\Http\Controllers\Api\SpousePermissionController;
 use App\Http\Controllers\Api\UKTaxesController;
 use App\Http\Controllers\Api\UserProfileController;
-use App\Http\Controllers\Api\ProfileCompletenessController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -330,6 +330,7 @@ Route::middleware('auth:sanctum')->prefix('estate')->group(function () {
     // Will and Bequests
     Route::get('/will', [WillController::class, 'getWill']);
     Route::post('/will', [WillController::class, 'storeOrUpdateWill']);
+    Route::post('/calculate-intestacy', [WillController::class, 'calculateIntestacy']);
     Route::prefix('bequests')->group(function () {
         Route::get('/', [WillController::class, 'getBequests']);
         Route::post('/', [WillController::class, 'storeBequest']);

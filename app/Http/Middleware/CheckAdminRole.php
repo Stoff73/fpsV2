@@ -18,7 +18,7 @@ class CheckAdminRole
     public function handle(Request $request, Closure $next): Response
     {
         // Check if user is authenticated
-        if (!$request->user()) {
+        if (! $request->user()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthenticated.',

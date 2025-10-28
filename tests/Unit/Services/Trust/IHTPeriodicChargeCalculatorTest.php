@@ -7,7 +7,7 @@ use App\Services\Trust\IHTPeriodicChargeCalculator;
 use Carbon\Carbon;
 
 beforeEach(function () {
-    $this->calculator = new IHTPeriodicChargeCalculator();
+    $this->calculator = new IHTPeriodicChargeCalculator;
     $this->user = User::factory()->create();
     $this->household = Household::factory()->create();
 });

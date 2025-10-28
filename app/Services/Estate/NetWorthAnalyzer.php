@@ -7,10 +7,6 @@ namespace App\Services\Estate;
 use App\Models\Estate\Asset;
 use App\Models\Estate\Liability;
 use App\Models\Estate\NetWorthStatement;
-use App\Models\Investment\InvestmentAccount;
-use App\Models\Property;
-use App\Models\SavingsAccount;
-use App\Models\Mortgage;
 use App\Services\Shared\CrossModuleAssetAggregator;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -20,6 +16,7 @@ class NetWorthAnalyzer
     public function __construct(
         private CrossModuleAssetAggregator $assetAggregator
     ) {}
+
     /**
      * Calculate current net worth for a user
      */

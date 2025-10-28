@@ -29,7 +29,7 @@ class ProfileCompletenessController extends Controller
         $completenessData = Cache::remember(
             "profile_completeness_{$user->id}",
             600, // 10 minutes
-            fn() => $this->completenessChecker->checkCompleteness($user)
+            fn () => $this->completenessChecker->checkCompleteness($user)
         );
 
         return response()->json([

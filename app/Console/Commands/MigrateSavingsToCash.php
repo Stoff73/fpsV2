@@ -51,8 +51,9 @@ class MigrateSavingsToCash extends Command
         }
 
         // Check if old savings_accounts table exists
-        if (!DB::getSchemaBuilder()->hasTable('savings_accounts')) {
+        if (! DB::getSchemaBuilder()->hasTable('savings_accounts')) {
             $this->error('❌ Table "savings_accounts" not found. Migration cannot proceed.');
+
             return Command::FAILURE;
         }
 
@@ -61,14 +62,16 @@ class MigrateSavingsToCash extends Command
 
         if ($this->stats['total_accounts'] === 0) {
             $this->info('✅ No savings accounts found to migrate.');
+
             return Command::SUCCESS;
         }
 
         $this->info("Found {$this->stats['total_accounts']} savings accounts to migrate");
         $this->newLine();
 
-        if (!$isDryRun && !$this->confirm('Do you want to proceed with the migration?', true)) {
+        if (! $isDryRun && ! $this->confirm('Do you want to proceed with the migration?', true)) {
             $this->warn('Migration cancelled by user.');
+
             return Command::FAILURE;
         }
 
@@ -92,8 +95,9 @@ class MigrateSavingsToCash extends Command
             return Command::SUCCESS;
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->error('❌ Migration failed: ' . $e->getMessage());
-            $this->error('Stack trace: ' . $e->getTraceAsString());
+            $this->error('❌ Migration failed: '.$e->getMessage());
+            $this->error('Stack trace: '.$e->getTraceAsString());
+
             return Command::FAILURE;
         }
     }
@@ -120,7 +124,7 @@ class MigrateSavingsToCash extends Command
                 }
             } catch (\Exception $e) {
                 $this->stats['errors']++;
-                $this->error("\nError migrating savings account ID {$account->id}: " . $e->getMessage());
+                $this->error("\nError migrating savings account ID {$account->id}: ".$e->getMessage());
             }
 
             $progressBar->advance();
@@ -212,7 +216,7 @@ class MigrateSavingsToCash extends Command
         if ($account->is_isa) {
             $name .= ' Cash ISA';
         } else {
-            $name .= ' ' . ucfirst(str_replace('_', ' ', $account->account_type ?? 'Savings Account'));
+            $name .= ' '.ucfirst(str_replace('_', ' ', $account->account_type ?? 'Savings Account'));
         }
 
         return $name;

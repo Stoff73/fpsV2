@@ -20,32 +20,61 @@ class SpousePermissionController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->spouse_id) {
+        // Check if user has spouse_id set (linked spouse account)
+        $hasLinkedSpouse = (bool) $user->spouse_id;
+
+        // Also check if user has a spouse in family_members table (may not have linked account)
+        $spouseFamilyMember = \App\Models\FamilyMember::where('user_id', $user->id)
+            ->where('relationship', 'spouse')
+            ->first();
+
+        if (!$hasLinkedSpouse && !$spouseFamilyMember) {
             return response()->json([
                 'success' => true,
                 'data' => [
                     'has_spouse' => false,
+                    'spouse' => null,
                     'permission' => null,
                 ],
             ]);
         }
 
-        // Check if permission exists (either direction)
-        $permission = SpousePermission::where(function ($query) use ($user) {
-            $query->where('user_id', $user->id)
-                  ->where('spouse_id', $user->spouse_id);
-        })->orWhere(function ($query) use ($user) {
-            $query->where('user_id', $user->spouse_id)
-                  ->where('spouse_id', $user->id);
-        })->first();
+        // If spouse_id is set, check for permissions
+        if ($user->spouse_id) {
+            // Check if permission exists (either direction)
+            $permission = SpousePermission::where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->where('spouse_id', $user->spouse_id);
+            })->orWhere(function ($query) use ($user) {
+                $query->where('user_id', $user->spouse_id)
+                    ->where('spouse_id', $user->id);
+            })->first();
 
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'has_spouse' => true,
+                    'spouse' => $user->spouse,
+                    'permission' => $permission,
+                    'can_view_spouse_data' => $permission && $permission->status === 'accepted',
+                ],
+            ]);
+        }
+
+        // If only family member spouse exists (no linked account)
         return response()->json([
             'success' => true,
             'data' => [
                 'has_spouse' => true,
-                'spouse' => $user->spouse,
-                'permission' => $permission,
-                'can_view_spouse_data' => $permission && $permission->status === 'accepted',
+                'spouse' => [
+                    'id' => null,
+                    'name' => $spouseFamilyMember->name,
+                    'email' => null,
+                ],
+                'permission' => null,
+                'can_view_spouse_data' => false,
+                'requires_account_link' => true,
+                'message' => 'Your spouse needs an account to enable data sharing. Add their email in the Family Members section.',
             ],
         ]);
     }
@@ -59,7 +88,7 @@ class SpousePermissionController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->spouse_id) {
+        if (! $user->spouse_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'You do not have a linked spouse',
@@ -69,10 +98,10 @@ class SpousePermissionController extends Controller
         // Check if permission already exists
         $existingPermission = SpousePermission::where(function ($query) use ($user) {
             $query->where('user_id', $user->id)
-                  ->where('spouse_id', $user->spouse_id);
+                ->where('spouse_id', $user->spouse_id);
         })->orWhere(function ($query) use ($user) {
             $query->where('user_id', $user->spouse_id)
-                  ->where('spouse_id', $user->id);
+                ->where('spouse_id', $user->id);
         })->first();
 
         if ($existingPermission) {
@@ -109,7 +138,7 @@ class SpousePermissionController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->spouse_id) {
+        if (! $user->spouse_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'You do not have a linked spouse',
@@ -122,7 +151,7 @@ class SpousePermissionController extends Controller
             ->where('status', 'pending')
             ->first();
 
-        if (!$permission) {
+        if (! $permission) {
             return response()->json([
                 'success' => false,
                 'message' => 'No pending permission request found',
@@ -150,7 +179,7 @@ class SpousePermissionController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->spouse_id) {
+        if (! $user->spouse_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'You do not have a linked spouse',
@@ -163,7 +192,7 @@ class SpousePermissionController extends Controller
             ->where('status', 'pending')
             ->first();
 
-        if (!$permission) {
+        if (! $permission) {
             return response()->json([
                 'success' => false,
                 'message' => 'No pending permission request found',
@@ -191,7 +220,7 @@ class SpousePermissionController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->spouse_id) {
+        if (! $user->spouse_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'You do not have a linked spouse',
@@ -201,13 +230,13 @@ class SpousePermissionController extends Controller
         // Find the permission (either direction)
         $permission = SpousePermission::where(function ($query) use ($user) {
             $query->where('user_id', $user->id)
-                  ->where('spouse_id', $user->spouse_id);
+                ->where('spouse_id', $user->spouse_id);
         })->orWhere(function ($query) use ($user) {
             $query->where('user_id', $user->spouse_id)
-                  ->where('spouse_id', $user->id);
+                ->where('spouse_id', $user->id);
         })->first();
 
-        if (!$permission) {
+        if (! $permission) {
             return response()->json([
                 'success' => false,
                 'message' => 'No permission found to revoke',

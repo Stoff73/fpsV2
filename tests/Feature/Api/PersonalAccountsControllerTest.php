@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
 use App\Models\Household;
+use App\Models\Investment\InvestmentAccount;
 use App\Models\PersonalAccount;
 use App\Models\Property;
-use App\Models\Investment\InvestmentAccount;
-use Carbon\Carbon;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

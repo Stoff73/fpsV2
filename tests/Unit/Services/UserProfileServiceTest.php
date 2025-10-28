@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
-use App\Models\Household;
 use App\Models\FamilyMember;
-use App\Models\Property;
+use App\Models\Household;
 use App\Models\Investment\InvestmentAccount;
+use App\Models\Property;
+use App\Models\User;
 use App\Services\Shared\CrossModuleAssetAggregator;
 use App\Services\UserProfile\UserProfileService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,7 +14,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $aggregator = new CrossModuleAssetAggregator();
+    $aggregator = new CrossModuleAssetAggregator;
     $this->service = new UserProfileService($aggregator);
 
     // Create a household

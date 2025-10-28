@@ -1,10 +1,9 @@
 <?php
 
 use App\Services\Estate\FutureValueCalculator;
-use Illuminate\Support\Collection;
 
 beforeEach(function () {
-    $this->calculator = new FutureValueCalculator();
+    $this->calculator = new FutureValueCalculator;
 });
 
 test('it calculates future value correctly', function () {

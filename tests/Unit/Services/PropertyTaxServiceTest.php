@@ -15,12 +15,13 @@ class PropertyTaxServiceTest extends TestCase
     use RefreshDatabase;
 
     private PropertyTaxService $taxService;
+
     private User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->taxService = new PropertyTaxService();
+        $this->taxService = new PropertyTaxService;
         // Create user with higher rate income for CGT tests
         $this->user = User::factory()->create([
             'annual_employment_income' => 60000,
@@ -159,7 +160,6 @@ class PropertyTaxServiceTest extends TestCase
         expect($result['cgt_rate'])->toBe(24.0);
         expect($result['cgt_liability'])->toBe(22080.0);
     }
-
 
     public function test_cgt_annual_exempt_amount_2024_25(): void
     {

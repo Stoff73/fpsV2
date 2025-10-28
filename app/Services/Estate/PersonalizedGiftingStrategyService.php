@@ -151,14 +151,14 @@ class PersonalizedGiftingStrategyService
             'strategy_name' => 'Annual Exemption',
             'priority' => 1,
             'category' => 'immediate_exemption',
-            'description' => "Gift £".number_format($annualExemption, 0)." per year using annual exemption",
+            'description' => 'Gift £'.number_format($annualExemption, 0).' per year using annual exemption',
             'total_gifted' => round($totalGifted, 2),
             'annual_amount' => round($annualExemption, 2),
             'years' => $years,
             'iht_saved' => round($ihtSaved, 2),
             'risk_level' => 'Low',
             'implementation_steps' => [
-                "Set up standing order for £".number_format($annualExemption, 0)." per year to beneficiaries",
+                'Set up standing order for £'.number_format($annualExemption, 0).' per year to beneficiaries',
                 'Immediately exempt - no 7-year wait',
                 'Can carry forward unused allowance from previous year (one year only)',
                 'Both spouses can gift £3,000 each (£6,000 total per year)',
@@ -207,7 +207,7 @@ class PersonalizedGiftingStrategyService
                 'iht_saved' => round($ihtSaved, 2),
                 'risk_level' => 'Medium',
                 'implementation_steps' => [
-                    "Gift £".number_format($amountPerCycle, 0)." every 7 years from liquid assets",
+                    'Gift £'.number_format($amountPerCycle, 0).' every 7 years from liquid assets',
                     'You have '.$complete7YearCycles.' complete 7-year cycle(s) before expected life expectancy',
                     'Gifts become fully exempt after 7 years',
                     'Taper relief applies from year 3 if you die within 7 years',
@@ -232,7 +232,7 @@ class PersonalizedGiftingStrategyService
                 'iht_saved' => round($ihtSaved, 2),
                 'risk_level' => 'High',
                 'implementation_steps' => [
-                    "Gift £".number_format($targetGiftAmount, 0)." immediately from liquid assets",
+                    'Gift £'.number_format($targetGiftAmount, 0).' immediately from liquid assets',
                     'WARNING: May not survive 7 years for full exemption',
                     'Taper relief may apply if you survive 3+ years',
                     'Consider gifting smaller amounts over time instead',
@@ -381,13 +381,13 @@ class PersonalizedGiftingStrategyService
             'iht_saved' => round($ihtSaved, 2),
             'risk_level' => 'Low',
             'implementation_steps' => [
-                "Set up regular standing order for £".number_format($safeGiftingAmount, 0)." per year",
+                'Set up regular standing order for £'.number_format($safeGiftingAmount, 0).' per year',
                 'Must be made from income, not capital',
                 'Must not affect your standard of living',
                 'Immediately exempt - no 7-year wait',
                 'Keep detailed records showing regularity (3+ years of pattern)',
                 'Document income sources and expenditure',
-                "Your surplus income: £".number_format($surplusIncome, 0)." per year",
+                'Your surplus income: £'.number_format($surplusIncome, 0).' per year',
             ],
         ];
     }

@@ -13,21 +13,17 @@ class NetWorthController extends Controller
 {
     public function __construct(
         private NetWorthService $netWorthService
-    ) {
-    }
+    ) {}
 
     /**
      * Get net worth overview
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getOverview(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'User not authenticated',
@@ -51,16 +47,13 @@ class NetWorthController extends Controller
 
     /**
      * Get asset breakdown with percentages
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getBreakdown(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'User not authenticated',
@@ -84,16 +77,13 @@ class NetWorthController extends Controller
 
     /**
      * Get net worth trend
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getTrend(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'User not authenticated',
@@ -126,16 +116,13 @@ class NetWorthController extends Controller
 
     /**
      * Get assets summary
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getAssetsSummary(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'User not authenticated',
@@ -159,16 +146,13 @@ class NetWorthController extends Controller
 
     /**
      * Get joint assets
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getJointAssets(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'User not authenticated',
@@ -192,16 +176,13 @@ class NetWorthController extends Controller
 
     /**
      * Refresh net worth (bypass cache)
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function refresh(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'User not authenticated',

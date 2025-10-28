@@ -9,7 +9,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     // Seed life expectancy data for testing
     $this->artisan('db:seed', ['--class' => 'UKLifeExpectancySeeder']);
-    $this->service = new ActuarialLifeTableService();
+    $this->service = new ActuarialLifeTableService;
 });
 
 test('it can get life expectancy for a given age and gender', function () {

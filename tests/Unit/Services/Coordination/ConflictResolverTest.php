@@ -5,7 +5,7 @@ use App\Services\Coordination\ConflictResolver;
 describe('ConflictResolver', function () {
     describe('identifyConflicts', function () {
         it('detects cashflow conflicts when demand exceeds surplus', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $recommendations = [
                 'protection' => [
@@ -29,7 +29,7 @@ describe('ConflictResolver', function () {
         });
 
         it('detects ISA allowance conflicts when demands exceed £20,000', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $recommendations = [
                 'savings' => [
@@ -52,7 +52,7 @@ describe('ConflictResolver', function () {
         });
 
         it('returns empty array when no conflicts exist', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $recommendations = [
                 'protection' => [
@@ -72,7 +72,7 @@ describe('ConflictResolver', function () {
 
     describe('resolveContributionConflicts', function () {
         it('allocates surplus in priority order', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $demands = [
                 'emergency_fund' => ['amount' => 300, 'urgency' => 90],
@@ -100,7 +100,7 @@ describe('ConflictResolver', function () {
         });
 
         it('prioritizes urgent recommendations regardless of category', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $demands = [
                 'pension' => ['amount' => 200, 'urgency' => 95], // Critical
@@ -119,7 +119,7 @@ describe('ConflictResolver', function () {
 
     describe('resolveISAAllocation', function () {
         it('prioritizes Cash ISA when emergency fund is critically low', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $demands = [
                 'cash_isa' => 15000,
@@ -136,7 +136,7 @@ describe('ConflictResolver', function () {
         });
 
         it('prioritizes Stocks & Shares ISA for high risk tolerance and growth goals', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $demands = [
                 'cash_isa' => 8000,
@@ -157,7 +157,7 @@ describe('ConflictResolver', function () {
         });
 
         it('splits proportionally when demands fit within allowance', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $demands = [
                 'cash_isa' => 8000,
@@ -177,7 +177,7 @@ describe('ConflictResolver', function () {
 
     describe('resolveProtectionVsSavings', function () {
         it('prioritizes protection when adequacy score is lower', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $recommendations = [
                 'module_scores' => [
@@ -194,7 +194,7 @@ describe('ConflictResolver', function () {
         });
 
         it('prioritizes savings when emergency fund is more critical', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $recommendations = [
                 'module_scores' => [
@@ -211,7 +211,7 @@ describe('ConflictResolver', function () {
         });
 
         it('splits evenly when both are critically low', function () {
-            $resolver = new ConflictResolver();
+            $resolver = new ConflictResolver;
 
             $recommendations = [
                 'module_scores' => [

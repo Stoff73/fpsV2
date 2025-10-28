@@ -1,16 +1,16 @@
 <?php
 
-use App\Models\User;
+use App\Models\Estate\Asset;
 use App\Models\FamilyMember;
 use App\Models\ProtectionProfile;
-use App\Models\Estate\Asset;
+use App\Models\User;
 use App\Services\UserProfile\ProfileCompletenessChecker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->checker = new ProfileCompletenessChecker();
+    $this->checker = new ProfileCompletenessChecker;
 });
 
 describe('ProfileCompletenessChecker - Married Users', function () {

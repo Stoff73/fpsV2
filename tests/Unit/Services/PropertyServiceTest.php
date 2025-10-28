@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services;
 
-use App\Models\Property;
 use App\Models\Mortgage;
+use App\Models\Property;
 use App\Models\User;
 use App\Services\Property\PropertyService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,12 +16,13 @@ class PropertyServiceTest extends TestCase
     use RefreshDatabase;
 
     private PropertyService $propertyService;
+
     private User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->propertyService = new PropertyService();
+        $this->propertyService = new PropertyService;
         $this->user = User::factory()->create();
     }
 

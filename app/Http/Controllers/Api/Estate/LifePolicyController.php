@@ -27,7 +27,7 @@ class LifePolicyController extends Controller
 
         try {
             // Validate user has required data
-            if (!$user->date_of_birth || !$user->gender) {
+            if (! $user->date_of_birth || ! $user->gender) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Date of birth and gender are required to calculate life expectancy and premiums',
@@ -44,7 +44,7 @@ class LifePolicyController extends Controller
                 $ihtPlanningResponse = $this->ihtController->calculateSecondDeathIHTPlanning($request);
                 $ihtPlanningData = $ihtPlanningResponse->getData(true);
 
-                if (!$ihtPlanningData['success']) {
+                if (! $ihtPlanningData['success']) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Failed to retrieve IHT planning data',
@@ -53,7 +53,7 @@ class LifePolicyController extends Controller
 
                 // Extract second death data
                 $secondDeathAnalysis = $ihtPlanningData['second_death_analysis'] ?? null;
-                if (!$secondDeathAnalysis) {
+                if (! $secondDeathAnalysis) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Second death analysis not available',
@@ -76,7 +76,7 @@ class LifePolicyController extends Controller
                 $ihtResponse = $this->ihtController->calculateIHT($request);
                 $ihtData = $ihtResponse->getData(true);
 
-                if (!$ihtData['success']) {
+                if (! $ihtData['success']) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Failed to retrieve IHT calculation',
@@ -85,7 +85,7 @@ class LifePolicyController extends Controller
 
                 // Extract projection data
                 $projection = $ihtData['projection'] ?? null;
-                if (!$projection) {
+                if (! $projection) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Life expectancy projection not available',
@@ -128,7 +128,7 @@ class LifePolicyController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to calculate life policy strategy: ' . $e->getMessage(),
+                'message' => 'Failed to calculate life policy strategy: '.$e->getMessage(),
             ], 500);
         }
     }

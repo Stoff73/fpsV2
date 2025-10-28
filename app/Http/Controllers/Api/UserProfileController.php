@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdatePersonalInfoRequest;
-use App\Http\Requests\UpdateIncomeOccupationRequest;
 use App\Http\Requests\UpdateDomicileInfoRequest;
+use App\Http\Requests\UpdateIncomeOccupationRequest;
+use App\Http\Requests\UpdatePersonalInfoRequest;
 use App\Services\UserProfile\UserProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -75,7 +75,7 @@ class UserProfileController extends Controller
         // Clear protection analysis cache when income changes
         // This ensures protection needs recalculate with new income
         try {
-            \Cache::tags(['protection', 'user_' . $user->id])->flush();
+            \Cache::tags(['protection', 'user_'.$user->id])->flush();
         } catch (\BadMethodCallException $e) {
             // Array driver doesn't support tags, skip
         }
@@ -84,7 +84,7 @@ class UserProfileController extends Controller
         // (spouse's protection calculation depends on this user's income)
         if ($user->spouse_id) {
             try {
-                \Cache::tags(['protection', 'user_' . $user->spouse_id])->flush();
+                \Cache::tags(['protection', 'user_'.$user->spouse_id])->flush();
             } catch (\BadMethodCallException $e) {
                 // Array driver doesn't support tags, skip
             }
@@ -158,7 +158,7 @@ class UserProfileController extends Controller
         // Clear estate analysis cache when domicile status changes
         // This affects IHT calculations and estate planning strategies
         try {
-            \Cache::tags(['estate', 'user_' . $user->id])->flush();
+            \Cache::tags(['estate', 'user_'.$user->id])->flush();
         } catch (\BadMethodCallException $e) {
             // Array driver doesn't support tags, skip
         }
@@ -168,7 +168,7 @@ class UserProfileController extends Controller
         // If user has spouse, also clear their estate cache
         if ($user->spouse_id) {
             try {
-                \Cache::tags(['estate', 'user_' . $user->spouse_id])->flush();
+                \Cache::tags(['estate', 'user_'.$user->spouse_id])->flush();
             } catch (\BadMethodCallException $e) {
                 // Array driver doesn't support tags, skip
             }

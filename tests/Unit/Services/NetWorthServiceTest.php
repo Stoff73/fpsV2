@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
-use App\Models\Property;
-use App\Models\Investment\InvestmentAccount;
-use App\Models\CashAccount;
 use App\Models\BusinessInterest;
+use App\Models\CashAccount;
 use App\Models\Chattel;
+use App\Models\Investment\InvestmentAccount;
 use App\Models\Mortgage;
+use App\Models\Property;
+use App\Models\User;
 use App\Services\NetWorth\NetWorthService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

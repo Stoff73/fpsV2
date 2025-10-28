@@ -68,6 +68,7 @@ class OnboardingService
         if ($focusArea === 'estate') {
             $steps = $this->estateFlow->getSteps();
             $firstStep = array_key_first($steps);
+
             return $firstStep;
         }
 
@@ -82,7 +83,7 @@ class OnboardingService
     {
         $user = User::findOrFail($userId);
 
-        if (!$user->onboarding_focus_area) {
+        if (! $user->onboarding_focus_area) {
             throw new \Exception('Focus area not set');
         }
 
@@ -146,7 +147,11 @@ class OnboardingService
                 $this->processFamilyInfo($userId, $data);
                 break;
 
-            // Add more cases as we implement other steps
+            case 'will_info':
+                $this->processWillInfo($userId, $data);
+                break;
+
+                // Add more cases as we implement other steps
         }
     }
 
@@ -200,7 +205,7 @@ class OnboardingService
      */
     protected function processFamilyInfo(int $userId, array $data): void
     {
-        if (!isset($data['family_members']) || !is_array($data['family_members'])) {
+        if (! isset($data['family_members']) || ! is_array($data['family_members'])) {
             return;
         }
 
@@ -232,6 +237,39 @@ class OnboardingService
                 ]);
             }
         }
+    }
+
+    /**
+     * Process will information and save to wills table
+     */
+    protected function processWillInfo(int $userId, array $data): void
+    {
+        $user = User::findOrFail($userId);
+
+        // Determine has_will value: treat null as false (no will)
+        $hasWill = isset($data['has_will']) && $data['has_will'] === true;
+
+        // Create or update will record
+        $willData = [
+            'user_id' => $userId,
+            'has_will' => $hasWill,
+        ];
+
+        // Add last reviewed date if will exists and date is provided
+        if ($hasWill && !empty($data['will_last_updated'])) {
+            $willData['last_reviewed_date'] = $data['will_last_updated'];
+        }
+
+        // Add executor notes if provided
+        if ($hasWill && !empty($data['executor_name'])) {
+            $willData['executor_notes'] = 'Executor: ' . $data['executor_name'];
+        }
+
+        // Use updateOrCreate to handle both new and existing records
+        \App\Models\Estate\Will::updateOrCreate(
+            ['user_id' => $userId],
+            $willData
+        );
     }
 
     /**
@@ -377,7 +415,7 @@ class OnboardingService
      */
     private function mapAccessType(string $accountType): string
     {
-        return match($accountType) {
+        return match ($accountType) {
             'current_account', 'cash_isa', 'easy_access' => 'immediate',
             'notice_account' => 'notice',
             'fixed_term' => 'fixed',
@@ -408,7 +446,7 @@ class OnboardingService
      */
     protected function processLiabilities(int $userId, array $data): void
     {
-        if (!isset($data['liabilities']) || !is_array($data['liabilities'])) {
+        if (! isset($data['liabilities']) || ! is_array($data['liabilities'])) {
             return;
         }
 
@@ -442,7 +480,7 @@ class OnboardingService
      */
     protected function processProtectionPolicies(int $userId, array $data): void
     {
-        if (!isset($data['policies']) || !is_array($data['policies'])) {
+        if (! isset($data['policies']) || ! is_array($data['policies'])) {
             return;
         }
 
@@ -462,8 +500,8 @@ class OnboardingService
                     $this->createIncomeProtectionPolicy($userId, $policyData);
                     break;
 
-                // Note: disability and sicknessIllness might need their own tables
-                // For now, we'll skip them or you can add tables for these
+                    // Note: disability and sicknessIllness might need their own tables
+                    // For now, we'll skip them or you can add tables for these
             }
         }
     }
@@ -473,8 +511,8 @@ class OnboardingService
      */
     protected function createLifeInsurancePolicy(int $userId, array $data): void
     {
-        $startDate = !empty($data['start_date']) ? $data['start_date'] : now()->toDateString();
-        $endDate = !empty($data['end_date']) ? $data['end_date'] : null;
+        $startDate = ! empty($data['start_date']) ? $data['start_date'] : now()->toDateString();
+        $endDate = ! empty($data['end_date']) ? $data['end_date'] : null;
 
         // Calculate term years if end date provided
         $termYears = 25; // Default
@@ -502,8 +540,8 @@ class OnboardingService
      */
     protected function createCriticalIllnessPolicy(int $userId, array $data): void
     {
-        $startDate = !empty($data['start_date']) ? $data['start_date'] : now()->toDateString();
-        $endDate = !empty($data['end_date']) ? $data['end_date'] : null;
+        $startDate = ! empty($data['start_date']) ? $data['start_date'] : now()->toDateString();
+        $endDate = ! empty($data['end_date']) ? $data['end_date'] : null;
 
         // Calculate term years if end date provided
         $termYears = 25; // Default
@@ -531,7 +569,7 @@ class OnboardingService
      */
     protected function createIncomeProtectionPolicy(int $userId, array $data): void
     {
-        $startDate = !empty($data['start_date']) ? $data['start_date'] : now()->toDateString();
+        $startDate = ! empty($data['start_date']) ? $data['start_date'] : now()->toDateString();
 
         \App\Models\IncomeProtectionPolicy::create([
             'user_id' => $userId,
@@ -553,7 +591,7 @@ class OnboardingService
     {
         $user = User::findOrFail($userId);
 
-        if (!$user->onboarding_focus_area) {
+        if (! $user->onboarding_focus_area) {
             throw new \Exception('Focus area not set');
         }
 
@@ -572,7 +610,7 @@ class OnboardingService
 
         // Add to skipped steps array in user record
         $skippedSteps = $user->onboarding_skipped_steps ?? [];
-        if (!in_array($stepName, $skippedSteps)) {
+        if (! in_array($stepName, $skippedSteps)) {
             $skippedSteps[] = $stepName;
         }
 
@@ -633,7 +671,7 @@ class OnboardingService
     {
         $user = User::findOrFail($userId);
 
-        if (!$user->onboarding_focus_area) {
+        if (! $user->onboarding_focus_area) {
             return [
                 'percentage' => 0,
                 'total' => 0,
@@ -648,7 +686,7 @@ class OnboardingService
             ->where('focus_area', $user->onboarding_focus_area)
             ->where(function ($query) {
                 $query->where('completed', true)
-                      ->orWhere('skipped', true);
+                    ->orWhere('skipped', true);
             })
             ->count();
 
@@ -670,8 +708,10 @@ class OnboardingService
             if ($userId) {
                 $user = User::find($userId);
                 $userData = $this->getUserDataArray($user);
+
                 return $this->estateFlow->getFilteredSteps($userData);
             }
+
             return $this->estateFlow->getSteps();
         }
 
@@ -686,12 +726,13 @@ class OnboardingService
     {
         $user = User::findOrFail($userId);
 
-        if (!$user->onboarding_focus_area) {
+        if (! $user->onboarding_focus_area) {
             return null;
         }
 
         if ($user->onboarding_focus_area === 'estate') {
             $userData = $this->getUserDataArray($user);
+
             return $this->estateFlow->getNextStep($currentStep, $userData);
         }
 
@@ -705,12 +746,13 @@ class OnboardingService
     {
         $user = User::findOrFail($userId);
 
-        if (!$user->onboarding_focus_area) {
+        if (! $user->onboarding_focus_area) {
             return null;
         }
 
         if ($user->onboarding_focus_area === 'estate') {
             $userData = $this->getUserDataArray($user);
+
             return $this->estateFlow->getPreviousStep($currentStep, $userData);
         }
 
@@ -724,12 +766,13 @@ class OnboardingService
     {
         $user = User::findOrFail($userId);
 
-        if (!$user->onboarding_focus_area) {
+        if (! $user->onboarding_focus_area) {
             return false;
         }
 
         if ($user->onboarding_focus_area === 'estate') {
             $userData = $this->getUserDataArray($user);
+
             return $this->estateFlow->shouldShowStep($stepName, $userData);
         }
 
@@ -755,7 +798,7 @@ class OnboardingService
     {
         $user = User::findOrFail($userId);
 
-        if (!$user->onboarding_focus_area) {
+        if (! $user->onboarding_focus_area) {
             return null;
         }
 
@@ -772,7 +815,7 @@ class OnboardingService
      */
     private function getUserDataArray(?User $user): array
     {
-        if (!$user) {
+        if (! $user) {
             return [];
         }
 

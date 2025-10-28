@@ -13,11 +13,11 @@ class UKTaxCalculator
     /**
      * Calculate net income after income tax and National Insurance.
      *
-     * @param float $employmentIncome Employment income (PAYE)
-     * @param float $selfEmploymentIncome Self-employment income
-     * @param float $rentalIncome Rental income (property)
-     * @param float $dividendIncome Dividend income
-     * @param float $otherIncome Other taxable income
+     * @param  float  $employmentIncome  Employment income (PAYE)
+     * @param  float  $selfEmploymentIncome  Self-employment income
+     * @param  float  $rentalIncome  Rental income (property)
+     * @param  float  $dividendIncome  Dividend income
+     * @param  float  $otherIncome  Other taxable income
      * @return array Net income breakdown with tax and NI details
      */
     public function calculateNetIncome(

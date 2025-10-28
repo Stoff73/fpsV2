@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Estate;
 
-use App\Models\User;
 use App\Models\Estate\IHTProfile;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 /**
@@ -23,17 +23,16 @@ class PersonalizedTrustStrategyService
 {
     public function __construct(
         private AssetLiquidityAnalyzer $liquidityAnalyzer
-    ) {
-    }
+    ) {}
 
     /**
      * Generate personalized trust planning strategy
      *
-     * @param Collection $assets User's assets
-     * @param float $currentIHTLiability Current IHT liability
-     * @param IHTProfile $profile User's IHT profile
-     * @param User $user The user
-     * @param int $yearsUntilDeath Projected years until death
+     * @param  Collection  $assets  User's assets
+     * @param  float  $currentIHTLiability  Current IHT liability
+     * @param  IHTProfile  $profile  User's IHT profile
+     * @param  User  $user  The user
+     * @param  int  $yearsUntilDeath  Projected years until death
      * @return array Strategy details
      */
     public function generatePersonalizedTrustStrategy(
@@ -166,21 +165,21 @@ class PersonalizedTrustStrategyService
         $potentialDeathCharge = ($excessOverNRB * 0.40) - $lifetimeCharge; // 40% less 20% already paid
 
         $implementation = [
-            "1. **Identify liquid assets** to transfer into discretionary trust (cash, investments)",
-            "2. **Set up discretionary trust** with professional trustees",
-            "3. **Transfer £" . number_format($amountToTrust, 0) . "** into the trust",
+            '1. **Identify liquid assets** to transfer into discretionary trust (cash, investments)',
+            '2. **Set up discretionary trust** with professional trustees',
+            '3. **Transfer £'.number_format($amountToTrust, 0).'** into the trust',
         ];
 
         if ($excessOverNRB > 0) {
-            $implementation[] = "4. **Pay lifetime IHT charge** of £" . number_format($lifetimeCharge, 0) . " (20%) from trust, or £" . number_format($lifetimeChargeIfSettlorPays, 0) . " (25%) if you pay";
-            $implementation[] = "5. **Survive 7 years** to avoid additional 20% charge (total 40% if death occurs)";
+            $implementation[] = '4. **Pay lifetime IHT charge** of £'.number_format($lifetimeCharge, 0).' (20%) from trust, or £'.number_format($lifetimeChargeIfSettlorPays, 0).' (25%) if you pay';
+            $implementation[] = '5. **Survive 7 years** to avoid additional 20% charge (total 40% if death occurs)';
         } else {
-            $implementation[] = "4. **No immediate IHT charge** (within your £" . number_format($availableNRB, 0) . " NRB)";
-            $implementation[] = "5. **Survive 7 years** to fully preserve NRB for other gifts";
+            $implementation[] = '4. **No immediate IHT charge** (within your £'.number_format($availableNRB, 0).' NRB)';
+            $implementation[] = '5. **Survive 7 years** to fully preserve NRB for other gifts';
         }
 
-        $implementation[] = "6. **Trustees manage assets** for beneficiaries with discretion";
-        $implementation[] = "7. **10-year anniversary charges** may apply (6% of value above NRB)";
+        $implementation[] = '6. **Trustees manage assets** for beneficiaries with discretion';
+        $implementation[] = '7. **10-year anniversary charges** may apply (6% of value above NRB)';
 
         $eligibleAssets = $liquidAssets->map(function ($asset) {
             return [
@@ -253,19 +252,19 @@ class PersonalizedTrustStrategyService
         $ihtSaving = $totalOverLifetime * 0.40;
 
         $implementation = [
-            "1. **Cycle 1 (Year 0)**: Transfer £" . number_format($amountPerCycle, 0) . " into discretionary trust",
-            "2. **No immediate IHT charge** (within NRB of £" . number_format($availableNRB, 0) . ")",
+            '1. **Cycle 1 (Year 0)**: Transfer £'.number_format($amountPerCycle, 0).' into discretionary trust',
+            '2. **No immediate IHT charge** (within NRB of £'.number_format($availableNRB, 0).')',
         ];
 
         if ($cyclesNeeded > 1) {
             for ($i = 2; $i <= $cyclesNeeded; $i++) {
                 $year = ($i - 1) * 7;
-                $implementation[] = ($i + 1) . ". **Cycle $i (Year $year)**: Transfer another £" . number_format($amountPerCycle, 0) . " (NRB resets after 7 years)";
+                $implementation[] = ($i + 1).". **Cycle $i (Year $year)**: Transfer another £".number_format($amountPerCycle, 0).' (NRB resets after 7 years)';
             }
         }
 
-        $implementation[] = ($cyclesNeeded + 2) . ". **Survive 7 years** after each transfer for full exemption";
-        $implementation[] = ($cyclesNeeded + 3) . ". **Total removed from estate**: £" . number_format($totalOverLifetime, 0) . " over " . (($cyclesNeeded - 1) * 7) . " years";
+        $implementation[] = ($cyclesNeeded + 2).'. **Survive 7 years** after each transfer for full exemption';
+        $implementation[] = ($cyclesNeeded + 3).'. **Total removed from estate**: £'.number_format($totalOverLifetime, 0).' over '.(($cyclesNeeded - 1) * 7).' years';
 
         return [
             'strategy_name' => 'Multi-Cycle CLT Strategy',
@@ -275,9 +274,9 @@ class PersonalizedTrustStrategyService
             'iht_saving_potential' => $ihtSaving,
             'lifetime_tax_charge' => 0, // Assuming each cycle stays within NRB
             'potential_death_charge' => $this->calculateMultiCycleDeathCharge($schedule, $yearsUntilDeath),
-            'time_frame' => (($cyclesNeeded - 1) * 7) . ' years (' . $cyclesNeeded . ' cycles)',
+            'time_frame' => (($cyclesNeeded - 1) * 7).' years ('.$cyclesNeeded.' cycles)',
             'risk_level' => 'Medium',
-            'suitable_for' => 'Large estates exceeding £' . number_format($availableNRB, 0),
+            'suitable_for' => 'Large estates exceeding £'.number_format($availableNRB, 0),
             'implementation_steps' => $implementation,
             'clt_schedule' => $schedule,
             'cycles_needed' => $cyclesNeeded,
@@ -312,7 +311,7 @@ class PersonalizedTrustStrategyService
                 'amount' => $amountPerCycle,
                 'nrb_available' => $nrb,
                 'immediate_charge' => 0, // Within NRB
-                'description' => "Transfer £" . number_format($amountPerCycle, 0) . " in year $year",
+                'description' => 'Transfer £'.number_format($amountPerCycle, 0)." in year $year",
             ];
         }
 
@@ -366,6 +365,7 @@ class PersonalizedTrustStrategyService
         if ($years < 7) {
             return 20;
         }  // 8%
+
         return 0;                // 0% (fully exempt)
     }
 
@@ -397,13 +397,13 @@ class PersonalizedTrustStrategyService
             'risk_level' => 'Low',
             'suitable_for' => 'Large estates, those wanting to retain access to capital',
             'implementation_steps' => [
-                "1. **Set up loan trust** with trustees",
-                "2. **Lend £" . number_format($loanAmount, 0) . "** to the trust (not a gift)",
-                "3. **Loan remains in your estate** for IHT purposes",
-                "4. **Investment growth is outside your estate** (IHT-free)",
-                "5. **Repay loan to yourself** as needed for income/capital",
-                "6. **Gradual loan write-off** can use annual exemptions (£3,000/year)",
-                "7. **Assumed growth over 20 years**: £" . number_format($growthOver20Years, 0) . " (IHT saving: £" . number_format($ihtSaving, 0) . ")",
+                '1. **Set up loan trust** with trustees',
+                '2. **Lend £'.number_format($loanAmount, 0).'** to the trust (not a gift)',
+                '3. **Loan remains in your estate** for IHT purposes',
+                '4. **Investment growth is outside your estate** (IHT-free)',
+                '5. **Repay loan to yourself** as needed for income/capital',
+                '6. **Gradual loan write-off** can use annual exemptions (£3,000/year)',
+                '7. **Assumed growth over 20 years**: £'.number_format($growthOver20Years, 0).' (IHT saving: £'.number_format($ihtSaving, 0).')',
             ],
             'eligible_assets' => $liquidAssets->map(function ($asset) {
                 return [
@@ -467,13 +467,13 @@ class PersonalizedTrustStrategyService
             'risk_level' => 'Medium',
             'suitable_for' => 'Those wanting to gift but retain income',
             'implementation_steps' => [
-                "1. **Set up discounted gift trust** with income rights",
-                "2. **Gift £" . number_format($giftValue, 0) . "** to the trust",
-                "3. **Retain right to income** (e.g., " . ($assumedIncomeRate * 100) . "% = £" . number_format($giftValue * $assumedIncomeRate, 0) . "/year)",
-                "4. **HMRC values gift** at £" . number_format($cltValue, 0) . " (after " . ($discountRate * 100) . "% discount)",
-                "5. **Discount value £" . number_format($discountValue, 0) . " stays in your estate**",
-                "6. **Capital growth** on full £" . number_format($giftValue, 0) . " is outside your estate",
-                "7. **Survive 7 years** to remove CLT value from estate",
+                '1. **Set up discounted gift trust** with income rights',
+                '2. **Gift £'.number_format($giftValue, 0).'** to the trust',
+                '3. **Retain right to income** (e.g., '.($assumedIncomeRate * 100).'% = £'.number_format($giftValue * $assumedIncomeRate, 0).'/year)',
+                '4. **HMRC values gift** at £'.number_format($cltValue, 0).' (after '.($discountRate * 100).'% discount)',
+                '5. **Discount value £'.number_format($discountValue, 0).' stays in your estate**',
+                '6. **Capital growth** on full £'.number_format($giftValue, 0).' is outside your estate',
+                '7. **Survive 7 years** to remove CLT value from estate',
             ],
             'eligible_assets' => $liquidAssets->filter(function ($asset) {
                 // Only suitable for income-producing assets
@@ -509,7 +509,7 @@ class PersonalizedTrustStrategyService
         $illiquidAssets = collect($liquidityAnalysis['assets_by_liquidity']['illiquid'] ?? []);
         $mainResidence = $illiquidAssets->firstWhere('is_main_residence', true);
 
-        if (!$mainResidence) {
+        if (! $mainResidence) {
             return [
                 'strategy_name' => 'Property Trust Planning',
                 'priority' => 5,
@@ -535,26 +535,26 @@ class PersonalizedTrustStrategyService
             'suitable_for' => 'Main residence',
             'applicable' => true,
             'implementation_steps' => [
-                "**Option A: Downsizing Strategy**",
-                "1. Wait until dependants leave home",
-                "2. Downsize to smaller property",
-                "3. Gift released equity using PET/CLT strategies above",
-                "4. Claim RNRB on remaining property value",
-                "",
-                "**Option B: Life Interest Trust in Will**",
-                "1. Leave property in trust via Will (not lifetime)",
-                "2. Spouse has right to live in property for life",
-                "3. On second death, property passes to children",
-                "4. Avoids double IHT charge on same property",
-                "",
-                "**Option C: Shared Ownership**",
-                "1. Gift % ownership to adult children",
-                "2. They pay market rent for their share (avoid GROB)",
-                "3. Gradual transfer over time",
-                "4. Complex and may not save significant IHT",
-                "",
-                "⚠️ **WARNING: Gift with Reservation of Benefit**",
-                "You CANNOT gift your main residence and continue living in it rent-free.",
+                '**Option A: Downsizing Strategy**',
+                '1. Wait until dependants leave home',
+                '2. Downsize to smaller property',
+                '3. Gift released equity using PET/CLT strategies above',
+                '4. Claim RNRB on remaining property value',
+                '',
+                '**Option B: Life Interest Trust in Will**',
+                '1. Leave property in trust via Will (not lifetime)',
+                '2. Spouse has right to live in property for life',
+                '3. On second death, property passes to children',
+                '4. Avoids double IHT charge on same property',
+                '',
+                '**Option C: Shared Ownership**',
+                '1. Gift % ownership to adult children',
+                '2. They pay market rent for their share (avoid GROB)',
+                '3. Gradual transfer over time',
+                '4. Complex and may not save significant IHT',
+                '',
+                '⚠️ **WARNING: Gift with Reservation of Benefit**',
+                'You CANNOT gift your main residence and continue living in it rent-free.',
                 "This is a 'gift with reservation of benefit' and remains in your estate for IHT.",
             ],
             'property_details' => [
@@ -587,7 +587,7 @@ class PersonalizedTrustStrategyService
         $totalPotentialDeathCharges = 0;
 
         foreach ($strategies as $strategy) {
-            if (isset($strategy['applicable']) && !$strategy['applicable']) {
+            if (isset($strategy['applicable']) && ! $strategy['applicable']) {
                 continue;
             }
 
@@ -613,7 +613,7 @@ class PersonalizedTrustStrategyService
             'net_saving_percentage' => $currentIHTLiability > 0 ? ($netSaving / $currentIHTLiability) * 100 : 0,
             'worst_case_cost' => $worstCaseCost,
             'worst_case_net_saving' => $worstCaseNetSaving,
-            'projected_time_frame' => $yearsUntilDeath . ' years',
+            'projected_time_frame' => $yearsUntilDeath.' years',
         ];
     }
 
@@ -623,7 +623,7 @@ class PersonalizedTrustStrategyService
     private function generateSummary(array $strategies, array $impact, float $currentIHTLiability): array
     {
         $applicableStrategies = collect($strategies)->filter(function ($strategy) {
-            return !isset($strategy['applicable']) || $strategy['applicable'] !== false;
+            return ! isset($strategy['applicable']) || $strategy['applicable'] !== false;
         });
 
         return [
@@ -661,6 +661,7 @@ class PersonalizedTrustStrategyService
         if ($savingPercentage >= 20) {
             return 'Moderate';
         }
+
         return 'Limited';
     }
 }

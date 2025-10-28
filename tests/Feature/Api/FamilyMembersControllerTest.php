@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
-use App\Models\Household;
 use App\Models\FamilyMember;
+use App\Models\Household;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

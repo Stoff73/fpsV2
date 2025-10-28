@@ -337,10 +337,10 @@ test('determineCategory assigns correct category based on module', function () {
 
     $recommendations = $this->service->aggregateRecommendations($this->user->id);
 
-    $protectionRec = array_values(array_filter($recommendations, fn($r) => $r['module'] === 'protection'))[0];
-    $savingsRec = array_values(array_filter($recommendations, fn($r) => $r['module'] === 'savings'))[0];
-    $retirementRec = array_values(array_filter($recommendations, fn($r) => $r['module'] === 'retirement'))[0];
-    $estateRec = array_values(array_filter($recommendations, fn($r) => $r['module'] === 'estate'))[0];
+    $protectionRec = array_values(array_filter($recommendations, fn ($r) => $r['module'] === 'protection'))[0];
+    $savingsRec = array_values(array_filter($recommendations, fn ($r) => $r['module'] === 'savings'))[0];
+    $retirementRec = array_values(array_filter($recommendations, fn ($r) => $r['module'] === 'retirement'))[0];
+    $estateRec = array_values(array_filter($recommendations, fn ($r) => $r['module'] === 'estate'))[0];
 
     expect($protectionRec['category'])->toBe('risk_mitigation');
     expect($savingsRec['category'])->toBe('liquidity_management');
