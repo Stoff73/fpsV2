@@ -170,6 +170,26 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Liability Breakdown Detail (if available) -->
+      <div v-if="secondDeathData.second_death_analysis.liability_breakdown" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <h4 class="text-sm font-semibold text-gray-700 mb-3">Liability Breakdown</h4>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p class="text-gray-600 mb-1">Current Combined Liabilities:</p>
+            <ul class="list-disc list-inside text-gray-700 space-y-1 ml-2">
+              <li>User: {{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.current.user_liabilities) }}</li>
+              <li v-if="secondDeathData.data_sharing_enabled">Spouse: {{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.current.spouse_liabilities) }}</li>
+              <li class="font-semibold">Total: {{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.current.total) }}</li>
+            </ul>
+          </div>
+          <div>
+            <p class="text-gray-600 mb-1">Projected Liabilities at Second Death:</p>
+            <p class="text-gray-700 ml-2">{{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.projected.survivor_liabilities) }}</p>
+            <p class="text-xs text-gray-500 mt-2 ml-2">{{ secondDeathData.second_death_analysis.liability_breakdown.projected.note }}</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- IHT Breakdown - Standard (Non-Married Users OR Married without spouse link) -->

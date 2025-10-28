@@ -171,8 +171,19 @@ class SecondDeathIHTCalculator
         // 8. Project liabilities (conservative: assume they remain)
         $survivorLiabilitiesProjected = $survivor->id === $user->id ? $userLiabilities : $spouseLiabilities;
 
-        // 9. Get survivor's will
+        // 9. Get survivor's will and modify for second death scenario
         $survivorWill = $survivor->id === $user->id ? $userWill : $spouseWill;
+
+        // CRITICAL: Create modified will for second death calculation
+        // At second death, the survivor's spouse is already deceased, so NO spouse exemption should apply
+        $secondDeathWill = null;
+        if ($survivorWill) {
+            $secondDeathWill = clone $survivorWill;
+            // Override to indicate no spouse exemption (spouse already deceased)
+            $secondDeathWill->spouse_primary_beneficiary = false;
+            $secondDeathWill->spouse_bequest_percentage = 0.00;
+            $secondDeathWill->death_scenario = 'user_only';
+        }
 
         // 10a. Calculate IHT on CURRENT combined estate (for comparison)
         $currentCombinedEstate = $userAssets->sum('current_value') + $spouseAssets->sum('current_value');
@@ -191,7 +202,7 @@ class SecondDeathIHTCalculator
             $survivorGifts,
             $survivorTrusts,
             $currentCombinedLiabilities,
-            $survivorWill,
+            $secondDeathWill,  // Use modified will (no spouse exemption)
             $survivor
         );
 
@@ -202,11 +213,24 @@ class SecondDeathIHTCalculator
             $survivorGifts,
             $survivorTrusts,
             $survivorLiabilitiesProjected,
-            $survivorWill,
+            $secondDeathWill,  // Use modified will (no spouse exemption)
             $survivor
         );
 
-        // 11. Return comprehensive second death analysis
+        // 11. Build detailed liability breakdown for transparency
+        $liabilityBreakdown = [
+            'current' => [
+                'user_liabilities' => round($userLiabilities, 2),
+                'spouse_liabilities' => round($spouseLiabilities, 2),
+                'total' => round($currentCombinedLiabilities, 2),
+            ],
+            'projected' => [
+                'survivor_liabilities' => round($survivorLiabilitiesProjected, 2),
+                'note' => 'Liabilities projected conservatively (assumed to remain constant)',
+            ],
+        ];
+
+        // 12. Return comprehensive second death analysis
         $secondDeathDate = Carbon::now()->addYears((int) $survivorYearsUntilDeath);
 
         return [
@@ -214,6 +238,7 @@ class SecondDeathIHTCalculator
             'scenario' => 'second_death',
             'data_sharing_enabled' => $dataSharingEnabled,
             'current_date' => now()->format('Y-m-d'),
+            'liability_breakdown' => $liabilityBreakdown,
 
             // First death details
             'first_death' => [
