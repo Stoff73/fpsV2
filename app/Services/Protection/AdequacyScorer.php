@@ -51,9 +51,36 @@ class AdequacyScorer
     }
 
     /**
+     * Calculate individual policy type adequacy scores.
+     */
+    private function calculateIndividualScores(array $gaps, array $needs): array
+    {
+        $gapsByCategory = $gaps['gaps_by_category'] ?? [];
+
+        // Life insurance score (based on human capital + debt coverage)
+        $lifeNeed = ($needs['human_capital'] ?? 0) + ($needs['debt_protection'] ?? 0) + ($needs['final_expenses'] ?? 0);
+        $lifeGap = ($gapsByCategory['human_capital_gap'] ?? 0) + ($gapsByCategory['debt_protection_gap'] ?? 0) + ($gapsByCategory['final_expenses_gap'] ?? 0);
+        $lifeScore = $lifeNeed > 0 ? (int) round((($lifeNeed - $lifeGap) / $lifeNeed) * 100) : 100;
+
+        // Critical illness score (placeholder - based on CI coverage percentage)
+        // This would need CI-specific needs calculation in future
+        $ciScore = 0; // Placeholder for now
+
+        // Income protection score (placeholder - based on IP coverage percentage)
+        // This would need IP-specific needs calculation in future
+        $ipScore = 0; // Placeholder for now
+
+        return [
+            'life_insurance_score' => max(0, min(100, $lifeScore)),
+            'critical_illness_score' => $ciScore,
+            'income_protection_score' => $ipScore,
+        ];
+    }
+
+    /**
      * Generate score insights.
      */
-    public function generateScoreInsights(int $score, array $gaps): array
+    public function generateScoreInsights(int $score, array $gaps, array $needs = []): array
     {
         $category = $this->categorizeScore($score);
         $color = $this->getScoreColor($score);
@@ -79,11 +106,24 @@ class AdequacyScorer
             $insights[] = 'Consider adding income protection to cover loss of earnings.';
         }
 
+        // Calculate individual scores if needs are provided
+        $individualScores = !empty($needs) ? $this->calculateIndividualScores($gaps, $needs) : [
+            'life_insurance_score' => 0,
+            'critical_illness_score' => 0,
+            'income_protection_score' => 0,
+        ];
+
         return [
-            'score' => $score,
-            'category' => $category,
+            'overall_score' => $score,
+            'rating' => $category,
             'color' => $color,
             'insights' => $insights,
+            'life_insurance_score' => $individualScores['life_insurance_score'],
+            'critical_illness_score' => $individualScores['critical_illness_score'],
+            'income_protection_score' => $individualScores['income_protection_score'],
+            // Keep legacy keys for backward compatibility
+            'score' => $score,
+            'category' => $category,
         ];
     }
 }

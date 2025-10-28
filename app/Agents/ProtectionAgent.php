@@ -70,7 +70,7 @@ class ProtectionAgent extends BaseAgent
 
             // Calculate adequacy score
             $adequacyScore = $this->adequacyScorer->calculateAdequacyScore($gaps, $needs);
-            $scoreInsights = $this->adequacyScorer->generateScoreInsights($adequacyScore, $gaps);
+            $scoreInsights = $this->adequacyScorer->generateScoreInsights($adequacyScore, $gaps, $needs);
 
             // Generate recommendations
             $recommendations = $this->recommendationEngine->generateRecommendations($gaps, $profile);
