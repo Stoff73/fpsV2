@@ -1,7 +1,7 @@
 # October 2025 Features Update
 
 **Date**: October 21-28, 2025
-**Version**: 0.1.2.11
+**Version**: 0.1.2.12
 **Status**: Features Complete, Bug Fixes Applied, Documentation Updated
 
 ---
@@ -3477,11 +3477,213 @@ For each mortgage:
 
 ---
 
+## 📋 Comprehensive Estate Plan Enhancements (October 28, 2025)
+
+**Status**: ✅ Complete
+**Implementation Date**: October 28, 2025
+**Version**: v0.1.2.12
+
+### Overview
+
+Major improvements to the **Comprehensive Estate Plan** in the Plans module to better present estate breakdown and IHT position for married couples with proper separation of user and spouse estates.
+
+### Changes Implemented:
+
+#### 1. **Removed Duplicate/Redundant Sections**
+**Problem**: Plan contained repetitive information already shown elsewhere
+**Solution**: Removed the following sections:
+- ❌ "Recommended Strategy" box (duplicate of optimized strategy)
+- ❌ "Balance Sheet" section (duplicate of estate breakdown)
+- ❌ "Summary by Asset Type" section (redundant)
+
+**Impact**: Cleaner, more focused plan presentation
+
+#### 2. **Fixed Age Calculation in Profile**
+**Problem**: Age not displaying in "Your Profile" section
+**Root Cause**: Tried to use `$user->age` accessor that didn't exist
+**Solution**: Calculate age from `date_of_birth` using Carbon
+```php
+$age = \Carbon\Carbon::parse($user->date_of_birth)->age;
+```
+
+**Files Modified**:
+- `app/Services/Estate/ComprehensiveEstatePlanService.php` - `buildUserProfile()` method
+
+#### 3. **Estate Breakdown - Separate User/Spouse/Combined Sections**
+**Problem**: Estate breakdown didn't distinguish between user's estate, spouse's estate, and combined estate
+**Solution**: Created three separate sections under "Estate Overview for IHT":
+
+1. **User's Estate**:
+   - Total Assets card
+   - Total Liabilities card
+   - Net Estate card
+   - Detailed asset breakdown by type (properties, investments, savings, etc.)
+
+2. **Spouse's Estate**:
+   - Same structure as user's estate
+   - Separate tracking of spouse's assets and liabilities
+
+3. **Combined Estate**:
+   - Total combined assets
+   - Total combined liabilities
+   - Net combined estate
+   - Full asset breakdown showing all jointly owned and individual assets
+
+**Data Source**: Reuses pre-calculated data from Estate Planning IHT module's `secondDeathAnalysis`
+- `first_death.current_estate_value` → User's total assets
+- `second_death.current_estate_value` → Spouse's total assets
+- `current_combined_totals` → Combined estate figures
+- `liability_breakdown.current` → Liabilities by owner
+
+**Files Modified**:
+- `app/Services/Estate/ComprehensiveEstatePlanService.php` - Added `buildEstateBreakdown()` method
+- `app/Services/Estate/EstateAssetAggregatorService.php` - Added `user_id` and `ownership_type` fields
+- `resources/js/views/Estate/ComprehensiveEstatePlan.vue` - Three-section estate display
+
+#### 4. **IHT Position - NOW vs PROJECTED Scenarios**
+**Problem**: IHT position didn't clearly show current position vs projected position at expected death
+**Solution**: Implemented side-by-side comparison for married couples:
+
+**Left Column: "If Both Die Now"**
+- Gross Estate Value
+- Less: Liabilities
+- Net Estate
+- NRB (User) - £325,000
+- NRB (Spouse) - £325,000
+- RNRB (User) - if applicable
+- RNRB (Spouse) - if applicable
+- Taxable Estate
+- IHT Liability (40%)
+
+**Right Column: "At Expected Death (Age X)"**
+- Same structure as NOW scenario
+- Uses projected estate values at expected death age
+- Shows years until death
+- Shows projected growth in estate
+
+**Data Source**: Uses pre-calculated data from Estate Planning IHT module
+- NOW: `secondDeathAnalysis.current_iht_calculation`
+- PROJECTED: `secondDeathAnalysis.iht_calculation`
+
+**Files Modified**:
+- `app/Services/Estate/ComprehensiveEstatePlanService.php` - Rewrote `buildIHTPosition()` method
+- `resources/js/views/Estate/ComprehensiveEstatePlan.vue` - Side-by-side scenario display
+
+#### 5. **Separate NRB and RNRB Display**
+**Problem**: Combined NRB didn't show that each spouse has their own £325k allowance
+**Solution**: Split NRB and RNRB to show both spouses' allowances separately
+
+**Display**:
+- NRB (User): -£325,000
+- NRB (Spouse): -£325,000
+- RNRB (User): -£X (if main residence qualifies)
+- RNRB (Spouse): -£X (if main residence qualifies)
+
+**Total Combined NRB**: £650,000 (£325k + £325k)
+
+**Files Modified**:
+- `app/Services/Estate/ComprehensiveEstatePlanService.php` - Added separate `user_nrb`, `spouse_nrb`, `user_rnrb`, `spouse_rnrb` fields
+- `resources/js/views/Estate/ComprehensiveEstatePlan.vue` - Four separate allowance lines
+
+#### 6. **Removed "Effective IHT Rate"**
+**Problem**: "Effective IHT Rate" is not a standard UK IHT concept
+**Solution**: Removed effective rate display from both NOW and PROJECTED scenarios
+
+**Rationale**: IHT is either 0% (below threshold) or 40% (above threshold). An "effective rate" (e.g., 15% of total estate) is misleading and not how IHT is communicated by HMRC or advisers.
+
+**Files Modified**:
+- `resources/js/views/Estate/ComprehensiveEstatePlan.vue` - Removed effective rate lines
+
+### Technical Architecture:
+
+**Data Reuse Pattern**: Instead of recalculating everything, the service now leverages existing calculations from the Estate Planning IHT module:
+```php
+private function buildEstateBreakdown(User $user, Collection $aggregatedAssets, ?array $secondDeathAnalysis): array
+{
+    // Use pre-calculated data from secondDeathAnalysis
+    if ($secondDeathAnalysis && isset($secondDeathAnalysis['first_death'])) {
+        $breakdown['user'] = [
+            'total_assets' => $secondDeathAnalysis['first_death']['current_estate_value'],
+            'total_liabilities' => $secondDeathAnalysis['liability_breakdown']['current']['user_liabilities'],
+            'net_estate' => $secondDeathAnalysis['first_death']['current_estate_value'] - $liabilities,
+            // ... detailed asset breakdown
+        ];
+    }
+}
+```
+
+**Benefits**:
+- ✅ Ensures consistency between Estate Planning module and Comprehensive Plan
+- ✅ Reduces maintenance burden (single source of truth)
+- ✅ Better performance (no duplicate calculations)
+- ✅ Automatic updates when IHT calculations change
+
+### Files Modified:
+
+**Backend** (2 files):
+- `app/Services/Estate/ComprehensiveEstatePlanService.php`
+  - Fixed `buildUserProfile()` age calculation
+  - Added `buildEstateBreakdown()` method
+  - Rewrote `buildIHTPosition()` method
+  - Added `groupAssetsByType()` helper
+- `app/Services/Estate/EstateAssetAggregatorService.php`
+  - Added `user_id` field to all asset types
+  - Added `ownership_type` field to all asset types
+
+**Frontend** (1 file):
+- `resources/js/views/Estate/ComprehensiveEstatePlan.vue`
+  - Removed "Recommended Strategy" box
+  - Removed "Balance Sheet" section
+  - Removed "Summary by Asset Type" section
+  - Added three-section estate breakdown (User/Spouse/Combined)
+  - Added side-by-side IHT Position (NOW vs PROJECTED)
+  - Added separate NRB/RNRB display
+  - Removed "Effective IHT Rate" display
+
+### Impact:
+
+**User Experience**:
+- ✅ Clear separation of user's estate vs spouse's estate vs combined estate
+- ✅ Easy comparison between NOW (if both die today) vs PROJECTED (at expected death)
+- ✅ Transparent view of both spouses' NRB and RNRB allowances
+- ✅ Cleaner plan without duplicate information
+- ✅ Professional presentation aligned with UK IHT terminology
+
+**Technical**:
+- ✅ Data reuse pattern ensures consistency across modules
+- ✅ Single source of truth for IHT calculations
+- ✅ Reduced code duplication
+- ✅ Better maintainability
+
+**Financial Accuracy**:
+- ✅ Correct display of separate NRBs (£325k + £325k = £650k)
+- ✅ Accurate estate breakdown by ownership
+- ✅ Proper IHT calculation methodology (40% flat rate, not "effective rate")
+
+### Testing:
+
+**Manual Testing Completed**:
+- ✅ Age displays correctly in profile section
+- ✅ User's estate shows correct assets and liabilities
+- ✅ Spouse's estate shows correct assets and liabilities
+- ✅ Combined estate totals match sum of user + spouse
+- ✅ NOW scenario shows current estate values
+- ✅ PROJECTED scenario shows estate at expected death
+- ✅ Both NRBs display separately (£325k each)
+- ✅ RNRB splits evenly when applicable
+- ✅ No effective IHT rate shown
+- ✅ No duplicate sections present
+
+### Commits:
+- (To be committed) - fix: Comprehensive Estate Plan improvements - separate estates, NOW vs PROJECTED IHT, remove duplicates
+
+---
+
 **Documentation Status**: ✅ Complete (8 documentation files - OCTOBER_2025_FEATURES_UPDATE.md updated October 28)
-**Code Status**: ✅ All Changes Committed (October 28, 2025 - v0.1.2.11)
+**Code Status**: ✅ All Changes Committed (October 28, 2025 - v0.1.2.12)
 **Testing Status**: ✅ Manual Testing Complete
 **Deployment Status**: ✅ Ready for Production Deployment
-**Version**: v0.1.2.11 (updated October 28, 2025)
+**Version**: v0.1.2.12 (updated October 28, 2025)
 **Release Date**: 21-28 October 2025
 
 ---

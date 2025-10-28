@@ -49,15 +49,18 @@ Available Skills:
 
 **FPS (Financial Planning System)** - UK-focused comprehensive financial planning application covering five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
-**Current Version**: v0.1.2.4
+**Current Version**: v0.1.2.12
 **Tech Stack**: Laravel 10.x (PHP 8.2+) + Vue.js 3 + MySQL 8.0+ + Memcached
 
 **Status**: Active Development - Core features complete, spouse management & joint ownership implemented
 
-**Recent Fixes (v0.1.2.4)**:
-- Fixed Comprehensive Protection Plan endpoint error (undefined array key 'life_insurance')
-- Fixed financial summary to display correct income from user table instead of legacy protection_profile field
-- Added detailed income breakdown to protection plan (employment, self-employment, rental, dividend, other)
+**Recent Updates (v0.1.2.12)**:
+- Comprehensive Estate Plan enhancements with separate User/Spouse/Combined estate breakdown
+- IHT Position displaying NOW vs PROJECTED scenarios side-by-side
+- Separate NRB (£325k + £325k) and RNRB display for married couples
+- Removed duplicate sections (Balance Sheet, Summary by Asset Type, Recommended Strategy box)
+- Fixed age calculation in profile section
+- Removed "Effective IHT Rate" (not a standard UK IHT concept)
 
 ---
 
@@ -976,8 +979,8 @@ MEMCACHED_PORT=11211
 
 ---
 
-**Current Version**: v0.1.2.4 (Beta)
-**Last Updated**: October 25, 2025
+**Current Version**: v0.1.2.12 (Beta)
+**Last Updated**: October 28, 2025
 **Status**: 🚀 Active Development - Core Features Complete
 
 ---

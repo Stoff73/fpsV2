@@ -131,10 +131,27 @@
             <h3 class="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-primary-600">Executive Summary</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <!-- IHT Liabilities Card -->
               <div class="bg-red-50 rounded-lg p-6 border border-red-200">
-                <p class="text-sm text-red-600 font-medium mb-1">Current IHT Liability</p>
-                <p class="text-3xl font-bold text-red-700">{{ formatCurrency(plan.executive_summary.current_position.iht_liability) }}</p>
-                <p class="text-xs text-red-600 mt-2">Estate: {{ formatCurrency(plan.executive_summary.current_position.net_estate) }}</p>
+                <p class="text-sm text-red-600 font-medium mb-3">IHT Liability</p>
+
+                <!-- Show both NOW and PROJECTED if available -->
+                <div v-if="plan.executive_summary.iht_liabilities.projected" class="space-y-3">
+                  <div>
+                    <p class="text-xs text-red-500 mb-1">If die now:</p>
+                    <p class="text-2xl font-bold text-red-700">{{ formatCurrency(plan.executive_summary.iht_liabilities.current) }}</p>
+                  </div>
+                  <div class="border-t border-red-200 pt-2">
+                    <p class="text-xs text-red-500 mb-1">At age {{ plan.executive_summary.iht_liabilities.projected_age }}:</p>
+                    <p class="text-2xl font-bold text-red-700">{{ formatCurrency(plan.executive_summary.iht_liabilities.projected) }}</p>
+                  </div>
+                </div>
+
+                <!-- Show only current if projected not available -->
+                <div v-else>
+                  <p class="text-3xl font-bold text-red-700">{{ formatCurrency(plan.executive_summary.iht_liabilities.current) }}</p>
+                  <p class="text-xs text-red-600 mt-2">Estate: {{ formatCurrency(plan.executive_summary.current_position.net_estate) }}</p>
+                </div>
               </div>
 
               <div class="bg-green-50 rounded-lg p-6 border border-green-200">
@@ -143,17 +160,25 @@
                 <p class="text-xs text-green-600 mt-2">Annual Cost: {{ formatCurrency(plan.executive_summary.annual_cost) }}</p>
               </div>
 
+              <!-- Key Actions Card - Now showing list -->
               <div class="bg-blue-50 rounded-lg p-6 border border-blue-200">
-                <p class="text-sm text-blue-600 font-medium mb-1">Key Actions Required</p>
-                <p class="text-3xl font-bold text-blue-700">{{ plan.executive_summary.key_actions }}</p>
-                <p class="text-xs text-blue-600 mt-2">Priority recommendations</p>
+                <p class="text-sm text-blue-600 font-medium mb-3">Key Actions Required</p>
+                <ul class="space-y-1.5 text-sm text-blue-900">
+                  <li
+                    v-for="(action, index) in plan.executive_summary.key_actions.slice(0, 3)"
+                    :key="index"
+                    class="flex items-start gap-2"
+                  >
+                    <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-xs leading-tight">{{ action }}</span>
+                  </li>
+                </ul>
+                <p v-if="plan.executive_summary.key_actions.length > 3" class="text-xs text-blue-600 mt-3 font-medium">
+                  +{{ plan.executive_summary.key_actions.length - 3 }} more actions
+                </p>
               </div>
-            </div>
-
-            <div class="bg-primary-50 border-l-4 border-primary-600 p-4 rounded">
-              <p class="text-sm text-gray-700">
-                <strong class="text-primary-900">Recommended Strategy:</strong> {{ plan.executive_summary.recommended_strategy }}
-              </p>
             </div>
           </section>
 
@@ -198,134 +223,141 @@
             </div>
           </section>
 
-          <!-- Balance Sheet -->
-          <section class="mb-12">
-            <h3 class="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-primary-600">Balance Sheet</h3>
-            <p class="text-sm text-gray-600 mb-6">As at {{ plan.balance_sheet.as_at_date }}</p>
-
-            <!-- Assets Section -->
-            <div class="mb-6">
-              <h4 class="text-lg font-bold text-gray-900 mb-4 bg-gray-100 p-3 rounded">ASSETS</h4>
-
-              <div v-for="(assetGroup, groupName) in plan.balance_sheet.assets" :key="groupName" class="mb-4">
-                <div class="bg-gray-50 p-3 rounded mb-2">
-                  <div class="flex justify-between items-center font-semibold text-gray-900">
-                    <span>{{ groupName }}</span>
-                    <span>{{ formatCurrency(assetGroup.total) }}</span>
-                  </div>
-                </div>
-
-                <div class="ml-6 space-y-1">
-                  <div
-                    v-for="(item, index) in assetGroup.items"
-                    :key="index"
-                    class="flex justify-between items-center text-sm py-1 border-b border-gray-200"
-                  >
-                    <span class="text-gray-700">{{ item.name }}</span>
-                    <span class="text-gray-900">{{ formatCurrency(item.value) }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex justify-between items-center p-3 bg-blue-50 rounded font-bold text-blue-900 text-lg">
-                <span>Total Assets</span>
-                <span>{{ formatCurrency(plan.balance_sheet.total_assets) }}</span>
-              </div>
-            </div>
-
-            <!-- Liabilities Section -->
-            <div class="mb-6">
-              <h4 class="text-lg font-bold text-gray-900 mb-4 bg-gray-100 p-3 rounded">LIABILITIES</h4>
-
-              <div class="flex justify-between items-center p-3 bg-amber-50 rounded font-bold text-amber-900 text-lg">
-                <span>Total Liabilities</span>
-                <span>{{ formatCurrency(plan.balance_sheet.liabilities.total) }}</span>
-              </div>
-            </div>
-
-            <!-- Net Worth -->
-            <div class="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg font-bold text-green-900 text-xl">
-              <span>NET WORTH</span>
-              <span>{{ formatCurrency(plan.balance_sheet.net_worth) }}</span>
-            </div>
-
-            <!-- Income/Expenditure Summary -->
-            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <p class="text-xs text-blue-600 mb-1">Annual Income</p>
-                <p class="text-lg font-bold text-blue-900">{{ formatCurrency(plan.balance_sheet.annual_income) }}</p>
-              </div>
-              <div class="bg-green-50 rounded-lg p-4 border border-green-200">
-                <p class="text-xs text-green-600 mb-1">Monthly Net Income</p>
-                <p class="text-lg font-bold text-green-900">{{ formatCurrency(plan.balance_sheet.monthly_income) }}</p>
-              </div>
-              <div class="bg-amber-50 rounded-lg p-4 border border-amber-200">
-                <p class="text-xs text-amber-600 mb-1">Monthly Expenditure</p>
-                <p class="text-lg font-bold text-amber-900">{{ formatCurrency(plan.balance_sheet.monthly_expenditure) }}</p>
-              </div>
-            </div>
-          </section>
-
           <!-- Estate Overview -->
           <section class="mb-12">
             <h3 class="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-primary-600">Estate Overview for IHT</h3>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div class="bg-blue-50 rounded-lg p-4">
-                <p class="text-sm text-blue-600 mb-1">Total Assets</p>
-                <p class="text-2xl font-bold text-blue-900">{{ formatCurrency(plan.estate_overview.total_assets) }}</p>
-                <p class="text-xs text-blue-600 mt-1">{{ plan.estate_overview.asset_count }} assets</p>
-              </div>
-              <div class="bg-amber-50 rounded-lg p-4">
-                <p class="text-sm text-amber-600 mb-1">Total Liabilities</p>
-                <p class="text-2xl font-bold text-amber-900">{{ formatCurrency(plan.estate_overview.total_liabilities) }}</p>
-              </div>
-              <div class="bg-green-50 rounded-lg p-4">
-                <p class="text-sm text-green-600 mb-1">Net Estate</p>
-                <p class="text-2xl font-bold text-green-900">{{ formatCurrency(plan.estate_overview.net_estate) }}</p>
-              </div>
-            </div>
+            <!-- User Estate Section -->
+            <div v-if="plan.estate_breakdown && plan.estate_breakdown.user" class="mb-8">
+              <h4 class="text-lg font-semibold text-gray-800 mb-3">{{ plan.estate_breakdown.user.name }}'s Estate</h4>
 
-            <!-- Detailed Asset Breakdown -->
-            <div v-if="plan.estate_overview.detailed_assets && Object.keys(plan.estate_overview.detailed_assets).length > 0" class="mt-6">
-              <h4 class="font-semibold text-gray-900 mb-3">Detailed Asset Breakdown</h4>
-
-              <div v-for="(assets, type) in plan.estate_overview.detailed_assets" :key="type" class="mb-4">
-                <div class="bg-gray-100 p-3 rounded-t font-semibold text-gray-900">
-                  {{ type.charAt(0).toUpperCase() + type.slice(1) }}
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4">
+                  <p class="text-sm text-blue-600 mb-1">Total Assets</p>
+                  <p class="text-2xl font-bold text-blue-900">{{ formatCurrency(plan.estate_breakdown.user.total_assets) }}</p>
+                  <p class="text-xs text-blue-600 mt-1">{{ plan.estate_breakdown.user.asset_count }} assets</p>
                 </div>
-                <div class="border border-gray-200 rounded-b overflow-hidden">
-                  <div
-                    v-for="(asset, index) in assets"
-                    :key="index"
-                    class="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-gray-50"
-                  >
-                    <div class="flex items-center gap-3">
-                      <span class="text-gray-900">{{ asset.name }}</span>
-                      <span v-if="asset.is_iht_exempt" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                        IHT Exempt
-                      </span>
+                <div class="bg-amber-50 rounded-lg p-4">
+                  <p class="text-sm text-amber-600 mb-1">Total Liabilities</p>
+                  <p class="text-2xl font-bold text-amber-900">{{ formatCurrency(plan.estate_breakdown.user.total_liabilities) }}</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                  <p class="text-sm text-green-600 mb-1">Net Estate</p>
+                  <p class="text-2xl font-bold text-green-900">{{ formatCurrency(plan.estate_breakdown.user.net_estate) }}</p>
+                </div>
+              </div>
+
+              <!-- User Detailed Asset Breakdown -->
+              <div v-if="plan.estate_breakdown.user.detailed_assets && Object.keys(plan.estate_breakdown.user.detailed_assets).length > 0">
+                <div v-for="(assets, type) in plan.estate_breakdown.user.detailed_assets" :key="type" class="mb-4">
+                  <div class="bg-gray-100 p-3 rounded-t font-semibold text-gray-900">
+                    {{ type.charAt(0).toUpperCase() + type.slice(1) }}
+                  </div>
+                  <div class="border border-gray-200 rounded-b overflow-hidden">
+                    <div
+                      v-for="(asset, index) in assets"
+                      :key="index"
+                      class="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-gray-50"
+                    >
+                      <div class="flex items-center gap-3">
+                        <span class="text-gray-900">{{ asset.name }}</span>
+                        <span v-if="asset.is_iht_exempt" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          IHT Exempt
+                        </span>
+                      </div>
+                      <span class="font-semibold text-gray-900">{{ formatCurrency(asset.value) }}</span>
                     </div>
-                    <span class="font-semibold text-gray-900">{{ formatCurrency(asset.value) }}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Summary Breakdown by Type -->
-            <div v-if="plan.estate_overview.breakdown.length > 0" class="mt-6">
-              <h4 class="font-semibold text-gray-900 mb-3">Summary by Asset Type</h4>
-              <div class="space-y-2">
-                <div
-                  v-for="(item, index) in plan.estate_overview.breakdown"
-                  :key="index"
-                  class="flex justify-between items-center p-3 bg-gray-50 rounded"
-                >
-                  <div>
-                    <span class="font-medium text-gray-900">{{ item.type }}</span>
-                    <span class="text-sm text-gray-600 ml-2">({{ item.count }} {{ item.count === 1 ? 'asset' : 'assets' }})</span>
+            <!-- Spouse Estate Section -->
+            <div v-if="plan.estate_breakdown && plan.estate_breakdown.spouse" class="mb-8">
+              <h4 class="text-lg font-semibold text-gray-800 mb-3">{{ plan.estate_breakdown.spouse.name }}'s Estate</h4>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4">
+                  <p class="text-sm text-blue-600 mb-1">Total Assets</p>
+                  <p class="text-2xl font-bold text-blue-900">{{ formatCurrency(plan.estate_breakdown.spouse.total_assets) }}</p>
+                  <p class="text-xs text-blue-600 mt-1">{{ plan.estate_breakdown.spouse.asset_count }} assets</p>
+                </div>
+                <div class="bg-amber-50 rounded-lg p-4">
+                  <p class="text-sm text-amber-600 mb-1">Total Liabilities</p>
+                  <p class="text-2xl font-bold text-amber-900">{{ formatCurrency(plan.estate_breakdown.spouse.total_liabilities) }}</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                  <p class="text-sm text-green-600 mb-1">Net Estate</p>
+                  <p class="text-2xl font-bold text-green-900">{{ formatCurrency(plan.estate_breakdown.spouse.net_estate) }}</p>
+                </div>
+              </div>
+
+              <!-- Spouse Detailed Asset Breakdown -->
+              <div v-if="plan.estate_breakdown.spouse.detailed_assets && Object.keys(plan.estate_breakdown.spouse.detailed_assets).length > 0">
+                <div v-for="(assets, type) in plan.estate_breakdown.spouse.detailed_assets" :key="type" class="mb-4">
+                  <div class="bg-gray-100 p-3 rounded-t font-semibold text-gray-900">
+                    {{ type.charAt(0).toUpperCase() + type.slice(1) }}
                   </div>
-                  <span class="font-semibold text-gray-900">{{ formatCurrency(item.value) }}</span>
+                  <div class="border border-gray-200 rounded-b overflow-hidden">
+                    <div
+                      v-for="(asset, index) in assets"
+                      :key="index"
+                      class="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-gray-50"
+                    >
+                      <div class="flex items-center gap-3">
+                        <span class="text-gray-900">{{ asset.name }}</span>
+                        <span v-if="asset.is_iht_exempt" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          IHT Exempt
+                        </span>
+                      </div>
+                      <span class="font-semibold text-gray-900">{{ formatCurrency(asset.value) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Combined Estate Section -->
+            <div v-if="plan.estate_breakdown && plan.estate_breakdown.combined" class="mb-8">
+              <h4 class="text-lg font-semibold text-gray-800 mb-3">Combined Estate</h4>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4">
+                  <p class="text-sm text-blue-600 mb-1">Total Assets</p>
+                  <p class="text-2xl font-bold text-blue-900">{{ formatCurrency(plan.estate_breakdown.combined.total_assets) }}</p>
+                  <p class="text-xs text-blue-600 mt-1">{{ plan.estate_breakdown.combined.asset_count }} assets</p>
+                </div>
+                <div class="bg-amber-50 rounded-lg p-4">
+                  <p class="text-sm text-amber-600 mb-1">Total Liabilities</p>
+                  <p class="text-2xl font-bold text-amber-900">{{ formatCurrency(plan.estate_breakdown.combined.total_liabilities) }}</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                  <p class="text-sm text-green-600 mb-1">Net Estate</p>
+                  <p class="text-2xl font-bold text-green-900">{{ formatCurrency(plan.estate_breakdown.combined.net_estate) }}</p>
+                </div>
+              </div>
+
+              <!-- Combined Detailed Asset Breakdown -->
+              <div v-if="plan.estate_breakdown.combined.detailed_assets && Object.keys(plan.estate_breakdown.combined.detailed_assets).length > 0">
+                <div v-for="(assets, type) in plan.estate_breakdown.combined.detailed_assets" :key="type" class="mb-4">
+                  <div class="bg-gray-100 p-3 rounded-t font-semibold text-gray-900">
+                    {{ type.charAt(0).toUpperCase() + type.slice(1) }}
+                  </div>
+                  <div class="border border-gray-200 rounded-b overflow-hidden">
+                    <div
+                      v-for="(asset, index) in assets"
+                      :key="index"
+                      class="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-gray-50"
+                    >
+                      <div class="flex items-center gap-3">
+                        <span class="text-gray-900">{{ asset.name }}</span>
+                        <span v-if="asset.is_iht_exempt" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          IHT Exempt
+                        </span>
+                      </div>
+                      <span class="font-semibold text-gray-900">{{ formatCurrency(asset.value) }}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -333,9 +365,103 @@
 
           <!-- Current IHT Position -->
           <section class="mb-12">
-            <h3 class="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-primary-600">Current IHT Position</h3>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-primary-600">IHT Position</h3>
 
-            <div class="bg-gray-50 rounded-lg p-6">
+            <!-- Married Couple - Show NOW and PROJECTED -->
+            <div v-if="plan.current_iht_position.has_projection" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- NOW Scenario -->
+              <div>
+                <h4 class="text-lg font-semibold text-gray-800 mb-3">If Both Die Now</h4>
+                <div class="bg-gray-50 rounded-lg p-6">
+                  <div class="space-y-3">
+                    <div class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700">Gross Estate Value</span>
+                      <span class="font-bold text-gray-900">{{ formatCurrency(plan.current_iht_position.now.gross_estate) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700">Less: Liabilities</span>
+                      <span class="font-bold text-gray-900">-{{ formatCurrency(plan.current_iht_position.now.liabilities) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700">Net Estate</span>
+                      <span class="font-bold text-gray-900">{{ formatCurrency(plan.current_iht_position.now.net_estate) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700 text-sm">NRB (User)</span>
+                      <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.now.user_nrb) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700 text-sm">NRB (Spouse)</span>
+                      <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.now.spouse_nrb) }}</span>
+                    </div>
+                    <div v-if="plan.current_iht_position.now.user_rnrb > 0" class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700 text-sm">RNRB (User)</span>
+                      <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.now.user_rnrb) }}</span>
+                    </div>
+                    <div v-if="plan.current_iht_position.now.spouse_rnrb > 0" class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700 text-sm">RNRB (Spouse)</span>
+                      <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.now.spouse_rnrb) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b bg-amber-50 -mx-6 px-6 py-3">
+                      <span class="font-semibold text-gray-900">Taxable Estate</span>
+                      <span class="font-bold text-amber-700">{{ formatCurrency(plan.current_iht_position.now.taxable_estate) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-red-50 -mx-6 px-6 py-3 rounded">
+                      <span class="font-semibold text-red-900">IHT Liability (40%)</span>
+                      <span class="font-bold text-red-700 text-xl">{{ formatCurrency(plan.current_iht_position.now.iht_liability) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PROJECTED Scenario -->
+              <div>
+                <h4 class="text-lg font-semibold text-gray-800 mb-3">At Expected Death (Age {{ plan.current_iht_position.projected.age_at_death }})</h4>
+                <div class="bg-gray-50 rounded-lg p-6">
+                  <div class="space-y-3">
+                    <div class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700">Gross Estate Value</span>
+                      <span class="font-bold text-gray-900">{{ formatCurrency(plan.current_iht_position.projected.gross_estate) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700">Less: Liabilities</span>
+                      <span class="font-bold text-gray-900">-{{ formatCurrency(plan.current_iht_position.projected.liabilities) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700">Net Estate</span>
+                      <span class="font-bold text-gray-900">{{ formatCurrency(plan.current_iht_position.projected.net_estate) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700 text-sm">NRB (User)</span>
+                      <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.projected.user_nrb) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700 text-sm">NRB (Spouse)</span>
+                      <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.projected.spouse_nrb) }}</span>
+                    </div>
+                    <div v-if="plan.current_iht_position.projected.user_rnrb > 0" class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700 text-sm">RNRB (User)</span>
+                      <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.projected.user_rnrb) }}</span>
+                    </div>
+                    <div v-if="plan.current_iht_position.projected.spouse_rnrb > 0" class="flex justify-between items-center pb-3 border-b">
+                      <span class="text-gray-700 text-sm">RNRB (Spouse)</span>
+                      <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.projected.spouse_rnrb) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-3 border-b bg-amber-50 -mx-6 px-6 py-3">
+                      <span class="font-semibold text-gray-900">Taxable Estate</span>
+                      <span class="font-bold text-amber-700">{{ formatCurrency(plan.current_iht_position.projected.taxable_estate) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-red-50 -mx-6 px-6 py-3 rounded">
+                      <span class="font-semibold text-red-900">IHT Liability (40%)</span>
+                      <span class="font-bold text-red-700 text-xl">{{ formatCurrency(plan.current_iht_position.projected.iht_liability) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Single Person - Show current only -->
+            <div v-else class="bg-gray-50 rounded-lg p-6">
               <div class="space-y-3">
                 <div class="flex justify-between items-center pb-3 border-b">
                   <span class="text-gray-700">Gross Estate Value</span>

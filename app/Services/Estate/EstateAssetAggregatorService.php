@@ -35,86 +35,100 @@ class EstateAssetAggregatorService
 
         // Investment accounts
         $investmentAccounts = InvestmentAccount::where('user_id', $user->id)->get();
-        $investmentAssets = $investmentAccounts->map(function ($account) {
+        $investmentAssets = $investmentAccounts->map(function ($account) use ($user) {
             return (object) [
+                'user_id' => $user->id,
                 'asset_type' => 'investment',
                 'asset_name' => $account->provider.' - '.strtoupper($account->account_type),
                 'current_value' => $account->current_value,
+                'ownership_type' => $account->ownership_type ?? 'individual',
                 'is_iht_exempt' => false, // ISAs are NOT IHT-exempt
             ];
         });
 
         // Properties
         $properties = Property::where('user_id', $user->id)->get();
-        $propertyAssets = $properties->map(function ($property) {
+        $propertyAssets = $properties->map(function ($property) use ($user) {
             $ownershipPercentage = $property->ownership_percentage ?? 100;
             $userValue = $property->current_value * ($ownershipPercentage / 100);
 
             return (object) [
+                'user_id' => $user->id,
                 'asset_type' => 'property',
                 'asset_name' => $property->address_line_1 ?: 'Property',
                 'current_value' => $userValue,
+                'ownership_type' => $property->ownership_type ?? 'individual',
                 'is_iht_exempt' => false,
             ];
         });
 
         // Savings/Cash
         $savingsAccounts = SavingsAccount::where('user_id', $user->id)->get();
-        $savingsAssets = $savingsAccounts->map(function ($account) {
+        $savingsAssets = $savingsAccounts->map(function ($account) use ($user) {
             return (object) [
+                'user_id' => $user->id,
                 'asset_type' => 'cash',
                 'asset_name' => $account->institution.' - '.ucfirst($account->account_type),
                 'current_value' => $account->current_balance,
+                'ownership_type' => $account->ownership_type ?? 'individual',
                 'is_iht_exempt' => false, // Cash ISAs are NOT IHT-exempt
             ];
         });
 
         // Business Interests
         $businessInterests = BusinessInterest::where('user_id', $user->id)->get();
-        $businessAssets = $businessInterests->map(function ($business) {
+        $businessAssets = $businessInterests->map(function ($business) use ($user) {
             $ownershipPercentage = $business->ownership_percentage ?? 100;
             $userValue = $business->current_valuation * ($ownershipPercentage / 100);
 
             return (object) [
+                'user_id' => $user->id,
                 'asset_type' => 'business',
                 'asset_name' => $business->business_name,
                 'current_value' => $userValue,
+                'ownership_type' => 'individual', // Business interests typically individual
                 'is_iht_exempt' => false, // May qualify for Business Relief (BR) at 50% or 100%
             ];
         });
 
         // Chattels (personal property)
         $chattels = Chattel::where('user_id', $user->id)->get();
-        $chattelAssets = $chattels->map(function ($chattel) {
+        $chattelAssets = $chattels->map(function ($chattel) use ($user) {
             $ownershipPercentage = $chattel->ownership_percentage ?? 100;
             $userValue = $chattel->current_value * ($ownershipPercentage / 100);
 
             return (object) [
+                'user_id' => $user->id,
                 'asset_type' => 'chattel',
                 'asset_name' => $chattel->name,
                 'current_value' => $userValue,
+                'ownership_type' => 'individual',
                 'is_iht_exempt' => false,
             ];
         });
 
         // DC Pensions (not IHT liable but needed for income projections in gifting strategy)
         $dcPensions = DCPension::where('user_id', $user->id)->get();
-        $dcPensionAssets = $dcPensions->map(function ($pension) {
+        $dcPensionAssets = $dcPensions->map(function ($pension) use ($user) {
             return (object) [
+                'user_id' => $user->id,
                 'asset_type' => 'dc_pension',
                 'asset_name' => $pension->scheme_name,
                 'current_value' => $pension->current_fund_value,
+                'ownership_type' => 'individual',
                 'is_iht_exempt' => true, // DC pensions outside estate if beneficiary nominated
             ];
         });
 
         // DB Pensions (for income projections only - no transfer value in estate)
         $dbPensions = DBPension::where('user_id', $user->id)->get();
-        $dbPensionAssets = $dbPensions->map(function ($pension) {
+        $dbPensionAssets = $dbPensions->map(function ($pension) use ($user) {
             return (object) [
+                'user_id' => $user->id,
                 'asset_type' => 'db_pension',
                 'asset_name' => $pension->scheme_name,
                 'current_value' => 0, // DB pensions have no IHT value (die with member)
+                'ownership_type' => 'individual',
                 'is_iht_exempt' => true,
                 'annual_income' => $pension->expected_annual_pension ?? 0, // For income projections
             ];

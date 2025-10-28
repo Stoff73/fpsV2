@@ -26,7 +26,8 @@ class ComprehensiveEstatePlanService
         private NetWorthAnalyzer $netWorthAnalyzer,
         private IHTCalculator $ihtCalculator,
         private EstateAssetAggregatorService $assetAggregator,
-        private ProfileCompletenessChecker $completenessChecker
+        private ProfileCompletenessChecker $completenessChecker,
+        private SecondDeathIHTCalculator $secondDeathCalculator
     ) {}
 
     /**
@@ -67,6 +68,63 @@ class ComprehensiveEstatePlanService
             $user
         );
         $currentIHTLiability = $ihtAnalysis['iht_liability'];
+
+        // Get second death IHT analysis (for married couples)
+        $secondDeathAnalysis = null;
+        $projectedIHTLiability = null;
+        if ($user->marital_status === 'married' && $user->spouse_id) {
+            try {
+                // Get spouse user
+                $spouse = User::find($user->spouse_id);
+
+                if ($spouse) {
+                    // Get spouse profile
+                    $spouseProfile = IHTProfile::where('user_id', $spouse->id)->first();
+
+                    // Get spouse assets
+                    $spouseAggregatedAssets = $this->assetAggregator->gatherUserAssets($spouse);
+                    $spouseAssets = $this->convertToAssetModels($spouseAggregatedAssets, $spouse);
+
+                    // Calculate liabilities
+                    $userLiabilities = \App\Models\Estate\Liability::where('user_id', $user->id)->sum('current_balance') ?? 0;
+                    $userLiabilities += \App\Models\Mortgage::where('user_id', $user->id)->sum('outstanding_balance') ?? 0;
+
+                    $spouseLiabilities = \App\Models\Estate\Liability::where('user_id', $spouse->id)->sum('current_balance') ?? 0;
+                    $spouseLiabilities += \App\Models\Mortgage::where('user_id', $spouse->id)->sum('outstanding_balance') ?? 0;
+
+                    // Call second death calculator with all required parameters
+                    $secondDeathResult = $this->secondDeathCalculator->calculateSecondDeathIHT(
+                        $user,
+                        $spouse,
+                        $assets,
+                        $spouseAssets,
+                        $ihtProfile,
+                        $spouseProfile,
+                        collect([]), // userGifts
+                        collect([]), // spouseGifts
+                        collect([]), // userTrusts
+                        collect([]), // spouseTrusts
+                        $userLiabilities,
+                        $spouseLiabilities,
+                        null, // userWill
+                        null, // spouseWill
+                        true  // dataSharingEnabled (assume true for comprehensive plan)
+                    );
+
+                    if ($secondDeathResult['success']) {
+                        // The result IS the data (not nested under 'data' key)
+                        $secondDeathAnalysis = $secondDeathResult;
+                        // Get current combined IHT liability (if both die now)
+                        $currentIHTLiability = $secondDeathAnalysis['current_iht_calculation']['iht_liability'] ?? $currentIHTLiability;
+                        // Get projected IHT liability (at second death age)
+                        $projectedIHTLiability = $secondDeathAnalysis['iht_calculation']['iht_liability'] ?? null;
+                    }
+                }
+            } catch (\Exception $e) {
+                // If second death calculation fails, continue with single person calculation
+                \Log::warning('Second death IHT calculation failed for estate plan: ' . $e->getMessage());
+            }
+        }
 
         // Calculate years until death (life expectancy)
         $yearsUntilDeath = $this->calculateYearsUntilDeath($user);
@@ -116,12 +174,16 @@ class ComprehensiveEstatePlanService
                 $user,
                 $ihtAnalysis,
                 $optimizedStrategy,
-                $profileCompleteness
+                $profileCompleteness,
+                $currentIHTLiability,
+                $projectedIHTLiability,
+                $secondDeathAnalysis
             ),
             'user_profile' => $this->buildUserProfile($user),
             'balance_sheet' => $this->buildBalanceSheet($user, $assets, $ihtAnalysis),
             'estate_overview' => $this->buildEstateOverview($aggregatedAssets, $ihtAnalysis),
-            'current_iht_position' => $this->buildIHTPosition($ihtAnalysis, $ihtProfile),
+            'estate_breakdown' => $this->buildEstateBreakdown($user, $aggregatedAssets, $secondDeathAnalysis),
+            'current_iht_position' => $this->buildIHTPosition($ihtAnalysis, $ihtProfile, $secondDeathAnalysis),
             'gifting_strategy' => $giftingPlan,
             'trust_strategy' => $trustPlan,
             'life_policy_strategy' => $lifePolicyPlan,
@@ -210,11 +272,17 @@ class ComprehensiveEstatePlanService
             $spouse = FamilyMember::find($user->spouse_id);
         }
 
+        // Calculate age from date of birth
+        $age = 'Not provided';
+        if ($user->date_of_birth) {
+            $age = \Carbon\Carbon::parse($user->date_of_birth)->age;
+        }
+
         return [
             'name' => $user->name,
             'email' => $user->email,
             'date_of_birth' => $user->date_of_birth ? \Carbon\Carbon::parse($user->date_of_birth)->format('d/m/Y') : 'Not provided',
-            'age' => $user->age ?? 'Not calculated',
+            'age' => $age,
             'gender' => ucfirst($user->gender ?? 'Not specified'),
             'marital_status' => ucfirst(str_replace('_', ' ', $user->marital_status ?? 'single')),
             'spouse' => $spouse ? [
@@ -259,6 +327,96 @@ class ComprehensiveEstatePlanService
             'breakdown' => $breakdown,
             'detailed_assets' => $detailedAssets,
         ];
+    }
+
+    /**
+     * Build estate breakdown with separate user, spouse, and joint sections
+     * Uses data from secondDeathAnalysis if available (already calculated in Estate module)
+     */
+    private function buildEstateBreakdown(User $user, Collection $aggregatedAssets, ?array $secondDeathAnalysis): array
+    {
+        $breakdown = [
+            'user' => null,
+            'spouse' => null,
+            'combined' => null,
+        ];
+
+        // If we have second death analysis, use that data (already calculated)
+        if ($secondDeathAnalysis && isset($secondDeathAnalysis['first_death']) && isset($secondDeathAnalysis['second_death'])) {
+            // Get all assets for both users
+            $spouse = User::find($user->spouse_id);
+            $spouseAggregatedAssets = $spouse ? $this->assetAggregator->gatherUserAssets($spouse) : collect([]);
+
+            // Combine all assets (user + spouse)
+            $allAssets = $aggregatedAssets->concat($spouseAggregatedAssets);
+
+            // User's estate
+            $userAssets = $allAssets->filter(fn($asset) => $asset->user_id === $user->id);
+            $breakdown['user'] = [
+                'name' => $secondDeathAnalysis['first_death']['name'],
+                'total_assets' => $secondDeathAnalysis['first_death']['current_estate_value'],
+                'total_liabilities' => $secondDeathAnalysis['liability_breakdown']['current']['user_liabilities'] ?? 0,
+                'net_estate' => $secondDeathAnalysis['first_death']['current_estate_value'] - ($secondDeathAnalysis['liability_breakdown']['current']['user_liabilities'] ?? 0),
+                'asset_count' => $userAssets->count(),
+                'detailed_assets' => $this->groupAssetsByType($userAssets),
+            ];
+
+            // Spouse's estate
+            $spouseAssets = $allAssets->filter(fn($asset) => $asset->user_id === $spouse->id);
+            $breakdown['spouse'] = [
+                'name' => $secondDeathAnalysis['second_death']['name'],
+                'total_assets' => $secondDeathAnalysis['second_death']['current_estate_value'],
+                'total_liabilities' => $secondDeathAnalysis['liability_breakdown']['current']['spouse_liabilities'] ?? 0,
+                'net_estate' => $secondDeathAnalysis['second_death']['current_estate_value'] - ($secondDeathAnalysis['liability_breakdown']['current']['spouse_liabilities'] ?? 0),
+                'asset_count' => $spouseAssets->count(),
+                'detailed_assets' => $this->groupAssetsByType($spouseAssets),
+            ];
+
+            // Combined estate (from current_combined_totals)
+            $breakdown['combined'] = [
+                'total_assets' => $secondDeathAnalysis['current_combined_totals']['gross_assets'],
+                'total_liabilities' => $secondDeathAnalysis['current_combined_totals']['total_liabilities'],
+                'net_estate' => $secondDeathAnalysis['current_combined_totals']['net_estate'],
+                'asset_count' => $allAssets->count(),
+                'detailed_assets' => $this->groupAssetsByType($allAssets),
+            ];
+        } else {
+            // Single person - just show their estate
+            $userLiabilities = \App\Models\Estate\Liability::where('user_id', $user->id)->sum('current_balance') ?? 0;
+            $userLiabilities += \App\Models\Mortgage::where('user_id', $user->id)->sum('outstanding_balance') ?? 0;
+
+            $breakdown['user'] = [
+                'name' => $user->name,
+                'total_assets' => $aggregatedAssets->sum('current_value'),
+                'total_liabilities' => $userLiabilities,
+                'net_estate' => $aggregatedAssets->sum('current_value') - $userLiabilities,
+                'asset_count' => $aggregatedAssets->count(),
+                'detailed_assets' => $this->groupAssetsByType($aggregatedAssets),
+            ];
+        }
+
+        return $breakdown;
+    }
+
+    /**
+     * Group assets by type for detailed breakdown
+     */
+    private function groupAssetsByType(Collection $assets): array
+    {
+        $assetsByType = $assets->groupBy('asset_type');
+        $grouped = [];
+
+        foreach ($assetsByType as $type => $typeAssets) {
+            $grouped[$type] = $typeAssets->map(function ($asset) {
+                return [
+                    'name' => $asset->asset_name,
+                    'value' => $asset->current_value,
+                    'is_iht_exempt' => $asset->is_iht_exempt ?? false,
+                ];
+            })->toArray();
+        }
+
+        return $grouped;
     }
 
     /**
@@ -360,10 +518,60 @@ class ComprehensiveEstatePlanService
 
     /**
      * Build IHT position
+     * Uses second death analysis if available (married couples)
      */
-    private function buildIHTPosition(array $ihtAnalysis, IHTProfile $profile): array
+    private function buildIHTPosition(array $ihtAnalysis, IHTProfile $profile, ?array $secondDeathAnalysis): array
     {
+        // If we have second death analysis, show both NOW and PROJECTED scenarios
+        if ($secondDeathAnalysis && isset($secondDeathAnalysis['current_iht_calculation']) && isset($secondDeathAnalysis['iht_calculation'])) {
+            return [
+                'has_projection' => true,
+
+                // NOW scenario (if both die today)
+                'now' => [
+                    'gross_estate' => $secondDeathAnalysis['current_combined_totals']['gross_assets'],
+                    'liabilities' => $secondDeathAnalysis['current_combined_totals']['total_liabilities'],
+                    'net_estate' => $secondDeathAnalysis['current_combined_totals']['net_estate'],
+                    'user_nrb' => 325000,
+                    'spouse_nrb' => 325000,
+                    'available_nrb' => $secondDeathAnalysis['current_iht_calculation']['available_nrb'] ?? 650000,
+                    'user_rnrb' => $secondDeathAnalysis['current_iht_calculation']['rnrb'] ? ($secondDeathAnalysis['current_iht_calculation']['rnrb'] / 2) : 0,
+                    'spouse_rnrb' => $secondDeathAnalysis['current_iht_calculation']['rnrb'] ? ($secondDeathAnalysis['current_iht_calculation']['rnrb'] / 2) : 0,
+                    'rnrb' => $secondDeathAnalysis['current_iht_calculation']['rnrb'] ?? 0,
+                    'total_allowances' => $secondDeathAnalysis['current_iht_calculation']['total_allowance'] ?? 650000,
+                    'taxable_estate' => $secondDeathAnalysis['current_iht_calculation']['taxable_estate'] ?? 0,
+                    'iht_liability' => $secondDeathAnalysis['current_iht_calculation']['iht_liability'] ?? 0,
+                    'effective_rate' => $secondDeathAnalysis['current_combined_totals']['net_estate'] > 0
+                        ? ($secondDeathAnalysis['current_iht_calculation']['iht_liability'] / $secondDeathAnalysis['current_combined_totals']['net_estate']) * 100
+                        : 0,
+                ],
+
+                // PROJECTED scenario (at expected death age)
+                'projected' => [
+                    'age_at_death' => $secondDeathAnalysis['second_death']['estimated_age_at_death'],
+                    'years_until_death' => $secondDeathAnalysis['second_death']['years_until_death'],
+                    'gross_estate' => $secondDeathAnalysis['second_death']['projected_combined_estate_at_second_death'],
+                    'liabilities' => $secondDeathAnalysis['liability_breakdown']['projected']['survivor_liabilities'] ?? 0,
+                    'net_estate' => $secondDeathAnalysis['second_death']['projected_combined_estate_at_second_death'] - ($secondDeathAnalysis['liability_breakdown']['projected']['survivor_liabilities'] ?? 0),
+                    'user_nrb' => 325000,
+                    'spouse_nrb' => 325000,
+                    'available_nrb' => $secondDeathAnalysis['iht_calculation']['available_nrb'] ?? 650000,
+                    'user_rnrb' => $secondDeathAnalysis['iht_calculation']['rnrb'] ? ($secondDeathAnalysis['iht_calculation']['rnrb'] / 2) : 0,
+                    'spouse_rnrb' => $secondDeathAnalysis['iht_calculation']['rnrb'] ? ($secondDeathAnalysis['iht_calculation']['rnrb'] / 2) : 0,
+                    'rnrb' => $secondDeathAnalysis['iht_calculation']['rnrb'] ?? 0,
+                    'total_allowances' => $secondDeathAnalysis['iht_calculation']['total_allowance'] ?? 650000,
+                    'taxable_estate' => $secondDeathAnalysis['iht_calculation']['taxable_estate'] ?? 0,
+                    'iht_liability' => $secondDeathAnalysis['iht_calculation']['iht_liability'] ?? 0,
+                    'effective_rate' => ($secondDeathAnalysis['second_death']['projected_combined_estate_at_second_death'] > 0)
+                        ? ($secondDeathAnalysis['iht_calculation']['iht_liability'] / $secondDeathAnalysis['second_death']['projected_combined_estate_at_second_death']) * 100
+                        : 0,
+                ],
+            ];
+        }
+
+        // Single person - just show current position
         return [
+            'has_projection' => false,
             'gross_estate' => $ihtAnalysis['net_estate_value'] ?? 0,
             'available_nrb' => $profile->available_nrb ?? 325000,
             'rnrb' => $ihtAnalysis['rnrb'] ?? 0,
@@ -535,18 +743,53 @@ class ComprehensiveEstatePlanService
     /**
      * Generate executive summary
      */
-    private function generateExecutiveSummary(User $user, array $ihtAnalysis, array $optimizedStrategy, ?array $profileCompleteness): array
-    {
+    private function generateExecutiveSummary(
+        User $user,
+        array $ihtAnalysis,
+        array $optimizedStrategy,
+        ?array $profileCompleteness,
+        float $currentIHTLiability,
+        ?float $projectedIHTLiability,
+        ?array $secondDeathAnalysis
+    ): array {
+        // Extract key actions as list instead of count
+        $keyActions = [];
+        foreach ($optimizedStrategy['recommendations'] as $rec) {
+            if ($rec['priority'] <= 2) { // Only priority 1 and 2 actions
+                foreach ($rec['actions'] as $action) {
+                    $keyActions[] = $action['action'];
+                }
+            }
+        }
+
+        // Calculate potential IHT saving more accurately
+        // The saving is from implementing the recommended strategies
+        $potentialSaving = $optimizedStrategy['summary']['total_iht_saving'];
+
+        // For married couples: use projected liability as the baseline for calculating savings
+        // (since that's the future liability we're trying to reduce)
+        if ($projectedIHTLiability && $projectedIHTLiability > $currentIHTLiability) {
+            // Don't cap the savings - strategies could save more than current liability
+            // The actual saving amount is already calculated in the optimized strategy
+            // Just ensure we're not showing a negative number
+            $potentialSaving = max(0, $optimizedStrategy['summary']['total_iht_saving']);
+        }
+
         return [
             'title' => 'Estate Planning Report for '.$user->name,
             'current_position' => [
                 'net_estate' => $ihtAnalysis['net_estate_value'] ?? 0,
-                'iht_liability' => $ihtAnalysis['iht_liability'] ?? 0,
+                'iht_liability' => $currentIHTLiability, // Current IHT liability (NOW)
+            ],
+            'iht_liabilities' => [
+                'current' => $currentIHTLiability, // If die now
+                'projected' => $projectedIHTLiability, // If die at projected age (married couples only)
+                'projected_age' => $secondDeathAnalysis['second_death']['estimated_age_at_death'] ?? null,
             ],
             'recommended_strategy' => $optimizedStrategy['strategy_name'],
-            'potential_saving' => $optimizedStrategy['summary']['total_iht_saving'],
+            'potential_saving' => $potentialSaving,
             'annual_cost' => $optimizedStrategy['summary']['annual_costs'],
-            'key_actions' => count($optimizedStrategy['recommendations']),
+            'key_actions' => $keyActions, // Array of action strings, not count
         ];
     }
 
