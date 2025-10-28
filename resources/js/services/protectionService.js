@@ -15,6 +15,28 @@ const protectionService = {
     },
 
     /**
+     * Save or update protection profile
+     * @param {Object} profileData - Protection profile data
+     * @returns {Promise} Saved profile
+     */
+    async saveProfile(profileData) {
+        const response = await api.post('/protection/profile', profileData);
+        return response.data;
+    },
+
+    /**
+     * Update the has_no_policies flag
+     * @param {Boolean} hasNoPolicies - Whether user has no policies
+     * @returns {Promise} Updated profile
+     */
+    async updateHasNoPolicies(hasNoPolicies) {
+        const response = await api.patch('/protection/profile/has-no-policies', {
+            has_no_policies: hasNoPolicies,
+        });
+        return response.data;
+    },
+
+    /**
      * Analyze protection coverage and gaps
      * @param {Object} data - Analysis parameters
      * @returns {Promise} Analysis results with gaps and recommendations

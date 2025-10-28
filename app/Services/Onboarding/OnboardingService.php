@@ -209,6 +209,8 @@ class OnboardingService
             return;
         }
 
+        $user = User::findOrFail($userId);
+
         // Get existing family members added during onboarding
         $existingMembers = \App\Models\FamilyMember::where('user_id', $userId)
             ->whereNotNull('date_of_birth')
@@ -216,6 +218,12 @@ class OnboardingService
             ->keyBy('name');
 
         foreach ($data['family_members'] as $memberData) {
+            // Special handling for spouse with email - attempt account linking
+            if ($memberData['relationship'] === 'spouse' && !empty($memberData['email'])) {
+                $this->handleSpouseLinking($user, $memberData);
+                continue; // Skip normal family member creation as it's handled by spouse linking
+            }
+
             // Check if this member already exists (by name)
             $existingMember = $existingMembers->get($memberData['name']);
 
@@ -236,6 +244,89 @@ class OnboardingService
                     'is_dependent' => $memberData['is_dependent'] ?? false,
                 ]);
             }
+        }
+    }
+
+    /**
+     * Handle spouse account linking during onboarding
+     */
+    protected function handleSpouseLinking(User $user, array $spouseData): void
+    {
+        $spouseEmail = strtolower(trim($spouseData['email']));
+
+        // Check if spouse account exists
+        $spouseAccount = User::where('email', $spouseEmail)->first();
+
+        if ($spouseAccount) {
+            // Account exists - link them
+            if ($spouseAccount->id === $user->id) {
+                // Can't link to self
+                return;
+            }
+
+            if ($user->spouse_id === $spouseAccount->id) {
+                // Already linked
+                return;
+            }
+
+            if ($spouseAccount->spouse_id && $spouseAccount->spouse_id !== $user->id) {
+                // Spouse already linked to someone else
+                return;
+            }
+
+            // Link the accounts bidirectionally
+            $user->update([
+                'spouse_id' => $spouseAccount->id,
+                'marital_status' => 'married',
+            ]);
+
+            $spouseAccount->update([
+                'spouse_id' => $user->id,
+                'marital_status' => 'married',
+            ]);
+
+            // Clear cached protection analysis for both users since spouse linkage affects completeness
+            \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$user->id}");
+            \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$spouseAccount->id}");
+
+            // Create family member record for the current user
+            \App\Models\FamilyMember::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'relationship' => 'spouse',
+                ],
+                [
+                    'name' => $spouseAccount->name,
+                    'date_of_birth' => $spouseData['date_of_birth'] ?? $spouseAccount->date_of_birth,
+                    'is_dependent' => false,
+                ]
+            );
+
+            // Create reciprocal family member record for spouse
+            \App\Models\FamilyMember::updateOrCreate(
+                [
+                    'user_id' => $spouseAccount->id,
+                    'relationship' => 'spouse',
+                ],
+                [
+                    'name' => $user->name,
+                    'date_of_birth' => $user->date_of_birth,
+                    'is_dependent' => false,
+                ]
+            );
+        } else {
+            // Account doesn't exist yet - just create family member record
+            \App\Models\FamilyMember::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'relationship' => 'spouse',
+                ],
+                [
+                    'name' => $spouseData['name'],
+                    'date_of_birth' => $spouseData['date_of_birth'],
+                    'is_dependent' => false,
+                ]
+            );
         }
     }
 

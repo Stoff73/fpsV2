@@ -68,6 +68,7 @@
               :domicile-info="domicileInfo"
               @updated="handleDomicileUpdated"
             />
+            <HealthInformation v-show="activeTab === 'health'" />
             <FamilyMembers v-show="activeTab === 'family'" />
             <IncomeOccupation v-show="activeTab === 'income'" />
             <ExpenditureOverview v-show="activeTab === 'expenditure'" />
@@ -88,6 +89,7 @@ import { useStore } from 'vuex';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PersonalInformation from '@/components/UserProfile/PersonalInformation.vue';
 import DomicileInformation from '@/components/UserProfile/DomicileInformation.vue';
+import HealthInformation from '@/components/UserProfile/HealthInformation.vue';
 import FamilyMembers from '@/components/UserProfile/FamilyMembers.vue';
 import IncomeOccupation from '@/components/UserProfile/IncomeOccupation.vue';
 import ExpenditureOverview from '@/components/UserProfile/ExpenditureOverview.vue';
@@ -103,6 +105,7 @@ export default {
     AppLayout,
     PersonalInformation,
     DomicileInformation,
+    HealthInformation,
     FamilyMembers,
     IncomeOccupation,
     ExpenditureOverview,
@@ -119,6 +122,7 @@ export default {
     const tabs = [
       { id: 'personal', label: 'Personal Info' },
       { id: 'domicile', label: 'Domicile Status' },
+      { id: 'health', label: 'Health' },
       { id: 'family', label: 'Family' },
       { id: 'income', label: 'Income & Occupation' },
       { id: 'expenditure', label: 'Expenditure' },

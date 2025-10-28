@@ -245,14 +245,22 @@ class ProfileCompletenessChecker
     private function hasProtectionPlans(User $user): bool
     {
         // Check if user has a protection profile
-        $hasProfile = $user->protectionProfile()->exists();
+        $profile = $user->protectionProfile;
+        if (! $profile) {
+            return false;
+        }
 
-        // Check if user has at least one policy
+        // If user has marked that they have no policies, consider profile complete
+        if ($profile->has_no_policies) {
+            return true;
+        }
+
+        // Otherwise, check if user has at least one policy
         $hasLifePolicy = $user->lifeInsurancePolicies()->exists();
         $hasCIPolicy = $user->criticalIllnessPolicies()->exists();
         $hasIPPolicy = $user->incomeProtectionPolicies()->exists();
 
-        return $hasProfile && ($hasLifePolicy || $hasCIPolicy || $hasIPPolicy);
+        return $hasLifePolicy || $hasCIPolicy || $hasIPPolicy;
     }
 
     /**

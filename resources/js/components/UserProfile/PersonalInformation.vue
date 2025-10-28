@@ -144,6 +144,27 @@
             :disabled="!isEditing"
           />
         </div>
+
+        <!-- Education Level -->
+        <div>
+          <label for="education_level" class="block text-body-sm font-medium text-gray-700 mb-1">
+            Highest Education Level
+          </label>
+          <select
+            id="education_level"
+            v-model="form.education_level"
+            class="form-select"
+            :disabled="!isEditing"
+          >
+            <option value="">Select...</option>
+            <option value="secondary">Secondary (GCSE/O-Levels)</option>
+            <option value="a_level">A-Levels/Vocational</option>
+            <option value="undergraduate">Undergraduate Degree</option>
+            <option value="postgraduate">Postgraduate Degree</option>
+            <option value="professional">Professional Qualification</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
       </div>
 
       <!-- Address Section -->
@@ -281,6 +302,7 @@ export default {
       marital_status: '',
       national_insurance_number: '',
       phone: '',
+      education_level: '',
       address_line_1: '',
       address_line_2: '',
       city: '',
@@ -299,6 +321,7 @@ export default {
           marital_status: personalInfo.value.marital_status || '',
           national_insurance_number: personalInfo.value.national_insurance_number || '',
           phone: personalInfo.value.phone || '',
+          education_level: personalInfo.value.education_level || '',
           address_line_1: personalInfo.value.address?.line_1 || '',
           address_line_2: personalInfo.value.address?.line_2 || '',
           city: personalInfo.value.address?.city || '',

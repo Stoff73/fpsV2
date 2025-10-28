@@ -187,6 +187,83 @@
           </div>
         </div>
       </div>
+
+      <!-- Health & Lifestyle Section -->
+      <div class="border-t pt-6">
+        <h4 class="text-body font-medium text-gray-900 mb-4">
+          Health & Lifestyle Information
+        </h4>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <p class="text-body-sm text-blue-800">
+            <strong>Why this matters:</strong> Health and lifestyle information helps us provide accurate protection recommendations and estimate insurance premium costs.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Good Health -->
+          <div>
+            <label for="good_health" class="label">
+              Are you in good health? <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="good_health"
+              v-model="formData.good_health"
+              class="input-field"
+              required
+            >
+              <option value="">Select...</option>
+              <option :value="true">Yes</option>
+              <option :value="false">No (pre-existing conditions)</option>
+            </select>
+            <p class="mt-1 text-body-sm text-gray-500">
+              Affects protection insurance premiums
+            </p>
+          </div>
+
+          <!-- Smoker Status -->
+          <div>
+            <label for="smoker" class="label">
+              Do you smoke? <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="smoker"
+              v-model="formData.smoker"
+              class="input-field"
+              required
+            >
+              <option value="">Select...</option>
+              <option :value="false">No</option>
+              <option :value="true">Yes</option>
+            </select>
+            <p class="mt-1 text-body-sm text-gray-500">
+              Significantly impacts insurance premiums
+            </p>
+          </div>
+
+          <!-- Education Level -->
+          <div>
+            <label for="education_level" class="label">
+              Highest Education Level
+            </label>
+            <select
+              id="education_level"
+              v-model="formData.education_level"
+              class="input-field"
+            >
+              <option value="">Select...</option>
+              <option value="secondary">Secondary (GCSE/O-Levels)</option>
+              <option value="a_level">A-Levels/Vocational</option>
+              <option value="undergraduate">Undergraduate Degree</option>
+              <option value="postgraduate">Postgraduate Degree</option>
+              <option value="professional">Professional Qualification</option>
+              <option value="other">Other</option>
+            </select>
+            <p class="mt-1 text-body-sm text-gray-500">
+              Optional - helps with occupation profiling
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </OnboardingStep>
 </template>
@@ -219,6 +296,9 @@ export default {
       county: '',
       postcode: '',
       phone: '',
+      good_health: '',
+      smoker: '',
+      education_level: '',
     });
 
     const loading = ref(false);
@@ -272,6 +352,16 @@ export default {
         return false;
       }
 
+      if (formData.value.good_health === '') {
+        error.value = 'Please indicate your health status';
+        return false;
+      }
+
+      if (formData.value.smoker === '') {
+        error.value = 'Please indicate your smoker status';
+        return false;
+      }
+
       return true;
     };
 
@@ -312,6 +402,9 @@ export default {
           county: currentUser.county || '',
           postcode: currentUser.postcode || '',
           phone: currentUser.phone || '',
+          good_health: currentUser.good_health !== undefined ? currentUser.good_health : '',
+          smoker: currentUser.smoker !== undefined ? currentUser.smoker : '',
+          education_level: currentUser.education_level || '',
         };
       }
 

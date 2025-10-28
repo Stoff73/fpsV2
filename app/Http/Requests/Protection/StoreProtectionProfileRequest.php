@@ -35,6 +35,7 @@ class StoreProtectionProfileRequest extends FormRequest
             'occupation' => ['nullable', 'string', 'max:255'],
             'smoker_status' => ['required', 'boolean'],
             'health_status' => ['nullable', 'string', 'in:excellent,good,fair,poor'],
+            'has_no_policies' => ['nullable', 'boolean'],
         ];
     }
 

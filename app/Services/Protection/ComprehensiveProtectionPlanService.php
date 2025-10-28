@@ -169,17 +169,49 @@ class ComprehensiveProtectionPlanService
     {
         $maritalStatus = is_string($user->marital_status) ? $user->marital_status : 'single';
 
+        // Calculate age from date_of_birth
+        $age = 'Not provided';
+        if ($user->date_of_birth) {
+            $age = \Carbon\Carbon::parse($user->date_of_birth)->age;
+        }
+
+        // Determine smoker status - check user table first, fallback to profile
+        $smokerStatus = isset($user->smoker) ? ($user->smoker ? 'Smoker' : 'Non-smoker') : ($profile->smoker_status ? 'Smoker' : 'Non-smoker');
+
+        // Determine health status - check user table first, fallback to profile
+        $healthStatus = 'Good'; // Default
+        if (isset($user->good_health)) {
+            $healthStatus = $user->good_health ? 'Good' : 'Pre-existing conditions';
+        } elseif (isset($profile->health_status)) {
+            $healthStatus = ucfirst($profile->health_status);
+        }
+
+        // Format education level for display
+        $educationLevel = 'Not specified';
+        if ($user->education_level) {
+            $educationLevel = match($user->education_level) {
+                'secondary' => 'Secondary (GCSE/O-Levels)',
+                'a_level' => 'A-Levels/Vocational',
+                'undergraduate' => 'Undergraduate Degree',
+                'postgraduate' => 'Postgraduate Degree',
+                'professional' => 'Professional Qualification',
+                'other' => 'Other',
+                default => 'Not specified',
+            };
+        }
+
         return [
             'name' => $user->name,
             'email' => $user->email,
             'date_of_birth' => $user->date_of_birth ? \Carbon\Carbon::parse($user->date_of_birth)->format('d/m/Y') : 'Not provided',
-            'age' => $user->age ?? 'Not calculated',
+            'age' => $age,
             'gender' => ucfirst($user->gender ?? 'Not specified'),
             'marital_status' => ucfirst(str_replace('_', ' ', $maritalStatus)),
-            'occupation' => $profile->occupation ?? 'Not specified',
-            'smoker_status' => $profile->smoker_status ? 'Smoker' : 'Non-smoker',
-            'health_status' => ucfirst($profile->health_status ?? 'good'),
-            'number_of_dependents' => $profile->number_of_dependents ?? 0,
+            'occupation' => $user->occupation ?? 'Not specified',
+            'education_level' => $educationLevel,
+            'smoker_status' => $smokerStatus,
+            'health_status' => $healthStatus,
+            'number_of_dependents' => \App\Models\FamilyMember::where('user_id', $user->id)->where('is_dependent', true)->count(),
             'dependents_ages' => $profile->dependents_ages ?? [],
             'retirement_age' => $profile->retirement_age ?? 65,
         ];
@@ -202,12 +234,17 @@ class ComprehensiveProtectionPlanService
             'other_income' => (float) ($user->annual_other_income ?? 0),
         ];
 
+        // Get expenditure from user table (annual) and calculate monthly
+        $annualExpenditure = (float) ($user->annual_expenditure ?? 0);
+        $monthlyExpenditure = $annualExpenditure / 12;
+
         return [
             'total_annual_income' => $totalAnnualIncome,
+            'annual_income' => $totalAnnualIncome, // Alias for frontend compatibility
             'monthly_income' => $monthlyIncome,
             'income_breakdown' => $incomeBreakdown,
-            'monthly_expenditure' => $data['profile']['monthly_expenditure'],
-            'annual_expenditure' => $data['profile']['monthly_expenditure'] * 12,
+            'monthly_expenditure' => $monthlyExpenditure,
+            'annual_expenditure' => $annualExpenditure,
             'debt_breakdown' => $data['debt_breakdown'],
             'total_debt' => $data['debt_breakdown']['total'],
         ];

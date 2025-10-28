@@ -166,6 +166,46 @@ class ProtectionController extends Controller
     }
 
     /**
+     * Update the has_no_policies flag for the protection profile.
+     */
+    public function updateHasNoPolicies(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'has_no_policies' => ['required', 'boolean'],
+        ]);
+
+        try {
+            $profile = ProtectionProfile::where('user_id', $user->id)->first();
+
+            if (! $profile) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Protection profile not found. Please create a profile first.',
+                ], 404);
+            }
+
+            $profile->has_no_policies = $request->input('has_no_policies');
+            $profile->save();
+
+            // Invalidate cache
+            $this->protectionAgent->invalidateCache($user->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Protection profile updated successfully.',
+                'data' => $profile,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update protection profile: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Store a new life insurance policy.
      */
     public function storeLifePolicy(StoreLifePolicyRequest $request): JsonResponse

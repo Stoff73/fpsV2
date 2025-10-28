@@ -37,6 +37,9 @@ class UpdatePersonalInfoRequest extends FormRequest
             'county' => ['sometimes', 'nullable', 'string', 'max:255'],
             'postcode' => ['sometimes', 'nullable', 'string', 'regex:/^[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}$/i'],
             'phone' => ['sometimes', 'nullable', 'string', 'regex:/^(\+44|0)[0-9]{10}$/'],
+            'good_health' => ['sometimes', 'nullable', 'boolean'],
+            'smoker' => ['sometimes', 'nullable', 'boolean'],
+            'education_level' => ['sometimes', 'nullable', Rule::in(['secondary', 'a_level', 'undergraduate', 'postgraduate', 'professional', 'other'])],
         ];
     }
 

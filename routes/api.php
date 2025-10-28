@@ -162,6 +162,7 @@ Route::middleware('auth:sanctum')->prefix('protection')->group(function () {
 
     // Protection profile
     Route::post('/profile', [ProtectionController::class, 'storeProfile']);
+    Route::patch('/profile/has-no-policies', [ProtectionController::class, 'updateHasNoPolicies']);
 
     // Life insurance policies
     Route::prefix('policies/life')->group(function () {

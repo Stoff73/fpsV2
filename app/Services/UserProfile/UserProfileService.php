@@ -61,6 +61,9 @@ class UserProfileService
                     'postcode' => $user->postcode,
                 ],
                 'phone' => $user->phone,
+                'education_level' => $user->education_level,
+                'good_health' => $user->good_health,
+                'smoker' => $user->smoker,
             ],
             'household' => $user->household,
             'spouse' => $user->spouse ? [

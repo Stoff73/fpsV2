@@ -210,6 +210,10 @@
                   <span class="font-semibold text-gray-900">{{ plan.user_profile.occupation }}</span>
                 </div>
                 <div class="flex justify-between border-b pb-2">
+                  <span class="text-gray-600">Education Level:</span>
+                  <span class="font-semibold text-gray-900">{{ plan.user_profile.education_level }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
                   <span class="text-gray-600">Retirement Age:</span>
                   <span class="font-semibold text-gray-900">{{ plan.user_profile.retirement_age }}</span>
                 </div>
@@ -639,6 +643,9 @@ export default {
       this.error = null;
 
       try {
+        // Refresh user data first to ensure we have latest spouse linkage info
+        await this.$store.dispatch('auth/fetchUser');
+
         const response = await protectionService.getComprehensiveProtectionPlan();
         if (response.success) {
           this.plan = response.data;

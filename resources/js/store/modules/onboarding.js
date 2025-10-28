@@ -238,7 +238,7 @@ const actions = {
     }
   },
 
-  async completeOnboarding({ commit }) {
+  async completeOnboarding({ commit, dispatch }) {
     commit('SET_LOADING', true);
     commit('SET_ERROR', null);
 
@@ -247,6 +247,9 @@ const actions = {
       const data = response.data;
 
       commit('SET_STATUS', { completed: true });
+
+      // Refresh user data to reflect any spouse linkage that occurred during onboarding
+      await dispatch('auth/fetchUser', null, { root: true });
 
       return data;
     } catch (error) {

@@ -109,6 +109,46 @@ const getters = {
 };
 
 const actions = {
+    // Fetch protection profile
+    async fetchProfile({ commit }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await protectionService.getProtectionData();
+            const data = response.data || response;
+            commit('setProfile', data.profile || null);
+            return response;
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to fetch protection profile';
+            commit('setError', errorMessage);
+            console.error('Protection profile fetch error:', error);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    // Update protection profile
+    async updateProfile({ commit }, profileData) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await protectionService.saveProfile(profileData);
+            const data = response.data || response;
+            commit('setProfile', data.profile || data);
+            return response;
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to update protection profile';
+            commit('setError', errorMessage);
+            console.error('Protection profile update error:', error);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
     // Fetch all protection data
     async fetchProtectionData({ commit }) {
         commit('setLoading', true);

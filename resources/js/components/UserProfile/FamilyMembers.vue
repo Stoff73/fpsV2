@@ -49,6 +49,13 @@
               >
                 Dependent
               </span>
+              <span
+                v-if="member.is_shared && member.owner === 'spouse'"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                title="This family member is managed by your spouse"
+              >
+                Shared from Spouse
+              </span>
             </div>
 
             <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -80,7 +87,7 @@
             </div>
           </div>
 
-          <div class="flex space-x-2 ml-4">
+          <div v-if="!member.is_shared" class="flex space-x-2 ml-4">
             <button
               @click="openEditModal(member)"
               class="btn-secondary-sm"
@@ -93,6 +100,11 @@
             >
               Delete
             </button>
+          </div>
+          <div v-else class="ml-4">
+            <p class="text-body-xs text-gray-500 italic">
+              Managed by spouse
+            </p>
           </div>
         </div>
       </div>
@@ -232,8 +244,12 @@ export default {
           if (formData.relationship === 'spouse' && response.data) {
             if (response.data.created) {
               successMessage.value = `Spouse account created successfully! An email has been sent to ${formData.email} with instructions to set their password.`;
+              // Refresh user data to reflect spouse linkage
+              await store.dispatch('auth/fetchUser');
             } else if (response.data.linked) {
               successMessage.value = `Spouse account linked successfully! You can now request permission to share financial data with ${formData.name}.`;
+              // Refresh user data to reflect spouse linkage
+              await store.dispatch('auth/fetchUser');
             } else {
               successMessage.value = 'Family member added successfully!';
             }

@@ -29,6 +29,7 @@ class ProtectionProfile extends Model
         'occupation',
         'smoker_status',
         'health_status',
+        'has_no_policies',
     ];
 
     /**
@@ -45,6 +46,7 @@ class ProtectionProfile extends Model
         'dependents_ages' => 'array',
         'retirement_age' => 'integer',
         'smoker_status' => 'boolean',
+        'has_no_policies' => 'boolean',
     ];
 
     /**

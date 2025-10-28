@@ -30,9 +30,20 @@ class FamilyMembersController extends Controller
             ->orderBy('date_of_birth')
             ->get();
 
-        // Add spouse email if applicable
+        // If user has a linked spouse, also get spouse's children
+        $spouseChildren = collect();
+        if ($user->spouse_id) {
+            $spouseChildren = FamilyMember::where('user_id', $user->spouse_id)
+                ->where('relationship', 'child')
+                ->orderBy('date_of_birth')
+                ->get();
+        }
+
+        // Add spouse email if applicable and mark spouse's children as shared
         $familyMembers = $familyMembers->map(function ($member) use ($user) {
             $memberArray = $member->toArray();
+            $memberArray['is_shared'] = false;
+            $memberArray['owner'] = 'self';
 
             // If this is a spouse and user has a spouse_id, get the spouse's email
             if ($member->relationship === 'spouse' && $user->spouse_id) {
@@ -43,11 +54,34 @@ class FamilyMembersController extends Controller
             return $memberArray;
         });
 
+        // Add spouse's children with shared flag
+        $spouseChildren = $spouseChildren->map(function ($member) use ($user, $familyMembers) {
+            $memberArray = $member->toArray();
+
+            // Check if this child already exists in user's family members (duplicate)
+            $isDuplicate = $familyMembers->contains(function ($fm) use ($member) {
+                return $fm['relationship'] === 'child' &&
+                       $fm['name'] === $member->name &&
+                       $fm['date_of_birth'] === $member->date_of_birth;
+            });
+
+            if (!$isDuplicate) {
+                $memberArray['is_shared'] = true;
+                $memberArray['owner'] = 'spouse';
+                return $memberArray;
+            }
+
+            return null;
+        })->filter(); // Remove nulls
+
+        // Merge user's family members with spouse's children
+        $allMembers = $familyMembers->concat($spouseChildren);
+
         return response()->json([
             'success' => true,
             'data' => [
-                'family_members' => $familyMembers,
-                'count' => $familyMembers->count(),
+                'family_members' => $allMembers->values(),
+                'count' => $allMembers->count(),
             ],
         ]);
     }
@@ -65,6 +99,28 @@ class FamilyMembersController extends Controller
         // Special handling for spouse relationship
         if ($data['relationship'] === 'spouse' && isset($data['email'])) {
             return $this->handleSpouseCreation($user, $data);
+        }
+
+        // Check for duplicate children when user has linked spouse
+        if ($data['relationship'] === 'child' && $user->spouse_id) {
+            $duplicateInUserRecords = FamilyMember::where('user_id', $user->id)
+                ->where('relationship', 'child')
+                ->where('name', $data['name'])
+                ->where('date_of_birth', $data['date_of_birth'])
+                ->exists();
+
+            $duplicateInSpouseRecords = FamilyMember::where('user_id', $user->spouse_id)
+                ->where('relationship', 'child')
+                ->where('name', $data['name'])
+                ->where('date_of_birth', $data['date_of_birth'])
+                ->exists();
+
+            if ($duplicateInUserRecords || $duplicateInSpouseRecords) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This child already exists in your or your spouse\'s family members. Children are automatically shared between linked spouses.',
+                ], 422);
+            }
         }
 
         $familyMember = FamilyMember::create([
@@ -116,6 +172,10 @@ class FamilyMembersController extends Controller
             $spouseUser->spouse_id = $currentUser->id;
             $spouseUser->marital_status = 'married';
             $spouseUser->save();
+
+            // Clear cached protection analysis for both users since spouse linkage affects completeness
+            \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$currentUser->id}");
+            \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$spouseUser->id}");
 
             // Create family member record
             $familyMember = FamilyMember::create([
@@ -170,6 +230,9 @@ class FamilyMembersController extends Controller
         $currentUser->spouse_id = $spouseUser->id;
         $currentUser->marital_status = 'married';
         $currentUser->save();
+
+        // Clear cached protection analysis for current user since spouse linkage affects completeness
+        \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$currentUser->id}");
 
         // Create family member record
         $familyMember = FamilyMember::create([

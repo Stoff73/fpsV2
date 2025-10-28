@@ -73,6 +73,23 @@
             </p>
           </div>
 
+          <!-- Email field for spouse -->
+          <div v-if="currentMember.relationship === 'spouse'" class="md:col-span-2">
+            <label for="member_email" class="label">
+              Email Address (Optional)
+            </label>
+            <input
+              id="member_email"
+              v-model="currentMember.email"
+              type="email"
+              class="input-field"
+              placeholder="spouse@example.com"
+            >
+            <p class="mt-1 text-body-sm text-gray-500">
+              If your spouse has an account, entering their email will link your accounts and share family information.
+            </p>
+          </div>
+
           <div>
             <label class="label">
               Is this person financially dependent on you?
@@ -238,6 +255,7 @@ export default {
       relationship: '',
       date_of_birth: '',
       is_dependent: false,
+      email: '',
     });
 
     const loading = ref(false);
@@ -276,6 +294,7 @@ export default {
         relationship: '',
         date_of_birth: '',
         is_dependent: false,
+        email: '',
       };
     };
 
