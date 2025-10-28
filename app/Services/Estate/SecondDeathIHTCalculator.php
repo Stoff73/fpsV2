@@ -168,8 +168,39 @@ class SecondDeathIHTCalculator
         // 7. Get survivor's trusts
         $survivorTrusts = $survivor->id === $user->id ? $userTrusts : $spouseTrusts;
 
-        // 8. Project liabilities (conservative: assume they remain)
-        $survivorLiabilitiesProjected = $survivor->id === $user->id ? $userLiabilities : $spouseLiabilities;
+        // 8. Project liabilities for second death
+        // Get mortgages and other liabilities separately for proper projection
+        $survivorMortgages = \App\Models\Mortgage::where('user_id', $survivor->id)->get();
+        $survivorOtherLiabilities = \App\Models\Estate\Liability::where('user_id', $survivor->id)->sum('current_balance');
+
+        // Project mortgages - assume paid off by age 75 or at maturity
+        $projectedMortgages = 0;
+        $survivorCurrentAge = Carbon::parse($survivor->date_of_birth)->age;
+        $yearsToAge75 = max(0, 75 - $survivorCurrentAge);
+        $yearsToSecondDeath = (int) $survivorYearsUntilDeath;
+
+        foreach ($survivorMortgages as $mortgage) {
+            $yearsToMortgageMaturity = ($mortgage->remaining_term_months ?? 0) / 12;
+
+            // If mortgage matures before age 75 or before second death, it's paid off
+            if ($yearsToMortgageMaturity <= $yearsToAge75 || $yearsToMortgageMaturity <= $yearsToSecondDeath) {
+                // Mortgage paid off - contributes £0
+                continue;
+            }
+
+            // Otherwise project the balance
+            $projectedMortgages += $this->fvCalculator->projectMortgageBalance(
+                (float) $mortgage->outstanding_balance,
+                $mortgage->mortgage_type ?? 'repayment',
+                (int) ($mortgage->remaining_term_months ?? 0),
+                (float) ($mortgage->interest_rate ?? 0),
+                (float) ($mortgage->monthly_payment ?? 0),
+                $yearsToSecondDeath
+            );
+        }
+
+        // Other liabilities assumed to remain constant (conservative)
+        $survivorLiabilitiesProjected = $projectedMortgages + $survivorOtherLiabilities;
 
         // 9. Get survivor's will and modify for second death scenario
         $survivorWill = $survivor->id === $user->id ? $userWill : $spouseWill;
@@ -226,8 +257,17 @@ class SecondDeathIHTCalculator
             ],
             'projected' => [
                 'survivor_liabilities' => round($survivorLiabilitiesProjected, 2),
-                'note' => 'Liabilities projected conservatively (assumed to remain constant)',
+                'mortgages_projected' => round($projectedMortgages, 2),
+                'other_liabilities_projected' => round($survivorOtherLiabilities, 2),
+                'note' => 'Mortgages assumed paid off by age 75 or at maturity. Other liabilities remain constant.',
             ],
+        ];
+
+        // 11b. Calculate current combined totals for display
+        $currentCombinedTotals = [
+            'gross_assets' => round($currentCombinedEstate, 2),
+            'total_liabilities' => round($currentCombinedLiabilities, 2),
+            'net_estate' => round($currentCombinedEstate - $currentCombinedLiabilities, 2),
         ];
 
         // 12. Return comprehensive second death analysis
@@ -239,6 +279,7 @@ class SecondDeathIHTCalculator
             'data_sharing_enabled' => $dataSharingEnabled,
             'current_date' => now()->format('Y-m-d'),
             'liability_breakdown' => $liabilityBreakdown,
+            'current_combined_totals' => $currentCombinedTotals,
 
             // First death details
             'first_death' => [

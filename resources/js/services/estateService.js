@@ -58,7 +58,10 @@ const estateService = {
      * @returns {Promise} Second death analysis with gifting strategy, life cover, and mitigation strategies
      */
     async calculateSecondDeathIHTPlanning() {
-        const response = await api.post('/estate/calculate-second-death-iht-planning');
+        // Add cache-busting timestamp to force fresh calculation
+        const response = await api.post('/estate/calculate-second-death-iht-planning', {
+            _timestamp: Date.now()
+        });
         return response.data;
     },
 

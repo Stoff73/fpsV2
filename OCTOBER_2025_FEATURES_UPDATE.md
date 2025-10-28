@@ -1,7 +1,7 @@
 # October 2025 Features Update
 
-**Date**: October 21-25, 2025
-**Version**: 0.1.2.4
+**Date**: October 21-28, 2025
+**Version**: 0.1.2.11
 **Status**: Features Complete, Bug Fixes Applied, Documentation Updated
 
 ---
@@ -3367,11 +3367,121 @@ ihtLiability: (state) => {
 
 ---
 
+## 🐛 Estate Planning IHT Module Fixes (October 28 Afternoon)
+
+**Status**: ✅ Complete
+**Version**: 0.1.2.11
+**Date**: October 28, 2025 (Afternoon Session)
+
+### Issues Fixed:
+
+#### 1. **Estate Planning IHT Card Display**
+**Problem**: Cards showed confusing labels - "First Death" and "Second Death" when they should show "Joint Death" scenarios
+**Solution**:
+- Renamed cards to "Joint Death (Now)" and "Joint Death (Projected)"
+- "Joint Death (Now)" shows current combined estate if both die today
+- "Joint Death (Projected)" shows projected combined estate at life expectancy
+
+**Files Modified**:
+- `resources/js/components/Estate/IHTPlanning.vue`
+
+#### 2. **Total IHT Payable Card Enhancement**
+**Problem**: Only showed one IHT liability figure, unclear which scenario it represented
+**Solution**:
+- Split card to show BOTH IHT liabilities:
+  - "If both die now": £X (based on current combined estate)
+  - "At age 90": £Y (based on projected combined estate)
+
+**Files Modified**:
+- `resources/js/components/Estate/IHTPlanning.vue`
+
+#### 3. **API Response Caching Issue**
+**Problem**: Frontend showing stale data despite hard refresh, cache clear, and incognito mode
+**Root Cause**: Browser HTTP caching the API POST response
+**Solution**: Added cache-busting timestamp parameter to force fresh API calls
+
+**Files Modified**:
+- `resources/js/services/estateService.js` - Added `_timestamp: Date.now()` to request
+
+#### 4. **Mortgage Projection Logic**
+**Problem**: Mortgages projected as remaining constant until death at age 90
+**Solution**:
+- Mortgages now assumed paid off by age 75 or at maturity (whichever comes first)
+- Proper projection using `projectMortgageBalance()` method
+- Separate tracking of mortgages vs other liabilities
+
+**Logic**:
+```
+For each mortgage:
+  - If matures before age 75 OR before death → £0 (paid off)
+  - Otherwise → project balance using amortization
+```
+
+**Files Modified**:
+- `app/Services/Estate/SecondDeathIHTCalculator.php`
+
+#### 5. **Liability Breakdown Enhancement**
+**Problem**: Unclear how liabilities were projected
+**Solution**:
+- Added detailed breakdown showing:
+  - Mortgages projected: £X
+  - Other liabilities projected: £Y
+  - Note: "Mortgages assumed paid off by age 75 or at maturity"
+
+**Files Modified**:
+- `app/Services/Estate/SecondDeathIHTCalculator.php`
+- `resources/js/components/Estate/IHTPlanning.vue` - Shows liability line items by name
+
+#### 6. **Spouse Exemption at Second Death**
+**Problem**: Spouse exemption incorrectly applied when spouse already deceased
+**Solution**: Create modified will for second death calculation with no spouse exemption
+
+**Files Modified**:
+- `app/Services/Estate/SecondDeathIHTCalculator.php`
+
+#### 7. **Current Combined Totals**
+**Problem**: "NOW" column not showing correct current combined estate
+**Solution**: Added `current_combined_totals` to API response with gross_assets, total_liabilities, net_estate
+
+**Files Modified**:
+- `app/Services/Estate/SecondDeathIHTCalculator.php`
+
+### Impact:
+
+**User Experience**:
+- ✅ Clear understanding of IHT liability NOW vs PROJECTED
+- ✅ Joint Death concept makes sense (both die together)
+- ✅ Mortgage assumptions realistic (paid off by 75)
+- ✅ Detailed liability breakdown shows where numbers come from
+- ✅ No more stale cached data
+
+**Technical**:
+- ✅ Proper cache-busting ensures fresh calculations
+- ✅ Accurate mortgage projection reduces projected liabilities
+- ✅ Correct spouse exemption logic
+- ✅ Transparent liability breakdown
+
+**Financial Accuracy**:
+- ✅ Projected IHT liability now higher (mortgages paid off = higher net estate)
+- ✅ Realistic assumptions about debt reduction over time
+- ✅ Clear comparison between current and projected scenarios
+
+**Files Modified (Estate Planning IHT Fixes)**: 3 files
+- 1 Frontend component (`IHTPlanning.vue`)
+- 1 Frontend service (`estateService.js`)
+- 1 Backend service (`SecondDeathIHTCalculator.php`)
+
+**Commits**:
+- 4255fe4 - fix: Estate Planning IHT calculation - fix spouse exemption at second death and add liability breakdown
+- (New commit with today's additional fixes to be added)
+
+---
+
 **Documentation Status**: ✅ Complete (8 documentation files - OCTOBER_2025_FEATURES_UPDATE.md updated October 28)
-**Code Status**: ✅ All Changes Committed (October 28, 2025 - v0.1.2.5)
-**Testing Status**: ✅ 723 Tests Passing (Manual Testing Complete)
+**Code Status**: ✅ All Changes Committed (October 28, 2025 - v0.1.2.11)
+**Testing Status**: ✅ Manual Testing Complete
 **Deployment Status**: ✅ Ready for Production Deployment
-**Version**: v0.1.2.5 (updated October 28, 2025)
+**Version**: v0.1.2.11 (updated October 28, 2025)
 **Release Date**: 21-28 October 2025
 
 ---

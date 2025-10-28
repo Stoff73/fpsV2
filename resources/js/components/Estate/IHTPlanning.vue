@@ -59,26 +59,35 @@
 
     <!-- IHT Summary - Second Death (Married Users) -->
     <div v-if="isMarried && secondDeathData?.second_death_analysis" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <!-- First Death Summary -->
+      <!-- Joint Death NOW -->
       <div class="bg-blue-50 rounded-lg p-6">
-        <p class="text-sm text-blue-600 font-medium mb-2">First Death ({{ secondDeathData.second_death_analysis.first_death.name }})</p>
-        <p class="text-xs text-blue-500 mb-1">{{ secondDeathData.second_death_analysis.first_death.years_until_death }} years</p>
-        <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.first_death.projected_estate_value) }}</p>
-        <p class="text-xs text-green-600 mt-2">IHT: £0 (Spouse Exemption)</p>
+        <p class="text-sm text-blue-600 font-medium mb-2">Joint Death (Now)</p>
+        <p class="text-xs text-blue-500 mb-1">Current combined estate</p>
+        <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.current_combined_totals?.gross_assets || secondDeathData.second_death_analysis.current_iht_calculation?.gross_estate_value || 0) }}</p>
+        <p class="text-xs text-blue-600 mt-2">If both die today</p>
       </div>
 
-      <!-- Second Death Summary -->
+      <!-- Joint Death PROJECTED -->
       <div class="bg-purple-50 rounded-lg p-6">
-        <p class="text-sm text-purple-600 font-medium mb-2">Second Death ({{ secondDeathData.second_death_analysis.second_death.name }})</p>
-        <p class="text-xs text-purple-500 mb-1">{{ secondDeathData.second_death_analysis.second_death.years_until_death }} years</p>
+        <p class="text-sm text-purple-600 font-medium mb-2">Joint Death (Projected)</p>
+        <p class="text-xs text-purple-500 mb-1">At age {{ secondDeathData.second_death_analysis.second_death.estimated_age_at_death }}</p>
         <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.second_death.projected_combined_estate_at_second_death) }}</p>
+        <p class="text-xs text-purple-600 mt-2">Projected combined estate</p>
       </div>
 
       <!-- Total IHT Payable -->
       <div class="bg-red-50 rounded-lg p-6">
         <p class="text-sm text-red-600 font-medium mb-2">Total IHT Payable</p>
-        <p class="text-xs text-red-500 mb-1">On second death only</p>
-        <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.iht_liability) }}</p>
+        <div class="space-y-3">
+          <div>
+            <p class="text-xs text-red-500 mb-1">If both die now:</p>
+            <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.iht_liability || 0) }}</p>
+          </div>
+          <div class="border-t border-red-200 pt-2">
+            <p class="text-xs text-red-500 mb-1">At age {{ secondDeathData.second_death_analysis.second_death.estimated_age_at_death }}:</p>
+            <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.iht_liability) }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -122,15 +131,32 @@
             <!-- Combined Gross Estate -->
             <tr>
               <td class="px-4 py-3 text-sm text-gray-900">Combined Gross Estate</td>
-              <td class="px-4 py-3 text-sm text-right text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.gross_estate_value || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.current_combined_totals?.gross_assets || secondDeathData.second_death_analysis.current_iht_calculation?.gross_estate_value || 0) }}</td>
               <td class="px-4 py-3 text-sm text-right font-medium text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.gross_estate_value || 0) }}</td>
             </tr>
 
-            <!-- Liabilities -->
-            <tr v-if="secondDeathData.second_death_analysis.current_iht_calculation?.total_liabilities > 0 || secondDeathData.second_death_analysis.iht_calculation.total_liabilities > 0">
-              <td class="px-4 py-3 text-sm text-gray-600">Less: Liabilities</td>
-              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.total_liabilities || 0) }}</td>
-              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.total_liabilities || 0) }}</td>
+            <!-- Liabilities Breakdown (if available) -->
+            <template v-if="secondDeathData.second_death_analysis.liability_breakdown">
+              <!-- First Person's Liabilities -->
+              <tr v-if="secondDeathData.second_death_analysis.liability_breakdown.current.user_liabilities > 0">
+                <td class="px-4 py-3 text-sm text-gray-600 pl-8">Less: {{ secondDeathData.second_death_analysis.first_death.name }}'s Liabilities</td>
+                <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.current.user_liabilities) }}</td>
+                <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.projected.survivor_liabilities) }}</td>
+              </tr>
+
+              <!-- Second Person's Liabilities (if data sharing enabled) -->
+              <tr v-if="secondDeathData.data_sharing_enabled && secondDeathData.second_death_analysis.liability_breakdown.current.spouse_liabilities > 0">
+                <td class="px-4 py-3 text-sm text-gray-600 pl-8">Less: {{ secondDeathData.second_death_analysis.second_death.name }}'s Liabilities</td>
+                <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.current.spouse_liabilities) }}</td>
+                <td class="px-4 py-3 text-sm text-right text-gray-900">-</td>
+              </tr>
+            </template>
+
+            <!-- Fallback: Total Liabilities (if no breakdown) -->
+            <tr v-else-if="secondDeathData.second_death_analysis.current_iht_calculation?.liabilities > 0 || secondDeathData.second_death_analysis.iht_calculation.liabilities > 0">
+              <td class="px-4 py-3 text-sm text-gray-600">Less: Total Liabilities</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.liabilities || 0) }}</td>
+              <td class="px-4 py-3 text-sm text-right text-gray-900">-{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.liabilities || 0) }}</td>
             </tr>
 
             <!-- Net Estate -->
@@ -169,26 +195,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <!-- Liability Breakdown Detail (if available) -->
-      <div v-if="secondDeathData.second_death_analysis.liability_breakdown" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <h4 class="text-sm font-semibold text-gray-700 mb-3">Liability Breakdown</h4>
-        <div class="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p class="text-gray-600 mb-1">Current Combined Liabilities:</p>
-            <ul class="list-disc list-inside text-gray-700 space-y-1 ml-2">
-              <li>User: {{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.current.user_liabilities) }}</li>
-              <li v-if="secondDeathData.data_sharing_enabled">Spouse: {{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.current.spouse_liabilities) }}</li>
-              <li class="font-semibold">Total: {{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.current.total) }}</li>
-            </ul>
-          </div>
-          <div>
-            <p class="text-gray-600 mb-1">Projected Liabilities at Second Death:</p>
-            <p class="text-gray-700 ml-2">{{ formatCurrency(secondDeathData.second_death_analysis.liability_breakdown.projected.survivor_liabilities) }}</p>
-            <p class="text-xs text-gray-500 mt-2 ml-2">{{ secondDeathData.second_death_analysis.liability_breakdown.projected.note }}</p>
-          </div>
-        </div>
       </div>
     </div>
 
