@@ -93,13 +93,6 @@ class ProfileCompletenessChecker
                 'priority' => 'high',
                 'link' => '/net-worth',
             ],
-            'liabilities' => [
-                'required' => false,
-                'filled' => $this->hasAttemptedLiabilities($user),
-                'message' => 'Review liabilities (even if zero) for accurate net worth',
-                'priority' => 'low',
-                'link' => '/estate',
-            ],
             'protection_plans' => [
                 'required' => true,
                 'filled' => $this->hasProtectionPlans($user),
@@ -150,13 +143,6 @@ class ProfileCompletenessChecker
                 'message' => 'Add at least one asset for estate and retirement planning',
                 'priority' => 'high',
                 'link' => '/net-worth',
-            ],
-            'liabilities' => [
-                'required' => false,
-                'filled' => $this->hasAttemptedLiabilities($user),
-                'message' => 'Review liabilities (even if zero) for accurate net worth',
-                'priority' => 'low',
-                'link' => '/estate',
             ],
             'protection_plans' => [
                 'required' => true,
@@ -226,17 +212,6 @@ class ProfileCompletenessChecker
 
         return $hasProperty || $hasSavings || $hasInvestments || $hasPensions
             || $hasBusiness || $hasChattels || $hasCash || $hasEstateAssets;
-    }
-
-    /**
-     * Check if user has attempted to fill liabilities (can be zero)
-     */
-    private function hasAttemptedLiabilities(User $user): bool
-    {
-        // Check if user has explicitly added liabilities (even if zero balance)
-        // Or if they have a flag indicating they've reviewed this section
-        return Liability::where('user_id', $user->id)->exists()
-            || ($user->liabilities_reviewed ?? false);
     }
 
     /**
