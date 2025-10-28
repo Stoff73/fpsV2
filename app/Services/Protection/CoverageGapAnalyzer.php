@@ -137,18 +137,28 @@ class CoverageGapAnalyzer
         $debtGap = max(0, $debtNeed - $debtCovered);
 
         // STEP 2: Any excess life cover reduces human capital need
-        $excessLifeCover = max(0, $lifeCoverage - $debtNeed);
+        $excessAfterDebt = max(0, $lifeCoverage - $debtNeed);
         $humanCapitalNeed = $needs['human_capital'];
-        $humanCapitalCovered = min($excessLifeCover, $humanCapitalNeed);
+        $humanCapitalCovered = min($excessAfterDebt, $humanCapitalNeed);
         $humanCapitalGap = max(0, $humanCapitalNeed - $humanCapitalCovered);
 
-        // STEP 3: Income-based policies (Family Income Benefit, etc.) reduce income replacement need
+        // STEP 3: Allocate remaining excess to final expenses
+        $excessAfterHumanCapital = max(0, $excessAfterDebt - $humanCapitalCovered);
+        $finalExpensesCovered = min($excessAfterHumanCapital, $needs['final_expenses']);
+        $finalExpensesGap = max(0, $needs['final_expenses'] - $finalExpensesCovered);
+
+        // STEP 4: Allocate remaining excess to education funding
+        $excessAfterFinalExpenses = max(0, $excessAfterHumanCapital - $finalExpensesCovered);
+        $educationCovered = min($excessAfterFinalExpenses, $needs['education_funding']);
+        $educationGap = max(0, $needs['education_funding'] - $educationCovered);
+
+        // STEP 5: Income-based policies (Family Income Benefit, etc.) reduce income replacement need
         $totalIncomeCoverage = $coverage['income_protection_coverage']
                              + $coverage['disability_coverage']
                              + $coverage['sickness_illness_coverage'];
 
         // Calculate total coverage used
-        $totalCoverageUsed = $debtCovered + $humanCapitalCovered;
+        $totalCoverageUsed = $debtCovered + $humanCapitalCovered + $finalExpensesCovered + $educationCovered;
         $totalGap = max(0, $totalNeed - $totalCoverageUsed);
 
         return [
@@ -159,8 +169,8 @@ class CoverageGapAnalyzer
             'gaps_by_category' => [
                 'human_capital_gap' => $humanCapitalGap,
                 'debt_protection_gap' => $debtGap,
-                // Placeholders for next phase - set to 0
-                'education_funding_gap' => 0,
+                'final_expenses_gap' => $finalExpensesGap,
+                'education_funding_gap' => $educationGap,
                 'income_protection_gap' => 0,
                 'disability_coverage_gap' => 0,
                 'sickness_illness_gap' => 0,
@@ -168,6 +178,8 @@ class CoverageGapAnalyzer
             'coverage_allocated' => [
                 'debt_covered' => $debtCovered,
                 'human_capital_covered' => $humanCapitalCovered,
+                'final_expenses_covered' => $finalExpensesCovered,
+                'education_covered' => $educationCovered,
                 'excess_unused' => max(0, $lifeCoverage - $totalCoverageUsed),
             ],
             'income_replacement_coverage' => $totalIncomeCoverage,
