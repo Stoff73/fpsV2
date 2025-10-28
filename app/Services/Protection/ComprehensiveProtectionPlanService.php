@@ -158,7 +158,12 @@ class ComprehensiveProtectionPlanService
             'critical_gaps' => $criticalGaps,
             'total_gap_amount' => $totalGap,
             'monthly_income_gap' => ($gapsByCategory['income_protection_gap'] ?? 0) / 12,
-            'recommended_action' => $this->getRecommendedAction($adequacyScore['overall_score'] ?? 0),
+            'recommended_action' => $this->getRecommendedAction(
+                $adequacyScore['overall_score'] ?? 0,
+                $adequacyScore['life_insurance_score'] ?? 0,
+                $adequacyScore['critical_illness_score'] ?? 0,
+                $adequacyScore['income_protection_score'] ?? 0
+            ),
         ];
     }
 
@@ -652,13 +657,49 @@ class ComprehensiveProtectionPlanService
 
     // Helper methods
 
-    private function getRecommendedAction(float $score): string
+    private function getRecommendedAction(float $overallScore, float $lifeScore, float $ciScore, float $ipScore): string
     {
-        if ($score >= 80) {
-            return 'Your protection coverage is good. Review annually to ensure it remains adequate.';
-        } elseif ($score >= 60) {
+        $missingCoverage = [];
+
+        // Check for missing policy types (score of 0 means no coverage)
+        if ($ciScore === 0) {
+            $missingCoverage[] = 'Critical Illness';
+        }
+
+        if ($ipScore === 0) {
+            $missingCoverage[] = 'Income Protection';
+        }
+
+        // If life coverage is good but other types are missing, recommend them
+        if ($lifeScore >= 80 && !empty($missingCoverage)) {
+            $types = implode(' and ', $missingCoverage);
+            return "Your life insurance coverage is excellent. Consider adding {$types} to provide comprehensive protection.";
+        }
+
+        // If life coverage has gaps, prioritize that
+        if ($lifeScore < 80 && $lifeScore > 0) {
+            $recommendation = 'Priority: Increase life insurance coverage to adequate levels.';
+            if (!empty($missingCoverage)) {
+                $types = implode(' and ', $missingCoverage);
+                $recommendation .= " Also consider adding {$types}.";
+            }
+            return $recommendation;
+        }
+
+        // If no life coverage at all (score = 0)
+        if ($lifeScore === 0) {
+            return 'Critical: No life insurance coverage detected. Immediate action required to protect your family\'s financial future.';
+        }
+
+        // All coverage types present and adequate
+        if ($overallScore >= 80 && empty($missingCoverage)) {
+            return 'Your protection coverage is comprehensive. Review annually to ensure it remains adequate.';
+        }
+
+        // Fallback to overall score-based recommendations
+        if ($overallScore >= 60) {
             return 'Your protection coverage is adequate but could be improved. Consider addressing the gaps identified.';
-        } elseif ($score >= 40) {
+        } elseif ($overallScore >= 40) {
             return 'Your protection coverage has significant gaps. Priority action required to protect your family.';
         } else {
             return 'Your protection coverage is critically inadequate. Urgent action required to secure your family\'s financial future.';
