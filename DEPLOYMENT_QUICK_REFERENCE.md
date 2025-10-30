@@ -34,7 +34,7 @@ ls -lh tengo-deploy.tar.gz
 # Upload (use your alias or full command)
 scp tengo-deploy.tar.gz siteground-tengo:~/
 # OR:
-scp -P 18765 -i ~/.ssh/siteground_tengo.pem tengo-deploy.tar.gz u163-ptanegf9edny@ssh.csjones.co:~/
+scp -P 18765 -i ~/.ssh/siteground_ssh_key.pem tengo-deploy.tar.gz u163-ptanegf9edny@ssh.csjones.co:~/
 ```
 
 ### 3. Extract & Setup on Server (10 min)
@@ -43,7 +43,7 @@ scp -P 18765 -i ~/.ssh/siteground_tengo.pem tengo-deploy.tar.gz u163-ptanegf9edn
 # SSH in
 ssh siteground-tengo
 # OR:
-ssh -p 18765 -i ~/.ssh/siteground_tengo.pem u163-ptanegf9edny@ssh.csjones.co
+ssh -p 18765 -i ~/.ssh/siteground_ssh_key.pem u163-ptanegf9edny@ssh.csjones.co
 
 # Navigate to web root
 cd ~/www/csjones.co/public_html/
@@ -172,7 +172,7 @@ If you need to create a new database:
 Username: u163-ptanegf9edny
 Host: ssh.csjones.co
 Port: 18765
-Key: ~/.ssh/siteground_tengo.pem
+Key: ~/.ssh/siteground_ssh_key.pem
 ```
 
 **SSH Config** (`~/.ssh/config`):
@@ -181,7 +181,7 @@ Host siteground-tengo
     HostName ssh.csjones.co
     Port 18765
     User u163-ptanegf9edny
-    IdentityFile ~/.ssh/siteground_tengo.pem
+    IdentityFile ~/.ssh/siteground_ssh_key.pem
 ```
 
 Then connect with: `ssh siteground-tengo`

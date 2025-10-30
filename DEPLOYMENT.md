@@ -68,6 +68,7 @@ Before starting, ensure you have:
 - **Username**: `u163-ptanegf9edny`
 - **Host**: `ssh.csjones.co`
 - **Port**: `18765`
+- **Key**: `~/.ssh/siteground_ssh_key.pem` (already saved)
 
 ---
 
@@ -175,28 +176,35 @@ ls -lh tengo-deploy.tar.gz
 # Create .ssh directory if it doesn't exist
 mkdir -p ~/.ssh
 
-# Create private key file
-nano ~/.ssh/siteground_tengo.pem
+# Your key already exists at:
+# ~/.ssh/siteground_ssh_key.pem
+
+# If you need to create a new one:
+# nano ~/.ssh/siteground_ssh_key.pem
 ```
 
-### Step 3.2: Get Your SSH Key from SiteGround
+### Step 3.2: Verify Your Existing SSH Key
 
+You already have your SSH key saved at `~/.ssh/siteground_ssh_key.pem`.
+
+**Verify it exists**:
+```bash
+ls -la ~/.ssh/siteground_ssh_key.pem
+```
+
+If you need to regenerate or get a new key:
 1. Log in to **SiteGround Site Tools** at https://tools.siteground.com
 2. Navigate to **Devs** → **SSH Keys Manager**
-3. Click **Generate New Key** (if you don't have one already)
-4. Copy the **Private Key** (the entire text block including `-----BEGIN` and `-----END` lines)
-5. Paste into the nano editor (Cmd+V)
-6. Save: Press `Ctrl+O`, then `Enter`
-7. Exit: Press `Ctrl+X`
+3. Copy the **Private Key** if needed
 
 ### Step 3.3: Set Correct Permissions
 
 ```bash
 # CRITICAL: Set permissions (SSH won't work without this)
-chmod 600 ~/.ssh/siteground_tengo.pem
+chmod 600 ~/.ssh/siteground_ssh_key.pem
 
 # Verify permissions
-ls -la ~/.ssh/siteground_tengo.pem
+ls -la ~/.ssh/siteground_ssh_key.pem
 # Should show: -rw-------
 ```
 
@@ -213,7 +221,7 @@ Host siteground-tengo
     HostName ssh.csjones.co
     Port 18765
     User u163-ptanegf9edny
-    IdentityFile ~/.ssh/siteground_tengo.pem
+    IdentityFile ~/.ssh/siteground_ssh_key.pem
     ServerAliveInterval 60
     ServerAliveCountMax 3
 ```
@@ -227,16 +235,16 @@ Save: `Ctrl+O`, `Enter`, `Ctrl+X`
 ssh siteground-tengo
 
 # OR without config:
-ssh -p 18765 -i ~/.ssh/siteground_tengo.pem u163-ptanegf9edny@ssh.csjones.co
+ssh -p 18765 -i ~/.ssh/siteground_ssh_key.pem u163-ptanegf9edny@ssh.csjones.co
 
 # If prompted about authenticity, type 'yes'
 # You should see a prompt like: baseos | csjones.co | u163-ptanegf9edny
 ```
 
 **Troubleshooting**:
-- **"Permission denied (publickey)"**: Run `chmod 600 ~/.ssh/siteground_tengo.pem`
+- **"Permission denied (publickey)"**: Run `chmod 600 ~/.ssh/siteground_ssh_key.pem`
 - **"Connection refused"**: Check port is `18765`, try `22` if that fails
-- **"No such identity"**: Verify key file exists with `ls -la ~/.ssh/`
+- **"No such identity"**: Verify key file exists with `ls -la ~/.ssh/siteground_ssh_key.pem`
 
 Once connected, exit for now:
 ```bash
@@ -285,7 +293,7 @@ DB_PASSWORD=YOUR_DATABASE_PASSWORD
 scp tengo-deploy.tar.gz siteground-tengo:~/
 
 # OR without config:
-scp -P 18765 -i ~/.ssh/siteground_tengo.pem tengo-deploy.tar.gz u163-ptanegf9edny@ssh.csjones.co:~/
+scp -P 18765 -i ~/.ssh/siteground_ssh_key.pem tengo-deploy.tar.gz u163-ptanegf9edny@ssh.csjones.co:~/
 
 # This will take 2-5 minutes depending on connection speed
 ```
@@ -811,7 +819,7 @@ php artisan view:clear
    NODE_ENV=production npm run build
 
    # Upload just the build directory
-   scp -r -P 18765 -i ~/.ssh/siteground_tengo.pem \
+   scp -r -P 18765 -i ~/.ssh/siteground_ssh_key.pem \
      public/build/ \
      u163-ptanegf9edny@ssh.csjones.co:~/www/csjones.co/public_html/tengo_laravel/public/
    ```

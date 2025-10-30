@@ -79,11 +79,11 @@ This file contains essential information extracted from SiteGround's official La
 - **Username**: `u163-ptanegf9edny`
 - **Host**: `ssh.csjones.co`
 - **Port**: `18765`
-- **Key**: `~/.ssh/siteground_tengo.pem`
+- **Key**: `~/.ssh/siteground_ssh_key.pem` (already saved)
 
 **Connection Command**:
 ```bash
-ssh -p 18765 -i ~/.ssh/siteground_tengo.pem u163-ptanegf9edny@ssh.csjones.co
+ssh -p 18765 -i ~/.ssh/siteground_ssh_key.pem u163-ptanegf9edny@ssh.csjones.co
 ```
 
 **Or use SSH config** (`~/.ssh/config`):
@@ -92,7 +92,7 @@ Host siteground-tengo
     HostName ssh.csjones.co
     Port 18765
     User u163-ptanegf9edny
-    IdentityFile ~/.ssh/siteground_tengo.pem
+    IdentityFile ~/.ssh/siteground_ssh_key.pem
 ```
 
 Then connect with: `ssh siteground-tengo`
@@ -103,11 +103,19 @@ Then connect with: `ssh siteground-tengo`
 
 ### 1. Enable SSH Access
 
+Your SSH key is already saved at `~/.ssh/siteground_ssh_key.pem`.
+
+**Verify permissions**:
+```bash
+chmod 600 ~/.ssh/siteground_ssh_key.pem
+ls -la ~/.ssh/siteground_ssh_key.pem  # Should show: -rw-------
+```
+
+If you need to regenerate:
 1. Log in to **Site Tools** at https://tools.siteground.com
 2. Navigate to **Devs** → **SSH Keys Manager**
 3. Click **Generate New Key**
-4. Copy the **Private Key** to your Mac: `~/.ssh/siteground_tengo.pem`
-5. Set permissions: `chmod 600 ~/.ssh/siteground_tengo.pem`
+4. Copy the **Private Key** if needed
 
 ### 2. MySQL Database Credentials
 
@@ -141,10 +149,10 @@ tar -czf tengo-deploy.tar.gz \
   tengo/
 
 # Upload to server
-scp -P 18765 -i ~/.ssh/siteground_tengo.pem tengo-deploy.tar.gz u163-ptanegf9edny@ssh.csjones.co:~/
+scp -P 18765 -i ~/.ssh/siteground_ssh_key.pem tengo-deploy.tar.gz u163-ptanegf9edny@ssh.csjones.co:~/
 
 # SSH in and extract
-ssh -p 18765 -i ~/.ssh/siteground_tengo.pem u163-ptanegf9edny@ssh.csjones.co
+ssh -p 18765 -i ~/.ssh/siteground_ssh_key.pem u163-ptanegf9edny@ssh.csjones.co
 cd ~/www/csjones.co/public_html/
 mkdir -p tengo_laravel
 tar -xzf ~/tengo-deploy.tar.gz -C tengo_laravel/ --strip-components=1
