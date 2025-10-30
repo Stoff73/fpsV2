@@ -12,7 +12,7 @@
       <!-- Tab Navigation -->
       <div class="bg-white rounded-lg shadow-sm mb-6">
         <div class="border-b border-gray-200">
-          <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+          <nav class="-mb-px flex space-x-1 px-3" aria-label="Tabs">
             <button
               v-for="tab in tabs"
               :key="tab.id"
@@ -21,7 +21,7 @@
                 activeTab === tab.id
                   ? 'border-primary-600 text-primary-700'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-body-sm transition-colors',
+                'whitespace-nowrap py-3 px-1.5 border-b-2 font-medium text-sm transition-colors',
               ]"
             >
               {{ tab.label }}
@@ -70,6 +70,7 @@
             />
             <HealthInformation v-show="activeTab === 'health'" />
             <FamilyMembers v-show="activeTab === 'family'" />
+            <LetterToSpouse v-if="activeTab === 'letter'" />
             <IncomeOccupation v-show="activeTab === 'income'" />
             <ExpenditureOverview v-show="activeTab === 'expenditure'" />
             <AssetsOverview v-show="activeTab === 'assets'" />
@@ -91,6 +92,7 @@ import PersonalInformation from '@/components/UserProfile/PersonalInformation.vu
 import DomicileInformation from '@/components/UserProfile/DomicileInformation.vue';
 import HealthInformation from '@/components/UserProfile/HealthInformation.vue';
 import FamilyMembers from '@/components/UserProfile/FamilyMembers.vue';
+import LetterToSpouse from '@/components/UserProfile/LetterToSpouse.vue';
 import IncomeOccupation from '@/components/UserProfile/IncomeOccupation.vue';
 import ExpenditureOverview from '@/components/UserProfile/ExpenditureOverview.vue';
 import AssetsOverview from '@/components/UserProfile/AssetsOverview.vue';
@@ -107,6 +109,7 @@ export default {
     DomicileInformation,
     HealthInformation,
     FamilyMembers,
+    LetterToSpouse,
     IncomeOccupation,
     ExpenditureOverview,
     AssetsOverview,
@@ -124,6 +127,7 @@ export default {
       { id: 'domicile', label: 'Domicile Status' },
       { id: 'health', label: 'Health' },
       { id: 'family', label: 'Family' },
+      { id: 'letter', label: 'Letter to Spouse' },
       { id: 'income', label: 'Income & Occupation' },
       { id: 'expenditure', label: 'Expenditure' },
       { id: 'assets', label: 'Assets' },

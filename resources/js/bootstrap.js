@@ -21,10 +21,6 @@ window.axios.defaults.withCredentials = true;
 const apiBaseURL = import.meta.env.VITE_API_BASE_URL || window.location.origin;
 window.axios.defaults.baseURL = apiBaseURL;
 
-// Debug: Log the API base URL being used
-console.log('[AXIOS CONFIG] API Base URL:', apiBaseURL);
-console.log('[AXIOS CONFIG] VITE_API_BASE_URL from env:', import.meta.env.VITE_API_BASE_URL);
-
 // Add CSRF token from meta tag to all requests
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]');
 if (csrfToken) {

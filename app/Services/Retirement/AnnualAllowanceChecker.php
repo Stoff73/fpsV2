@@ -13,12 +13,29 @@ use App\Models\DCPension;
  */
 class AnnualAllowanceChecker
 {
-    // 2024/25 UK pension allowances
-    private const STANDARD_ANNUAL_ALLOWANCE = 60000;
+    /**
+     * Get standard annual allowance from config
+     */
+    private function getStandardAnnualAllowance(): float
+    {
+        return config('uk_tax_config.pension.annual_allowance');
+    }
 
-    private const MINIMUM_TAPERED_ALLOWANCE = 10000;
+    /**
+     * Get minimum tapered allowance from config
+     */
+    private function getMinimumTaperedAllowance(): float
+    {
+        return config('uk_tax_config.pension.tapered_annual_allowance.minimum_allowance');
+    }
 
-    private const THRESHOLD_INCOME = 200000;
+    /**
+     * Get threshold income from config
+     */
+    private function getThresholdIncome(): float
+    {
+        return config('uk_tax_config.pension.tapered_annual_allowance.threshold_income');
+    }
 
     private const ADJUSTED_INCOME_THRESHOLD = 260000;
 
@@ -42,12 +59,12 @@ class AnnualAllowanceChecker
         $adjustedIncome = $income + $totalContributions; // Simplified calculation
 
         // Check if tapering applies
-        $standardAllowance = self::STANDARD_ANNUAL_ALLOWANCE;
+        $standardAllowance = $this->getStandardAnnualAllowance();
         $availableAllowance = $standardAllowance;
         $isTapered = false;
         $taperingDetails = null;
 
-        if ($thresholdIncome > self::THRESHOLD_INCOME && $adjustedIncome > self::ADJUSTED_INCOME_THRESHOLD) {
+        if ($thresholdIncome > $this->getThresholdIncome() && $adjustedIncome > self::ADJUSTED_INCOME_THRESHOLD) {
             $isTapered = true;
             $availableAllowance = $this->calculateTapering($thresholdIncome, $adjustedIncome);
             $taperingDetails = [
@@ -90,8 +107,8 @@ class AnnualAllowanceChecker
      */
     public function calculateTapering(float $thresholdIncome, float $adjustedIncome): float
     {
-        if ($thresholdIncome <= self::THRESHOLD_INCOME || $adjustedIncome <= self::ADJUSTED_INCOME_THRESHOLD) {
-            return self::STANDARD_ANNUAL_ALLOWANCE;
+        if ($thresholdIncome <= $this->getThresholdIncome() || $adjustedIncome <= self::ADJUSTED_INCOME_THRESHOLD) {
+            return $this->getStandardAnnualAllowance();
         }
 
         // Calculate reduction
@@ -99,9 +116,9 @@ class AnnualAllowanceChecker
         $reduction = $excessIncome / 2;
 
         // Apply reduction but ensure minimum allowance
-        $taperedAllowance = self::STANDARD_ANNUAL_ALLOWANCE - $reduction;
+        $taperedAllowance = $this->getStandardAnnualAllowance() - $reduction;
 
-        return max(self::MINIMUM_TAPERED_ALLOWANCE, $taperedAllowance);
+        return max($this->getMinimumTaperedAllowance(), $taperedAllowance);
     }
 
     /**
@@ -117,7 +134,7 @@ class AnnualAllowanceChecker
         // Simplified: Assume unused allowance from previous years
         // In a full implementation, we would track this in a separate table
         // For now, return a conservative estimate of £60,000 (1 year's unused allowance)
-        return 60000.00;
+        return config('uk_tax_config.pension.annual_allowance');
     }
 
     /**

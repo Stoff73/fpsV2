@@ -263,13 +263,10 @@ export default {
 
     async updateHasNoPoliciesFlag() {
       try {
-        console.log('Updating has_no_policies to:', this.hasNoPoliciesChecked);
 
         // Call the API directly using protectionService and WAIT for it to complete
         const response = await protectionService.updateHasNoPolicies(this.hasNoPoliciesChecked);
 
-        console.log('API response:', response);
-        console.log('Update successful, reloading page...');
 
         // Wait a moment to ensure the database transaction is committed
         await new Promise(resolve => setTimeout(resolve, 500));

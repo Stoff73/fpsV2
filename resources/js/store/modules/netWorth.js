@@ -298,10 +298,8 @@ const actions = {
 
         try {
             const response = await propertyService.getProperty(propertyId);
-            console.log('fetchProperty response:', response);
 
             if (response.success) {
-                console.log('Property data:', response.data);
                 commit('SET_SELECTED_PROPERTY', response.data.property);
             } else {
                 throw new Error(response.message || 'Failed to fetch property');

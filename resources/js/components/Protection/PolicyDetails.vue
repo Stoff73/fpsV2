@@ -231,7 +231,6 @@ export default {
         this.showAddPolicyModal = false;
         this.$emit('modal-closed'); // Notify parent that modal was closed
         // Show success notification (you can implement a toast notification system)
-        console.log('Policy added successfully');
       } catch (error) {
         console.error('Failed to add policy:', error);
         console.error('Validation errors:', error.response?.data?.errors);
@@ -251,7 +250,6 @@ export default {
         this.showEditPolicyModal = false;
         this.editingPolicy = null;
         // Show success notification
-        console.log('Policy updated successfully');
       } catch (error) {
         console.error('Failed to update policy:', error);
         // Show error notification
@@ -267,7 +265,6 @@ export default {
         this.showDeleteModal = false;
         this.deletingPolicy = null;
         // Show success notification
-        console.log('Policy deleted successfully');
       } catch (error) {
         console.error('Failed to delete policy:', error);
         // Show error notification

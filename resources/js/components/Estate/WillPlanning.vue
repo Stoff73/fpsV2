@@ -418,7 +418,6 @@ export default {
     },
 
     editBequest(bequest) {
-      console.log('Edit bequest:', bequest);
     },
 
     formatCurrency(value) {

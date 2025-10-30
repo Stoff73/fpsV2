@@ -426,7 +426,6 @@ export default {
           await store.dispatch('protection/fetchProtectionData');
         } catch (protectionError) {
           // Silently fail - user might not have protection module set up yet
-          console.log('Protection data refresh skipped:', protectionError.message);
         }
 
         // Clear success message after 3 seconds

@@ -183,6 +183,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the letter to spouse for the user
+     */
+    public function letterToSpouse(): HasOne
+    {
+        return $this->hasOne(LetterToSpouse::class);
+    }
+
+    /**
      * Get the user's properties.
      */
     public function properties(): HasMany

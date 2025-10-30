@@ -203,7 +203,7 @@
           Ready to Plan Your Financial Future?
         </h2>
         <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-          Get started with FPS today. Create your free account and access all planning tools.
+          Get started with TenGo today. Create your free account and access all planning tools.
         </p>
         <router-link
           to="/register"

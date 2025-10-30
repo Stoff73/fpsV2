@@ -235,7 +235,6 @@ export default {
         }
       } catch (err) {
         // No existing data, start fresh
-        console.log('No existing domicile data');
       }
     });
 

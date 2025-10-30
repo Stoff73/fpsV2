@@ -526,13 +526,10 @@ export default {
       this.requiresProfileUpdate = false;
 
       try {
-        console.log('[GiftingStrategy] Loading planned strategy...');
         const response = await estateService.getPlannedGiftingStrategy();
-        console.log('[GiftingStrategy] API Response:', response);
 
         if (response.success) {
           this.plannedStrategy = response.data;
-          console.log('[GiftingStrategy] Planned strategy loaded:', this.plannedStrategy);
         } else {
           this.strategyError = response.message || 'Failed to load planned gifting strategy';
           this.requiresProfileUpdate = response.requires_profile_update || false;
@@ -562,13 +559,10 @@ export default {
       this.requiresAssets = false;
 
       try {
-        console.log('[GiftingStrategy] Loading personalized strategy...');
         const response = await estateService.getPersonalizedGiftingStrategy();
-        console.log('[GiftingStrategy] Personalized API Response:', response);
 
         if (response.success) {
           this.personalizedStrategy = response.data;
-          console.log('[GiftingStrategy] Personalized strategy loaded:', this.personalizedStrategy);
         } else {
           this.personalizedStrategyError = response.message || 'Failed to load personalized gifting strategy';
           this.requiresAssets = response.requires_assets || false;

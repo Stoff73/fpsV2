@@ -54,6 +54,15 @@ class ProtectionController extends Controller
             ]);
         }
 
+        // Eager load all policy relationships to prevent N+1 queries
+        $user->load([
+            'lifeInsurancePolicies',
+            'criticalIllnessPolicies',
+            'incomeProtectionPolicies',
+            'disabilityPolicies',
+            'sicknessIllnessPolicies'
+        ]);
+
         $lifePolicies = $user->lifeInsurancePolicies;
         $criticalIllnessPolicies = $user->criticalIllnessPolicies;
         $incomeProtectionPolicies = $user->incomeProtectionPolicies;

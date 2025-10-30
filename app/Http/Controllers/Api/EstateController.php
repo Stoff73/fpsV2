@@ -65,7 +65,7 @@ class EstateController extends Controller
                 'is_iht_exempt' => $isIhtExempt,
                 'exemption_reason' => $exemptionReason,
                 'valuation_date' => $account->updated_at->format('Y-m-d'),
-                'ownership_type' => 'sole', // Default, user can change if joint
+                'ownership_type' => 'individual', // Default, user can change if joint
                 'provider' => $account->provider,
                 'platform' => $account->platform,
             ];
@@ -420,7 +420,7 @@ class EstateController extends Controller
             'asset_type' => 'required|in:property,pension,investment,savings,business,life_insurance,personal,other',
             'asset_name' => 'required|string|max:255',
             'current_value' => 'required|numeric|min:0',
-            'ownership_type' => 'required|in:sole,joint_tenants,tenants_in_common,trust',
+            'ownership_type' => 'required|in:individual,joint,trust',
             'beneficiary_designation' => 'nullable|string|max:255',
             'is_iht_exempt' => 'boolean',
             'exemption_reason' => 'nullable|string|max:255',
@@ -462,7 +462,7 @@ class EstateController extends Controller
             'asset_type' => 'sometimes|in:property,pension,investment,savings,business,life_insurance,personal,other',
             'asset_name' => 'sometimes|string|max:255',
             'current_value' => 'sometimes|numeric|min:0',
-            'ownership_type' => 'sometimes|in:sole,joint_tenants,tenants_in_common,trust',
+            'ownership_type' => 'sometimes|in:individual,joint,trust',
             'beneficiary_designation' => 'nullable|string|max:255',
             'is_iht_exempt' => 'boolean',
             'exemption_reason' => 'nullable|string|max:255',

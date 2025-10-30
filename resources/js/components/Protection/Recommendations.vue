@@ -130,7 +130,6 @@ export default {
   methods: {
     handleMarkDone(recommendation) {
       // In a real app, this would update the backend
-      console.log('Marking recommendation as done:', recommendation);
 
       // For now, we can just show a notification or update local state
       this.$emit('recommendation-completed', recommendation);

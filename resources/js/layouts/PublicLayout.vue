@@ -10,7 +10,7 @@
               <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
-              <span class="ml-2 text-xl font-bold text-gray-900">FPS</span>
+              <span class="ml-2 text-xl font-bold text-gray-900">TenGo</span>
             </router-link>
 
             <!-- Navigation Links -->
@@ -124,7 +124,7 @@
               <svg class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
-              <span class="ml-2 text-xl font-bold">FPS</span>
+              <span class="ml-2 text-xl font-bold">TenGo</span>
             </div>
             <p class="text-gray-400 text-sm mb-4">
               Financial Planning System - Your comprehensive solution for UK financial planning.

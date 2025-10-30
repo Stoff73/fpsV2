@@ -3,10 +3,10 @@
     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
         <div class="text-body-sm text-gray-500">
-          &copy; {{ currentYear }} FPS - Financial Planning System. For demonstration purposes only.
+          &copy; {{ currentYear }} TenGo - Financial Planning System. For demonstration purposes only.
           <span class="ml-2 text-gray-400">|</span>
           <router-link to="/version" class="ml-2 font-semibold text-primary-600 hover:text-primary-700 hover:underline">
-            v0.1.2.2
+            v0.1.2.13
           </router-link>
         </div>
         <div class="flex space-x-6">

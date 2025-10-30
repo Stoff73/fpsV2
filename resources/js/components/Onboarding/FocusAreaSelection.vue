@@ -2,14 +2,14 @@
   <div class="max-w-5xl mx-auto">
     <div class="text-center mb-8">
       <h1 class="text-h1 font-display text-gray-900 mb-4">
-        Welcome to FPS
+        Welcome to TenGo
       </h1>
       <h2 class="text-h3 font-display text-gray-700 mb-4">
         Your Comprehensive Financial Planning System
       </h2>
       <div class="max-w-3xl mx-auto mb-6 text-left bg-white rounded-lg border border-gray-200 p-6">
         <p class="text-body text-gray-700 mb-4">
-          FPS is designed to help UK individuals and families take control of their financial future. Our system provides:
+          TenGo is designed to help UK individuals and families take control of their financial future. Our system provides:
         </p>
         <ul class="space-y-2 text-body-sm text-gray-600">
           <li class="flex items-start">

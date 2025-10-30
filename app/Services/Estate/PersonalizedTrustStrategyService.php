@@ -106,7 +106,7 @@ class PersonalizedTrustStrategyService
         int $yearsUntilDeath
     ): array {
         $strategies = [];
-        $availableNRB = $profile->available_nrb ?? 325000;
+        $availableNRB = $profile->available_nrb ?? config('uk_tax_config.inheritance_tax.nil_rate_band');
 
         // Strategy 1: Immediate CLT using available NRB (Discretionary Trust)
         $strategies[] = $this->buildImmediateCLTStrategy(
@@ -461,8 +461,8 @@ class PersonalizedTrustStrategyService
             'discount_value' => $discountValue,
             'discount_percentage' => $discountRate * 100,
             'iht_saving_potential' => $ihtSavingOnGift,
-            'lifetime_tax_charge' => max(0, ($cltValue - 325000) * 0.20), // 20% on excess over NRB
-            'potential_death_charge' => max(0, ($cltValue - 325000) * 0.40), // 40% if death within 7 years
+            'lifetime_tax_charge' => max(0, ($cltValue - config('uk_tax_config.inheritance_tax.nil_rate_band')) * 0.20), // 20% on excess over NRB
+            'potential_death_charge' => max(0, ($cltValue - config('uk_tax_config.inheritance_tax.nil_rate_band')) * 0.40), // 40% if death within 7 years
             'time_frame' => '7 years for full effectiveness',
             'risk_level' => 'Medium',
             'suitable_for' => 'Those wanting to gift but retain income',

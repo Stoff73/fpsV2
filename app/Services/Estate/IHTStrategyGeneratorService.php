@@ -221,9 +221,9 @@ class IHTStrategyGeneratorService
                 'priority' => 3,
                 'strategy_name' => 'Claim Residence Nil Rate Band (RNRB)',
                 'effectiveness' => 'Medium',
-                'iht_saved' => 175000 * 0.40, // £70,000
+                'iht_saved' => config('uk_tax_config.inheritance_tax.residence_nil_rate_band') * 0.40, // RNRB * IHT rate
                 'implementation_complexity' => 'Low',
-                'description' => 'Ensure main residence passes to direct descendants to claim £175,000 RNRB',
+                'description' => 'Ensure main residence passes to direct descendants to claim £'.number_format(config('uk_tax_config.inheritance_tax.residence_nil_rate_band'), 0).' RNRB',
                 'specific_actions' => [
                     'Update will to leave main residence to children/grandchildren',
                     'Ensure estate value stays below £2m (RNRB taper threshold)',

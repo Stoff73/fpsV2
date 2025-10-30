@@ -203,7 +203,7 @@ class ContributionOptimizer
 
         if ($isHigherRateTaxpayer && $currentContributions < 40000) {
             $optimizationAvailable = true;
-            $additionalContribution = min(20000, 60000 - $currentContributions);
+            $additionalContribution = min(20000, config('uk_tax_config.pension.annual_allowance') - $currentContributions);
             $potentialSaving = $this->calculateTaxRelief($additionalContribution, $income);
 
             $message = sprintf(

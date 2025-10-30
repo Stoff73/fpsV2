@@ -83,10 +83,8 @@ const investmentService = {
      * @returns {Promise} Created account
      */
     async createAccount(accountData) {
-        console.log('Creating account with data:', accountData);
         try {
             const response = await api.post('/investment/accounts', accountData);
-            console.log('Account created successfully:', response.data);
             return response.data;
         } catch (error) {
             console.error('Account creation failed:', error.response?.data);
@@ -133,10 +131,8 @@ const investmentService = {
      * @returns {Promise} Created holding
      */
     async createHolding(holdingData) {
-        console.log('Creating holding with data:', holdingData);
         try {
             const response = await api.post('/investment/holdings', holdingData);
-            console.log('Holding created successfully:', response.data);
             return response.data;
         } catch (error) {
             console.error('Holding creation failed:', error.response?.data);

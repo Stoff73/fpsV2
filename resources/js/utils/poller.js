@@ -22,7 +22,6 @@
  *     interval: 3000,
  *     maxAttempts: 40,
  *     shouldContinue: (data) => data.data.status === 'running',
- *     onProgress: (attempt, response) => console.log(`Attempt ${attempt}:`, response.data.status)
  *   }
  * );
  */
@@ -63,31 +62,12 @@ export async function poll(fetchFunction, options = {}) {
                 await sleep(interval);
             }
         } catch (error) {
-            // Log full error structure to debug
-            console.log(`Poll attempt ${attempt}: Caught error`, {
-                errorType: typeof error,
-                hasResponse: !!error.response,
-                responseStatus: error.response?.status,
-                status: error.status,
-                statusCode: error.statusCode,
-                errorKeys: Object.keys(error),
-                attempt,
-                maxAttempts
-            });
-
             // Check multiple possible locations for status code
             const statusCode = error.response?.status || error.status || error.statusCode;
             const is404 = statusCode === 404;
 
-            console.log(`Poll attempt ${attempt}: Status check`, {
-                statusCode,
-                is404,
-                willRetry: is404 && attempt < maxAttempts
-            });
-
             // If it's a 404, job might not be ready yet - continue polling
             if (is404 && attempt < maxAttempts) {
-                console.log(`Poll attempt ${attempt}: Job not found yet (404), will retry in ${interval}ms...`);
                 await sleep(interval);
                 continue;
             }

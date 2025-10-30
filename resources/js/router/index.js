@@ -34,6 +34,7 @@ const HolisticPlan = () => import('@/views/HolisticPlan.vue');
 const UKTaxesDashboard = () => import('@/views/UKTaxes/UKTaxesDashboard.vue');
 const AdminPanel = () => import('@/views/Admin/AdminPanel.vue');
 const Version = () => import('@/views/Version.vue');
+const DebugEnv = () => import('@/views/DebugEnv.vue');
 
 const routes = [
   // Public routes
@@ -313,10 +314,18 @@ const routes = [
       requiresAuth: false,
     },
   },
+  {
+    path: '/debug-env',
+    name: 'DebugEnv',
+    component: DebugEnv,
+    meta: {
+      public: true,
+    },
+  },
 ];
 
 const router = createRouter({
-  history: createWebHistory('/'),
+  history: createWebHistory(import.meta.env.PROD ? '/tengo/' : '/'),
   routes,
 });
 

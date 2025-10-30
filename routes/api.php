@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\EstateController;
 use App\Http\Controllers\Api\FamilyMembersController;
 use App\Http\Controllers\Api\HolisticPlanningController;
 use App\Http\Controllers\Api\InvestmentController;
+use App\Http\Controllers\Api\LetterToSpouseController;
 use App\Http\Controllers\Api\MortgageController;
 use App\Http\Controllers\Api\NetWorthController;
 use App\Http\Controllers\Api\OnboardingController;
@@ -39,8 +40,8 @@ use Illuminate\Support\Facades\Route;
 
 // Authentication routes
 Route::prefix('auth')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -71,6 +72,11 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::put('/profile/expenditure', [UserProfileController::class, 'updateExpenditure']);
     Route::put('/profile/domicile', [UserProfileController::class, 'updateDomicileInfo']);
     Route::get('/profile/completeness', [ProfileCompletenessController::class, 'check']);
+
+    // Letter to Spouse
+    Route::get('/letter-to-spouse', [LetterToSpouseController::class, 'show']);
+    Route::get('/letter-to-spouse/spouse', [LetterToSpouseController::class, 'showSpouse']);
+    Route::put('/letter-to-spouse', [LetterToSpouseController::class, 'update']);
 
     // Family Members CRUD
     Route::prefix('family-members')->group(function () {

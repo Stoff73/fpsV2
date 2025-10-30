@@ -207,35 +207,26 @@ export default {
   computed: {
     // Merge strategies with actual gifting data from Gifting tab
     enhancedStrategies() {
-      console.log('[IHTMitigationStrategies] enhancedStrategies computed');
-      console.log('[IHTMitigationStrategies] giftingStrategyData:', this.giftingStrategyData);
-      console.log('[IHTMitigationStrategies] strategies:', this.strategies);
 
       return this.strategies.map(strategy => {
         // If this is the Gifting Strategy, override with actual data from Gifting tab
         if (strategy.strategy_name === 'Gifting Strategy' && this.giftingStrategyData) {
-          console.log('[IHTMitigationStrategies] Found Gifting Strategy, looking for PET data...');
 
           const petStrategy = this.giftingStrategyData.gifting_strategy?.strategies?.find(
             s => s.strategy_name === 'Potentially Exempt Transfers (PETs)'
           );
 
-          console.log('[IHTMitigationStrategies] PET Strategy found:', petStrategy);
 
           if (petStrategy) {
             // Get Annual Exemption totals
             const annualIHTSaved = this.giftingStrategyData.annual_exemption_plan?.total_iht_saved || 0;
             const annualTotalGifted = this.giftingStrategyData.annual_exemption_plan?.total_over_lifetime || 0;
 
-            console.log('[IHTMitigationStrategies] Annual IHT Saved:', annualIHTSaved);
-            console.log('[IHTMitigationStrategies] Annual Total Gifted:', annualTotalGifted);
 
             // Calculate combined totals (Annual + PET)
             const combinedIHTSaved = petStrategy.iht_saved + annualIHTSaved;
             const combinedTotalGifted = petStrategy.total_gifted + annualTotalGifted;
 
-            console.log('[IHTMitigationStrategies] Combined IHT Saved:', combinedIHTSaved);
-            console.log('[IHTMitigationStrategies] Combined Total Gifted:', combinedTotalGifted);
 
             const enhanced = {
               ...strategy,
@@ -243,7 +234,6 @@ export default {
               total_gifted: combinedTotalGifted,
               specific_actions: this.buildGiftingActions(petStrategy),
             };
-            console.log('[IHTMitigationStrategies] Enhanced strategy:', enhanced);
             return enhanced;
           }
         }

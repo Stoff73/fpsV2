@@ -535,7 +535,7 @@
           <!-- Calculations Tab -->
           <div v-if="activeTab === 'calculations'" class="space-y-6">
             <div>
-              <h3 class="text-h3 text-gray-900 mb-4">How FPS Calculations Work</h3>
+              <h3 class="text-h3 text-gray-900 mb-4">How TenGo Calculations Work</h3>
               <p class="text-sm text-gray-600 mb-6">
                 This section explains the key financial calculations used throughout the Financial Planning System.
               </p>

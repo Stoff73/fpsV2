@@ -532,8 +532,8 @@ class ComprehensiveEstatePlanService
                     'gross_estate' => $secondDeathAnalysis['current_combined_totals']['gross_assets'],
                     'liabilities' => $secondDeathAnalysis['current_combined_totals']['total_liabilities'],
                     'net_estate' => $secondDeathAnalysis['current_combined_totals']['net_estate'],
-                    'user_nrb' => 325000,
-                    'spouse_nrb' => 325000,
+                    'user_nrb' => config('uk_tax_config.inheritance_tax.nil_rate_band'),
+                    'spouse_nrb' => config('uk_tax_config.inheritance_tax.nil_rate_band'),
                     'available_nrb' => $secondDeathAnalysis['current_iht_calculation']['available_nrb'] ?? 650000,
                     'user_rnrb' => $secondDeathAnalysis['current_iht_calculation']['rnrb'] ? ($secondDeathAnalysis['current_iht_calculation']['rnrb'] / 2) : 0,
                     'spouse_rnrb' => $secondDeathAnalysis['current_iht_calculation']['rnrb'] ? ($secondDeathAnalysis['current_iht_calculation']['rnrb'] / 2) : 0,
@@ -553,8 +553,8 @@ class ComprehensiveEstatePlanService
                     'gross_estate' => $secondDeathAnalysis['second_death']['projected_combined_estate_at_second_death'],
                     'liabilities' => $secondDeathAnalysis['liability_breakdown']['projected']['survivor_liabilities'] ?? 0,
                     'net_estate' => $secondDeathAnalysis['second_death']['projected_combined_estate_at_second_death'] - ($secondDeathAnalysis['liability_breakdown']['projected']['survivor_liabilities'] ?? 0),
-                    'user_nrb' => 325000,
-                    'spouse_nrb' => 325000,
+                    'user_nrb' => config('uk_tax_config.inheritance_tax.nil_rate_band'),
+                    'spouse_nrb' => config('uk_tax_config.inheritance_tax.nil_rate_band'),
                     'available_nrb' => $secondDeathAnalysis['iht_calculation']['available_nrb'] ?? 650000,
                     'user_rnrb' => $secondDeathAnalysis['iht_calculation']['rnrb'] ? ($secondDeathAnalysis['iht_calculation']['rnrb'] / 2) : 0,
                     'spouse_rnrb' => $secondDeathAnalysis['iht_calculation']['rnrb'] ? ($secondDeathAnalysis['iht_calculation']['rnrb'] / 2) : 0,
@@ -573,9 +573,9 @@ class ComprehensiveEstatePlanService
         return [
             'has_projection' => false,
             'gross_estate' => $ihtAnalysis['net_estate_value'] ?? 0,
-            'available_nrb' => $profile->available_nrb ?? 325000,
+            'available_nrb' => $profile->available_nrb ?? config('uk_tax_config.inheritance_tax.nil_rate_band'),
             'rnrb' => $ihtAnalysis['rnrb'] ?? 0,
-            'total_allowances' => $ihtAnalysis['total_allowance'] ?? 325000,
+            'total_allowances' => $ihtAnalysis['total_allowance'] ?? config('uk_tax_config.inheritance_tax.nil_rate_band'),
             'taxable_estate' => $ihtAnalysis['taxable_estate'] ?? 0,
             'iht_liability' => $ihtAnalysis['iht_liability'] ?? 0,
             'effective_rate' => $ihtAnalysis['net_estate_value'] > 0
@@ -612,15 +612,15 @@ class ComprehensiveEstatePlanService
                 ],
                 [
                     'action' => 'Establish discretionary trust within NRB',
-                    'details' => 'Transfer £'.number_format($profile->available_nrb ?? 325000, 0).' to discretionary trust',
-                    'iht_saving' => ($profile->available_nrb ?? 325000) * 0.40,
+                    'details' => 'Transfer £'.number_format($profile->available_nrb ?? config('uk_tax_config.inheritance_tax.nil_rate_band'), 0).' to discretionary trust',
+                    'iht_saving' => ($profile->available_nrb ?? config('uk_tax_config.inheritance_tax.nil_rate_band')) * 0.40,
                     'cost' => 0,
                     'timeframe' => 'Once-off (Year 1)',
                 ],
             ],
         ];
 
-        $totalIHTSaving += 1200 + (($profile->available_nrb ?? 325000) * 0.40);
+        $totalIHTSaving += 1200 + (($profile->available_nrb ?? config('uk_tax_config.inheritance_tax.nil_rate_band')) * 0.40);
 
         // Priority 2: Medium-term strategy (PET cycles)
         if ($giftingPlan['summary']['total_gifted'] > 0) {

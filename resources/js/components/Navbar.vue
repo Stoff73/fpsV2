@@ -5,7 +5,7 @@
         <div class="flex">
           <div class="flex-shrink-0 flex items-center">
             <router-link to="/dashboard" class="font-display text-h4 text-primary-600 hover:text-primary-700 transition-colors cursor-pointer">
-              FPS
+              TenGo
             </router-link>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
