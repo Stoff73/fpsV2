@@ -74,7 +74,29 @@ Before starting, ensure you have:
 
 ## 2. Local Build Preparation
 
-### Step 2.1: Build Production Assets
+### Step 2.1: Create .env.production File (CRITICAL!)
+
+**CRITICAL**: Vite reads environment variables at BUILD TIME. You MUST create `.env.production` with the correct production API URL BEFORE building:
+
+```bash
+cd /Users/Chris/Desktop/fpsApp/tengo
+
+# Create .env.production with production API URL
+cat > .env.production << 'EOF'
+VITE_APP_NAME="TenGo - Financial Planning System"
+VITE_API_BASE_URL=https://csjones.co/tengo
+EOF
+
+# Verify the file was created
+cat .env.production
+```
+
+**Why this is critical**:
+- If you build WITHOUT this file, Vite will use `.env` which has `VITE_API_BASE_URL=http://localhost:8000`
+- This will cause ALL API calls to go to localhost instead of your production server
+- This results in `ERR_CONNECTION_REFUSED` errors on registration/login
+
+### Step 2.2: Build Production Assets
 
 **IMPORTANT**: This MUST be done from a fresh terminal with correct environment:
 
@@ -97,11 +119,19 @@ vite v4.x.x building for production...
 ls -la public/build/
 # Should see:
 # - .vite/ directory
-# - assets/ directory
-# - manifest.json (or will be created as symlink on server)
+# - assets/ directory (50+ JS/CSS files)
 ```
 
-### Step 2.2: Verify Vite Configuration
+**Verify correct API URL was baked in**:
+```bash
+# This should return results (production URL present)
+grep -r "csjones.co/tengo" public/build/assets/*.js | head -3
+
+# This should return nothing (localhost NOT present)
+grep -r "localhost:8000" public/build/assets/*.js
+```
+
+### Step 2.3: Verify Vite Configuration
 
 Your `vite.config.js` should already be configured correctly:
 ```javascript
@@ -110,7 +140,7 @@ base: process.env.NODE_ENV === 'production' ? '/tengo/build/' : '/',
 
 This tells Vite to build assets for the `/tengo` subdirectory.
 
-### Step 2.3: Create Deployment Archive
+### Step 2.4: Create Deployment Archive
 
 ```bash
 # Navigate to parent directory
@@ -438,7 +468,21 @@ cp .env.production.example .env
 nano .env
 ```
 
-### Step 7.2: Update .env Configuration
+### Step 7.2: Check Memcached Availability (CRITICAL!)
+
+**BEFORE configuring .env**, check if Memcached is available:
+
+```bash
+# Check if Memcached extension is installed
+php -m | grep memcached
+
+# Check if Memcached class is available
+php -r "if (class_exists('Memcached')) { echo 'Memcached available\n'; } else { echo 'Memcached NOT available\n'; }"
+```
+
+**Result**: On SiteGround, Memcached IS available. This is important for the Protection module which requires cache tagging.
+
+### Step 7.3: Update .env Configuration
 
 Update these values in the `.env` file:
 
@@ -456,7 +500,12 @@ DB_DATABASE=dbow3dj6o4qnc4
 DB_USERNAME=uixybijdvk3yv
 DB_PASSWORD=YOUR_DATABASE_PASSWORD_FROM_STEP_4
 
-CACHE_DRIVER=file
+# CRITICAL: Use memcached (NOT file or array)
+# Protection module requires cache tagging which only memcached/redis support
+CACHE_DRIVER=memcached
+MEMCACHED_HOST=127.0.0.1
+MEMCACHED_PORT=11211
+
 SESSION_DRIVER=file
 SESSION_LIFETIME=120
 SESSION_PATH=/tengo
@@ -563,7 +612,7 @@ php artisan tinker
 $admin = new \App\Models\User();
 $admin->name = 'TenGo Admin';
 $admin->email = 'admin@fps.com';
-$admin->password = bcrypt('ChooseSecurePassword123!');
+$admin->password = bcrypt('PixieRebecca2020');
 $admin->email_verified_at = now();
 $admin->is_admin = true;
 $admin->save();
@@ -608,11 +657,22 @@ php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 
+# Create missing framework directories (fixes view:cache and session errors)
+mkdir -p storage/framework/views
+mkdir -p storage/framework/sessions
+chmod -R 775 storage/framework/views
+chmod -R 775 storage/framework/sessions
+
+# Remove hot file if it exists (critical - prevents Vite dev server errors)
+rm -f public/hot
+
 # Cache configuration for performance
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 ```
+
+**CRITICAL**: The `public/hot` file tells Laravel to use the Vite development server at `localhost:5173`. If this file exists in production, you'll get `ERR_CONNECTION_REFUSED` errors. Always remove it before caching.
 
 ### Step 9.2: Optimize Composer Autoloader
 
@@ -1069,9 +1129,133 @@ Your TenGo application should now be live at: **https://csjones.co/tengo**
 
 ---
 
-**Deployment Guide Version**: 2.0
+## Appendix: Common Deployment Issues & Solutions
+
+This section documents issues encountered during actual deployment and their solutions.
+
+### Issue 1: API Calls Going to localhost:8000
+
+**Symptoms**:
+- Registration/login fails with "Network error. Please check your connection."
+- Browser console shows: `POST http://localhost:8000/api/auth/register net::ERR_CONNECTION_REFUSED`
+
+**Cause**: Frontend was built WITHOUT `.env.production` file, so Vite used the development `.env` which has `VITE_API_BASE_URL=http://localhost:8000`
+
+**Solution**:
+1. Create `.env.production` file BEFORE building:
+   ```bash
+   cat > .env.production << 'EOF'
+   VITE_APP_NAME="TenGo - Financial Planning System"
+   VITE_API_BASE_URL=https://csjones.co/tengo
+   EOF
+   ```
+2. Rebuild: `NODE_ENV=production npm run build`
+3. Verify: `grep -r "csjones.co/tengo" public/build/assets/*.js` (should return results)
+4. Re-deploy the `public/build/` directory
+
+**Prevention**: ALWAYS create `.env.production` before Step 2.2 (Build Production Assets)
+
+### Issue 2: Vite Dev Server Errors (127.0.0.1:5173)
+
+**Symptoms**:
+- Website loads but with broken CSS/JS
+- Browser console shows: `GET http://127.0.0.1:5173/@vite/client net::ERR_CONNECTION_REFUSED`
+
+**Cause**: `public/hot` file exists on server, telling Laravel to use Vite dev server
+
+**Solution**:
+```bash
+# On server
+cd ~/www/csjones.co/public_html/tengo_laravel/
+rm -f public/hot
+php artisan config:clear
+php artisan config:cache
+php artisan view:clear
+php artisan view:cache
+```
+
+**Prevention**: ALWAYS remove `public/hot` file in Step 9.1 before caching configs
+
+### Issue 3: "This cache store does not support tagging"
+
+**Symptoms**:
+- Dashboard loads but shows 500 errors
+- Error message: "Failed to analyze protection coverage: This cache store does not support tagging."
+
+**Cause**: `CACHE_DRIVER` is set to `file` or `array`, which don't support cache tagging. Protection module requires tagging.
+
+**Solution**:
+1. Check if Memcached is available: `php -m | grep memcached`
+2. If available, update `.env`:
+   ```ini
+   CACHE_DRIVER=memcached
+   MEMCACHED_HOST=127.0.0.1
+   MEMCACHED_PORT=11211
+   ```
+3. Clear and rebuild caches:
+   ```bash
+   php artisan config:clear
+   php artisan config:cache
+   ```
+
+**Prevention**: Check Memcached availability in Step 7.2 and configure correctly in Step 7.3
+
+### Issue 4: Missing storage/framework/sessions Directory
+
+**Symptoms**:
+- Website shows 500 error immediately on load
+- Laravel log: `file_put_contents(...sessions/...): Failed to open stream: No such file or directory`
+
+**Cause**: Tarball extraction didn't include empty `storage/framework/sessions/` directory
+
+**Solution**:
+```bash
+mkdir -p storage/framework/sessions
+chmod -R 775 storage/framework/sessions
+```
+
+**Prevention**: Create missing directories in Step 9.1 before caching
+
+### Issue 5: Missing storage/framework/views Directory
+
+**Symptoms**:
+- `php artisan view:cache` fails with "View path not found"
+
+**Cause**: Tarball extraction didn't include empty `storage/framework/views/` directory
+
+**Solution**:
+```bash
+mkdir -p storage/framework/views
+chmod -R 775 storage/framework/views
+```
+
+**Prevention**: Create missing directories in Step 9.1 before caching
+
+### Issue 6: Enum Migration Failure
+
+**Symptoms**:
+- `php artisan migrate` fails with: "Unknown column type 'enum' requested"
+- Migration: `2025_10_23_154600_update_assets_ownership_type_to_individual`
+
+**Cause**: Doctrine DBAL doesn't recognize enum columns, but database already has correct structure from previous deployment
+
+**Solution**:
+```bash
+# Manually mark migration as run
+mysql -u uixybijdvk3yv -p dbow3dj6o4qnc4 -e "INSERT INTO migrations (migration, batch) VALUES ('2025_10_23_154600_update_assets_ownership_type_to_individual', 1);"
+
+# Verify
+php artisan migrate:status | grep "2025_10_23_154600"
+```
+
+**Prevention**: If database already has correct structure, manually mark problematic enum migrations as run
+
+---
+
+**Deployment Guide Version**: 3.0
 **TenGo Version**: v0.1.2.13
 **Last Updated**: October 30, 2025
 **Tested On**: SiteGround UK Servers
+**Deployment Date**: October 30, 2025 (Successful)
 
 🤖 **Generated with [Claude Code](https://claude.com/claude-code)**
