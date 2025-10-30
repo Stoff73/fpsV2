@@ -58,7 +58,8 @@ api.interceptors.response.use(
 
       // Handle 422 Validation errors
       if (error.response.status === 422) {
-        console.error('[API] 422 Validation Error:', error.response.data);
+        // Log as info, not error - these are expected validation responses
+        console.info('[API] 422 Validation:', error.response.data.message || 'Validation failed');
         return Promise.reject({
           message: error.response.data.message || 'Validation failed',
           errors: error.response.data.errors || null,

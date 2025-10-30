@@ -531,17 +531,20 @@ export default {
         if (response.success) {
           this.plannedStrategy = response.data;
         } else {
+          // API returned validation error in response body
           this.strategyError = response.message || 'Failed to load planned gifting strategy';
           this.requiresProfileUpdate = response.requires_profile_update || false;
-          console.error('[GiftingStrategy] API returned error:', this.strategyError);
+          console.info('[GiftingStrategy] Validation error:', this.strategyError);
         }
       } catch (error) {
-        console.error('[GiftingStrategy] Failed to load planned strategy:', error);
-        console.error('[GiftingStrategy] Error response:', error.response);
         if (error.response?.status === 422) {
+          // Expected validation error - user needs to complete profile
           this.strategyError = error.response.data.message;
           this.requiresProfileUpdate = error.response.data.requires_profile_update || false;
+          console.info('[GiftingStrategy] Profile incomplete:', this.strategyError);
         } else {
+          // Unexpected error - log as error
+          console.error('[GiftingStrategy] Failed to load planned strategy:', error);
           this.strategyError = 'Unable to calculate gifting strategy. Please ensure your profile is complete.';
         }
       } finally {
@@ -564,17 +567,20 @@ export default {
         if (response.success) {
           this.personalizedStrategy = response.data;
         } else {
+          // API returned validation error in response body
           this.personalizedStrategyError = response.message || 'Failed to load personalized gifting strategy';
           this.requiresAssets = response.requires_assets || false;
-          console.error('[GiftingStrategy] API returned error:', this.personalizedStrategyError);
+          console.info('[GiftingStrategy] Validation error:', this.personalizedStrategyError);
         }
       } catch (error) {
-        console.error('[GiftingStrategy] Failed to load personalized strategy:', error);
-        console.error('[GiftingStrategy] Error response:', error.response);
         if (error.response?.status === 422) {
+          // Expected validation error - user needs to add assets
           this.personalizedStrategyError = error.response.data.message;
           this.requiresAssets = error.response.data.requires_assets || false;
+          console.info('[GiftingStrategy] Assets required:', this.personalizedStrategyError);
         } else {
+          // Unexpected error - log as error
+          console.error('[GiftingStrategy] Failed to load personalized strategy:', error);
           this.personalizedStrategyError = 'Unable to calculate personalized strategy. Please ensure you have assets added.';
         }
       } finally {
