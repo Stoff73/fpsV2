@@ -43,24 +43,90 @@ Available Skills:
 
 **FAILURE TO USE AVAILABLE SKILLS IS UNACCEPTABLE.**
 
+### 4. ENVIRONMENT VARIABLE CONTAMINATION - CRITICAL WARNING
+
+**⚠️ THE #1 CAUSE OF DEVELOPMENT ENVIRONMENT FAILURES IS ENVIRONMENT VARIABLE POLLUTION**
+
+**NEVER** export production environment variables in development sessions:
+- ❌ **NEVER** run: `export $(cat .env.production | xargs)`
+- ❌ **NEVER** run: `source .env.production`
+- ❌ **NEVER** manually export production values like `export APP_URL=https://csjones.co/tengo`
+
+**WHY THIS BREAKS EVERYTHING:**
+- Environment variables **override** `.env` file values in Laravel/Vite
+- Production URLs get compiled into JavaScript by Vite
+- Production database credentials cause "Access denied" errors
+- Frontend calls production API instead of localhost (CORS errors)
+- Cache driver mismatches cause "This cache store does not support tagging" errors
+
+**DIAGNOSIS - Check for contamination FIRST when debugging:**
+```bash
+# Check for production environment variables
+printenv | grep -E "^APP_|^DB_|^VITE_|^CACHE_"
+
+# If you see production values (csjones.co, production DB names), you have contamination
+```
+
+**SOLUTION - Always start development servers with correct environment:**
+
+Use the provided startup script:
+```bash
+./dev.sh
+```
+
+Or manually export local variables in the SAME bash session:
+```bash
+export APP_ENV=local && \
+export APP_URL=http://localhost:8000 && \
+export VITE_API_BASE_URL=http://localhost:8000 && \
+export DB_CONNECTION=mysql && \
+export DB_HOST=localhost && \
+export DB_DATABASE=laravel && \
+export DB_USERNAME=root && \
+export DB_PASSWORD="" && \
+export CACHE_DRIVER=array && \
+php artisan serve &
+sleep 2
+npm run dev
+```
+
+**CRITICAL**: Both Laravel AND Vite MUST start in the SAME bash session with these exports.
+
+**COMMON SYMPTOMS:**
+1. CORS errors: `Access to XMLHttpRequest at 'https://csjones.co/tengo/api/...' from origin 'http://localhost:8000' has been blocked`
+2. Database errors: `Access denied for user 'uixybijdvk3yv'@'localhost'` (production DB user)
+3. Cache errors: `This cache store does not support tagging`
+4. Vite output shows wrong URL: `APP_URL: https://csjones.co/tengo` (should be `http://localhost:8000`)
+5. 500 errors on API calls with database or cache issues in Laravel logs
+
+**REFERENCE:**
+- See `DEV_ENVIRONMENT_TROUBLESHOOTING.md` for comprehensive debugging guide
+- See `.env` for local development configuration
+- See `.env.production.example` for production template (NEVER rename until deployment)
+
+**PREVENTION:**
+- Keep production config in `.env.production.example` only
+- Never work in same terminal session used for deployment preparation
+- Always use `./dev.sh` script for local development
+- Clear terminal session before deployment: open fresh terminal, don't reuse dev terminal
+
 ---
 
 ## Project Overview
 
-**FPS (Financial Planning System)** - UK-focused comprehensive financial planning application covering five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
+**TenGo (Financial Planning System)** - UK-focused comprehensive financial planning application covering five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
-**Current Version**: v0.1.2.12
+**Current Version**: v0.1.2.13
 **Tech Stack**: Laravel 10.x (PHP 8.2+) + Vue.js 3 + MySQL 8.0+ + Memcached
 
 **Status**: Active Development - Core features complete, spouse management & joint ownership implemented
 
-**Recent Updates (v0.1.2.12)**:
-- Comprehensive Estate Plan enhancements with separate User/Spouse/Combined estate breakdown
-- IHT Position displaying NOW vs PROJECTED scenarios side-by-side
-- Separate NRB (£325k + £325k) and RNRB display for married couples
-- Removed duplicate sections (Balance Sheet, Summary by Asset Type, Recommended Strategy box)
-- Fixed age calculation in profile section
-- Removed "Effective IHT Rate" (not a standard UK IHT concept)
+**Recent Updates (v0.1.2.13)**:
+- Letter to Spouse feature with comprehensive auto-population from all FPS modules
+- 4-part structure: Immediate actions, Accounts access, Long-term plans, Final wishes
+- Dual view mode: editable own letter, read-only spouse's letter
+- Auto-populated with data from Protection, Savings, Investment, Estate, Properties modules
+- 33 fields covering all essential estate planning information for surviving spouse
 
 ---
 
@@ -969,7 +1035,7 @@ MEMCACHED_PORT=11211
 **Issues/Questions**: Create an issue in the repository
 
 **Documentation Locations**:
-- Main docs: `/Users/Chris/Desktop/fpsV2/`
+- Main docs: `/Users/Chris/Desktop/fpsApp/tengo/`
 - Skills: `.claude/skills/` (fps-module-builder, fps-feature-builder, fps-component-builder)
 - Tests: `tests/` (Unit, Feature, Architecture)
 

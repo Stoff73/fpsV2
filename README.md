@@ -1,4 +1,4 @@
-# FPS - Financial Planning System v2
+# TenGo - Financial Planning System v2
 
 A comprehensive financial planning web application designed for UK individuals and families, covering five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
@@ -30,6 +30,21 @@ A comprehensive financial planning web application designed for UK individuals a
 ---
 
 ## 🆕 Recent Updates (October 2025)
+
+### Version 0.1.2.13 - Letter to Spouse Feature
+
+**Release Date**: October 29, 2025
+
+**Major Features**:
+- ✅ **Letter to Spouse**: Comprehensive emergency instructions feature for surviving spouse
+- ✅ **Auto-Population**: Automatically aggregates data from all modules (Protection, Estate, Savings, Investment, Properties, Liabilities)
+- ✅ **Four-Part Structure**:
+  - Part 1: What to do immediately (key contacts, executor, attorney, financial advisor, employer benefits)
+  - Part 2: Accessing and managing accounts (bank accounts, investments, insurance, properties, liabilities, recurring bills)
+  - Part 3: Long-term plans (estate documents, beneficiaries, children's education, financial guidance)
+  - Part 4: Funeral and final wishes (burial/cremation preference, service details, obituary wishes)
+- ✅ **Dual View Mode**: Each spouse can edit their own letter and view partner's letter (read-only)
+- ✅ **Application Rebranding**: Changed from "FPS" to "TenGo" across all interfaces
 
 ### Version 0.1.2.3 - Comprehensive Protection Plan
 
@@ -71,7 +86,7 @@ A comprehensive financial planning web application designed for UK individuals a
 
 ## 🎯 Overview
 
-FPS v2 is a next-generation financial planning application that helps UK individuals and families:
+TenGo v2 is a next-generation financial planning application that helps UK individuals and families:
 
 - **Analyze** their current financial situation across all major areas
 - **Identify** gaps, risks, and opportunities
@@ -103,6 +118,7 @@ The system uses an **agent-based architecture** where intelligent agents analyze
 - Spouse data sharing permissions (granular per-module control)
 - Email notification system for account events
 - First-time login password change flow
+- **Letter to Spouse**: Comprehensive emergency instructions with auto-population from all modules
 
 **✅ Asset Ownership Features (NEW - October 2025)**
 
@@ -223,8 +239,8 @@ The system uses an **agent-based architecture** where intelligent agents analyze
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url> fpsv2
-cd fpsv2
+git clone <repository-url> tengo
+cd tengo
 ```
 
 ### 2. Install Dependencies
@@ -263,7 +279,7 @@ DB_PASSWORD=your_password
 ### 5. Run Migrations
 
 ```bash
-# Run all migrations
+# Run all migrations (includes letters_to_spouse table)
 php artisan migrate
 
 # Seed database with tax configuration and demo data
@@ -309,6 +325,9 @@ This runs background jobs for Monte Carlo simulations
 - **Demo Login**:
   - Email: `demo@fps.com`
   - Password: `password`
+- **Admin Login** (for database backups):
+  - Email: `admin@fps.com`
+  - Password: `admin123456`
 
 ---
 
@@ -706,6 +725,14 @@ POST   /api/holistic/recommendations/:id/in-progress
 POST   /api/holistic/recommendations/:id/dismiss
 ```
 
+#### User Profile - Letter to Spouse
+
+```
+GET    /api/user/letter-to-spouse          # Get current user's letter (auto-creates if needed)
+GET    /api/user/letter-to-spouse/spouse   # Get spouse's letter (read-only)
+PUT    /api/user/letter-to-spouse          # Update current user's letter
+```
+
 ### Response Format
 
 All API responses follow this structure:
@@ -954,11 +981,11 @@ For issues, questions, or contributions:
 
 ---
 
-**Current Version**: 0.1.2.3 (Beta)
+**Current Version**: 0.1.2.13 (Beta)
 
-**Last Updated**: 25 October 2025
+**Last Updated**: 29 October 2025
 
-**Status**: 🚀 Active Development - Core Features Complete, Comprehensive Protection Plan Added
+**Status**: 🚀 Active Development - Core Features Complete, Letter to Spouse Feature Added
 
 ---
 
