@@ -1,1607 +1,1069 @@
-# FPS Deployment Guide for SiteGround
+# TenGo v0.1.2.13 - Production Deployment to SiteGround
 
-This guide provides step-by-step instructions for deploying the Financial Planning System (FPS) to your SiteGround hosting account using **Site Tools** (their modern control panel).
+**DEFINITIVE DEPLOYMENT GUIDE**
 
-## Deployment Overview
+**Target Environment**: SiteGround Shared Hosting
+**URL**: https://csjones.co/tengo
+**Method**: Symlink Setup (Secure Laravel Best Practice)
+**Date**: October 30, 2025
 
-- **URL**: https://csjones.co/fps
-- **Server**: SiteGround.co.uk
-- **Control Panel**: Site Tools (https://tools.siteground.com)
-- **Installation Path**: `public_html/fps_laravel/` (Laravel application root)
-- **Web Access Path**: `public_html/fps` → symlink to `fps_laravel/public`
-- **Laravel Version**: 10.x
-- **PHP Version Required**: 8.2+
-- **Database**: MySQL 8.0+
+---
 
-> **Note**: This guide uses a **symlink setup** where `fps/` is a symbolic link to `fps_laravel/public/`. This is the recommended secure approach for Laravel subdirectory deployment, keeping application code outside the web root.
->
-> SiteGround uses **Site Tools** as their proprietary hosting management system. This guide has been updated to reflect Site Tools instead of cPanel.
+## 🚨 CRITICAL: Read This First
+
+### Environment Separation Warning
+
+**THE #1 CAUSE OF DEPLOYMENT FAILURES IS ENVIRONMENT VARIABLE CONTAMINATION**
+
+**ALWAYS use a FRESH TERMINAL for deployment:**
+
+```bash
+# WRONG ❌ - Reusing terminal from development
+# (You've been running dev servers with local env vars)
+# Those variables persist and will break deployment
+
+# CORRECT ✅ - Open a NEW terminal window for deployment
+# Start fresh with no lingering environment variables
+```
+
+### What This Guide Provides
+
+- **Single source of truth** for deploying TenGo to SiteGround
+- **Step-by-step instructions** tested on SiteGround UK servers
+- **Symlink security setup** (keeps application code outside web root)
+- **Troubleshooting guide** for common issues
+- **Your specific credentials** (SSH username, host, port)
 
 ---
 
 ## Table of Contents
 
-1. [Pre-Deployment Checklist](#pre-deployment-checklist)
-2. [How to SSH Into Your SiteGround Server](#how-to-ssh-into-your-siteground-server)
-3. [Server Requirements](#server-requirements)
-4. [Step 1: Prepare Your Local Application](#step-1-prepare-your-local-application)
-5. [Step 2: Configure SiteGround Server](#step-2-configure-siteground-server)
-6. [Step 3: Upload Application Files](#step-3-upload-application-files)
-7. [Step 4: Configure Database](#step-4-configure-database)
-8. [Step 5: Configure Environment Variables](#step-5-configure-environment-variables)
-9. [Step 6: Set Up Directory Structure with Symlink](#step-6-set-up-directory-structure-with-symlink)
-10. [Step 7: Install Dependencies](#step-7-install-dependencies)
-11. [Step 8: Upload Production Build Files](#step-8-upload-production-build-files)
-12. [Step 9: Configure Web Server](#step-9-configure-web-server)
-13. [Step 10: Run Migrations and Seeders](#step-10-run-migrations-and-seeders)
-14. [Step 11: Optimize for Production](#step-11-optimize-for-production)
-15. [Step 12: Set File Permissions](#step-12-set-file-permissions)
-16. [Step 13: Test Deployment](#step-13-test-deployment)
-17. [Troubleshooting](#troubleshooting)
-18. [Recreating the Database on the Server](#recreating-the-database-on-the-server)
-19. [Post-Deployment Maintenance](#post-deployment-maintenance)
+1. [Pre-Deployment Checklist](#1-pre-deployment-checklist)
+2. [Local Build Preparation](#2-local-build-preparation)
+3. [SSH Setup](#3-ssh-setup)
+4. [SiteGround Database Setup](#4-siteground-database-setup)
+5. [Upload Application Files](#5-upload-application-files)
+6. [Create Symlink Structure](#6-create-symlink-structure)
+7. [Configure Environment](#7-configure-environment)
+8. [Run Migrations](#8-run-migrations)
+9. [Optimize for Production](#9-optimize-for-production)
+10. [Test Deployment](#10-test-deployment)
+11. [Troubleshooting](#11-troubleshooting)
+12. [Maintenance](#12-maintenance)
 
 ---
 
-## Pre-Deployment Checklist
+## 1. Pre-Deployment Checklist
 
-Before deploying, ensure you have:
+Before starting, ensure you have:
 
-- [ ] SiteGround account credentials (Site Tools access)
-- [ ] SSH access enabled (SiteGround supports SSH)
-- [ ] FTP/SFTP credentials (or use File Manager)
-- [ ] Database credentials ready
-- [ ] Git repository access (https://github.com/Stoff73/fpsV2.git)
-- [ ] Local application tested and working
-- [ ] All tests passing (`./vendor/bin/pest`)
-- [ ] Frontend built for production (`npm run build`)
+- [ ] **Fresh terminal session** (no environment variable pollution)
+- [ ] **SiteGround credentials**: Username, password, SSH access
+- [ ] **Local tests passing**: `./vendor/bin/pest`
+- [ ] **Git repo clean**: All changes committed
+- [ ] **Database backup** (if updating existing deployment)
+- [ ] **30-45 minutes** of uninterrupted time
+
+**Your SSH Credentials**:
+- **Username**: `u163-ptanegf9edny`
+- **Host**: `ssh.csjones.co`
+- **Port**: `18765`
 
 ---
 
-## How to SSH Into Your SiteGround Server
+## 2. Local Build Preparation
 
-SSH access is required for most deployment tasks. Follow these steps to set up SSH on your Mac.
+### Step 2.1: Build Production Assets
 
-### Step 1: Enable SSH in Site Tools
-
-1. Log in to **Site Tools** at https://tools.siteground.com
-2. Navigate to **Devs** → **SSH Keys Manager**
-3. Click **Generate New Key**
-4. Enter a **key name** (e.g., "my-macbook")
-5. Either generate a random passphrase or enter your own (save this passphrase securely!)
-6. Click **Generate**
-
-### Step 2: Download Your Private Key
-
-1. In **SSH Keys Manager**, find your newly created key
-2. Click the **three dots (⋮)** next to it → **Private Key**
-3. Copy the entire private key content (including the `-----BEGIN` and `-----END` lines)
-4. On your Mac, open Terminal and create the SSH directory if it doesn't exist:
-   ```bash
-   mkdir -p ~/.ssh
-   ```
-5. Create the private key file:
-   ```bash
-   touch ~/.ssh/siteground_key
-   ```
-6. Open the file in a text editor:
-   ```bash
-   open -e ~/.ssh/siteground_key
-   ```
-7. Paste the private key content into the file that opens in TextEdit
-8. Save and close TextEdit
-
-> **Note**: If you get a "cannot open file for writing" error with `nano`, use `open -e` (TextEdit) instead, or use `vim` if you're familiar with it.
-
-### Step 3: Set Correct Permissions
+**IMPORTANT**: This MUST be done from a fresh terminal with correct environment:
 
 ```bash
-chmod 600 ~/.ssh/siteground_key
+# Open a NEW terminal (not one used for dev servers)
+cd /Users/Chris/Desktop/fpsApp/tengo
+
+# Build frontend assets for production
+NODE_ENV=production npm run build
 ```
 
-This ensures your private key is only readable by you (required for SSH security).
+**Expected Output**:
+```
+vite v4.x.x building for production...
+✓ built in XXXXms
+```
 
-### Step 4: Get Your SSH Credentials
+**Verify build succeeded**:
+```bash
+ls -la public/build/
+# Should see:
+# - .vite/ directory
+# - assets/ directory
+# - manifest.json (or will be created as symlink on server)
+```
 
-1. Back in **Site Tools** → **SSH Keys Manager**
-2. Click the **three dots (⋮)** next to your key → **SSH Credentials**
-3. You'll see:
-   - **Username** (e.g., `uXXXXXXX`)
-   - **Host** (your server hostname, e.g., `sg2-xx.siteground.biz`)
-   - **Port** (usually `18765` for SiteGround)
+### Step 2.2: Verify Vite Configuration
 
-### Step 5: Connect via SSH
+Your `vite.config.js` should already be configured correctly:
+```javascript
+base: process.env.NODE_ENV === 'production' ? '/tengo/build/' : '/',
+```
 
-Open Terminal on your Mac and run:
+This tells Vite to build assets for the `/tengo` subdirectory.
+
+### Step 2.3: Create Deployment Archive
 
 ```bash
-ssh -i ~/.ssh/siteground_key -p 18765 USERNAME@HOST
-```
+# Navigate to parent directory
+cd /Users/Chris/Desktop/fpsApp/
 
-Replace:
-- `USERNAME` with your SSH username from Site Tools
-- `HOST` with your server hostname from Site Tools
-
-**Example:**
-```bash
-ssh -i ~/.ssh/siteground_key -p 18765 u123456789@sg2-xx.siteground.biz
-```
-
-### Step 6: Enter Your Passphrase
-
-When prompted, enter the passphrase you created when generating the SSH key.
-
-You should now be connected to your server! You'll see a command prompt like:
-
-```
-[u123456789@sgXX ~]$
-```
-
-### Optional: Create an SSH Alias (Recommended)
-
-To avoid typing the long SSH command every time, create an alias:
-
-1. Open (or create) your SSH config file:
-   ```bash
-   open -e ~/.ssh/config
-   ```
-
-2. Add this configuration (replace with your actual credentials):
-   ```
-   Host siteground
-       HostName sg2-xx.siteground.biz
-       User u123456789
-       Port 18765
-       IdentityFile ~/.ssh/siteground_key
-   ```
-
-3. Save and close TextEdit
-
-Now you can connect with just:
-```bash
-ssh siteground
-```
-
-### Common SSH Commands Once Connected
-
-```bash
-# Navigate to your FPS project
-cd ~/public_html/fps
-
-# Check current directory
+# Verify you're in the right location
 pwd
+# Should output: /Users/Chris/Desktop/fpsApp
 
-# List files
-ls -la
+# Create tarball (excluding unnecessary files)
+tar -czf tengo-deploy.tar.gz \
+  --exclude='tengo/node_modules' \
+  --exclude='tengo/.git' \
+  --exclude='tengo/.github' \
+  --exclude='tengo/tests' \
+  --exclude='tengo/.claude' \
+  --exclude='tengo/docs' \
+  --exclude='tengo/tasks' \
+  --exclude='tengo/*.md' \
+  --exclude='tengo/.env' \
+  --exclude='tengo/.env.development' \
+  --exclude='tengo/storage/logs/*.log' \
+  --exclude='tengo/storage/framework/cache/data/*' \
+  --exclude='tengo/storage/framework/sessions/*' \
+  --exclude='tengo/storage/framework/views/*' \
+  tengo/
 
-# Check PHP version
-php -v
+# Verify archive size (should be 20-50 MB)
+ls -lh tengo-deploy.tar.gz
+```
 
-# Run artisan commands
-php artisan --version
+**What's included**:
+- ✅ `app/` (Laravel application code)
+- ✅ `bootstrap/` (Laravel bootstrap)
+- ✅ `config/` (Configuration files)
+- ✅ `database/` (Migrations, seeders)
+- ✅ `public/` (Including `public/build/` with compiled assets)
+- ✅ `resources/` (Views, raw assets)
+- ✅ `routes/` (API and web routes)
+- ✅ `storage/` (Framework directories, empty logs)
+- ✅ `vendor/` (Composer dependencies)
+- ✅ `.env.production.example` (Template)
+- ✅ `artisan` (CLI tool)
+- ✅ `composer.json`, `composer.lock`
 
-# Exit SSH session
+**What's excluded**:
+- ❌ `node_modules/` (Not needed on server)
+- ❌ `.git/` (Version control)
+- ❌ `tests/` (Not needed in production)
+- ❌ `.env` (Local environment - will create fresh on server)
+- ❌ Markdown documentation files
+- ❌ Log files and cached data
+
+---
+
+## 3. SSH Setup
+
+### Step 3.1: Create SSH Key for SiteGround
+
+**On your Mac**, open Terminal:
+
+```bash
+# Create .ssh directory if it doesn't exist
+mkdir -p ~/.ssh
+
+# Create private key file
+nano ~/.ssh/siteground_tengo.pem
+```
+
+### Step 3.2: Get Your SSH Key from SiteGround
+
+1. Log in to **SiteGround Site Tools** at https://tools.siteground.com
+2. Navigate to **Devs** → **SSH Keys Manager**
+3. Click **Generate New Key** (if you don't have one already)
+4. Copy the **Private Key** (the entire text block including `-----BEGIN` and `-----END` lines)
+5. Paste into the nano editor (Cmd+V)
+6. Save: Press `Ctrl+O`, then `Enter`
+7. Exit: Press `Ctrl+X`
+
+### Step 3.3: Set Correct Permissions
+
+```bash
+# CRITICAL: Set permissions (SSH won't work without this)
+chmod 600 ~/.ssh/siteground_tengo.pem
+
+# Verify permissions
+ls -la ~/.ssh/siteground_tengo.pem
+# Should show: -rw-------
+```
+
+### Step 3.4: Create SSH Config (Optional but Recommended)
+
+```bash
+# Edit SSH config
+nano ~/.ssh/config
+```
+
+Add this configuration:
+```
+Host siteground-tengo
+    HostName ssh.csjones.co
+    Port 18765
+    User u163-ptanegf9edny
+    IdentityFile ~/.ssh/siteground_tengo.pem
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+```
+
+Save: `Ctrl+O`, `Enter`, `Ctrl+X`
+
+### Step 3.5: Test SSH Connection
+
+```bash
+# Test connection (using config alias)
+ssh siteground-tengo
+
+# OR without config:
+ssh -p 18765 -i ~/.ssh/siteground_tengo.pem u163-ptanegf9edny@ssh.csjones.co
+
+# If prompted about authenticity, type 'yes'
+# You should see a prompt like: baseos | csjones.co | u163-ptanegf9edny
+```
+
+**Troubleshooting**:
+- **"Permission denied (publickey)"**: Run `chmod 600 ~/.ssh/siteground_tengo.pem`
+- **"Connection refused"**: Check port is `18765`, try `22` if that fails
+- **"No such identity"**: Verify key file exists with `ls -la ~/.ssh/`
+
+Once connected, exit for now:
+```bash
 exit
 ```
 
 ---
 
-## Server Requirements
+## 4. SiteGround Database Setup
 
-Verify your SiteGround server meets these requirements:
+### Step 4.1: Create MySQL Database via Site Tools
 
-### PHP Requirements
-- **PHP Version**: 8.2 or higher
-- **PHP Extensions**:
-  - BCMath
-  - Ctype
-  - cURL
-  - DOM
-  - Fileinfo
-  - JSON
-  - Mbstring
-  - OpenSSL
-  - PCRE
-  - PDO
-  - PDO_MySQL
-  - Tokenizer
-  - XML
-  - Zip
+1. Log in to **SiteGround Site Tools** at https://tools.siteground.com
+2. Navigate to **Site** → **MySQL** → **Databases**
 
-### Database
-- MySQL 8.0+ or MariaDB 10.3+
+**Note**: Your database and user already exist:
+- **Database name**: `dbow3dj6o4qnc4`
+- **Username**: `uixybijdvk3yv`
 
-### Server Configuration
-- Composer 2.x
-- Node.js 18+ and npm (for building assets)
-- Memory limit: At least 256MB (512MB recommended)
-- Max execution time: 120 seconds minimum
+If you need to create a new database:
+3. Click **Create Database**
+4. Create a new user or use existing user `uixybijdvk3yv`
+5. Assign user to database with **ALL PRIVILEGES**
 
----
-
-## Step 1: Prepare Your Local Application
-
-### 1.1 Configure Vite for Subdirectory Deployment
-
-**IMPORTANT:** Before building assets, ensure `vite.config.js` is configured for subdirectory deployment.
-
-Your [vite.config.js](vite.config.js) should have:
-
-```javascript
-export default defineConfig({
-    // For subdirectory deployment (e.g., https://csjones.co/fps)
-    // The base path must include /build/ for proper asset resolution
-    base: '/fps/build/',
-    plugins: [
-        laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
-            refresh: true,
-            buildDirectory: 'build',
-        }),
-        vue(),
-    ],
-    // ... rest of config
-});
-```
-
-This is **critical** for assets to load correctly on the server.
-
-### 1.2 Build Frontend Assets
-
-```bash
-# Navigate to your project directory
-cd /Users/CSJ/Desktop/fpsV2
-
-# Install all dependencies (including dev dependencies needed for build)
-npm install
-
-# Build for production
-npm run build
-```
-
-**Note:** You must use `npm install` (not `npm ci --production`) because build tools like `vite` and `laravel-vite-plugin` are dev dependencies required for building.
-
-This creates optimized assets in `public/build/`.
-
-### 1.3 Optimize Composer Dependencies
-
-```bash
-# Install production dependencies only (no dev packages)
-composer install --optimize-autoloader --no-dev
-```
-
-### 1.4 Run Tests (Optional but Recommended)
-
-```bash
-# Ensure all tests pass before deployment
-./vendor/bin/pest
-```
-
-### 1.5 Create Deployment Archive (Optional)
-
-You can create a zip file excluding unnecessary files:
-
-```bash
-# Create a clean archive
-zip -r fps-deployment.zip . \
-  -x "*.git*" \
-  -x "node_modules/*" \
-  -x "tests/*" \
-  -x "*.md" \
-  -x ".env*" \
-  -x "storage/logs/*" \
-  -x "storage/framework/cache/*" \
-  -x "storage/framework/sessions/*" \
-  -x "storage/framework/views/*"
-```
-
----
-
-## Step 2: Configure SiteGround Server
-
-### 2.1 Enable SSH Access
-
-1. Log in to SiteGround Site Tools
-2. Go to **SSH Access** (under Advanced)
-3. Enable SSH access
-4. Note your SSH username and port (usually 18765)
-
-### 2.2 Verify PHP Version
-
-1. In Site Tools, go to **Select PHP Version**
-2. Select **PHP 8.2** or higher
-3. Enable required extensions (see Server Requirements above)
-4. Click **Save**
-
-### 2.3 Check Composer Availability
-
-SSH into your server and verify Composer:
-
-```bash
-ssh username@csjones.co -p 18765
-composer --version
-```
-
-If Composer is not installed, contact SiteGround support or install it manually.
-
----
-
-## Step 3: Upload Application Files
-
-**Important:** With the symlink setup, you'll upload files to `fps_laravel/` and create a symlink at `fps/`.
-
-### Option A: Git Clone (Recommended)
-
-SSH into your server:
-
-```bash
-ssh -i ~/.ssh/siteground_key -p 18765 u163-ptanegf9edny@uk71.siteground.eu
-cd ~/www/csjones.co/public_html
-git clone https://github.com/Stoff73/fpsV2.git fps_laravel
-cd fps_laravel
-```
-
-### Option B: FTP/SFTP Upload
-
-1. Use an FTP client (FileZilla, Cyberduck, etc.)
-2. Connect to your SiteGround server via SFTP
-3. Navigate to `~/www/csjones.co/public_html/`
-4. Create `fps_laravel` folder
-5. Upload all files from your local project to `public_html/fps_laravel/`
-
-**Important**: Upload the entire project, including hidden files like `.htaccess`
-
-### Option C: Site Tools File Manager
-
-1. Log in to Site Tools
-2. Open **File Manager**
-3. Navigate to `~/www/csjones.co/public_html/`
-4. Create new folder: `fps_laravel`
-5. Upload `fps-deployment.zip` (if you created it)
-6. Extract the archive
-
----
-
-## Step 4: Configure Database
-
-### 4.1 Create MySQL Database
-
-1. In Site Tools, go to **MySQL Databases**
-2. Create a new database: `csjones_fps` (or your preferred name)
-3. Create a new MySQL user: `csjones_fpsuser`
-4. Set a strong password (save it securely)
-5. Add user to database with **ALL PRIVILEGES**
-6. Note the database host (usually `localhost`)
-
-### 4.2 Note Database Credentials
-
-You'll need these for the `.env` file:
-
+**Your database credentials** (you'll need them in Step 7):
 ```
 DB_HOST=localhost
-DB_DATABASE=csjones_fps
-DB_USERNAME=csjones_fpsuser
-DB_PASSWORD=your_secure_password
+DB_DATABASE=dbow3dj6o4qnc4
+DB_USERNAME=uixybijdvk3yv
+DB_PASSWORD=YOUR_DATABASE_PASSWORD
 ```
 
 ---
 
-## Step 5: Configure Environment Variables
+## 5. Upload Application Files
 
-### 5.1 Create .env File
+### Step 5.1: Upload Tarball to Server
 
-SSH into your server:
-
-```bash
-cd ~/www/csjones.co/public_html/fps_laravel
-cp .env.example .env
-nano .env
-```
-
-### 5.2 Update .env Configuration
-
-```env
-# Application
-APP_NAME="Financial Planning System"
-APP_ENV=production
-APP_KEY=
-APP_DEBUG=false
-APP_URL=https://csjones.co/fps
-
-# Database
-DB_CONNECTION=mysql
-DB_HOST=localhost
-DB_PORT=3306
-DB_DATABASE=csjones_fps
-DB_USERNAME=csjones_fpsuser
-DB_PASSWORD=your_secure_password
-
-# Cache
-CACHE_DRIVER=file
-FILESYSTEM_DISK=local
-QUEUE_CONNECTION=database
-SESSION_DRIVER=file
-SESSION_LIFETIME=120
-
-# Security
-SESSION_SECURE_COOKIE=true
-SANCTUM_STATEFUL_DOMAINS=csjones.co
-
-# Mail (configure based on your SMTP settings)
-MAIL_MAILER=smtp
-MAIL_HOST=mailhog
-MAIL_PORT=1025
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS="noreply@csjones.co"
-MAIL_FROM_NAME="${APP_NAME}"
-
-# Asset URL (important for subfolder deployment)
-ASSET_URL=https://csjones.co/fps
-```
-
-**Important Settings for Subfolder Deployment:**
-- `APP_URL=https://csjones.co/fps`
-- `ASSET_URL=https://csjones.co/fps`
-- `SESSION_SECURE_COOKIE=true` (for HTTPS)
-
-Save and exit (`Ctrl+X`, then `Y`, then `Enter`).
-
-### 5.3 Generate Application Key
+**From your Mac** (ensure you're NOT SSH'd into server):
 
 ```bash
-cd ~/www/csjones.co/public_html/fps_laravel
-php artisan key:generate
+# Check your prompt - should show your Mac, not server
+# If you see "baseos" or "siteground" in prompt, type 'exit' first
+
+# Upload tarball (using SSH config alias)
+scp tengo-deploy.tar.gz siteground-tengo:~/
+
+# OR without config:
+scp -P 18765 -i ~/.ssh/siteground_tengo.pem tengo-deploy.tar.gz u163-ptanegf9edny@ssh.csjones.co:~/
+
+# This will take 2-5 minutes depending on connection speed
 ```
 
-This will update the `APP_KEY` in your `.env` file.
+### Step 5.2: Remove Old Symlinks (If Any Exist)
+
+**SSH into server**:
+```bash
+ssh siteground-tengo
+```
+
+**Remove old symlinks**:
+```bash
+# Navigate to web root
+cd ~/www/csjones.co/public_html/
+
+# List to see if old symlink exists
+ls -la | grep tengo
+
+# If you see something like: tengo -> some/old/path
+# Remove it:
+rm tengo
+
+# Verify it's gone
+ls -la | grep tengo
+# Should return nothing
+```
+
+### Step 5.3: Extract Application Files
+
+**Still on server**:
+```bash
+# Navigate to web root
+cd ~/www/csjones.co/public_html/
+
+# Create application directory (NOT the web-accessible one yet)
+mkdir -p tengo_laravel
+
+# Extract tarball
+tar -xzf ~/tengo-deploy.tar.gz -C tengo_laravel/ --strip-components=1
+
+# Verify extraction
+ls -la tengo_laravel/
+# Should see: app/, bootstrap/, config/, public/, vendor/, etc.
+
+# Remove tarball to save space
+rm ~/tengo-deploy.tar.gz
+
+# Set correct permissions
+chmod -R 755 tengo_laravel/
+chmod -R 775 tengo_laravel/storage/
+chmod -R 775 tengo_laravel/bootstrap/cache/
+```
 
 ---
 
-## Step 6: Set Up Directory Structure with Symlink
+## 6. Create Symlink Structure
 
-### 6.1 Verify Directory Structure
+This is the **most important step** for security and proper Laravel subdirectory deployment.
 
-Your directory structure should look like this with the **symlink setup**:
+### Step 6.1: Understanding the Symlink Setup
 
+**Directory Structure**:
 ```
 ~/www/csjones.co/public_html/
-├── fps → fps_laravel/public  # Symbolic link (web-accessible)
-└── fps_laravel/               # Laravel application root (NOT web-accessible)
+├── tengo → tengo_laravel/public  # Symbolic link (WEB-ACCESSIBLE)
+└── tengo_laravel/                 # Laravel app root (NOT web-accessible)
     ├── app/
     ├── bootstrap/
     ├── config/
-    ├── database/
-    ├── public/                # Laravel's public directory
-    │   ├── build/             # Compiled Vue.js assets
-    │   │   ├── .vite/
-    │   │   │   └── manifest.json
-    │   │   ├── assets/
-    │   │   └── manifest.json  # Symlink to .vite/manifest.json
-    │   ├── index.php          # Laravel entry point
+    ├── public/                    # Laravel's public directory
+    │   ├── index.php              # Front controller
+    │   ├── build/                 # Vite assets
     │   └── .htaccess
-    ├── resources/
-    ├── routes/
     ├── storage/
-    │   ├── app/
-    │   ├── framework/
-    │   └── logs/
     ├── vendor/
-    ├── .env
-    ├── artisan
-    └── composer.json
+    └── .env
 ```
 
-### 6.2 Create Symbolic Link (CRITICAL)
+**How it works**:
+- URL: `https://csjones.co/tengo/` → symlink `tengo/` → actual directory `tengo_laravel/public/`
+- Application code in `tengo_laravel/` remains secure (not web-accessible)
+- Only `public/` contents are exposed via symlink
 
-This is the **most important step** for secure Laravel subdirectory deployment. The symlink makes only the `public` directory web-accessible while keeping application code secure.
+### Step 6.2: Create the Symlink
 
+**On server**:
 ```bash
-cd ~/www/csjones.co/public_html
+# Make sure you're in the right directory
+cd ~/www/csjones.co/public_html/
 
-# Create the symlink (if it doesn't already exist)
-ln -s fps_laravel/public fps
+# Create symlink
+ln -s tengo_laravel/public tengo
 
-# Verify the symlink was created correctly
-ls -la fps
-# Should show: fps -> fps_laravel/public
+# Verify symlink was created
+ls -la | grep tengo
+# Should show:
+# drwxr-xr-x  ... tengo_laravel
+# lrwxrwxrwx  ... tengo -> tengo_laravel/public
 
-# Verify the symlink works
-ls -la fps/
-# Should show contents of fps_laravel/public/ (index.php, .htaccess, etc.)
+# Verify symlink works (should show contents of public/)
+ls -la tengo/
+# Should show: index.php, .htaccess, build/, etc.
 ```
 
-**Important:** If the `fps` symlink already exists and points to the correct location, you don't need to recreate it.
+### Step 6.3: Create Manifest Symlink (CRITICAL for Vite)
 
----
+Laravel's Vite integration expects `manifest.json` at `public/build/manifest.json`, but Vite creates it at `public/build/.vite/manifest.json`.
 
-## Step 7: Install Dependencies
-
-### 7.1 Install PHP Dependencies
-
+**On server**:
 ```bash
-cd ~/www/csjones.co/public_html/fps_laravel
-composer install --optimize-autoloader --no-dev
-```
-
-This installs all PHP packages from `composer.json`.
-
-### 7.2 Verify Installation
-
-```bash
-php artisan --version
-```
-
-You should see: `Laravel Framework 10.x.x`
-
----
-
-## Step 8: Upload Production Build Files
-
-After building assets locally with the correct Vite configuration, you need to upload them to the server.
-
-### 8.1 Build Assets Locally (if not already done)
-
-On your **local machine**:
-
-```bash
-cd /Users/CSJ/Desktop/fpsV2
-
-# Ensure vite.config.js has base: '/fps/build/'
-# Then build production assets
-npm run build
-```
-
-This creates the `public/build/` directory with all compiled assets.
-
-### 8.2 Upload Build Files to Server
-
-**Option A: SFTP/FTP (Recommended - Fastest)**
-
-Using FileZilla, Cyberduck, or any FTP client:
-
-1. Connect to your server via SFTP
-2. Navigate to remote: `~/www/csjones.co/public_html/fps_laravel/public/`
-3. **Delete** the existing `build/` directory on the server (if it exists)
-4. **Upload** your local `public/build/` directory to the server
-
-**Option B: Commit and Push via Git**
-
-On your **local machine**:
-
-```bash
-git add public/build/
-git commit -m "build: Add production assets"
-git push origin main
-```
-
-Then on the **server**:
-
-```bash
-cd ~/www/csjones.co/public_html/fps_laravel
-git pull origin main
-```
-
-### 8.3 Create Manifest Symlink (CRITICAL)
-
-Laravel's Vite integration expects `manifest.json` at `public/build/manifest.json`, but Vite creates it at `public/build/.vite/manifest.json`. We need to create a symlink:
-
-```bash
-cd ~/www/csjones.co/public_html/fps_laravel
+cd ~/www/csjones.co/public_html/tengo_laravel/public/build/
 
 # Create symlink so Laravel can find the manifest
-ln -s .vite/manifest.json public/build/manifest.json
+ln -s .vite/manifest.json manifest.json
 
-# Verify the symlink was created
-ls -la public/build/manifest.json
+# Verify
+ls -la manifest.json
 # Should show: manifest.json -> .vite/manifest.json
 
-# Verify the symlink works
-cat public/build/manifest.json | head -5
+# Test it works
+cat manifest.json | head -5
 # Should show JSON content
 ```
 
-**This step is essential** - without it, you'll get a "Vite manifest not found" error.
-
-### 8.4 Verify Build Files
-
-```bash
-# Check build directory structure
-ls -la public/build/
-# Should show: .vite/, assets/, manifest.json (symlink)
-
-# Check assets were uploaded
-ls -la public/build/assets/ | head -10
-# Should show .js and .css files with recent timestamps
-
-# Verify accessible via web symlink
-ls -la ~/www/csjones.co/public_html/fps/build/
-# Should show the same files (accessed through the fps symlink)
-```
+**This is essential** - without it, you'll get "Vite manifest not found" errors.
 
 ---
 
-## Step 9: Configure Web Server
+## 7. Configure Environment
 
-With the symlink setup, **no additional web server configuration is needed!** The `fps` symlink points directly to `fps_laravel/public`, which is Laravel's public directory.
+### Step 7.1: Create Production .env File
 
-### Verify Web Server Configuration
-
-The existing `.htaccess` in `fps_laravel/public/.htaccess` should handle all routing automatically.
-
+**On server**:
 ```bash
-# Verify .htaccess exists and is readable
-cat ~/www/csjones.co/public_html/fps_laravel/public/.htaccess | head -20
+cd ~/www/csjones.co/public_html/tengo_laravel/
+
+# Copy example file
+cp .env.production.example .env
+
+# Edit .env file
+nano .env
 ```
 
-You should see Laravel's default `.htaccess` with mod_rewrite rules. **No changes needed** - the symlink handles everything.
+### Step 7.2: Update .env Configuration
 
-### Why This Works
+Update these values in the `.env` file:
 
-- URL `https://csjones.co/fps/` → symlink `fps/` → actual directory `fps_laravel/public/`
-- URL `https://csjones.co/fps/build/assets/app.js` → `fps_laravel/public/build/assets/app.js`
-- Laravel's `.htaccess` in `public/` handles all routing
-- Application code in `fps_laravel/` remains secure (not web-accessible)
+```ini
+APP_NAME="TenGo - Financial Planning System"
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_URL=https://csjones.co/tengo
+
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=dbow3dj6o4qnc4
+DB_USERNAME=uixybijdvk3yv
+DB_PASSWORD=YOUR_DATABASE_PASSWORD_FROM_STEP_4
+
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+SESSION_PATH=/tengo
+SESSION_DOMAIN=csjones.co
+SESSION_SECURE_COOKIE=true
+
+QUEUE_CONNECTION=database
+
+MAIL_MAILER=smtp
+MAIL_HOST=mail.csjones.co
+MAIL_PORT=587
+MAIL_USERNAME=noreply@csjones.co
+MAIL_PASSWORD=YOUR_EMAIL_PASSWORD
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@csjones.co
+MAIL_FROM_NAME="${APP_NAME}"
+
+SANCTUM_STATEFUL_DOMAINS=csjones.co
+
+ASSET_URL=/tengo
+```
+
+**Critical settings**:
+- `APP_URL=https://csjones.co/tengo` (with HTTPS and /tengo subdirectory)
+- `SESSION_PATH=/tengo` (for cookies to work in subdirectory)
+- `SESSION_SECURE_COOKIE=true` (required for HTTPS)
+- `ASSET_URL=/tengo` (for asset loading)
+
+Save: `Ctrl+O`, `Enter`, `Ctrl+X`
+
+### Step 7.3: Generate Application Key
+
+**On server**:
+```bash
+cd ~/www/csjones.co/public_html/tengo_laravel/
+
+# Generate unique encryption key
+php artisan key:generate --force
+
+# Verify it was added to .env
+cat .env | grep APP_KEY
+# Should show: APP_KEY=base64:xxxxxxxxxxxxx
+```
+
+### Step 7.4: Test Database Connection
+
+```bash
+php artisan db:show
+```
+
+**Expected output**:
+```
+MySQL 8.0.x
+Database: dbow3dj6o4qnc4
+```
+
+If this fails, double-check database credentials in `.env`.
 
 ---
 
-## Step 10: Run Migrations and Seeders
+## 8. Run Migrations
 
-### 10.1 Run Database Migrations
+### Step 8.1: Run Database Migrations
 
+**On server**:
 ```bash
-cd ~/www/csjones.co/public_html/fps_laravel
+cd ~/www/csjones.co/public_html/tengo_laravel/
+
+# Run migrations (creates all 40+ tables)
 php artisan migrate --force
 ```
 
-The `--force` flag is required in production environments.
+**Expected output**:
+```
+Migration table created successfully.
+Migrating: 2014_10_12_000000_create_users_table
+Migrated:  2014_10_12_000000_create_users_table (XX.XXms)
+...
+(continues for ~40 migrations)
+```
 
-### 10.2 Seed Tax Configuration
+### Step 8.2: Seed Tax Configuration
 
 ```bash
 php artisan db:seed --class=TaxConfigurationSeeder --force
 ```
 
-This populates UK tax rules (NRB, RNRB, ISA allowances, etc.).
+**This seeds**:
+- UK tax bands (2025/26)
+- Personal allowance (£12,570)
+- ISA allowance (£20,000)
+- Pension annual allowance (£60,000)
+- IHT: NRB £325k, RNRB £175k
+- Life expectancy tables
 
-### 10.3 (Optional) Seed Demo User
-
-For testing purposes, you can create a demo user with sample data:
-
-```bash
-php artisan db:seed --class=DemoUserSeeder --force
-```
-
-This creates a demo user (`demo@example.com` / `password`) with sample data across all modules.
-
-### 10.4 Verify Database
-
-Check that tables were created:
+### Step 8.3: Create Admin Account
 
 ```bash
 php artisan tinker
->>> \DB::select('SHOW TABLES');
->>> exit
 ```
 
-You should see all FPS tables (users, investments, trusts, gifts, etc.).
+**In tinker**:
+```php
+$admin = new \App\Models\User();
+$admin->name = 'TenGo Admin';
+$admin->email = 'admin@fps.com';
+$admin->password = bcrypt('ChooseSecurePassword123!');
+$admin->email_verified_at = now();
+$admin->is_admin = true;
+$admin->save();
+
+echo "Admin created with ID: " . $admin->id . "\n";
+exit
+```
+
+**Save these credentials**:
+- Email: `admin@fps.com`
+- Password: `ChooseSecurePassword123!` (or whatever you chose)
+
+### Step 8.4: Verify Database
+
+```bash
+# Check tables were created
+php artisan db:table --database=mysql
+
+# Should show 40+ tables including:
+# - users
+# - protection_profiles, life_insurance_policies
+# - savings_accounts, investment_accounts
+# - dc_pensions, db_pensions
+# - assets, liabilities, properties
+# - trusts, gifts, wills
+# - letters_to_spouse (NEW in v0.1.2.13)
+```
 
 ---
 
-## Step 11: Optimize for Production
+## 9. Optimize for Production
 
-### 11.1 Cache Configuration
+### Step 9.1: Cache Configuration
 
+**On server**:
 ```bash
-cd ~/www/csjones.co/public_html/fps_laravel
+cd ~/www/csjones.co/public_html/tengo_laravel/
 
-# Cache config files
+# Clear any existing caches
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Cache configuration for performance
 php artisan config:cache
-
-# Cache routes
 php artisan route:cache
-
-# Cache views
 php artisan view:cache
 ```
 
-### 11.2 Optimize Autoloader
+### Step 9.2: Optimize Composer Autoloader
 
 ```bash
 composer dump-autoload --optimize
 ```
 
-### 11.3 Clear Old Caches (if redeploying)
+### Step 9.3: Set Up Cron Job for Queue Worker
 
+**Exit SSH and go to SiteGround Site Tools**:
+
+1. Navigate to **Devs** → **Cron Jobs**
+2. Click **Create Cron Job**
+3. Configure:
+   - **Type**: Custom
+   - **Execute**: Every Minute
+   - **Command**:
+     ```bash
+     cd ~/www/csjones.co/public_html/tengo_laravel && php artisan queue:work --stop-when-empty --max-time=3600 >> /dev/null 2>&1
+     ```
+4. Click **Create**
+
+**This is essential** for Monte Carlo simulations to run in the background.
+
+### Step 9.4: Set Up Daily Cleanup Cron
+
+1. Create another cron job
+2. Configure:
+   - **Type**: Custom
+   - **Execute**: Daily at 2:00 AM
+   - **Command**:
+     ```bash
+     cd ~/www/csjones.co/public_html/tengo_laravel && php artisan queue:prune-batches && php artisan cache:prune-stale-tags >> /dev/null 2>&1
+     ```
+3. Click **Create**
+
+---
+
+## 10. Test Deployment
+
+### Step 10.1: Test Website Loads
+
+**Open browser** and navigate to: **https://csjones.co/tengo**
+
+**You should see**:
+- TenGo landing page
+- Hero section with tagline
+- Five module cards (Protection, Savings, Investment, Retirement, Estate)
+- Login and Register buttons
+- Proper styling (no broken CSS)
+
+**Open browser console** (F12 → Console tab):
+- Should be NO JavaScript errors
+- Should be NO 404 errors for assets
+
+### Step 10.2: Test User Registration
+
+1. Click **Register** button
+2. Fill in form:
+   - Name: Test User
+   - Email: test@example.com
+   - Password: password123
+   - Confirm Password: password123
+3. Click **Register**
+4. Should redirect to dashboard or onboarding
+
+### Step 10.3: Test Admin Login
+
+1. Navigate to: https://csjones.co/tengo/login
+2. Login with:
+   - Email: `admin@fps.com`
+   - Password: (the password you set in Step 8.3)
+3. Should access dashboard successfully
+4. Try navigating to `/admin` (if admin panel exists)
+
+### Step 10.4: Test All Modules
+
+Navigate to each module and verify it loads:
+- https://csjones.co/tengo/protection
+- https://csjones.co/tengo/savings
+- https://csjones.co/tengo/investment
+- https://csjones.co/tengo/retirement
+- https://csjones.co/tengo/estate
+
+### Step 10.5: Test API Endpoints
+
+**From terminal**:
 ```bash
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
+# Test health endpoint
+curl https://csjones.co/tengo/api/health
+
+# Should return: {"status":"ok",...}
+```
+
+### Step 10.6: Check Server Logs
+
+**SSH back into server**:
+```bash
+ssh siteground-tengo
+cd ~/www/csjones.co/public_html/tengo_laravel/
+
+# Check Laravel logs for errors
+tail -50 storage/logs/laravel.log
+
+# Should see no ERROR entries (INFO and WARNING are OK)
 ```
 
 ---
 
-## Step 12: Set File Permissions
+## 11. Troubleshooting
 
-Proper file permissions are critical for security and functionality.
+### Issue 1: 500 Internal Server Error
 
-### 12.1 Set Ownership (if you have sudo access)
+**Symptoms**: White screen or generic error page
 
+**Solutions**:
+
+1. **Check Laravel logs**:
+   ```bash
+   tail -100 storage/logs/laravel.log
+   ```
+
+2. **Verify .env file exists**:
+   ```bash
+   ls -la .env
+   ```
+
+3. **Check APP_KEY is set**:
+   ```bash
+   cat .env | grep APP_KEY
+   # Should NOT be empty
+   ```
+
+4. **Check permissions**:
+   ```bash
+   chmod -R 775 storage/
+   chmod -R 775 bootstrap/cache/
+   ```
+
+5. **Clear all caches**:
+   ```bash
+   php artisan cache:clear
+   php artisan config:clear
+   php artisan route:clear
+   php artisan view:clear
+   ```
+
+### Issue 2: Vite Manifest Not Found
+
+**Error**: `Vite manifest not found at: /home/.../public/build/manifest.json`
+
+**Cause**: Manifest symlink wasn't created
+
+**Solution**:
 ```bash
-# Set web server user as owner (usually 'nobody' or 'www-data' on SiteGround)
-chown -R $USER:$USER ~/www/csjones.co/public_html/fps_laravel
-```
+cd ~/www/csjones.co/public_html/tengo_laravel/public/build/
 
-### 12.2 Set Directory Permissions
+# Create symlink
+ln -s .vite/manifest.json manifest.json
 
-```bash
-cd ~/www/csjones.co/public_html/fps_laravel
-
-# Set general permissions
-find . -type f -exec chmod 644 {} \;
-find . -type d -exec chmod 755 {} \;
-
-# Set artisan as executable
-chmod 755 artisan
-
-# Make storage and cache writable
-chmod -R 775 storage bootstrap/cache
-```
-
-### 12.3 Protect Sensitive Files
-
-```bash
-# Protect .env file
-chmod 600 .env
-
-# Protect database file if using SQLite (not applicable for MySQL)
-# chmod 600 database/database.sqlite
-```
-
----
-
-## Step 13: Test Deployment
-
-### 13.1 Access the Application
-
-Visit: **https://csjones.co/fps**
-
-You should see the FPS login/register page with proper styling and no console errors.
-
-### 13.2 Verify Assets Load Correctly
-
-1. Open browser DevTools (F12)
-2. Go to **Console** tab - should be no MIME type errors
-3. Go to **Network** tab - verify all `.js` and `.css` files load with status 200
-4. Check that paths look like: `https://csjones.co/fps/build/assets/app-xxx.js`
-
-### 13.3 Register a Test User
-
-1. Click **Register**
-2. Create a test account
-3. Verify email functionality (if configured)
-4. Log in
-
-### 13.4 Test Key Features
-
-- [ ] Dashboard loads correctly with charts
-- [ ] Navigation works (Protection, Savings, Investment, Retirement, Estate, UK Taxes)
-- [ ] Create test data in each module
-- [ ] Verify calculations (IHT, Monte Carlo, etc.)
-- [ ] Check trust creation and IHT planning
-- [ ] Verify charts render correctly (ApexCharts)
-- [ ] Test responsive design on mobile
-
-### 13.5 Check Logs for Errors
-
-```bash
-tail -f ~/www/csjones.co/public_html/fps_laravel/storage/logs/laravel.log
-```
-
-If you see errors, troubleshoot using the guide below.
-
----
-
-## Troubleshooting
-
-### Issue 1: Vite Manifest Not Found (500 Error)
-
-**Error:** `Vite manifest not found at: /home/customer/www/csjones.co/public_html/fps_laravel/public/build/manifest.json`
-
-**Cause:** Laravel's Vite integration expects `manifest.json` at `public/build/manifest.json`, but Vite creates it at `public/build/.vite/manifest.json`.
-
-**Solution:**
-
-```bash
-cd ~/www/csjones.co/public_html/fps_laravel
-
-# Create symlink so Laravel can find the manifest
-ln -s .vite/manifest.json public/build/manifest.json
-
-# Verify the symlink was created
-ls -la public/build/manifest.json
+# Verify
+ls -la manifest.json
 # Should show: manifest.json -> .vite/manifest.json
 
 # Clear view cache
+cd ~/www/csjones.co/public_html/tengo_laravel/
 php artisan view:clear
-
-# Test the app
 ```
 
-This is the **most common issue** with the symlink deployment setup.
+### Issue 3: Assets Not Loading (CSS/JS 404)
 
-### Issue 2: 500 Internal Server Error (General)
+**Symptoms**: Page loads but no styling, browser console shows 404 for CSS/JS files
 
-**Possible Causes:**
-- `.env` file missing or misconfigured
-- File permissions incorrect
-- PHP extensions missing
-- Symlink not created correctly
+**Solutions**:
 
-**Solutions:**
-```bash
-# Check Laravel logs
-tail -100 ~/www/csjones.co/public_html/fps_laravel/storage/logs/laravel.log
+1. **Verify build directory exists**:
+   ```bash
+   ls -la ~/www/csjones.co/public_html/tengo_laravel/public/build/
+   # Should see: .vite/, assets/, manifest.json
+   ```
 
-# Verify .env exists
-ls -la ~/www/csjones.co/public_html/fps_laravel/.env
+2. **Check symlink is correct**:
+   ```bash
+   ls -la ~/www/csjones.co/public_html/ | grep tengo
+   # Should show: tengo -> tengo_laravel/public
+   ```
 
-# Verify symlink exists
-ls -la ~/www/csjones.co/public_html/fps
-# Should show: fps -> fps_laravel/public
+3. **Verify ASSET_URL in .env**:
+   ```bash
+   cat .env | grep ASSET_URL
+   # Should show: ASSET_URL=/tengo
+   ```
 
-# Check file permissions
-ls -la ~/www/csjones.co/public_html/fps_laravel/storage
+4. **Check build files are accessible via symlink**:
+   ```bash
+   ls -la ~/www/csjones.co/public_html/tengo/build/
+   # Should show same files as above (accessed through symlink)
+   ```
 
-# Test PHP
-php -v
-php -m  # List installed modules
-```
+5. **Rebuild assets locally and re-upload** (if build files are missing):
+   ```bash
+   # On your Mac
+   cd /Users/Chris/Desktop/fpsApp/tengo
+   NODE_ENV=production npm run build
 
-### Issue 3: Database Connection Error
+   # Upload just the build directory
+   scp -r -P 18765 -i ~/.ssh/siteground_tengo.pem \
+     public/build/ \
+     u163-ptanegf9edny@ssh.csjones.co:~/www/csjones.co/public_html/tengo_laravel/public/
+   ```
 
-**Error:** `SQLSTATE[HY000] [1045] Access denied`
+### Issue 4: Database Connection Failed
 
-**Solutions:**
-```bash
-cd ~/www/csjones.co/public_html/fps_laravel
+**Error**: `SQLSTATE[HY000] [2002] Connection refused` or `Access denied`
 
-# Verify database credentials in .env
-cat .env | grep DB_
+**Solutions**:
 
-# Test database connection
-php artisan tinker
->>> \DB::connection()->getPdo();
-```
+1. **Verify database credentials in .env**:
+   ```bash
+   cat .env | grep DB_
+   ```
 
-If connection fails, verify:
-- Database name is correct
-- Username has privileges
-- Password is correct
-- Host is correct (usually `localhost`)
+2. **Test connection**:
+   ```bash
+   php artisan db:show
+   ```
 
-### Issue 4: CSS/JS Assets Not Loading (MIME Type Error)
+3. **Check database exists in Site Tools**:
+   - Log in to Site Tools
+   - Go to MySQL → Databases
+   - Verify `dbow3dj6o4qnc4` exists
 
-**Symptoms:**
-- Page loads but has no styling or JavaScript errors in console
-- Browser console shows: `Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html"`
-- Files like `Login-CHtZ5lY7.js` cannot be loaded
+4. **Verify user has privileges**:
+   - In Site Tools, check user is assigned to database
+   - Ensure ALL PRIVILEGES are granted
 
-**Cause:** Asset paths are incorrect for subfolder deployment. Vite needs to know the base path where assets will be served.
+### Issue 5: CSRF Token Mismatch (419 Error)
 
-**Solutions:**
+**Symptoms**: Forms submit but return "419 Page Expired"
 
-1. **Update `vite.config.js`** (most important):
-```javascript
-export default defineConfig({
-    // For subdirectory deployment (e.g., https://csjones.co/fps)
-    // The base path must include /build/ for proper asset resolution
-    base: '/fps/build/',
-    plugins: [
-        laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
-            refresh: true,
-            buildDirectory: 'build',
-        }),
-        vue(),
-    ],
-    // ... rest of config
-});
-```
+**Solutions**:
 
-2. **Rebuild assets locally** with the updated configuration:
-```bash
-# On your local machine
-cd /Users/CSJ/Desktop/fpsV2
-npm run build
-```
+1. **Check session configuration in .env**:
+   ```bash
+   cat .env | grep SESSION
+   # Should show:
+   # SESSION_DRIVER=file
+   # SESSION_PATH=/tengo
+   # SESSION_DOMAIN=csjones.co
+   # SESSION_SECURE_COOKIE=true
+   ```
 
-3. **Upload the new build files** to the server:
-```bash
-# Via SSH/SFTP, upload the entire public/build/ directory
-# Or use git to commit and pull on server
-```
+2. **Clear session files**:
+   ```bash
+   rm -rf storage/framework/sessions/*
+   php artisan cache:clear
+   ```
 
-4. **Verify `ASSET_URL` in server `.env`**:
-```env
-ASSET_URL=https://csjones.co/fps
-```
+3. **Verify cookies are enabled** in browser
 
-5. **Clear config cache on server**:
-```bash
-php artisan config:clear
-php artisan config:cache
-```
+4. **Check HTTPS is working**:
+   - URL should start with `https://`
+   - Browser should show padlock icon
 
-6. **Verify build directory exists on server**:
-```bash
-ls -la ~/public_html/fps/public/build/
-# Should show: assets/, .vite/, manifest.json
-```
+### Issue 6: Queue Jobs Not Processing
 
-7. **Check `.htaccess` rewrite rules** (see Step 8)
+**Symptoms**: Monte Carlo simulations stuck, jobs don't run
 
-**Important Notes:**
-- The `base: '/fps/build/'` in `vite.config.js` tells Vite where assets will be served from
-- The `ASSET_URL` in `.env` tells Laravel where to find assets
-- Both must match your deployment structure
-- Always rebuild assets after changing `vite.config.js`
+**Solutions**:
 
-### Issue 4: 404 on Routes
+1. **Check cron job is configured**:
+   - Log in to Site Tools → Devs → Cron Jobs
+   - Verify queue worker cron exists and is active
 
-**Symptoms:** Homepage works but `/fps/dashboard` returns 404
+2. **Manually process queue**:
+   ```bash
+   php artisan queue:work --once
+   ```
 
-**Cause:** `.htaccess` not working or `mod_rewrite` disabled
+3. **Check failed jobs**:
+   ```bash
+   php artisan queue:failed
+   ```
 
-**Solutions:**
+4. **Retry failed jobs**:
+   ```bash
+   php artisan queue:retry all
+   ```
 
-1. Verify `mod_rewrite` is enabled (contact SiteGround if not)
+### Issue 7: Symlink Not Working
 
-2. Check `.htaccess` exists in `public` folder:
-```bash
-cat ~/public_html/fps/public/.htaccess
-```
+**Symptoms**: 404 error or "File not found" when accessing site
 
-3. Test rewrite rules:
-```bash
-# Create test file
-echo "Rewrite works" > ~/public_html/fps/public/test.txt
+**Solutions**:
 
-# Access via browser
-# https://csjones.co/fps/test.txt
-```
+1. **Verify symlink exists and points to correct location**:
+   ```bash
+   ls -la ~/www/csjones.co/public_html/ | grep tengo
+   # Should show: tengo -> tengo_laravel/public
+   ```
 
-### Issue 5: Storage Permissions Error
+2. **If symlink is broken, recreate it**:
+   ```bash
+   cd ~/www/csjones.co/public_html/
+   rm tengo
+   ln -s tengo_laravel/public tengo
+   ```
 
-**Error:** `The stream or file "storage/logs/laravel.log" could not be opened`
+3. **Verify symlink is accessible**:
+   ```bash
+   ls -la tengo/
+   # Should show contents of public/ directory
+   ```
 
-**Solution:**
-```bash
-cd ~/public_html/fps
-chmod -R 775 storage bootstrap/cache
-chown -R $USER:$USER storage bootstrap/cache
-```
+### Issue 8: Permission Denied Errors
 
-### Issue 6: Session/CSRF Token Mismatch
+**Symptoms**: "Permission denied" in logs, can't write to storage/logs
 
-**Error:** `CSRF token mismatch` or `419 Page Expired`
-
-**Causes:**
-- Cookies not set correctly
-- Session driver misconfigured
-- HTTPS/HTTP mismatch
-
-**Solutions:**
-
-1. Update `.env`:
-```env
-SESSION_DRIVER=file
-SESSION_SECURE_COOKIE=true
-SESSION_DOMAIN=.csjones.co
-SANCTUM_STATEFUL_DOMAINS=csjones.co,www.csjones.co
-```
-
-2. Clear config:
-```bash
-php artisan config:clear
-php artisan config:cache
-```
-
-3. Clear browser cookies and try again
-
-### Issue 7: Queue Jobs Not Processing
-
-**Symptoms:** Monte Carlo simulations stuck, jobs not running
-
-**Solution:**
-
-1. Verify queue driver in `.env`:
-```env
-QUEUE_CONNECTION=database
-```
-
-2. Run queue worker (requires keeping SSH session open or using supervisor):
-```bash
-php artisan queue:work database --tries=3
-```
-
-3. For production, set up a cron job:
-```bash
-# Edit crontab
-crontab -e
-
-# Add this line (runs queue every minute)
-* * * * * cd ~/public_html/fps && php artisan schedule:run >> /dev/null 2>&1
-* * * * * cd ~/public_html/fps && php artisan queue:work database --stop-when-empty >> /dev/null 2>&1
-```
-
-### Issue 8: Memory Limit Exceeded
-
-**Error:** `Allowed memory size of X bytes exhausted`
-
-**Solution:**
-
-1. Increase PHP memory limit in `.htaccess`:
-```apache
-php_value memory_limit 512M
-```
-
-2. Or create `php.ini` in project root:
-```ini
-memory_limit = 512M
-max_execution_time = 120
-```
-
-3. Contact SiteGround to increase limits if needed
-
----
-
-## Recreating the Database on the Server
-
-If you need to completely rebuild the database (e.g., after schema changes, corrupted data, or fresh deployment), follow these steps carefully.
-
-### Option 1: Fresh Migration (Recommended for Development/Testing)
-
-This will **DROP ALL TABLES** and recreate them from scratch. **WARNING: All data will be lost!**
+**Solutions**:
 
 ```bash
-# SSH into server
-ssh username@csjones.co -p 18765
-cd ~/public_html/fps
+cd ~/www/csjones.co/public_html/tengo_laravel/
 
-# Drop all tables and re-migrate
-php artisan migrate:fresh --force
+# Set correct permissions
+chmod -R 755 .
+chmod -R 775 storage/
+chmod -R 775 bootstrap/cache/
 
-# Seed tax configuration
-php artisan db:seed --class=TaxConfigurationSeeder --force
-
-# (Optional) Seed demo user with sample data
-php artisan db:seed --class=DemoUserSeeder --force
-
-# Verify tables were created
-php artisan tinker
->>> \DB::select('SHOW TABLES');
->>> exit
-```
-
-**When to use this:**
-- Fresh deployment
-- Development/staging environment
-- Testing database schema changes
-- **NEVER use on production with live user data**
-
----
-
-### Option 2: Drop and Recreate Database via Site Tools (Production Safe)
-
-This method allows you to backup first and is safer for production environments.
-
-#### Step 1: Backup Existing Database
-
-```bash
-# SSH into server
-ssh username@csjones.co -p 18765
-
-# Create backup directory if it doesn't exist
-mkdir -p ~/backups
-
-# Create database backup with timestamp
-mysqldump -u csjones_fpsuser -p csjones_fps > ~/backups/fps_backup_$(date +%Y%m%d_%H%M%S).sql
-
-# Verify backup was created
-ls -lh ~/backups/
-```
-
-**Save this backup file!** Download it via FTP/SFTP or Site Tools File Manager.
-
-#### Step 2: Drop Database via Site Tools
-
-1. Log in to **SiteGround Site Tools**
-2. Go to **MySQL Databases**
-3. Scroll to **Current Databases**
-4. Find `csjones_fps` database
-5. Click **Delete** (confirm deletion)
-
-#### Step 3: Recreate Database
-
-1. Still in **MySQL Databases** in Site Tools
-2. Under **Create New Database**:
-   - Database Name: `fps` (will become `csjones_fps`)
-   - Click **Create Database**
-3. Go back to **MySQL Databases**
-4. Under **Add User to Database**:
-   - User: Select `csjones_fpsuser`
-   - Database: Select `csjones_fps`
-   - Click **Add**
-5. On the **Manage User Privileges** page:
-   - Check **ALL PRIVILEGES**
-   - Click **Make Changes**
-
-#### Step 4: Run Fresh Migrations
-
-```bash
-# SSH into server
-ssh username@csjones.co -p 18765
-cd ~/public_html/fps
-
-# Verify database connection
-php artisan tinker
->>> \DB::connection()->getPdo();
->>> exit
-
-# Run fresh migrations
-php artisan migrate --force
-
-# Seed tax configuration
-php artisan db:seed --class=TaxConfigurationSeeder --force
-
-# (Optional) Seed demo user
-php artisan db:seed --class=DemoUserSeeder --force
-```
-
-#### Step 5: Verify Database
-
-```bash
-# Check tables were created
-php artisan tinker
->>> \DB::select('SHOW TABLES');
->>> \App\Models\User::count();  # Should be 0 (or 1 if you seeded demo user)
->>> exit
+# Make sure storage subdirectories are writable
+find storage -type f -exec chmod 664 {} \;
+find storage -type d -exec chmod 775 {} \;
+find bootstrap/cache -type f -exec chmod 664 {} \;
+find bootstrap/cache -type d -exec chmod 775 {} \;
 ```
 
 ---
 
-### Option 3: Drop and Recreate via Command Line (Advanced)
+## 12. Maintenance
 
-For users comfortable with MySQL command line:
+### Regular Maintenance Tasks
 
-#### Step 1: Backup Database
-
+**Weekly**:
 ```bash
-# Create backup
-mysqldump -u csjones_fpsuser -p csjones_fps > ~/backups/fps_backup_$(date +%Y%m%d_%H%M%S).sql
-```
-
-#### Step 2: Drop All Tables
-
-```bash
-# Connect to MySQL
-mysql -u csjones_fpsuser -p
-
-# Select database
-USE csjones_fps;
-
-# Disable foreign key checks
-SET FOREIGN_KEY_CHECKS = 0;
-
-# Generate DROP TABLE statements for all tables
-SELECT CONCAT('DROP TABLE IF EXISTS `', table_name, '`;')
-FROM information_schema.tables
-WHERE table_schema = 'csjones_fps';
-
-# Copy the output and execute each DROP TABLE statement
-# Example:
-# DROP TABLE IF EXISTS `users`;
-# DROP TABLE IF EXISTS `dc_pensions`;
-# ... (repeat for all tables)
-
-# Re-enable foreign key checks
-SET FOREIGN_KEY_CHECKS = 1;
-
-# Exit MySQL
-EXIT;
-```
-
-#### Step 3: Run Fresh Migrations
-
-```bash
-cd ~/public_html/fps
-
-# Run migrations
-php artisan migrate --force
-
-# Seed tax configuration
-php artisan db:seed --class=TaxConfigurationSeeder --force
-```
-
----
-
-### Option 4: Restore from Backup
-
-If you need to restore a previous database state:
-
-```bash
-# SSH into server
-ssh username@csjones.co -p 18765
-
-# Drop current database (via Site Tools or MySQL command line)
-# Then recreate empty database (via Site Tools)
-
-# Restore from backup file
-mysql -u csjones_fpsuser -p csjones_fps < ~/backups/fps_backup_20251016_120000.sql
-
-# Verify restoration
-mysql -u csjones_fpsuser -p
-USE csjones_fps;
-SHOW TABLES;
-SELECT COUNT(*) FROM users;
-EXIT;
-```
-
----
-
-### Option 5: Automated Database Recreation Script
-
-Create a shell script for quick database recreation (useful for frequent rebuilds):
-
-```bash
-# Create script
-nano ~/recreate_fps_db.sh
-```
-
-Add this content:
-
-```bash
-#!/bin/bash
-
-# Configuration
-DB_NAME="csjones_fps"
-DB_USER="csjones_fpsuser"
-PROJECT_DIR="$HOME/public_html/fps"
-BACKUP_DIR="$HOME/backups"
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-echo -e "${YELLOW}FPS Database Recreation Script${NC}"
-echo "========================================"
-
-# Ask for confirmation
-read -p "This will DROP ALL DATA in $DB_NAME. Are you sure? (yes/no): " confirm
-if [ "$confirm" != "yes" ]; then
-    echo -e "${RED}Aborted.${NC}"
-    exit 1
-fi
-
-# Create backup directory
-mkdir -p "$BACKUP_DIR"
-
-# Backup existing database
-echo -e "${YELLOW}Creating backup...${NC}"
-BACKUP_FILE="$BACKUP_DIR/fps_backup_$(date +%Y%m%d_%H%M%S).sql"
-mysqldump -u "$DB_USER" -p "$DB_NAME" > "$BACKUP_FILE"
-echo -e "${GREEN}Backup created: $BACKUP_FILE${NC}"
-
-# Navigate to project
-cd "$PROJECT_DIR" || exit
-
-# Run fresh migration
-echo -e "${YELLOW}Running fresh migrations...${NC}"
-php artisan migrate:fresh --force
-
-# Seed tax configuration
-echo -e "${YELLOW}Seeding tax configuration...${NC}"
-php artisan db:seed --class=TaxConfigurationSeeder --force
-
-# Ask about demo user
-read -p "Seed demo user with sample data? (yes/no): " seed_demo
-if [ "$seed_demo" == "yes" ]; then
-    php artisan db:seed --class=DemoUserSeeder --force
-    echo -e "${GREEN}Demo user seeded.${NC}"
-fi
-
-# Clear caches
-echo -e "${YELLOW}Clearing caches...${NC}"
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-
-# Rebuild caches
-echo -e "${YELLOW}Building caches...${NC}"
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-echo -e "${GREEN}Database recreation complete!${NC}"
-echo "========================================"
-echo "Backup saved to: $BACKUP_FILE"
-echo "Tables created: $(php artisan tinker --execute="\DB::select('SHOW TABLES')" | wc -l)"
-echo "Ready to use!"
-```
-
-Make it executable and run:
-
-```bash
-# Make script executable
-chmod +x ~/recreate_fps_db.sh
-
-# Run the script
-~/recreate_fps_db.sh
-```
-
----
-
-### Database Recreation Checklist
-
-Use this checklist when recreating the database:
-
-- [ ] **Backup current database** (if any data exists)
-- [ ] **Download backup file** to local machine (for safety)
-- [ ] **Verify backup file** is not empty/corrupt
-- [ ] **Drop all tables** or delete database
-- [ ] **Recreate database** with same name
-- [ ] **Re-add database user** with ALL PRIVILEGES
-- [ ] **Test database connection** (`php artisan tinker`)
-- [ ] **Run migrations** (`php artisan migrate --force`)
-- [ ] **Seed tax configuration** (`db:seed --class=TaxConfigurationSeeder`)
-- [ ] **Verify tables created** (`SHOW TABLES`)
-- [ ] **Test application login/register**
-- [ ] **Clear all caches** (config, route, view)
-- [ ] **Test all modules** (Protection, Savings, Investment, Retirement, Estate, UK Taxes)
-
----
-
-### Common Database Recreation Issues
-
-#### Issue 1: Foreign Key Constraint Errors
-
-**Error:** `Cannot drop table 'users' referenced by a foreign key constraint`
-
-**Solution:**
-```bash
-# In MySQL console
-SET FOREIGN_KEY_CHECKS = 0;
-# Drop tables
-SET FOREIGN_KEY_CHECKS = 1;
-```
-
-#### Issue 2: Migration Already Run
-
-**Error:** `Migration already ran: 2024_01_01_000000_create_users_table`
-
-**Solution:**
-```bash
-# Clear migration records
-php artisan migrate:fresh --force
-# Or manually truncate migrations table
-mysql -u csjones_fpsuser -p
-TRUNCATE migrations;
-EXIT;
-```
-
-#### Issue 3: Database Connection After Recreation
-
-**Error:** `SQLSTATE[HY000] [1049] Unknown database 'csjones_fps'`
-
-**Solution:**
-- Verify database was actually created in Site Tools
-- Check database name in `.env` matches Site Tools database name
-- Test connection: `php artisan tinker` → `\DB::connection()->getPdo()`
-
-#### Issue 4: Seeder Class Not Found
-
-**Error:** `Target class [TaxConfigurationSeeder] does not exist`
-
-**Solution:**
-```bash
-# Regenerate autoload files
-composer dump-autoload
-
-# Run seeder again
-php artisan db:seed --class=TaxConfigurationSeeder --force
-```
-
----
-
-## Post-Deployment Maintenance
-
-### Update Application
-
-When you push changes to GitHub:
-
-```bash
-# SSH into server
-ssh username@csjones.co -p 18765
-cd ~/public_html/fps
-
-# Pull latest changes
-git pull origin main
-
-# Update dependencies
-composer install --optimize-autoloader --no-dev
-
-# Run new migrations
-php artisan migrate --force
-
-# Clear and rebuild caches
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# Restart queue workers (if running)
-php artisan queue:restart
-```
-
-### Rebuild Frontend Assets
-
-If you've made Vue.js changes:
-
-```bash
-# On your local machine
-cd /Users/CSJ/Desktop/fpsV2
-npm run build
-
-# Upload new build files via FTP/SFTP
-# Or commit build files to git and pull on server
-```
-
-### Backup Database
-
-Set up automated backups via Site Tools:
-
-1. Go to **Backup Wizard** in Site Tools
-2. Choose **Backup** → **Full Backup**
-3. Set up automated daily backups
-4. Download backups regularly
-
-Or use command line:
-
-```bash
-# Create backup
-mysqldump -u csjones_fpsuser -p csjones_fps > ~/backups/fps_$(date +%Y%m%d).sql
-
-# Restore from backup
-mysql -u csjones_fpsuser -p csjones_fps < ~/backups/fps_20251015.sql
-```
-
-### Monitor Logs
-
-```bash
-# Watch Laravel logs
-tail -f ~/public_html/fps/storage/logs/laravel.log
-
-# Watch Apache error logs (path varies by server)
-tail -f ~/logs/error_log
-```
-
-### Security Updates
-
-```bash
-# Update Composer dependencies
-composer update --no-dev
-
-# Check for security advisories
-composer audit
-```
-
-### Performance Monitoring
-
-- Monitor response times via browser DevTools
-- Check database query performance
-- Monitor server resources in SiteGround control panel
-
----
-
-## Security Checklist
-
-- [ ] `APP_DEBUG=false` in production
-- [ ] Strong database password
-- [ ] `.env` file permissions set to 600
-- [ ] HTTPS enforced (SiteGround provides free SSL)
-- [ ] `SESSION_SECURE_COOKIE=true`
-- [ ] Regular backups configured
-- [ ] File permissions set correctly (644 for files, 755 for dirs)
-- [ ] Composer security audit passing
-- [ ] Web server configured to prevent directory listing
-- [ ] Error reporting disabled in production
-
----
-
-## Support Resources
-
-- **SiteGround Documentation**: https://www.siteground.com/kb/
-- **Laravel Deployment Guide**: https://laravel.com/docs/10.x/deployment
-- **FPS GitHub Repository**: https://github.com/Stoff73/fpsV2
-- **SiteGround Support**: Available 24/7 via chat/ticket
-
----
-
-## Quick Reference Commands
-
-```bash
-# SSH Connection
-ssh username@csjones.co -p 18765
-
-# Navigate to project
-cd ~/public_html/fps
-
-# Pull latest code
-git pull origin main
-
-# Install dependencies
-composer install --optimize-autoloader --no-dev
-
-# Run migrations
-php artisan migrate --force
-
-# Clear caches
-php artisan config:clear && php artisan route:clear && php artisan view:clear
-
-# Cache everything
-php artisan config:cache && php artisan route:cache && php artisan view:cache
-
-# Check Laravel version
-php artisan --version
-
-# View logs
+# Check logs for errors
 tail -100 storage/logs/laravel.log
+
+# Check disk space
+df -h
 ```
 
+**Monthly**:
+```bash
+# Clear old log files
+php artisan log:clear
+
+# Prune stale cache
+php artisan cache:prune-stale-tags
+
+# Optimize database
+php artisan db:prune
+```
+
+### Updating to New Version
+
+1. **Create backup** (via Admin panel or SSH):
+   ```bash
+   # Backup database
+   cd ~
+   mysqldump -u uixybijdvk3yv -p dbow3dj6o4qnc4 > tengo_backup_$(date +%Y%m%d).sql
+
+   # Backup files
+   cd ~/www/csjones.co/public_html/
+   tar -czf tengo_backup_$(date +%Y%m%d).tar.gz tengo_laravel/
+   ```
+
+2. **Build new version locally**:
+   ```bash
+   cd /Users/Chris/Desktop/fpsApp/tengo
+   git pull origin main
+   NODE_ENV=production npm run build
+   composer install --optimize-autoloader --no-dev
+   ```
+
+3. **Create new deployment archive** (follow Step 2.3)
+
+4. **Upload and extract new files**:
+   ```bash
+   # Upload tarball
+   scp tengo-deploy.tar.gz siteground-tengo:~/
+
+   # SSH in
+   ssh siteground-tengo
+
+   # Extract (overwrites existing files)
+   cd ~/www/csjones.co/public_html/
+   tar -xzf ~/tengo-deploy.tar.gz -C tengo_laravel/ --strip-components=1
+   ```
+
+5. **Run migrations** (for database changes):
+   ```bash
+   cd ~/www/csjones.co/public_html/tengo_laravel/
+   php artisan migrate --force
+   ```
+
+6. **Clear and rebuild caches**:
+   ```bash
+   php artisan cache:clear
+   php artisan config:clear
+   php artisan route:clear
+   php artisan view:clear
+   php artisan config:cache
+   php artisan route:cache
+   php artisan view:cache
+   ```
+
+7. **Test application**
+
+### Database Backup Schedule
+
+**Set up automated backups via cron**:
+
+1. In Site Tools → Devs → Cron Jobs
+2. Create new cron job:
+   - **Execute**: Daily at 3:00 AM
+   - **Command**:
+     ```bash
+     mysqldump -u uixybijdvk3yv -p'YOUR_DB_PASSWORD' dbow3dj6o4qnc4 | gzip > ~/backups/tengo_$(date +\%Y\%m\%d).sql.gz
+     ```
+
 ---
 
-## Deployment Checklist
+## Deployment Complete!
 
-Use this checklist for each deployment:
+Your TenGo application should now be live at: **https://csjones.co/tengo**
 
-- [ ] 1. Local tests passing
-- [ ] 2. Frontend built (`npm run build`)
-- [ ] 3. Code committed and pushed to GitHub
-- [ ] 4. SSH into SiteGround server
-- [ ] 5. Pull latest code (`git pull`)
-- [ ] 6. Install/update dependencies (`composer install`)
-- [ ] 7. Run new migrations (`php artisan migrate --force`)
-- [ ] 8. Clear old caches
-- [ ] 9. Rebuild production caches
-- [ ] 10. Test application in browser
-- [ ] 11. Check logs for errors
-- [ ] 12. Verify all modules working
-- [ ] 13. Create database backup
+### Final Checklist
+
+- [ ] Website loads at https://csjones.co/tengo
+- [ ] User registration works
+- [ ] Admin login works
+- [ ] All 5 modules accessible
+- [ ] Assets loading correctly (CSS/JS)
+- [ ] Database has 40+ tables
+- [ ] Queue worker cron job running
+- [ ] Daily cleanup cron job running
+- [ ] Backup created
+- [ ] Admin credentials saved securely
+
+### Support Resources
+
+- **SiteGround Support**: https://my.siteground.com/support
+- **Laravel Docs**: https://laravel.com/docs/10.x/deployment
+- **Project Docs**: See `CLAUDE.md` and `README.md`
 
 ---
 
-## Conclusion
+**Deployment Guide Version**: 2.0
+**TenGo Version**: v0.1.2.13
+**Last Updated**: October 30, 2025
+**Tested On**: SiteGround UK Servers
 
-Your FPS application should now be successfully deployed to SiteGround and accessible at **https://csjones.co/fps**.
-
-For questions or issues, refer to the Troubleshooting section or contact support.
-
-**Last Updated**: October 16, 2025
-**Version**: 1.1.0
-
-## Recent Updates (v1.1.0)
-
-- Added comprehensive database recreation instructions (5 different methods)
-- Added automated database recreation script
-- Added database recreation checklist
-- Added troubleshooting for common database recreation issues
-- Updated migration and seeder instructions with DemoUserSeeder option
-- Added UK Taxes & Allowances module deployment notes
-- Added investment holdings percentage-based allocation migration notes
+🤖 **Generated with [Claude Code](https://claude.com/claude-code)**
