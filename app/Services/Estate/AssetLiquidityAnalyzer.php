@@ -136,7 +136,7 @@ class AssetLiquidityAnalyzer
                     'Large gifts are Potentially Exempt Transfers (PETs) - exempt after 7 years',
                 ],
             ],
-            'pension' => [
+            'pension', 'dc_pension', 'db_pension' => [
                 'liquidity' => 'liquid', // Pensions are outside estate anyway
                 'is_giftable' => false,
                 'not_giftable_reason' => 'Pensions are already outside your estate (no need to gift)',
