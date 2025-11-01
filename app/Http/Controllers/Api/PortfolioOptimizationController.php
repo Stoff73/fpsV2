@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\Investment\Analytics\CorrelationMatrixCalculator;
+use App\Services\Investment\Analytics\CovarianceMatrixCalculator;
 use App\Services\Investment\Analytics\EfficientFrontierCalculator;
+use App\Services\Investment\Analytics\HoldingsDataExtractor;
 use App\Services\Investment\Analytics\MarkowitzOptimizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,7 +23,10 @@ class PortfolioOptimizationController extends Controller
 {
     public function __construct(
         private EfficientFrontierCalculator $frontierCalculator,
-        private MarkowitzOptimizer $optimizer
+        private MarkowitzOptimizer $optimizer,
+        private HoldingsDataExtractor $holdingsExtractor,
+        private CovarianceMatrixCalculator $covCalculator,
+        private CorrelationMatrixCalculator $corrCalculator
     ) {}
 
     /**
@@ -92,17 +98,37 @@ class PortfolioOptimizationController extends Controller
     {
         $user = $request->user();
 
-        // This will be enhanced when we add request validation class
         $validated = $request->validate([
             'min_weight' => 'nullable|numeric|min:0|max:1',
             'max_weight' => 'nullable|numeric|min:0|max:1',
+            'account_ids' => 'nullable|array',
+            'account_ids.*' => 'integer|exists:investment_accounts,id',
         ]);
 
         try {
-            // Get user's holdings data (simplified for now)
-            // TODO: Extract holdings and returns properly
-            $expectedReturns = [0.07, 0.08, 0.06, 0.09]; // Mock data
-            $covarianceMatrix = $this->getMockCovarianceMatrix();
+            // Extract holdings data
+            $holdingsData = $this->holdingsExtractor->extractForUser(
+                $user->id,
+                $validated['account_ids'] ?? null
+            );
+
+            if (! $holdingsData['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $holdingsData['message'],
+                ], 400);
+            }
+
+            $data = $holdingsData['data'];
+            $expectedReturns = $data['expected_returns'];
+
+            // Calculate covariance matrix from holdings
+            $accounts = \App\Models\Investment\InvestmentAccount::where('user_id', $user->id)
+                ->with('holdings')
+                ->get();
+            $holdings = $accounts->flatMap->holdings;
+            $covData = $this->covCalculator->calculate($holdings);
+            $covarianceMatrix = $covData['matrix'];
 
             $constraints = [
                 'min_weight' => $validated['min_weight'] ?? 0.0,
@@ -115,6 +141,10 @@ class PortfolioOptimizationController extends Controller
                 $constraints
             );
 
+            // Add labels and metadata to result
+            $result['labels'] = $data['labels'];
+            $result['holdings_metadata'] = $data['metadata'];
+
             return response()->json([
                 'success' => true,
                 'data' => $result,
@@ -123,6 +153,7 @@ class PortfolioOptimizationController extends Controller
             Log::error('Minimum variance optimization failed', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
@@ -147,11 +178,34 @@ class PortfolioOptimizationController extends Controller
             'risk_free_rate' => 'nullable|numeric|min:0|max:0.15',
             'min_weight' => 'nullable|numeric|min:0|max:1',
             'max_weight' => 'nullable|numeric|min:0|max:1',
+            'account_ids' => 'nullable|array',
+            'account_ids.*' => 'integer|exists:investment_accounts,id',
         ]);
 
         try {
-            $expectedReturns = [0.07, 0.08, 0.06, 0.09]; // Mock data
-            $covarianceMatrix = $this->getMockCovarianceMatrix();
+            // Extract holdings data
+            $holdingsData = $this->holdingsExtractor->extractForUser(
+                $user->id,
+                $validated['account_ids'] ?? null
+            );
+
+            if (! $holdingsData['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $holdingsData['message'],
+                ], 400);
+            }
+
+            $data = $holdingsData['data'];
+            $expectedReturns = $data['expected_returns'];
+
+            // Calculate covariance matrix from holdings
+            $accounts = \App\Models\Investment\InvestmentAccount::where('user_id', $user->id)
+                ->with('holdings')
+                ->get();
+            $holdings = $accounts->flatMap->holdings;
+            $covData = $this->covCalculator->calculate($holdings);
+            $covarianceMatrix = $covData['matrix'];
 
             $riskFreeRate = $validated['risk_free_rate'] ?? 0.045;
             $constraints = [
@@ -166,6 +220,10 @@ class PortfolioOptimizationController extends Controller
                 $constraints
             );
 
+            // Add labels and metadata to result
+            $result['labels'] = $data['labels'];
+            $result['holdings_metadata'] = $data['metadata'];
+
             return response()->json([
                 'success' => true,
                 'data' => $result,
@@ -174,6 +232,7 @@ class PortfolioOptimizationController extends Controller
             Log::error('Maximum Sharpe optimization failed', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
@@ -198,11 +257,34 @@ class PortfolioOptimizationController extends Controller
             'target_return' => 'required|numeric|min:0|max:1',
             'min_weight' => 'nullable|numeric|min:0|max:1',
             'max_weight' => 'nullable|numeric|min:0|max:1',
+            'account_ids' => 'nullable|array',
+            'account_ids.*' => 'integer|exists:investment_accounts,id',
         ]);
 
         try {
-            $expectedReturns = [0.07, 0.08, 0.06, 0.09]; // Mock data
-            $covarianceMatrix = $this->getMockCovarianceMatrix();
+            // Extract holdings data
+            $holdingsData = $this->holdingsExtractor->extractForUser(
+                $user->id,
+                $validated['account_ids'] ?? null
+            );
+
+            if (! $holdingsData['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $holdingsData['message'],
+                ], 400);
+            }
+
+            $data = $holdingsData['data'];
+            $expectedReturns = $data['expected_returns'];
+
+            // Calculate covariance matrix from holdings
+            $accounts = \App\Models\Investment\InvestmentAccount::where('user_id', $user->id)
+                ->with('holdings')
+                ->get();
+            $holdings = $accounts->flatMap->holdings;
+            $covData = $this->covCalculator->calculate($holdings);
+            $covarianceMatrix = $covData['matrix'];
 
             $targetReturn = $validated['target_return'];
             $constraints = [
@@ -217,6 +299,10 @@ class PortfolioOptimizationController extends Controller
                 $constraints
             );
 
+            // Add labels and metadata to result
+            $result['labels'] = $data['labels'];
+            $result['holdings_metadata'] = $data['metadata'];
+
             return response()->json([
                 'success' => true,
                 'data' => $result,
@@ -225,6 +311,7 @@ class PortfolioOptimizationController extends Controller
             Log::error('Target return optimization failed', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
@@ -245,16 +332,46 @@ class PortfolioOptimizationController extends Controller
     {
         $user = $request->user();
 
+        $validated = $request->validate([
+            'account_ids' => 'nullable|array',
+            'account_ids.*' => 'integer|exists:investment_accounts,id',
+        ]);
+
         try {
-            $volatilities = [0.15, 0.18, 0.12, 0.20]; // Mock data
-            $expectedReturns = [0.07, 0.08, 0.06, 0.09]; // Mock data
-            $covarianceMatrix = $this->getMockCovarianceMatrix();
+            // Extract holdings data
+            $holdingsData = $this->holdingsExtractor->extractForUser(
+                $user->id,
+                $validated['account_ids'] ?? null
+            );
+
+            if (! $holdingsData['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $holdingsData['message'],
+                ], 400);
+            }
+
+            $data = $holdingsData['data'];
+            $expectedReturns = $data['expected_returns'];
+
+            // Calculate covariance matrix and volatilities from holdings
+            $accounts = \App\Models\Investment\InvestmentAccount::where('user_id', $user->id)
+                ->with('holdings')
+                ->get();
+            $holdings = $accounts->flatMap->holdings;
+            $covData = $this->covCalculator->calculate($holdings);
+            $covarianceMatrix = $covData['matrix'];
+            $volatilities = $covData['volatilities'];
 
             $result = $this->optimizer->riskParity(
                 $volatilities,
                 $expectedReturns,
                 $covarianceMatrix
             );
+
+            // Add labels and metadata to result
+            $result['labels'] = $data['labels'];
+            $result['holdings_metadata'] = $data['metadata'];
 
             return response()->json([
                 'success' => true,
@@ -264,6 +381,7 @@ class PortfolioOptimizationController extends Controller
             Log::error('Risk parity optimization failed', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
@@ -322,6 +440,98 @@ class PortfolioOptimizationController extends Controller
     }
 
     /**
+     * Get correlation matrix for user's holdings
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function getCorrelationMatrix(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'account_ids' => 'nullable|array',
+            'account_ids.*' => 'integer|exists:investment_accounts,id',
+        ]);
+
+        // Cache key for correlation matrix
+        $accountIdsStr = isset($validated['account_ids'])
+            ? implode('_', $validated['account_ids'])
+            : 'all';
+        $cacheKey = "correlation_matrix_{$user->id}_{$accountIdsStr}";
+
+        try {
+            // Cache for 1 hour
+            $result = Cache::remember($cacheKey, 3600, function () use ($user, $validated) {
+                // Get user's investment accounts
+                $query = \App\Models\Investment\InvestmentAccount::where('user_id', $user->id)
+                    ->with('holdings');
+
+                if (isset($validated['account_ids'])) {
+                    $query->whereIn('id', $validated['account_ids']);
+                }
+
+                $accounts = $query->get();
+
+                if ($accounts->isEmpty()) {
+                    return [
+                        'success' => false,
+                        'message' => 'No investment accounts found',
+                    ];
+                }
+
+                $holdings = $accounts->flatMap->holdings;
+
+                if ($holdings->isEmpty()) {
+                    return [
+                        'success' => false,
+                        'message' => 'No holdings found in investment accounts',
+                    ];
+                }
+
+                if ($holdings->count() < 2) {
+                    return [
+                        'success' => false,
+                        'message' => 'At least 2 holdings required for correlation analysis',
+                    ];
+                }
+
+                // Calculate correlation matrix
+                $correlationData = $this->corrCalculator->calculate($holdings);
+
+                return [
+                    'success' => true,
+                    'data' => $correlationData,
+                ];
+            });
+
+            if (! $result['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'],
+                ], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Correlation matrix calculation failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to calculate correlation matrix',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
+    }
+
+    /**
      * Clear cached efficient frontier calculations
      *
      * @param  Request  $request
@@ -352,19 +562,4 @@ class PortfolioOptimizationController extends Controller
         ]);
     }
 
-    /**
-     * Mock covariance matrix for testing
-     * TODO: Remove when real data integration complete
-     *
-     * @return array
-     */
-    private function getMockCovarianceMatrix(): array
-    {
-        return [
-            [0.0225, 0.0120, 0.0090, 0.0150],
-            [0.0120, 0.0324, 0.0108, 0.0180],
-            [0.0090, 0.0108, 0.0144, 0.0120],
-            [0.0150, 0.0180, 0.0120, 0.0400],
-        ];
-    }
 }

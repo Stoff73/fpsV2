@@ -277,6 +277,9 @@ Route::middleware('auth:sanctum')->prefix('investment')->group(function () {
         Route::post('/efficient-frontier', [PortfolioOptimizationController::class, 'calculateEfficientFrontier']);
         Route::get('/current-position', [PortfolioOptimizationController::class, 'getCurrentPosition']);
 
+        // Correlation analysis
+        Route::get('/correlation-matrix', [PortfolioOptimizationController::class, 'getCorrelationMatrix']);
+
         // Optimization strategies
         Route::post('/minimize-variance', [PortfolioOptimizationController::class, 'optimizeMinimumVariance']);
         Route::post('/maximize-sharpe', [PortfolioOptimizationController::class, 'optimizeMaximumSharpe']);
