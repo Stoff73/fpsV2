@@ -395,6 +395,9 @@ class InvestmentController extends Controller
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
 
+        // Clear optimization caches (efficient frontier, correlation matrix)
+        PortfolioOptimizationController::clearUserOptimizationCache($user->id);
+
         return response()->json([
             'success' => true,
             'data' => $holding,
@@ -475,6 +478,9 @@ class InvestmentController extends Controller
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
 
+        // Clear optimization caches (efficient frontier, correlation matrix)
+        PortfolioOptimizationController::clearUserOptimizationCache($user->id);
+
         return response()->json([
             'success' => true,
             'data' => $holding->fresh(),
@@ -502,6 +508,9 @@ class InvestmentController extends Controller
 
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
+
+        // Clear optimization caches (efficient frontier, correlation matrix)
+        PortfolioOptimizationController::clearUserOptimizationCache($user->id);
 
         return response()->json([
             'success' => true,

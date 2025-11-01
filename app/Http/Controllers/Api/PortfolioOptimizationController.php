@@ -540,13 +540,24 @@ class PortfolioOptimizationController extends Controller
     public function clearCache(Request $request): JsonResponse
     {
         $user = $request->user();
-        $userId = $user->id;
+        self::clearUserOptimizationCache($user->id);
 
-        // Clear all efficient frontier cache keys for this user
-        $pattern = "efficient_frontier_{$userId}_*";
+        return response()->json([
+            'success' => true,
+            'message' => 'Cache cleared successfully',
+        ]);
+    }
 
-        // Laravel doesn't support pattern-based cache clearing directly
-        // So we'll clear common variations
+    /**
+     * Clear all optimization caches for a user
+     * Can be called statically from other controllers when holdings change
+     *
+     * @param  int  $userId  User ID
+     * @return void
+     */
+    public static function clearUserOptimizationCache(int $userId): void
+    {
+        // Clear efficient frontier caches
         $riskFreeRates = [0.03, 0.035, 0.04, 0.045, 0.05];
         $numPointsOptions = [25, 50, 100];
 
@@ -556,10 +567,15 @@ class PortfolioOptimizationController extends Controller
             }
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Cache cleared successfully',
-        ]);
+        // Clear correlation matrix caches (all account combinations)
+        // Pattern: correlation_matrix_{userId}_{accountIds|"all"}
+        Cache::forget("correlation_matrix_{$userId}_all");
+
+        // Note: We can't easily clear all possible account ID combinations
+        // But "all" accounts is the most common case
+        // Individual account caches will expire naturally after 1 hour
+
+        Log::info('Cleared optimization caches for user', ['user_id' => $userId]);
     }
 
 }
