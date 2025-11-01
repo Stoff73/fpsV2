@@ -10,7 +10,10 @@ const state = {
     monteCarloResults: {},      // Keyed by jobId
     monteCarloStatus: {},        // Keyed by jobId
     monteCarloResultsByGoal: {}, // Keyed by goalId
+    optimizationResult: null,    // Portfolio optimization result
     scenarios: null,
+    investmentPlan: null,        // Latest investment plan
+    investmentPlans: [],         // Historical plans
     loading: false,
     error: null,
 };
@@ -464,6 +467,109 @@ const actions = {
             commit('setLoading', false);
         }
     },
+
+    // Investment Plan actions (Phase 1.1)
+    async generateInvestmentPlan({ commit }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.generateInvestmentPlan();
+            if (response.success && response.data) {
+                commit('setInvestmentPlan', response.data.plan);
+                commit('addInvestmentPlan', {
+                    id: response.data.plan_id,
+                    plan_version: '1.0',
+                    portfolio_health_score: response.data.portfolio_health_score,
+                    generated_at: new Date().toISOString(),
+                });
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to generate investment plan';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async getLatestInvestmentPlan({ commit }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.getLatestInvestmentPlan();
+            if (response.success && response.data) {
+                commit('setInvestmentPlan', response.data);
+            }
+            return response;
+        } catch (error) {
+            // 404 is expected if no plan exists yet
+            if (error.response && error.response.status !== 404) {
+                const errorMessage = error.message || 'Failed to load investment plan';
+                commit('setError', errorMessage);
+            }
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async getAllInvestmentPlans({ commit }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.getAllInvestmentPlans();
+            if (response.success && response.data) {
+                commit('setInvestmentPlans', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to load investment plans';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async getInvestmentPlanById({ commit }, planId) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.getInvestmentPlanById(planId);
+            if (response.success && response.data) {
+                commit('setInvestmentPlan', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to load investment plan';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async deleteInvestmentPlan({ commit }, planId) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.deleteInvestmentPlan(planId);
+            commit('removeInvestmentPlan', planId);
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to delete investment plan';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
 };
 
 const mutations = {
@@ -489,6 +595,10 @@ const mutations = {
 
     setScenarios(state, scenarios) {
         state.scenarios = scenarios;
+    },
+
+    setOptimizationResult(state, result) {
+        state.optimizationResult = result;
     },
 
     setMonteCarloResults(state, { jobId, results }) {
@@ -592,6 +702,30 @@ const mutations = {
 
     setError(state, error) {
         state.error = error;
+    },
+
+    // Investment Plan mutations
+    setInvestmentPlan(state, plan) {
+        state.investmentPlan = plan;
+    },
+
+    setInvestmentPlans(state, plans) {
+        state.investmentPlans = plans;
+    },
+
+    addInvestmentPlan(state, plan) {
+        state.investmentPlans.unshift(plan);
+    },
+
+    removeInvestmentPlan(state, planId) {
+        const index = state.investmentPlans.findIndex(p => p.id === planId);
+        if (index !== -1) {
+            state.investmentPlans.splice(index, 1);
+        }
+        // Clear latest plan if it matches
+        if (state.investmentPlan && state.investmentPlan.id === planId) {
+            state.investmentPlan = null;
+        }
     },
 };
 

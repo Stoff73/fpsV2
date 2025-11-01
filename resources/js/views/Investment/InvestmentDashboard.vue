@@ -117,6 +117,9 @@
           <!-- Portfolio Optimization Tab -->
           <PortfolioOptimization v-else-if="activeTab === 'optimization'" />
 
+          <!-- Rebalancing Tab -->
+          <RebalancingCalculator v-else-if="activeTab === 'rebalancing'" />
+
           <!-- Goals Tab -->
           <Goals v-else-if="activeTab === 'goals'" />
 
@@ -147,6 +150,7 @@ import Recommendations from '@/components/Investment/Recommendations.vue';
 import WhatIfScenarios from '@/components/Investment/WhatIfScenarios.vue';
 import TaxFees from '@/components/Investment/TaxFees.vue';
 import PortfolioOptimization from '@/components/Investment/PortfolioOptimization.vue';
+import RebalancingCalculator from '@/components/Investment/RebalancingCalculator.vue';
 
 export default {
   name: 'InvestmentDashboard',
@@ -162,6 +166,7 @@ export default {
     WhatIfScenarios,
     TaxFees,
     PortfolioOptimization,
+    RebalancingCalculator,
   },
 
   data() {
@@ -174,6 +179,7 @@ export default {
         { id: 'holdings', label: 'Holdings' },
         { id: 'performance', label: 'Performance' },
         { id: 'optimization', label: 'Portfolio Optimization' },
+        { id: 'rebalancing', label: 'Rebalancing' },
         { id: 'goals', label: 'Goals' },
         { id: 'recommendations', label: 'Recommendations' },
         { id: 'scenarios', label: 'What-If Scenarios' },

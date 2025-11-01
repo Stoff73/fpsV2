@@ -216,6 +216,890 @@ const investmentService = {
         const response = await api.post('/investment/risk-profile', profileData);
         return response.data;
     },
+
+    // Tax Optimization Methods
+    /**
+     * Get comprehensive tax optimization analysis
+     * @param {Object} params - Optional parameters
+     * @param {String} params.tax_year - Tax year (e.g., '2024/25')
+     * @returns {Promise} Complete tax analysis with opportunities and efficiency score
+     */
+    async analyzeTaxPosition(params = {}) {
+        const response = await api.get('/investment/tax-optimization/analyze', { params });
+        return response.data;
+    },
+
+    /**
+     * Get ISA allowance optimization strategy
+     * @param {Object} params - Optional parameters
+     * @param {Number} params.available_funds - Available funds for ISA contribution
+     * @param {Number} params.monthly_contribution - Monthly contribution amount
+     * @param {Number} params.expected_return - Expected annual return (0-1)
+     * @param {Number} params.dividend_yield - Expected dividend yield (0-1)
+     * @param {Number} params.tax_rate - Tax rate (0-1)
+     * @returns {Promise} ISA strategy with recommendations
+     */
+    async getISAStrategy(params = {}) {
+        const response = await api.get('/investment/tax-optimization/isa-strategy', { params });
+        return response.data;
+    },
+
+    /**
+     * Get CGT tax-loss harvesting opportunities
+     * @param {Object} params - Optional parameters
+     * @param {Number} params.cgt_allowance - CGT annual allowance
+     * @param {Number} params.expected_gains - Expected realized gains this tax year
+     * @param {Number} params.tax_rate - CGT tax rate (0-1)
+     * @param {Number} params.loss_carryforward - Existing loss carryforward
+     * @returns {Promise} Loss harvesting opportunities and strategy
+     */
+    async getCGTHarvestingOpportunities(params = {}) {
+        const response = await api.get('/investment/tax-optimization/cgt-harvesting', { params });
+        return response.data;
+    },
+
+    /**
+     * Get Bed and ISA transfer opportunities
+     * @param {Object} params - Optional parameters
+     * @param {Number} params.cgt_allowance - CGT annual allowance
+     * @param {Number} params.isa_allowance_remaining - Remaining ISA allowance
+     * @param {Number} params.tax_rate - CGT tax rate (0-1)
+     * @returns {Promise} Bed and ISA opportunities and execution plan
+     */
+    async getBedAndISAOpportunities(params = {}) {
+        const response = await api.get('/investment/tax-optimization/bed-and-isa', { params });
+        return response.data;
+    },
+
+    /**
+     * Get tax efficiency score
+     * @returns {Promise} Tax efficiency score (0-100) with grade and interpretation
+     */
+    async getTaxEfficiencyScore() {
+        const response = await api.get('/investment/tax-optimization/efficiency-score');
+        return response.data;
+    },
+
+    /**
+     * Get tax optimization recommendations
+     * @param {Object} params - Optional filters
+     * @param {String} params.priority - Filter by priority (high, medium, low)
+     * @param {String} params.type - Filter by type (isa, cgt, bed_and_isa, dividend)
+     * @returns {Promise} Filtered recommendations
+     */
+    async getTaxRecommendations(params = {}) {
+        const response = await api.get('/investment/tax-optimization/recommendations', { params });
+        return response.data;
+    },
+
+    /**
+     * Calculate potential tax savings from proposed actions
+     * @param {Object} savingsData - Proposed actions
+     * @param {Number} savingsData.isa_contribution - ISA contribution amount
+     * @param {Number} savingsData.harvest_losses - Losses to harvest
+     * @param {Number} savingsData.bed_and_isa_transfer - Bed and ISA transfer amount
+     * @param {Number} savingsData.expected_return - Expected annual return (0-1)
+     * @param {Number} savingsData.tax_rate - Tax rate (0-1)
+     * @returns {Promise} Calculated savings (annual, 5-year, 10-year)
+     */
+    async calculatePotentialSavings(savingsData) {
+        const response = await api.post('/investment/tax-optimization/calculate-savings', savingsData);
+        return response.data;
+    },
+
+    /**
+     * Clear tax optimization caches
+     * @returns {Promise} Cache clearing confirmation
+     */
+    async clearTaxCache() {
+        const response = await api.delete('/investment/tax-optimization/clear-cache');
+        return response.data;
+    },
+
+    // Asset Location Methods
+    /**
+     * Get comprehensive asset location analysis
+     * @param {Object} params - Optional parameters
+     * @param {Number} params.isa_allowance_used - ISA allowance already used this tax year
+     * @param {Number} params.cgt_allowance_used - CGT allowance already used
+     * @param {Number} params.expected_return - Expected annual return (0-1)
+     * @param {Boolean} params.prefer_pension - Prefer pension over ISA recommendations
+     * @returns {Promise} Complete asset location analysis
+     */
+    async analyzeAssetLocation(params = {}) {
+        const response = await api.get('/investment/asset-location/analyze', { params });
+        return response.data;
+    },
+
+    /**
+     * Get placement recommendations for all holdings
+     * @param {Object} params - Optional filters
+     * @param {String} params.priority - Filter by priority (high, medium, low)
+     * @param {Number} params.min_saving - Minimum annual saving to include
+     * @returns {Promise} Placement recommendations
+     */
+    async getAssetLocationRecommendations(params = {}) {
+        const response = await api.get('/investment/asset-location/recommendations', { params });
+        return response.data;
+    },
+
+    /**
+     * Calculate portfolio tax drag
+     * @returns {Promise} Tax drag analysis by account
+     */
+    async calculatePortfolioTaxDrag() {
+        const response = await api.get('/investment/asset-location/tax-drag');
+        return response.data;
+    },
+
+    /**
+     * Get asset location optimization score
+     * @returns {Promise} Optimization score (0-100) with grade
+     */
+    async getAssetLocationScore() {
+        const response = await api.get('/investment/asset-location/optimization-score');
+        return response.data;
+    },
+
+    /**
+     * Compare account types for a specific holding
+     * @param {Number} holdingId - Holding ID
+     * @returns {Promise} Tax comparison across ISA, GIA, Pension
+     */
+    async compareAccountTypesForHolding(holdingId) {
+        const response = await api.post('/investment/asset-location/compare-accounts', {
+            holding_id: holdingId,
+        });
+        return response.data;
+    },
+
+    /**
+     * Clear asset location caches
+     * @returns {Promise} Cache clearing confirmation
+     */
+    async clearAssetLocationCache() {
+        const response = await api.delete('/investment/asset-location/clear-cache');
+        return response.data;
+    },
+
+    // Performance Attribution Methods
+    /**
+     * Get comprehensive performance attribution analysis
+     * @param {String} period - Period (1y, 3y, 5y, 10y, max)
+     * @returns {Promise} Performance attribution by asset class, sector, geography
+     */
+    async analyzePerformance(period = '1y') {
+        const response = await api.get('/investment/performance/analyze', { params: { period } });
+        return response.data;
+    },
+
+    /**
+     * Compare portfolio with benchmark
+     * @param {String} benchmark - Benchmark code (ftse_all_share, sp500, etc.)
+     * @param {String} period - Period (1y, 3y, 5y, 10y)
+     * @returns {Promise} Benchmark comparison with alpha/beta
+     */
+    async compareWithBenchmark(benchmark = 'ftse_all_share', period = '1y') {
+        const response = await api.get('/investment/performance/benchmark', {
+            params: { benchmark, period },
+        });
+        return response.data;
+    },
+
+    /**
+     * Compare portfolio with multiple benchmarks
+     * @param {String} period - Period (1y, 3y, 5y, 10y)
+     * @returns {Promise} Multi-benchmark comparison
+     */
+    async compareWithMultipleBenchmarks(period = '1y') {
+        const response = await api.get('/investment/performance/multi-benchmark', { params: { period } });
+        return response.data;
+    },
+
+    /**
+     * Get risk metrics (alpha, beta, Sharpe, Treynor)
+     * @returns {Promise} Risk metrics
+     */
+    async getRiskMetrics() {
+        const response = await api.get('/investment/performance/risk-metrics');
+        return response.data;
+    },
+
+    /**
+     * Clear performance caches
+     * @returns {Promise} Cache clearing confirmation
+     */
+    async clearPerformanceCache() {
+        const response = await api.delete('/investment/performance/clear-cache');
+        return response.data;
+    },
+
+    // ===== Goal Progress & Tracking Methods =====
+
+    /**
+     * Analyze progress for a specific goal
+     * @param {number} goalId - Goal ID
+     * @returns {Promise} Goal progress analysis
+     */
+    async analyzeGoalProgress(goalId) {
+        const response = await api.get(`/investment/goals/${goalId}/progress`);
+        return response.data;
+    },
+
+    /**
+     * Analyze progress for all user goals
+     * @returns {Promise} All goals progress summary
+     */
+    async analyzeAllGoals() {
+        const response = await api.get('/investment/goals/progress/all');
+        return response.data;
+    },
+
+    /**
+     * Analyze goal shortfall and get mitigation strategies
+     * @param {number} goalId - Goal ID
+     * @returns {Promise} Shortfall analysis and strategies
+     */
+    async analyzeShortfall(goalId) {
+        const response = await api.get(`/investment/goals/${goalId}/shortfall`);
+        return response.data;
+    },
+
+    /**
+     * Generate what-if scenarios for a goal
+     * @param {number} goalId - Goal ID
+     * @param {Array} scenarios - Array of scenario parameters (optional)
+     * @returns {Promise} What-if analysis results
+     */
+    async generateWhatIfScenarios(goalId, scenarios = null) {
+        const response = await api.post(`/investment/goals/${goalId}/what-if`, {
+            scenarios: scenarios,
+        });
+        return response.data;
+    },
+
+    /**
+     * Calculate goal success probability using Monte Carlo
+     * @param {Object} params - Probability calculation parameters
+     * @param {number} params.current_value - Current portfolio value
+     * @param {number} params.target_value - Target goal value
+     * @param {number} params.monthly_contribution - Monthly contribution
+     * @param {number} params.expected_return - Expected annual return (0.06 = 6%)
+     * @param {number} params.volatility - Annual volatility (optional, default 0.15)
+     * @param {number} params.years_to_goal - Years until goal date
+     * @param {number} params.iterations - Simulation iterations (optional, default 1000)
+     * @returns {Promise} Probability analysis
+     */
+    async calculateGoalProbability(params) {
+        const response = await api.post('/investment/goals/calculate-probability', params);
+        return response.data;
+    },
+
+    /**
+     * Calculate required monthly contribution for target probability
+     * @param {Object} params - Required contribution parameters
+     * @param {number} params.current_value - Current portfolio value
+     * @param {number} params.target_value - Target goal value
+     * @param {number} params.current_contribution - Current monthly contribution
+     * @param {number} params.expected_return - Expected annual return
+     * @param {number} params.volatility - Annual volatility (optional)
+     * @param {number} params.years_to_goal - Years until goal date
+     * @param {number} params.target_probability - Target probability (optional, default 0.85)
+     * @returns {Promise} Required contribution analysis
+     */
+    async calculateRequiredContribution(params) {
+        const response = await api.post('/investment/goals/required-contribution', params);
+        return response.data;
+    },
+
+    /**
+     * Get glide path recommendation (risk reduction as goal approaches)
+     * @param {number} yearsToGoal - Years remaining to goal
+     * @param {number} currentEquityPercent - Current equity allocation percentage
+     * @returns {Promise} Glide path recommendation
+     */
+    async getGlidePath(yearsToGoal, currentEquityPercent) {
+        const response = await api.get('/investment/goals/glide-path', {
+            params: {
+                years_to_goal: yearsToGoal,
+                current_equity_percent: currentEquityPercent,
+            },
+        });
+        return response.data;
+    },
+
+    /**
+     * Clear goal progress cache
+     * @returns {Promise} Cache clearing confirmation
+     */
+    async clearGoalProgressCache() {
+        const response = await api.delete('/investment/goals/clear-cache');
+        return response.data;
+    },
+
+    // ===== Fee Impact Analysis Methods =====
+
+    /**
+     * Analyze portfolio fees (platform, OCF, transaction costs)
+     * @returns {Promise} Fee analysis with breakdown by account
+     */
+    async analyzePortfolioFees() {
+        const response = await api.get('/investment/fees/analyze');
+        return response.data;
+    },
+
+    /**
+     * Analyze fees by holding
+     * @returns {Promise} Fee breakdown for each holding
+     */
+    async analyzeHoldingFees() {
+        const response = await api.get('/investment/fees/holdings');
+        return response.data;
+    },
+
+    /**
+     * Calculate OCF impact over time
+     * @param {Object} params - OCF calculation parameters
+     * @param {number} params.years - Projection years (optional, default 20)
+     * @param {number} params.expected_return - Expected return (optional, default 0.06)
+     * @returns {Promise} OCF drag analysis with year-by-year projection
+     */
+    async calculateOCFImpact(params = {}) {
+        const response = await api.post('/investment/fees/ocf-impact', params);
+        return response.data;
+    },
+
+    /**
+     * Compare active vs passive fund costs
+     * @returns {Promise} Active vs passive comparison with savings potential
+     */
+    async compareActiveVsPassive() {
+        const response = await api.get('/investment/fees/active-vs-passive');
+        return response.data;
+    },
+
+    /**
+     * Find low-cost alternatives for a holding
+     * @param {number} holdingId - Holding ID
+     * @returns {Promise} Alternative fund suggestions
+     */
+    async findLowCostAlternatives(holdingId) {
+        const response = await api.get(`/investment/fees/alternatives/${holdingId}`);
+        return response.data;
+    },
+
+    /**
+     * Compare investment platforms
+     * @param {number} portfolioValue - Portfolio value
+     * @param {string} accountType - Account type (isa, sipp, gia) (optional)
+     * @param {number} tradesPerYear - Trades per year (optional, default 4)
+     * @returns {Promise} Platform comparison
+     */
+    async comparePlatforms(portfolioValue, accountType = 'isa', tradesPerYear = 4) {
+        const response = await api.get('/investment/fees/compare-platforms', {
+            params: {
+                portfolio_value: portfolioValue,
+                account_type: accountType,
+                trades_per_year: tradesPerYear,
+            },
+        });
+        return response.data;
+    },
+
+    /**
+     * Compare specific platforms
+     * @param {Array} platforms - Array of platform codes
+     * @param {number} portfolioValue - Portfolio value
+     * @param {string} accountType - Account type (optional)
+     * @param {number} tradesPerYear - Trades per year (optional)
+     * @returns {Promise} Specific platform comparison
+     */
+    async compareSpecificPlatforms(platforms, portfolioValue, accountType = 'isa', tradesPerYear = 4) {
+        const response = await api.post('/investment/fees/compare-specific', {
+            platforms: platforms,
+            portfolio_value: portfolioValue,
+            account_type: accountType,
+            trades_per_year: tradesPerYear,
+        });
+        return response.data;
+    },
+
+    /**
+     * Clear fee analysis cache
+     * @returns {Promise} Cache clearing confirmation
+     */
+    async clearFeeCache() {
+        const response = await api.delete('/investment/fees/clear-cache');
+        return response.data;
+    },
+
+    // ===== Risk Profiling Methods =====
+
+    /**
+     * Get risk tolerance questionnaire
+     * @returns {Promise} Complete questionnaire with questions and scoring info
+     */
+    async getRiskQuestionnaire() {
+        const response = await api.get('/investment/risk-profile/questionnaire');
+        return response.data;
+    },
+
+    /**
+     * Calculate risk score from questionnaire answers
+     * @param {Object} answers - User answers (question_id => answer_id mapping)
+     * @returns {Promise} Risk score and breakdown by category
+     */
+    async calculateRiskScore(answers) {
+        const response = await api.post('/investment/risk-profile/calculate-score', { answers });
+        return response.data;
+    },
+
+    /**
+     * Generate complete risk profile
+     * @param {Object} answers - Questionnaire answers
+     * @param {Object} financialData - User financial data (optional)
+     * @returns {Promise} Complete risk profile with asset allocation and recommendations
+     */
+    async generateRiskProfile(answers, financialData = null) {
+        const response = await api.post('/investment/risk-profile/generate', {
+            answers: answers,
+            financial_data: financialData,
+        });
+        return response.data;
+    },
+
+    /**
+     * Analyze capacity for loss
+     * @param {Object} financialData - User financial data
+     * @param {number} financialData.age - Current age
+     * @param {number} financialData.retirement_age - Retirement age
+     * @param {number} financialData.annual_income - Annual income
+     * @param {string} financialData.income_stability - Income stability (very_stable, stable, moderate, variable, unstable)
+     * @param {number} financialData.emergency_fund - Emergency fund value
+     * @param {number} financialData.monthly_expenses - Monthly expenses
+     * @param {number} financialData.total_debt - Total debt
+     * @param {number} financialData.dependents - Number of dependents
+     * @param {string} financialData.portfolio_purpose - Portfolio purpose
+     * @param {number} financialData.net_worth - Net worth
+     * @param {number} financialData.portfolio_value - Portfolio value
+     * @returns {Promise} Capacity for loss analysis
+     */
+    async analyzeCapacityForLoss(financialData) {
+        const response = await api.post('/investment/risk-profile/capacity', financialData);
+        return response.data;
+    },
+
+    /**
+     * Get cached risk profile
+     * @returns {Promise} Cached risk profile
+     */
+    async getRiskProfile() {
+        const response = await api.get('/investment/risk-profile');
+        return response.data;
+    },
+
+    /**
+     * Clear risk profile cache
+     * @returns {Promise} Cache clearing confirmation
+     */
+    async clearRiskProfileCache() {
+        const response = await api.delete('/investment/risk-profile/clear-cache');
+        return response.data;
+    },
+
+    // ==========================================
+    // Model Portfolio Builder (Phase 3.2)
+    // ==========================================
+
+    /**
+     * Get model portfolio by risk level
+     * @param {number} riskLevel - Risk level (1-5)
+     * @returns {Promise} Model portfolio with asset allocation and fund recommendations
+     */
+    async getModelPortfolio(riskLevel) {
+        const response = await api.get(`/investment/model-portfolio/${riskLevel}`);
+        return response.data;
+    },
+
+    /**
+     * Get all model portfolios (1-5)
+     * @returns {Promise} All 5 model portfolios
+     */
+    async getAllModelPortfolios() {
+        const response = await api.get('/investment/model-portfolio/all');
+        return response.data;
+    },
+
+    /**
+     * Compare current allocation with model portfolio
+     * @param {number} riskLevel - Target risk level (1-5)
+     * @returns {Promise} Comparison analysis with deviation and recommendations
+     */
+    async compareWithModelPortfolio(riskLevel) {
+        const response = await api.post('/investment/model-portfolio/compare', {
+            risk_level: riskLevel,
+        });
+        return response.data;
+    },
+
+    /**
+     * Optimize allocation by age
+     * @param {number} age - User age
+     * @param {string} rule - Age-based rule ('100_minus_age', '110_minus_age', '120_minus_age')
+     * @returns {Promise} Optimized asset allocation
+     */
+    async optimizeAllocationByAge(age, rule = '110_minus_age') {
+        const response = await api.get('/investment/model-portfolio/optimize-by-age', {
+            params: { age, rule },
+        });
+        return response.data;
+    },
+
+    /**
+     * Optimize allocation by time horizon
+     * @param {number} years - Years to goal
+     * @param {number} targetValue - Target portfolio value
+     * @param {number} currentValue - Current portfolio value
+     * @returns {Promise} Optimized allocation and required return
+     */
+    async optimizeAllocationByTimeHorizon(years, targetValue, currentValue) {
+        const response = await api.post('/investment/model-portfolio/optimize-by-horizon', {
+            years,
+            target_value: targetValue,
+            current_value: currentValue,
+        });
+        return response.data;
+    },
+
+    /**
+     * Get glide path allocation
+     * @param {number} yearsToRetirement - Years until retirement
+     * @returns {Promise} Lifecycle glide path allocation
+     */
+    async getGlidePathAllocation(yearsToRetirement) {
+        const response = await api.get('/investment/model-portfolio/glide-path', {
+            params: { years_to_retirement: yearsToRetirement },
+        });
+        return response.data;
+    },
+
+    /**
+     * Get fund recommendations for asset allocation
+     * @param {Object} assetAllocation - Asset allocation percentages
+     * @param {number} assetAllocation.equities - Equity percentage
+     * @param {number} assetAllocation.bonds - Bond percentage
+     * @param {number} assetAllocation.cash - Cash percentage
+     * @param {number} assetAllocation.alternatives - Alternatives percentage
+     * @returns {Promise} Fund recommendations with tickers and OCF
+     */
+    async getFundRecommendations(assetAllocation) {
+        const response = await api.post('/investment/model-portfolio/funds', assetAllocation);
+        return response.data;
+    },
+
+    // ==========================================
+    // Rebalancing Strategies (Phase 3.4)
+    // ==========================================
+
+    /**
+     * Analyze portfolio drift from target allocation
+     * @param {Object} targetAllocation - Target asset allocation percentages
+     * @param {number} targetAllocation.equities - Equity percentage
+     * @param {number} targetAllocation.bonds - Bond percentage
+     * @param {number} targetAllocation.cash - Cash percentage
+     * @param {number} targetAllocation.alternatives - Alternatives percentage
+     * @param {Array} accountIds - Optional investment account IDs to analyze
+     * @returns {Promise} Drift analysis with metrics and urgency
+     */
+    async analyzeDrift(targetAllocation, accountIds = null) {
+        const response = await api.post('/investment/rebalancing/analyze-drift', {
+            target_allocation: targetAllocation,
+            account_ids: accountIds,
+        });
+        return response.data;
+    },
+
+    /**
+     * Evaluate multiple rebalancing strategies
+     * @param {Object} targetAllocation - Target allocation
+     * @param {Object} options - Strategy options
+     * @param {number} options.thresholdPercent - Threshold drift percent
+     * @param {number} options.toleranceBandPercent - Tolerance band percent
+     * @param {string} options.lastRebalanceDate - Last rebalance date (YYYY-MM-DD)
+     * @param {string} options.frequency - Rebalancing frequency
+     * @param {Array} options.accountIds - Optional account IDs
+     * @returns {Promise} Comparison of all strategies
+     */
+    async evaluateRebalancingStrategies(targetAllocation, options = {}) {
+        const response = await api.post('/investment/rebalancing/evaluate-strategies', {
+            target_allocation: targetAllocation,
+            threshold_percent: options.thresholdPercent,
+            tolerance_band_percent: options.toleranceBandPercent,
+            last_rebalance_date: options.lastRebalanceDate,
+            frequency: options.frequency,
+            account_ids: options.accountIds,
+        });
+        return response.data;
+    },
+
+    /**
+     * Evaluate threshold-based rebalancing strategy
+     * @param {Object} targetAllocation - Target allocation
+     * @param {number} thresholdPercent - Drift threshold percentage
+     * @param {Array} accountIds - Optional account IDs
+     * @returns {Promise} Threshold strategy evaluation
+     */
+    async evaluateThresholdStrategy(targetAllocation, thresholdPercent, accountIds = null) {
+        const response = await api.post('/investment/rebalancing/threshold-strategy', {
+            target_allocation: targetAllocation,
+            threshold_percent: thresholdPercent,
+            account_ids: accountIds,
+        });
+        return response.data;
+    },
+
+    /**
+     * Evaluate calendar-based rebalancing strategy
+     * @param {string} lastRebalanceDate - Last rebalance date (YYYY-MM-DD)
+     * @param {string} frequency - Frequency (quarterly, semi_annual, annual, biennial)
+     * @returns {Promise} Calendar strategy evaluation
+     */
+    async evaluateCalendarStrategy(lastRebalanceDate, frequency) {
+        const response = await api.post('/investment/rebalancing/calendar-strategy', {
+            last_rebalance_date: lastRebalanceDate,
+            frequency: frequency,
+        });
+        return response.data;
+    },
+
+    /**
+     * Evaluate opportunistic rebalancing with cash flow
+     * @param {Object} targetAllocation - Target allocation
+     * @param {number} newCashFlow - New contribution or withdrawal amount
+     * @param {Array} accountIds - Optional account IDs
+     * @returns {Promise} Opportunistic strategy evaluation
+     */
+    async evaluateOpportunisticStrategy(targetAllocation, newCashFlow, accountIds = null) {
+        const response = await api.post('/investment/rebalancing/opportunistic-strategy', {
+            target_allocation: targetAllocation,
+            new_cash_flow: newCashFlow,
+            account_ids: accountIds,
+        });
+        return response.data;
+    },
+
+    /**
+     * Get recommended rebalancing frequency
+     * @param {number} portfolioValue - Current portfolio value
+     * @param {number} riskLevel - Risk level (1-5)
+     * @param {number} expectedVolatility - Expected portfolio volatility
+     * @param {boolean} isTaxable - Whether account is taxable
+     * @returns {Promise} Frequency recommendation with rationale
+     */
+    async recommendRebalancingFrequency(portfolioValue, riskLevel, expectedVolatility, isTaxable = true) {
+        const response = await api.post('/investment/rebalancing/recommend-frequency', {
+            portfolio_value: portfolioValue,
+            risk_level: riskLevel,
+            expected_volatility: expectedVolatility,
+            is_taxable: isTaxable,
+        });
+        return response.data;
+    },
+
+    // ==========================================
+    // Efficient Frontier / MPT (Phase 3.3)
+    // ==========================================
+
+    /**
+     * Calculate efficient frontier
+     * @param {Object} assetClasses - Asset class data with returns, volatility, correlations
+     * @param {number} numPortfolios - Number of portfolios to generate (50-1000)
+     * @param {number} riskFreeRate - Risk-free rate (decimal, e.g., 0.04 for 4%)
+     * @returns {Promise} Efficient frontier with all portfolios and key portfolios
+     */
+    async calculateEfficientFrontier(assetClasses, numPortfolios = 200, riskFreeRate = 0.04) {
+        const response = await api.post('/investment/efficient-frontier/calculate', {
+            asset_classes: assetClasses,
+            num_portfolios: numPortfolios,
+            risk_free_rate: riskFreeRate,
+        });
+        return response.data;
+    },
+
+    /**
+     * Calculate efficient frontier with default UK assumptions
+     * @param {number} numPortfolios - Number of portfolios to generate
+     * @param {number} riskFreeRate - Risk-free rate
+     * @returns {Promise} Efficient frontier with default assumptions
+     */
+    async calculateEfficientFrontierWithDefaults(numPortfolios = 200, riskFreeRate = 0.04) {
+        const response = await api.get('/investment/efficient-frontier/default', {
+            params: {
+                num_portfolios: numPortfolios,
+                risk_free_rate: riskFreeRate,
+            },
+        });
+        return response.data;
+    },
+
+    /**
+     * Find optimal portfolio for target return
+     * @param {number} targetReturn - Target annual return (decimal, e.g., 0.08 for 8%)
+     * @param {Object} assetClasses - Optional custom asset class assumptions
+     * @param {number} riskFreeRate - Risk-free rate
+     * @returns {Promise} Optimal portfolio allocation
+     */
+    async findOptimalPortfolioByReturn(targetReturn, assetClasses = null, riskFreeRate = 0.04) {
+        const response = await api.post('/investment/efficient-frontier/optimal-by-return', {
+            target_return: targetReturn,
+            asset_classes: assetClasses,
+            risk_free_rate: riskFreeRate,
+        });
+        return response.data;
+    },
+
+    /**
+     * Find optimal portfolio for target risk level
+     * @param {number} targetVolatility - Target volatility (decimal, e.g., 0.15 for 15%)
+     * @param {Object} assetClasses - Optional custom asset class assumptions
+     * @param {number} riskFreeRate - Risk-free rate
+     * @returns {Promise} Optimal portfolio allocation
+     */
+    async findOptimalPortfolioByRisk(targetVolatility, assetClasses = null, riskFreeRate = 0.04) {
+        const response = await api.post('/investment/efficient-frontier/optimal-by-risk', {
+            target_volatility: targetVolatility,
+            asset_classes: assetClasses,
+            risk_free_rate: riskFreeRate,
+        });
+        return response.data;
+    },
+
+    /**
+     * Compare portfolio allocation with efficient frontier
+     * @param {Object} allocation - Portfolio allocation (weights summing to 1.0)
+     * @param {number} allocation.equities - Equity weight
+     * @param {number} allocation.bonds - Bond weight
+     * @param {number} allocation.cash - Cash weight
+     * @param {number} allocation.alternatives - Alternatives weight
+     * @param {Object} assetClasses - Optional custom asset class assumptions
+     * @param {number} riskFreeRate - Risk-free rate
+     * @returns {Promise} Comparison with efficiency score and improvement potential
+     */
+    async compareWithEfficientFrontier(allocation, assetClasses = null, riskFreeRate = 0.04) {
+        const response = await api.post('/investment/efficient-frontier/compare', {
+            allocation: allocation,
+            asset_classes: assetClasses,
+            risk_free_rate: riskFreeRate,
+        });
+        return response.data;
+    },
+
+    /**
+     * Calculate comprehensive portfolio statistics
+     * @param {Object} allocation - Portfolio allocation (weights summing to 1.0)
+     * @param {Object} assetClasses - Optional custom asset class assumptions
+     * @param {number} riskFreeRate - Risk-free rate
+     * @returns {Promise} Statistics including Sharpe, Sortino, VaR, etc.
+     */
+    async calculatePortfolioStatistics(allocation, assetClasses = null, riskFreeRate = 0.04) {
+        const response = await api.post('/investment/efficient-frontier/statistics', {
+            allocation: allocation,
+            asset_classes: assetClasses,
+            risk_free_rate: riskFreeRate,
+        });
+        return response.data;
+    },
+
+    /**
+     * Analyze user's current portfolio efficiency
+     * @param {Array} accountIds - Optional investment account IDs to analyze
+     * @param {number} riskFreeRate - Risk-free rate
+     * @returns {Promise} Current portfolio analysis with efficiency metrics
+     */
+    async analyzeCurrentPortfolioEfficiency(accountIds = null, riskFreeRate = 0.04) {
+        const response = await api.get('/investment/efficient-frontier/analyze-current', {
+            params: {
+                account_ids: accountIds,
+                risk_free_rate: riskFreeRate,
+            },
+        });
+        return response.data;
+    },
+
+    /**
+     * Get default UK asset class assumptions
+     * @returns {Promise} Default assumptions with expected returns, volatility, correlations
+     */
+    async getDefaultAssetClassAssumptions() {
+        const response = await api.get('/investment/efficient-frontier/default-assumptions');
+        return response.data;
+    },
+
+    // ===================================================================
+    // Investment Plan Generation (Phase 1.1)
+    // ===================================================================
+
+    /**
+     * Generate comprehensive investment plan
+     * POST /api/investment/plan/generate
+     * @returns {Promise} Generated plan with health score and recommendations
+     */
+    async generateInvestmentPlan() {
+        const response = await api.post('/investment/plan/generate');
+        return response.data;
+    },
+
+    /**
+     * Get latest investment plan
+     * GET /api/investment/plan
+     * @returns {Promise} Latest plan for the user
+     */
+    async getLatestInvestmentPlan() {
+        const response = await api.get('/investment/plan');
+        return response.data;
+    },
+
+    /**
+     * Get all investment plans
+     * GET /api/investment/plan/all
+     * @returns {Promise} All historical plans
+     */
+    async getAllInvestmentPlans() {
+        const response = await api.get('/investment/plan/all');
+        return response.data;
+    },
+
+    /**
+     * Get specific investment plan by ID
+     * GET /api/investment/plan/{id}
+     * @param {number} planId Plan ID
+     * @returns {Promise} Specific plan details
+     */
+    async getInvestmentPlanById(planId) {
+        const response = await api.get(`/investment/plan/${planId}`);
+        return response.data;
+    },
+
+    /**
+     * Delete investment plan
+     * DELETE /api/investment/plan/{id}
+     * @param {number} planId Plan ID to delete
+     * @returns {Promise} Deletion confirmation
+     */
+    async deleteInvestmentPlan(planId) {
+        const response = await api.delete(`/investment/plan/${planId}`);
+        return response.data;
+    },
+
+    /**
+     * Clear cached investment plan
+     * DELETE /api/investment/plan/clear-cache
+     * @returns {Promise} Cache clear confirmation
+     */
+    async clearInvestmentPlanCache() {
+        const response = await api.delete('/investment/plan/clear-cache');
+        return response.data;
+    },
 };
 
 export default investmentService;
