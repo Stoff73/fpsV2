@@ -114,6 +114,9 @@
           <!-- Performance Tab -->
           <Performance v-else-if="activeTab === 'performance'" />
 
+          <!-- Portfolio Optimization Tab -->
+          <PortfolioOptimization v-else-if="activeTab === 'optimization'" />
+
           <!-- Goals Tab -->
           <Goals v-else-if="activeTab === 'goals'" />
 
@@ -143,6 +146,7 @@ import Goals from '@/components/Investment/Goals.vue';
 import Recommendations from '@/components/Investment/Recommendations.vue';
 import WhatIfScenarios from '@/components/Investment/WhatIfScenarios.vue';
 import TaxFees from '@/components/Investment/TaxFees.vue';
+import PortfolioOptimization from '@/components/Investment/PortfolioOptimization.vue';
 
 export default {
   name: 'InvestmentDashboard',
@@ -157,6 +161,7 @@ export default {
     Recommendations,
     WhatIfScenarios,
     TaxFees,
+    PortfolioOptimization,
   },
 
   data() {
@@ -168,6 +173,7 @@ export default {
         { id: 'accounts', label: 'Accounts' },
         { id: 'holdings', label: 'Holdings' },
         { id: 'performance', label: 'Performance' },
+        { id: 'optimization', label: 'Portfolio Optimization' },
         { id: 'goals', label: 'Goals' },
         { id: 'recommendations', label: 'Recommendations' },
         { id: 'scenarios', label: 'What-If Scenarios' },
