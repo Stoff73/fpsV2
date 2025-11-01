@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\EstateController;
 use App\Http\Controllers\Api\FamilyMembersController;
 use App\Http\Controllers\Api\HolisticPlanningController;
 use App\Http\Controllers\Api\InvestmentController;
+use App\Http\Controllers\Api\PortfolioOptimizationController;
 use App\Http\Controllers\Api\LetterToSpouseController;
 use App\Http\Controllers\Api\MortgageController;
 use App\Http\Controllers\Api\NetWorthController;
@@ -269,6 +270,22 @@ Route::middleware('auth:sanctum')->prefix('investment')->group(function () {
 
     // Risk profile
     Route::post('/risk-profile', [InvestmentController::class, 'storeOrUpdateRiskProfile']);
+
+    // Portfolio Optimization & Modern Portfolio Theory
+    Route::prefix('optimization')->group(function () {
+        // Efficient frontier calculation
+        Route::post('/efficient-frontier', [PortfolioOptimizationController::class, 'calculateEfficientFrontier']);
+        Route::get('/current-position', [PortfolioOptimizationController::class, 'getCurrentPosition']);
+
+        // Optimization strategies
+        Route::post('/minimize-variance', [PortfolioOptimizationController::class, 'optimizeMinimumVariance']);
+        Route::post('/maximize-sharpe', [PortfolioOptimizationController::class, 'optimizeMaximumSharpe']);
+        Route::post('/target-return', [PortfolioOptimizationController::class, 'optimizeTargetReturn']);
+        Route::post('/risk-parity', [PortfolioOptimizationController::class, 'optimizeRiskParity']);
+
+        // Cache management
+        Route::delete('/clear-cache', [PortfolioOptimizationController::class, 'clearCache']);
+    });
 });
 
 // Estate Planning module routes
