@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\Investment\FeeImpactController;
 use App\Http\Controllers\Api\Investment\GoalProgressController;
 use App\Http\Controllers\Api\Investment\InvestmentPlanController;
 use App\Http\Controllers\Api\Investment\InvestmentRecommendationController;
+use App\Http\Controllers\Api\Investment\InvestmentScenarioController;
 use App\Http\Controllers\Api\Investment\PerformanceAttributionController;
 use App\Http\Controllers\Api\Investment\RebalancingController;
 use App\Http\Controllers\Api\Investment\ModelPortfolioController;
@@ -520,6 +521,28 @@ Route::middleware('auth:sanctum')->prefix('investment')->group(function () {
         // Status management
         Route::put('/{id}/status', [InvestmentRecommendationController::class, 'updateStatus']);
         Route::post('/bulk-update-status', [InvestmentRecommendationController::class, 'bulkUpdateStatus']);
+    });
+
+    // Investment Scenarios (Phase 1.3)
+    Route::prefix('scenarios')->group(function () {
+        // Templates
+        Route::get('/templates', [InvestmentScenarioController::class, 'templates']);
+
+        // CRUD operations
+        Route::get('/', [InvestmentScenarioController::class, 'index']);
+        Route::post('/', [InvestmentScenarioController::class, 'store']);
+        Route::get('/{id}', [InvestmentScenarioController::class, 'show']);
+        Route::put('/{id}', [InvestmentScenarioController::class, 'update']);
+        Route::delete('/{id}', [InvestmentScenarioController::class, 'destroy']);
+
+        // Scenario operations
+        Route::post('/{id}/run', [InvestmentScenarioController::class, 'run']);
+        Route::get('/{id}/results', [InvestmentScenarioController::class, 'results']);
+        Route::post('/compare', [InvestmentScenarioController::class, 'compare']);
+
+        // Save/bookmark operations
+        Route::post('/{id}/save', [InvestmentScenarioController::class, 'save']);
+        Route::post('/{id}/unsave', [InvestmentScenarioController::class, 'unsave']);
     });
 });
 
