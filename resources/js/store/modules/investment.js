@@ -17,6 +17,10 @@ const state = {
     investmentRecommendations: [],    // Phase 1.2: Tracked recommendations
     recommendationStats: null,         // Phase 1.2: Recommendation statistics
     recommendationsDashboard: null,    // Phase 1.2: Dashboard data
+    scenarioTemplates: [],             // Phase 1.3: Pre-built scenario templates
+    investmentScenarios: [],           // Phase 1.3: User's scenarios
+    scenarioStats: null,               // Phase 1.3: Scenario statistics
+    scenarioComparison: null,          // Phase 1.3: Comparison data
     loading: false,
     error: null,
 };
@@ -185,6 +189,37 @@ const getters = {
     // Get recommendations by category
     getRecommendationsByCategory: (state) => (category) => {
         return state.investmentRecommendations.filter(r => r.category === category);
+    },
+
+    // Investment Scenarios getters (Phase 1.3)
+    scenarioTemplates: (state) => state.scenarioTemplates,
+
+    investmentScenarios: (state) => state.investmentScenarios,
+
+    scenarioStats: (state) => state.scenarioStats,
+
+    scenarioComparison: (state) => state.scenarioComparison,
+
+    // Get scenarios by status
+    draftScenarios: (state) => {
+        return state.investmentScenarios.filter(s => s.status === 'draft');
+    },
+
+    runningScenarios: (state) => {
+        return state.investmentScenarios.filter(s => s.status === 'running');
+    },
+
+    completedScenarios: (state) => {
+        return state.investmentScenarios.filter(s => s.status === 'completed');
+    },
+
+    savedScenarios: (state) => {
+        return state.investmentScenarios.filter(s => s.is_saved);
+    },
+
+    // Get scenarios by type
+    getScenariosByType: (state) => (type) => {
+        return state.investmentScenarios.filter(s => s.scenario_type === type);
     },
 
     loading: (state) => state.loading,
@@ -736,6 +771,207 @@ const actions = {
             commit('setLoading', false);
         }
     },
+
+    // Investment Scenarios actions (Phase 1.3)
+    async fetchScenarioTemplates({ commit }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.getScenarioTemplates();
+            if (response.success && response.data) {
+                commit('setScenarioTemplates', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to fetch scenario templates';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async fetchInvestmentScenarios({ commit }, filters = {}) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.getScenarios(filters);
+            if (response.success && response.data) {
+                commit('setInvestmentScenarios', response.data.scenarios);
+                commit('setScenarioStats', response.data.stats);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to fetch scenarios';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async createInvestmentScenario({ commit }, data) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.createScenario(data);
+            if (response.success && response.data) {
+                commit('addInvestmentScenario', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to create scenario';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async updateInvestmentScenario({ commit }, { id, data }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.updateScenario(id, data);
+            if (response.success && response.data) {
+                commit('updateInvestmentScenario', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to update scenario';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async runInvestmentScenario({ commit }, id) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.runScenario(id);
+            if (response.success && response.data) {
+                // Update scenario status to running
+                commit('updateInvestmentScenario', {
+                    id,
+                    status: 'running',
+                    monte_carlo_job_id: response.data.job_id,
+                });
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to run scenario';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async getScenarioResults({ commit }, id) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.getScenarioResults(id);
+            if (response.success && response.data && response.data.status === 'completed') {
+                // Update scenario with results
+                commit('updateInvestmentScenario', {
+                    id,
+                    status: 'completed',
+                    results: response.data.results,
+                    completed_at: response.data.completed_at,
+                });
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to get scenario results';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async compareInvestmentScenarios({ commit }, scenarioIds) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.compareScenarios(scenarioIds);
+            if (response.success && response.data) {
+                commit('setScenarioComparison', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to compare scenarios';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async saveInvestmentScenario({ commit }, id) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.saveScenario(id);
+            if (response.success && response.data) {
+                commit('updateInvestmentScenario', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to save scenario';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async unsaveInvestmentScenario({ commit }, id) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.unsaveScenario(id);
+            if (response.success && response.data) {
+                commit('updateInvestmentScenario', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to unsave scenario';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async deleteInvestmentScenario({ commit }, id) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.deleteScenario(id);
+            commit('removeInvestmentScenario', id);
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to delete scenario';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
 };
 
 const mutations = {
@@ -922,6 +1158,41 @@ const mutations = {
         const index = state.investmentRecommendations.findIndex(r => r.id === id);
         if (index !== -1) {
             state.investmentRecommendations.splice(index, 1);
+        }
+    },
+
+    // Investment Scenarios mutations (Phase 1.3)
+    setScenarioTemplates(state, templates) {
+        state.scenarioTemplates = templates;
+    },
+
+    setInvestmentScenarios(state, scenarios) {
+        state.investmentScenarios = scenarios;
+    },
+
+    setScenarioStats(state, stats) {
+        state.scenarioStats = stats;
+    },
+
+    setScenarioComparison(state, comparison) {
+        state.scenarioComparison = comparison;
+    },
+
+    addInvestmentScenario(state, scenario) {
+        state.investmentScenarios.unshift(scenario);
+    },
+
+    updateInvestmentScenario(state, scenario) {
+        const index = state.investmentScenarios.findIndex(s => s.id === scenario.id);
+        if (index !== -1) {
+            state.investmentScenarios.splice(index, 1, { ...state.investmentScenarios[index], ...scenario });
+        }
+    },
+
+    removeInvestmentScenario(state, id) {
+        const index = state.investmentScenarios.findIndex(s => s.id === id);
+        if (index !== -1) {
+            state.investmentScenarios.splice(index, 1);
         }
     },
 };

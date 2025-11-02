@@ -1203,6 +1203,133 @@ const investmentService = {
         const response = await api.delete(`/investment/recommendations/${id}`);
         return response.data;
     },
+
+    // ===================================================================
+    // Investment Scenarios (Phase 1.3)
+    // ===================================================================
+
+    /**
+     * Get scenario templates
+     * GET /api/investment/scenarios/templates
+     * @returns {Promise} Array of pre-built scenario templates
+     */
+    async getScenarioTemplates() {
+        const response = await api.get('/investment/scenarios/templates');
+        return response.data;
+    },
+
+    /**
+     * Get all scenarios with optional filters
+     * GET /api/investment/scenarios
+     * @param {Object} filters Optional filters (status, type, saved_only)
+     * @returns {Promise} Scenarios list with stats
+     */
+    async getScenarios(filters = {}) {
+        const response = await api.get('/investment/scenarios', { params: filters });
+        return response.data;
+    },
+
+    /**
+     * Get single scenario by ID
+     * GET /api/investment/scenarios/{id}
+     * @param {number} id Scenario ID
+     * @returns {Promise} Scenario details
+     */
+    async getScenario(id) {
+        const response = await api.get(`/investment/scenarios/${id}`);
+        return response.data;
+    },
+
+    /**
+     * Create new scenario
+     * POST /api/investment/scenarios
+     * @param {Object} data Scenario data
+     * @returns {Promise} Created scenario
+     */
+    async createScenario(data) {
+        const response = await api.post('/investment/scenarios', data);
+        return response.data;
+    },
+
+    /**
+     * Update scenario
+     * PUT /api/investment/scenarios/{id}
+     * @param {number} id Scenario ID
+     * @param {Object} data Updated scenario data
+     * @returns {Promise} Updated scenario
+     */
+    async updateScenario(id, data) {
+        const response = await api.put(`/investment/scenarios/${id}`, data);
+        return response.data;
+    },
+
+    /**
+     * Run scenario simulation
+     * POST /api/investment/scenarios/{id}/run
+     * @param {number} id Scenario ID
+     * @returns {Promise} Job ID and status
+     */
+    async runScenario(id) {
+        const response = await api.post(`/investment/scenarios/${id}/run`);
+        return response.data;
+    },
+
+    /**
+     * Get scenario simulation results
+     * GET /api/investment/scenarios/{id}/results
+     * @param {number} id Scenario ID
+     * @returns {Promise} Scenario results
+     */
+    async getScenarioResults(id) {
+        const response = await api.get(`/investment/scenarios/${id}/results`);
+        return response.data;
+    },
+
+    /**
+     * Compare multiple scenarios
+     * POST /api/investment/scenarios/compare
+     * @param {Array} scenarioIds Array of scenario IDs to compare
+     * @returns {Promise} Comparison data
+     */
+    async compareScenarios(scenarioIds) {
+        const response = await api.post('/investment/scenarios/compare', {
+            scenario_ids: scenarioIds,
+        });
+        return response.data;
+    },
+
+    /**
+     * Save/bookmark scenario
+     * POST /api/investment/scenarios/{id}/save
+     * @param {number} id Scenario ID
+     * @returns {Promise} Updated scenario
+     */
+    async saveScenario(id) {
+        const response = await api.post(`/investment/scenarios/${id}/save`);
+        return response.data;
+    },
+
+    /**
+     * Unsave/unbookmark scenario
+     * POST /api/investment/scenarios/{id}/unsave
+     * @param {number} id Scenario ID
+     * @returns {Promise} Updated scenario
+     */
+    async unsaveScenario(id) {
+        const response = await api.post(`/investment/scenarios/${id}/unsave`);
+        return response.data;
+    },
+
+    /**
+     * Delete scenario
+     * DELETE /api/investment/scenarios/{id}
+     * @param {number} id Scenario ID
+     * @returns {Promise} Deletion confirmation
+     */
+    async deleteScenario(id) {
+        const response = await api.delete(`/investment/scenarios/${id}`);
+        return response.data;
+    },
 };
 
 export default investmentService;
