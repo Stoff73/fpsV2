@@ -168,15 +168,9 @@
         </button>
         <button
           @click="exportPlan"
-          class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Export to PDF
-        </button>
-        <button
-          @click="$emit('close')"
           class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
-          Close
+          Export to PDF
         </button>
       </div>
     </div>
