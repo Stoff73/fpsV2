@@ -1100,6 +1100,109 @@ const investmentService = {
         const response = await api.delete('/investment/plan/clear-cache');
         return response.data;
     },
+
+    // ===================================================================
+    // Investment Recommendations (Phase 1.2)
+    // ===================================================================
+
+    /**
+     * Get recommendations dashboard/summary
+     * GET /api/investment/recommendations/dashboard
+     * @returns {Promise} Dashboard data with stats and high-priority recommendations
+     */
+    async getRecommendationsDashboard() {
+        const response = await api.get('/investment/recommendations/dashboard');
+        return response.data;
+    },
+
+    /**
+     * Get all recommendations with optional filters
+     * GET /api/investment/recommendations
+     * @param {Object} filters Optional filters (status, category, priority_level)
+     * @returns {Promise} Filtered recommendations list with stats
+     */
+    async getRecommendations(filters = {}) {
+        const response = await api.get('/investment/recommendations', { params: filters });
+        return response.data;
+    },
+
+    /**
+     * Get single recommendation by ID
+     * GET /api/investment/recommendations/{id}
+     * @param {number} id Recommendation ID
+     * @returns {Promise} Recommendation details
+     */
+    async getRecommendation(id) {
+        const response = await api.get(`/investment/recommendations/${id}`);
+        return response.data;
+    },
+
+    /**
+     * Create new recommendation
+     * POST /api/investment/recommendations
+     * @param {Object} data Recommendation data
+     * @returns {Promise} Created recommendation
+     */
+    async createRecommendation(data) {
+        const response = await api.post('/investment/recommendations', data);
+        return response.data;
+    },
+
+    /**
+     * Update recommendation
+     * PUT /api/investment/recommendations/{id}
+     * @param {number} id Recommendation ID
+     * @param {Object} data Updated recommendation data
+     * @returns {Promise} Updated recommendation
+     */
+    async updateRecommendation(id, data) {
+        const response = await api.put(`/investment/recommendations/${id}`, data);
+        return response.data;
+    },
+
+    /**
+     * Update recommendation status
+     * PUT /api/investment/recommendations/{id}/status
+     * @param {number} id Recommendation ID
+     * @param {string} status New status (pending, in_progress, completed, dismissed)
+     * @param {string} dismissalReason Optional dismissal reason (required if status is dismissed)
+     * @returns {Promise} Updated recommendation
+     */
+    async updateRecommendationStatus(id, status, dismissalReason = null) {
+        const response = await api.put(`/investment/recommendations/${id}/status`, {
+            status,
+            dismissal_reason: dismissalReason,
+        });
+        return response.data;
+    },
+
+    /**
+     * Bulk update status for multiple recommendations
+     * POST /api/investment/recommendations/bulk-update-status
+     * @param {Array} ids Array of recommendation IDs
+     * @param {string} status New status
+     * @param {string} dismissalReason Optional dismissal reason
+     * @returns {Promise} Bulk update result
+     */
+    async bulkUpdateRecommendationStatus(ids, status, dismissalReason = null) {
+        const response = await api.post('/investment/recommendations/bulk-update-status', {
+            recommendation_ids: ids,
+            status,
+            dismissal_reason: dismissalReason,
+        });
+        return response.data;
+    },
+
+    /**
+     * Delete recommendation
+     * DELETE /api/investment/recommendations/{id}
+     * @param {number} id Recommendation ID
+     * @returns {Promise} Deletion confirmation
+     */
+    async deleteRecommendation(id) {
+        const response = await api.delete(`/investment/recommendations/${id}`);
+        return response.data;
+    },
 };
 
 export default investmentService;

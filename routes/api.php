@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Investment\EfficientFrontierController;
 use App\Http\Controllers\Api\Investment\FeeImpactController;
 use App\Http\Controllers\Api\Investment\GoalProgressController;
 use App\Http\Controllers\Api\Investment\InvestmentPlanController;
+use App\Http\Controllers\Api\Investment\InvestmentRecommendationController;
 use App\Http\Controllers\Api\Investment\PerformanceAttributionController;
 use App\Http\Controllers\Api\Investment\RebalancingController;
 use App\Http\Controllers\Api\Investment\ModelPortfolioController;
@@ -502,6 +503,23 @@ Route::middleware('auth:sanctum')->prefix('investment')->group(function () {
 
         // Cache management
         Route::delete('/clear-cache', [InvestmentPlanController::class, 'clearCache']);
+    });
+
+    // Investment Recommendations (Phase 1.2)
+    Route::prefix('recommendations')->group(function () {
+        // Dashboard/summary
+        Route::get('/dashboard', [InvestmentRecommendationController::class, 'dashboard']);
+
+        // CRUD operations
+        Route::get('/', [InvestmentRecommendationController::class, 'index']);
+        Route::post('/', [InvestmentRecommendationController::class, 'store']);
+        Route::get('/{id}', [InvestmentRecommendationController::class, 'show']);
+        Route::put('/{id}', [InvestmentRecommendationController::class, 'update']);
+        Route::delete('/{id}', [InvestmentRecommendationController::class, 'destroy']);
+
+        // Status management
+        Route::put('/{id}/status', [InvestmentRecommendationController::class, 'updateStatus']);
+        Route::post('/bulk-update-status', [InvestmentRecommendationController::class, 'bulkUpdateStatus']);
     });
 });
 
