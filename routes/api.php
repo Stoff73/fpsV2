@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\FamilyMembersController;
 use App\Http\Controllers\Api\HolisticPlanningController;
 use App\Http\Controllers\Api\InvestmentController;
 use App\Http\Controllers\Api\Investment\AssetLocationController;
+use App\Http\Controllers\Api\Investment\ContributionOptimizerController;
 use App\Http\Controllers\Api\Investment\EfficientFrontierController;
 use App\Http\Controllers\Api\Investment\FeeImpactController;
 use App\Http\Controllers\Api\Investment\GoalProgressController;
@@ -327,6 +328,18 @@ Route::middleware('auth:sanctum')->prefix('investment')->group(function () {
         Route::post('/save', [RebalancingController::class, 'saveRebalancingActions']);
         Route::put('/actions/{id}', [RebalancingController::class, 'updateRebalancingAction']);
         Route::delete('/actions/{id}', [RebalancingController::class, 'deleteRebalancingAction']);
+    });
+
+    // Contribution Planning & Optimization (Phase 2.1)
+    Route::prefix('contribution')->group(function () {
+        // Optimize contribution strategy
+        Route::post('/optimize', [ContributionOptimizerController::class, 'optimize']);
+
+        // Affordability analysis
+        Route::post('/affordability', [ContributionOptimizerController::class, 'affordability']);
+
+        // Lump sum vs DCA comparison
+        Route::post('/lump-sum-vs-dca', [ContributionOptimizerController::class, 'lumpSumVsDCA']);
     });
 
     // Tax Optimization Strategies

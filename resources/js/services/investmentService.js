@@ -1330,6 +1330,186 @@ const investmentService = {
         const response = await api.delete(`/investment/scenarios/${id}`);
         return response.data;
     },
+
+    // ===================================================================
+    // Phase 2: Advanced Investment Planning
+    // ===================================================================
+
+    // ===================================================================
+    // Phase 2.1: Contribution Planning & Optimization
+    // ===================================================================
+
+    /**
+     * Optimize contribution strategy across ISA, GIA, and Pension wrappers
+     * POST /api/investment/contribution/optimize
+     * @param {Object} inputs Contribution optimization inputs
+     * @param {number} inputs.monthly_investable_income Monthly investable income
+     * @param {number} inputs.lump_sum_amount One-time lump sum amount (optional)
+     * @param {number} inputs.time_horizon Time horizon in years
+     * @param {string} inputs.risk_tolerance Risk tolerance (cautious, balanced, adventurous)
+     * @param {string} inputs.income_tax_band Income tax band (basic, higher, additional)
+     * @param {number} inputs.expected_return Expected annual return (decimal)
+     * @returns {Promise} Wrapper allocation, projections, and tax efficiency score
+     */
+    async optimizeContributions(inputs) {
+        const response = await api.post('/investment/contribution/optimize', inputs);
+        return response.data;
+    },
+
+    /**
+     * Calculate contribution affordability
+     * POST /api/investment/contribution/affordability
+     * @param {Object} inputs Affordability calculation inputs
+     * @param {number} inputs.gross_income Monthly gross income
+     * @param {number} inputs.fixed_expenses Monthly fixed expenses
+     * @param {number} inputs.discretionary_spending Monthly discretionary spending
+     * @param {number} inputs.existing_contributions Existing investment contributions
+     * @returns {Promise} Affordability analysis with recommendations
+     */
+    async calculateAffordability(inputs) {
+        const response = await api.post('/investment/contribution/affordability', inputs);
+        return response.data;
+    },
+
+    /**
+     * Analyze lump sum vs dollar-cost averaging (DCA)
+     * POST /api/investment/contribution/lump-sum-vs-dca
+     * @param {Object} inputs Analysis inputs
+     * @param {number} inputs.lump_sum_amount Lump sum amount
+     * @param {number} inputs.time_horizon Investment time horizon in years
+     * @param {number} inputs.expected_return Expected annual return (decimal)
+     * @param {number} inputs.volatility Expected volatility (decimal)
+     * @param {string} inputs.dca_period DCA period (monthly, quarterly)
+     * @returns {Promise} Comparison analysis with recommendations
+     */
+    async analyzeLumpSumVsDCA(inputs) {
+        const response = await api.post('/investment/contribution/lump-sum-vs-dca', inputs);
+        return response.data;
+    },
+
+    // ===================================================================
+    // Phase 2.3: Goal Projection (Enhanced)
+    // ===================================================================
+
+    /**
+     * Project goal with Monte Carlo simulation
+     * POST /api/investment/goals/{goalId}/project
+     * @param {number} goalId Goal ID
+     * @param {Object} params Projection parameters
+     * @param {number} params.current_value Current portfolio value
+     * @param {number} params.monthly_contribution Monthly contribution
+     * @param {number} params.expected_return Expected annual return (decimal)
+     * @param {number} params.volatility Expected volatility (decimal, optional)
+     * @param {number} params.iterations Monte Carlo iterations (optional, default 1000)
+     * @returns {Promise} Goal projection with probability distribution and recommendations
+     */
+    async projectGoal(goalId, params) {
+        const response = await api.post(`/investment/goals/${goalId}/project`, params);
+        return response.data;
+    },
+
+    // ===================================================================
+    // Phase 2.5: Fee Analysis (Enhanced)
+    // ===================================================================
+
+    /**
+     * Analyze portfolio fees in detail
+     * GET /api/investment/fees/analyze
+     * @returns {Promise} Comprehensive fee analysis with breakdown by type and holdings
+     */
+    async analyzeFees() {
+        const response = await api.get('/investment/fees/analyze');
+        return response.data;
+    },
+
+    /**
+     * Calculate fee savings potential
+     * POST /api/investment/fees/calculate-savings
+     * @param {Object} params Savings calculation parameters
+     * @param {number} params.portfolio_value Current portfolio value
+     * @param {number} params.monthly_contribution Monthly contribution
+     * @param {number} params.current_fee_percent Current fee percentage (decimal)
+     * @param {number} params.alternative_fee_percent Alternative fee percentage (decimal)
+     * @param {number} params.expected_return Expected return (decimal)
+     * @param {number} params.years Time horizon in years
+     * @returns {Promise} Fee savings analysis over time
+     */
+    async calculateFeeSavings(params) {
+        const response = await api.post('/investment/fees/calculate-savings', params);
+        return response.data;
+    },
+
+    // ===================================================================
+    // Phase 2.6: Asset Location & Wrapper Optimization (Enhanced)
+    // ===================================================================
+
+    /**
+     * Analyze asset location optimization
+     * GET /api/investment/asset-location/analyze
+     * @returns {Promise} Asset location analysis with tax drag and recommendations
+     */
+    async analyzeAssetLocation() {
+        const response = await api.get('/investment/asset-location/analyze');
+        return response.data;
+    },
+
+    /**
+     * Compare wrapper types (ISA, GIA, Pension)
+     * GET /api/investment/wrappers/compare
+     * @param {Object} params Comparison parameters
+     * @param {number} params.investment_amount Investment amount
+     * @param {number} params.time_horizon Time horizon in years
+     * @param {number} params.expected_return Expected return (decimal)
+     * @param {string} params.tax_band Tax band (basic, higher, additional)
+     * @returns {Promise} Wrapper comparison with tax implications
+     */
+    async compareWrappers(params) {
+        const response = await api.get('/investment/wrappers/compare', { params });
+        return response.data;
+    },
+
+    // ===================================================================
+    // Phase 2.7: Performance Attribution (Enhanced)
+    // ===================================================================
+
+    /**
+     * Analyze performance attribution
+     * GET /api/investment/performance/attribution
+     * @param {Object} params Attribution parameters
+     * @param {string} params.period Period (1y, 3y, 5y, 10y)
+     * @param {string} params.benchmark Benchmark code (optional)
+     * @returns {Promise} Performance attribution by allocation, selection, interaction
+     */
+    async analyzePerformanceAttribution(params = {}) {
+        const response = await api.get('/investment/performance/attribution', { params });
+        return response.data;
+    },
+
+    /**
+     * Compare portfolio with multiple benchmarks
+     * POST /api/investment/performance/compare-benchmarks
+     * @param {Array} benchmarkIds Array of benchmark codes
+     * @param {Object} params Additional parameters
+     * @param {string} params.period Period (1y, 3y, 5y)
+     * @returns {Promise} Multi-benchmark comparison
+     */
+    async compareBenchmarks(benchmarkIds, params = {}) {
+        const response = await api.post('/investment/performance/compare-benchmarks', {
+            benchmark_ids: benchmarkIds,
+            ...params,
+        });
+        return response.data;
+    },
+
+    /**
+     * Get available benchmarks
+     * GET /api/investment/performance/benchmarks
+     * @returns {Promise} List of available benchmarks
+     */
+    async getAvailableBenchmarks() {
+        const response = await api.get('/investment/performance/benchmarks');
+        return response.data;
+    },
 };
 
 export default investmentService;

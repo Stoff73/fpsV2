@@ -21,6 +21,12 @@ const state = {
     investmentScenarios: [],           // Phase 1.3: User's scenarios
     scenarioStats: null,               // Phase 1.3: Scenario statistics
     scenarioComparison: null,          // Phase 1.3: Comparison data
+    contributionOptimization: null,    // Phase 2.1: Contribution optimization results
+    assetLocationAnalysis: null,       // Phase 2.6: Asset location optimization
+    performanceAttribution: null,      // Phase 2.7: Performance attribution
+    benchmarkComparison: null,         // Phase 2.7: Benchmark comparison
+    goalProjections: {},               // Phase 2.3: Goal projections by goal ID
+    feeAnalysis: null,                 // Phase 2.5: Detailed fee analysis
     loading: false,
     error: null,
 };
@@ -221,6 +227,21 @@ const getters = {
     getScenariosByType: (state) => (type) => {
         return state.investmentScenarios.filter(s => s.scenario_type === type);
     },
+
+    // Phase 2 getters
+    contributionOptimization: (state) => state.contributionOptimization,
+
+    assetLocationAnalysis: (state) => state.assetLocationAnalysis,
+
+    performanceAttribution: (state) => state.performanceAttribution,
+
+    benchmarkComparison: (state) => state.benchmarkComparison,
+
+    getGoalProjection: (state) => (goalId) => {
+        return state.goalProjections[goalId] || null;
+    },
+
+    feeAnalysis: (state) => state.feeAnalysis,
 
     loading: (state) => state.loading,
     error: (state) => state.error,
@@ -972,6 +993,159 @@ const actions = {
             commit('setLoading', false);
         }
     },
+
+    // Phase 2 actions
+
+    // Phase 2.1: Contribution Planning
+    async optimizeContributions({ commit }, inputs) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.optimizeContributions(inputs);
+            if (response.success && response.data) {
+                commit('setContributionOptimization', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to optimize contributions';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async calculateAffordability({ commit }, inputs) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.calculateAffordability(inputs);
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to calculate affordability';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async analyzeLumpSumVsDCA({ commit }, inputs) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.analyzeLumpSumVsDCA(inputs);
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to analyze lump sum vs DCA';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    // Phase 2.6: Asset Location & Tax Efficiency
+    async analyzeAssetLocation({ commit }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.analyzeAssetLocation();
+            if (response.success && response.data) {
+                commit('setAssetLocationAnalysis', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to analyze asset location';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    // Phase 2.7: Performance Attribution
+    async analyzePerformanceAttribution({ commit }, params = {}) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.analyzePerformanceAttribution(params);
+            if (response.success && response.data) {
+                commit('setPerformanceAttribution', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to analyze performance attribution';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async compareBenchmarks({ commit }, benchmarkIds) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.compareBenchmarks(benchmarkIds);
+            if (response.success && response.data) {
+                commit('setBenchmarkComparison', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to compare benchmarks';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    // Phase 2.3: Goal Projection
+    async projectGoal({ commit }, { goalId, params }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.projectGoal(goalId, params);
+            if (response.success && response.data) {
+                commit('setGoalProjection', { goalId, projection: response.data });
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to project goal';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    // Phase 2.5: Fee Analysis
+    async analyzeFees({ commit }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.analyzeFees();
+            if (response.success && response.data) {
+                commit('setFeeAnalysis', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to analyze fees';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
 };
 
 const mutations = {
@@ -1194,6 +1368,34 @@ const mutations = {
         if (index !== -1) {
             state.investmentScenarios.splice(index, 1);
         }
+    },
+
+    // Phase 2 mutations
+    setContributionOptimization(state, data) {
+        state.contributionOptimization = data;
+    },
+
+    setAssetLocationAnalysis(state, data) {
+        state.assetLocationAnalysis = data;
+    },
+
+    setPerformanceAttribution(state, data) {
+        state.performanceAttribution = data;
+    },
+
+    setBenchmarkComparison(state, data) {
+        state.benchmarkComparison = data;
+    },
+
+    setGoalProjection(state, { goalId, projection }) {
+        state.goalProjections = {
+            ...state.goalProjections,
+            [goalId]: projection
+        };
+    },
+
+    setFeeAnalysis(state, data) {
+        state.feeAnalysis = data;
     },
 };
 

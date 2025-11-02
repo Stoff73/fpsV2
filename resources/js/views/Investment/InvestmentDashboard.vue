@@ -111,11 +111,22 @@
             @clear-filter="clearAccountFilter"
           />
 
-          <!-- Performance Tab -->
-          <Performance v-else-if="activeTab === 'performance'" />
+          <!-- Performance Tab (Enhanced with Phase 2.7) -->
+          <div v-else-if="activeTab === 'performance'">
+            <Performance />
+            <div class="mt-8">
+              <PerformanceAttribution />
+            </div>
+            <div class="mt-8">
+              <BenchmarkComparison />
+            </div>
+          </div>
 
           <!-- Investment Plan Tab -->
           <ComprehensiveInvestmentPlan v-else-if="activeTab === 'plan'" />
+
+          <!-- Contributions Tab (Phase 2.1) -->
+          <ContributionPlanner v-else-if="activeTab === 'contributions'" />
 
           <!-- Portfolio Optimization Tab -->
           <PortfolioOptimization v-else-if="activeTab === 'optimization'" />
@@ -123,17 +134,35 @@
           <!-- Rebalancing Tab -->
           <RebalancingCalculator v-else-if="activeTab === 'rebalancing'" />
 
-          <!-- Goals Tab -->
-          <Goals v-else-if="activeTab === 'goals'" />
+          <!-- Goals Tab (Enhanced with Phase 2.3) -->
+          <div v-else-if="activeTab === 'goals'">
+            <Goals />
+            <div class="mt-8">
+              <GoalProjection />
+            </div>
+          </div>
+
+          <!-- Tax Efficiency Tab (Phase 2.6) -->
+          <div v-else-if="activeTab === 'taxefficiency'">
+            <AssetLocationOptimizer />
+            <div class="mt-8">
+              <WrapperOptimizer />
+            </div>
+          </div>
+
+          <!-- Fees Tab (Phase 2.5) -->
+          <div v-else-if="activeTab === 'fees'">
+            <FeeBreakdown />
+            <div class="mt-8">
+              <FeeSavingsCalculator />
+            </div>
+          </div>
 
           <!-- Recommendations Tab -->
           <Recommendations v-else-if="activeTab === 'recommendations'" />
 
           <!-- What-If Scenarios Tab -->
           <WhatIfScenarios v-else-if="activeTab === 'scenarios'" />
-
-          <!-- Tax & Fees Tab -->
-          <TaxFees v-else-if="activeTab === 'taxfees'" />
         </div>
       </div>
       </div>
@@ -155,6 +184,14 @@ import TaxFees from '@/components/Investment/TaxFees.vue';
 import PortfolioOptimization from '@/components/Investment/PortfolioOptimization.vue';
 import RebalancingCalculator from '@/components/Investment/RebalancingCalculator.vue';
 import ComprehensiveInvestmentPlan from '@/components/Investment/ComprehensiveInvestmentPlan.vue';
+import ContributionPlanner from '@/components/Investment/ContributionPlanner.vue';
+import AssetLocationOptimizer from '@/components/Investment/AssetLocationOptimizer.vue';
+import WrapperOptimizer from '@/components/Investment/WrapperOptimizer.vue';
+import PerformanceAttribution from '@/components/Investment/PerformanceAttribution.vue';
+import BenchmarkComparison from '@/components/Investment/BenchmarkComparison.vue';
+import GoalProjection from '@/components/Investment/GoalProjection.vue';
+import FeeBreakdown from '@/components/Investment/FeeBreakdown.vue';
+import FeeSavingsCalculator from '@/components/Investment/FeeSavingsCalculator.vue';
 
 export default {
   name: 'InvestmentDashboard',
@@ -172,6 +209,14 @@ export default {
     TaxFees,
     PortfolioOptimization,
     RebalancingCalculator,
+    ContributionPlanner,
+    AssetLocationOptimizer,
+    WrapperOptimizer,
+    PerformanceAttribution,
+    BenchmarkComparison,
+    GoalProjection,
+    FeeBreakdown,
+    FeeSavingsCalculator,
   },
 
   data() {
@@ -184,12 +229,14 @@ export default {
         { id: 'holdings', label: 'Holdings' },
         { id: 'performance', label: 'Performance' },
         { id: 'plan', label: 'Investment Plan' },
+        { id: 'contributions', label: 'Contributions' },
         { id: 'optimization', label: 'Portfolio Optimization' },
         { id: 'rebalancing', label: 'Rebalancing' },
         { id: 'goals', label: 'Goals' },
+        { id: 'taxefficiency', label: 'Tax Efficiency' },
+        { id: 'fees', label: 'Fees' },
         { id: 'recommendations', label: 'Recommendations' },
         { id: 'scenarios', label: 'What-If Scenarios' },
-        { id: 'taxfees', label: 'Tax & Fees' },
       ],
     };
   },
