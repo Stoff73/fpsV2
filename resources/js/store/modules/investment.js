@@ -14,6 +14,9 @@ const state = {
     scenarios: null,
     investmentPlan: null,        // Latest investment plan
     investmentPlans: [],         // Historical plans
+    investmentRecommendations: [],    // Phase 1.2: Tracked recommendations
+    recommendationStats: null,         // Phase 1.2: Recommendation statistics
+    recommendationsDashboard: null,    // Phase 1.2: Dashboard data
     loading: false,
     error: null,
 };
@@ -152,6 +155,36 @@ const getters = {
     // Check if needs rebalancing
     needsRebalancing: (state) => {
         return state.analysis?.allocation_deviation?.needs_rebalancing || false;
+    },
+
+    // Investment Recommendations getters (Phase 1.2)
+    investmentRecommendations: (state) => state.investmentRecommendations,
+
+    recommendationStats: (state) => state.recommendationStats,
+
+    recommendationsDashboard: (state) => state.recommendationsDashboard,
+
+    // Get recommendations by status
+    pendingRecommendations: (state) => {
+        return state.investmentRecommendations.filter(r => r.status === 'pending');
+    },
+
+    inProgressRecommendations: (state) => {
+        return state.investmentRecommendations.filter(r => r.status === 'in_progress');
+    },
+
+    completedRecommendations: (state) => {
+        return state.investmentRecommendations.filter(r => r.status === 'completed');
+    },
+
+    // Get high priority recommendations
+    highPriorityRecommendations: (state) => {
+        return state.investmentRecommendations.filter(r => r.priority <= 3);
+    },
+
+    // Get recommendations by category
+    getRecommendationsByCategory: (state) => (category) => {
+        return state.investmentRecommendations.filter(r => r.category === category);
     },
 
     loading: (state) => state.loading,
@@ -570,6 +603,139 @@ const actions = {
             commit('setLoading', false);
         }
     },
+
+    // Investment Recommendations actions (Phase 1.2)
+    async fetchRecommendationsDashboard({ commit }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.getRecommendationsDashboard();
+            if (response.success && response.data) {
+                commit('setRecommendationsDashboard', response.data);
+                commit('setRecommendationStats', response.data.stats);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to fetch recommendations dashboard';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async fetchInvestmentRecommendations({ commit }, filters = {}) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.getRecommendations(filters);
+            if (response.success && response.data) {
+                commit('setInvestmentRecommendations', response.data.recommendations);
+                commit('setRecommendationStats', response.data.stats);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to fetch recommendations';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async createInvestmentRecommendation({ commit }, data) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.createRecommendation(data);
+            if (response.success && response.data) {
+                commit('addInvestmentRecommendation', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to create recommendation';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async updateInvestmentRecommendation({ commit }, { id, data }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.updateRecommendation(id, data);
+            if (response.success && response.data) {
+                commit('updateInvestmentRecommendation', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to update recommendation';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async updateRecommendationStatus({ commit }, { id, status, dismissalReason = null }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.updateRecommendationStatus(id, status, dismissalReason);
+            if (response.success && response.data) {
+                commit('updateInvestmentRecommendation', response.data);
+            }
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to update recommendation status';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async bulkUpdateRecommendationStatus({ commit, dispatch }, { ids, status, dismissalReason = null }) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.bulkUpdateRecommendationStatus(ids, status, dismissalReason);
+            // Refresh recommendations list after bulk update
+            await dispatch('fetchInvestmentRecommendations');
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to bulk update recommendations';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
+
+    async deleteInvestmentRecommendation({ commit }, id) {
+        commit('setLoading', true);
+        commit('setError', null);
+
+        try {
+            const response = await investmentService.deleteRecommendation(id);
+            commit('removeInvestmentRecommendation', id);
+            return response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to delete recommendation';
+            commit('setError', errorMessage);
+            throw error;
+        } finally {
+            commit('setLoading', false);
+        }
+    },
 };
 
 const mutations = {
@@ -725,6 +891,37 @@ const mutations = {
         // Clear latest plan if it matches
         if (state.investmentPlan && state.investmentPlan.id === planId) {
             state.investmentPlan = null;
+        }
+    },
+
+    // Investment Recommendations mutations (Phase 1.2)
+    setInvestmentRecommendations(state, recommendations) {
+        state.investmentRecommendations = recommendations;
+    },
+
+    setRecommendationStats(state, stats) {
+        state.recommendationStats = stats;
+    },
+
+    setRecommendationsDashboard(state, dashboard) {
+        state.recommendationsDashboard = dashboard;
+    },
+
+    addInvestmentRecommendation(state, recommendation) {
+        state.investmentRecommendations.push(recommendation);
+    },
+
+    updateInvestmentRecommendation(state, recommendation) {
+        const index = state.investmentRecommendations.findIndex(r => r.id === recommendation.id);
+        if (index !== -1) {
+            state.investmentRecommendations.splice(index, 1, recommendation);
+        }
+    },
+
+    removeInvestmentRecommendation(state, id) {
+        const index = state.investmentRecommendations.findIndex(r => r.id === id);
+        if (index !== -1) {
+            state.investmentRecommendations.splice(index, 1);
         }
     },
 };

@@ -1,0 +1,498 @@
+<template>
+  <div class="recommendations-tracker bg-white rounded-lg shadow-sm">
+    <!-- Header with Statistics -->
+    <div class="p-6 border-b border-gray-200">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Investment Recommendations</h2>
+        <button
+          @click="refreshRecommendations"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200"
+          :disabled="loading"
+        >
+          {{ loading ? 'Loading...' : 'Refresh' }}
+        </button>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div v-if="recommendationStats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <!-- Total Recommendations -->
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div class="text-sm font-medium text-blue-600 mb-1">Total</div>
+          <div class="text-2xl font-bold text-blue-900">{{ recommendationStats.total }}</div>
+        </div>
+
+        <!-- Pending -->
+        <div class="bg-amber-50 rounded-lg p-4 border border-amber-200">
+          <div class="text-sm font-medium text-amber-600 mb-1">Pending</div>
+          <div class="text-2xl font-bold text-amber-900">{{ recommendationStats.pending }}</div>
+        </div>
+
+        <!-- In Progress -->
+        <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+          <div class="text-sm font-medium text-purple-600 mb-1">In Progress</div>
+          <div class="text-2xl font-bold text-purple-900">{{ recommendationStats.in_progress }}</div>
+        </div>
+
+        <!-- Completed -->
+        <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+          <div class="text-sm font-medium text-green-600 mb-1">Completed</div>
+          <div class="text-2xl font-bold text-green-900">{{ recommendationStats.completed }}</div>
+        </div>
+
+        <!-- Potential Savings -->
+        <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
+          <div class="text-sm font-medium text-indigo-600 mb-1">Potential Savings</div>
+          <div class="text-2xl font-bold text-indigo-900">£{{ formatNumber(recommendationStats.total_potential_saving) }}</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-4">
+        <!-- Status Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select
+            v-model="filters.status"
+            @change="applyFilters"
+            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="dismissed">Dismissed</option>
+          </select>
+        </div>
+
+        <!-- Category Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <select
+            v-model="filters.category"
+            @change="applyFilters"
+            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Categories</option>
+            <option value="rebalancing">Rebalancing</option>
+            <option value="tax">Tax Optimization</option>
+            <option value="fees">Fee Reduction</option>
+            <option value="risk">Risk Management</option>
+            <option value="goal">Goal Alignment</option>
+            <option value="contribution">Contribution Strategy</option>
+          </select>
+        </div>
+
+        <!-- Priority Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+          <select
+            v-model="filters.priority_level"
+            @change="applyFilters"
+            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Priorities</option>
+            <option value="high">High (1-3)</option>
+            <option value="medium">Medium (4-7)</option>
+            <option value="low">Low (8+)</option>
+          </select>
+        </div>
+
+        <!-- Clear Filters -->
+        <div class="flex items-end">
+          <button
+            @click="clearFilters"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+          >
+            Clear Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations List -->
+    <div class="p-6">
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-12">
+        <svg class="animate-spin h-12 w-12 mx-auto text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="mt-4 text-gray-600">Loading recommendations...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="!recommendations || recommendations.length === 0" class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No recommendations found</h3>
+        <p class="mt-2 text-gray-500">Try adjusting your filters or generate a new investment plan.</p>
+      </div>
+
+      <!-- Recommendations Cards -->
+      <div v-else class="space-y-4">
+        <div
+          v-for="recommendation in recommendations"
+          :key="recommendation.id"
+          class="border rounded-lg p-5 hover:shadow-md transition-shadow duration-200"
+          :class="getRecommendationBorderClass(recommendation)"
+        >
+          <!-- Header Row -->
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <!-- Priority Badge -->
+                <span
+                  class="px-2 py-1 text-xs font-semibold rounded"
+                  :class="getPriorityClass(recommendation.priority)"
+                >
+                  Priority {{ recommendation.priority }}
+                </span>
+
+                <!-- Category Badge -->
+                <span
+                  class="px-2 py-1 text-xs font-semibold rounded"
+                  :class="getCategoryClass(recommendation.category)"
+                >
+                  {{ formatCategory(recommendation.category) }}
+                </span>
+
+                <!-- Status Badge -->
+                <span
+                  class="px-2 py-1 text-xs font-semibold rounded"
+                  :class="getStatusClass(recommendation.status)"
+                >
+                  {{ formatStatus(recommendation.status) }}
+                </span>
+              </div>
+
+              <h3 class="text-lg font-semibold text-gray-900">{{ recommendation.title }}</h3>
+            </div>
+
+            <!-- Action Menu -->
+            <div class="relative">
+              <button
+                @click="toggleActionMenu(recommendation.id)"
+                class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                </svg>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div
+                v-if="activeMenuId === recommendation.id"
+                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
+              >
+                <button
+                  v-if="recommendation.status === 'pending'"
+                  @click="updateStatus(recommendation.id, 'in_progress')"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Start Working
+                </button>
+                <button
+                  v-if="recommendation.status === 'in_progress'"
+                  @click="updateStatus(recommendation.id, 'completed')"
+                  class="block w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-50"
+                >
+                  Mark Complete
+                </button>
+                <button
+                  v-if="recommendation.status !== 'dismissed'"
+                  @click="openDismissModal(recommendation)"
+                  class="block w-full text-left px-4 py-2 text-sm text-amber-700 hover:bg-amber-50"
+                >
+                  Dismiss
+                </button>
+                <button
+                  @click="deleteRecommendation(recommendation.id)"
+                  class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <p class="text-gray-700 mb-3">{{ recommendation.description }}</p>
+
+          <!-- Action Required -->
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+            <div class="text-sm font-medium text-blue-900 mb-1">Action Required:</div>
+            <div class="text-sm text-blue-800">{{ recommendation.action_required }}</div>
+          </div>
+
+          <!-- Metrics Row -->
+          <div class="flex flex-wrap gap-4 text-sm">
+            <div v-if="recommendation.potential_saving" class="flex items-center gap-1">
+              <span class="font-medium text-gray-700">Potential Saving:</span>
+              <span class="text-green-600 font-semibold">£{{ formatNumber(recommendation.potential_saving) }}</span>
+            </div>
+            <div v-if="recommendation.impact_level" class="flex items-center gap-1">
+              <span class="font-medium text-gray-700">Impact:</span>
+              <span :class="getImpactClass(recommendation.impact_level)">{{ recommendation.impact_level }}</span>
+            </div>
+            <div v-if="recommendation.estimated_effort" class="flex items-center gap-1">
+              <span class="font-medium text-gray-700">Effort:</span>
+              <span class="text-gray-600">{{ recommendation.estimated_effort }}</span>
+            </div>
+          </div>
+
+          <!-- Completion/Dismissal Info -->
+          <div v-if="recommendation.completed_at" class="mt-3 text-sm text-green-600">
+            ✓ Completed {{ formatDate(recommendation.completed_at) }}
+          </div>
+          <div v-if="recommendation.dismissed_at" class="mt-3 text-sm text-amber-600">
+            Dismissed {{ formatDate(recommendation.dismissed_at) }}
+            <span v-if="recommendation.dismissal_reason"> - {{ recommendation.dismissal_reason }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dismiss Modal -->
+    <div
+      v-if="showDismissModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      @click.self="closeDismissModal"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Dismiss Recommendation</h3>
+          <p class="text-gray-700 mb-4">Please provide a reason for dismissing this recommendation:</p>
+          <textarea
+            v-model="dismissalReason"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            rows="4"
+            placeholder="Enter dismissal reason..."
+          ></textarea>
+          <div class="flex justify-end gap-3 mt-4">
+            <button
+              @click="closeDismissModal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              @click="confirmDismiss"
+              class="px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors duration-200"
+              :disabled="!dismissalReason"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapState, mapGetters, mapActions } from 'vuex';
+
+export default {
+  name: 'InvestmentRecommendationsTracker',
+
+  data() {
+    return {
+      filters: {
+        status: '',
+        category: '',
+        priority_level: '',
+      },
+      activeMenuId: null,
+      showDismissModal: false,
+      dismissalReason: '',
+      recommendationToDissmiss: null,
+    };
+  },
+
+  computed: {
+    ...mapState('investment', ['loading', 'error']),
+    ...mapGetters('investment', [
+      'investmentRecommendations',
+      'recommendationStats',
+    ]),
+
+    recommendations() {
+      return this.investmentRecommendations;
+    },
+  },
+
+  mounted() {
+    this.loadRecommendations();
+  },
+
+  methods: {
+    ...mapActions('investment', [
+      'fetchInvestmentRecommendations',
+      'updateRecommendationStatus',
+      'deleteInvestmentRecommendation',
+    ]),
+
+    async loadRecommendations() {
+      try {
+        await this.fetchInvestmentRecommendations(this.filters);
+      } catch (error) {
+        console.error('Failed to load recommendations:', error);
+      }
+    },
+
+    async refreshRecommendations() {
+      await this.loadRecommendations();
+    },
+
+    applyFilters() {
+      this.loadRecommendations();
+    },
+
+    clearFilters() {
+      this.filters = {
+        status: '',
+        category: '',
+        priority_level: '',
+      };
+      this.loadRecommendations();
+    },
+
+    toggleActionMenu(id) {
+      this.activeMenuId = this.activeMenuId === id ? null : id;
+    },
+
+    async updateStatus(id, status) {
+      try {
+        await this.updateRecommendationStatus({ id, status });
+        this.activeMenuId = null;
+      } catch (error) {
+        console.error('Failed to update status:', error);
+      }
+    },
+
+    openDismissModal(recommendation) {
+      this.recommendationToDissmiss = recommendation;
+      this.showDismissModal = true;
+      this.dismissalReason = '';
+      this.activeMenuId = null;
+    },
+
+    closeDismissModal() {
+      this.showDismissModal = false;
+      this.recommendationToDissmiss = null;
+      this.dismissalReason = '';
+    },
+
+    async confirmDismiss() {
+      if (!this.dismissalReason || !this.recommendationToDissmiss) return;
+
+      try {
+        await this.updateRecommendationStatus({
+          id: this.recommendationToDissmiss.id,
+          status: 'dismissed',
+          dismissalReason: this.dismissalReason,
+        });
+        this.closeDismissModal();
+      } catch (error) {
+        console.error('Failed to dismiss recommendation:', error);
+      }
+    },
+
+    async deleteRecommendation(id) {
+      if (!confirm('Are you sure you want to delete this recommendation? This action cannot be undone.')) {
+        return;
+      }
+
+      try {
+        await this.deleteInvestmentRecommendation(id);
+        this.activeMenuId = null;
+      } catch (error) {
+        console.error('Failed to delete recommendation:', error);
+      }
+    },
+
+    getRecommendationBorderClass(recommendation) {
+      if (recommendation.status === 'completed') return 'border-green-200 bg-green-50';
+      if (recommendation.status === 'dismissed') return 'border-gray-200 bg-gray-50';
+      if (recommendation.priority <= 3) return 'border-red-200 bg-red-50';
+      if (recommendation.priority <= 7) return 'border-amber-200 bg-amber-50';
+      return 'border-blue-200 bg-blue-50';
+    },
+
+    getPriorityClass(priority) {
+      if (priority <= 3) return 'bg-red-100 text-red-800';
+      if (priority <= 7) return 'bg-amber-100 text-amber-800';
+      return 'bg-blue-100 text-blue-800';
+    },
+
+    getCategoryClass(category) {
+      const classes = {
+        rebalancing: 'bg-purple-100 text-purple-800',
+        tax: 'bg-green-100 text-green-800',
+        fees: 'bg-orange-100 text-orange-800',
+        risk: 'bg-red-100 text-red-800',
+        goal: 'bg-indigo-100 text-indigo-800',
+        contribution: 'bg-teal-100 text-teal-800',
+      };
+      return classes[category] || 'bg-gray-100 text-gray-800';
+    },
+
+    getStatusClass(status) {
+      const classes = {
+        pending: 'bg-amber-100 text-amber-800',
+        in_progress: 'bg-purple-100 text-purple-800',
+        completed: 'bg-green-100 text-green-800',
+        dismissed: 'bg-gray-100 text-gray-800',
+      };
+      return classes[status] || 'bg-gray-100 text-gray-800';
+    },
+
+    getImpactClass(impact) {
+      const classes = {
+        low: 'text-blue-600',
+        medium: 'text-amber-600',
+        high: 'text-red-600',
+      };
+      return classes[impact] || 'text-gray-600';
+    },
+
+    formatCategory(category) {
+      const labels = {
+        rebalancing: 'Rebalancing',
+        tax: 'Tax Optimization',
+        fees: 'Fee Reduction',
+        risk: 'Risk Management',
+        goal: 'Goal Alignment',
+        contribution: 'Contribution Strategy',
+      };
+      return labels[category] || category;
+    },
+
+    formatStatus(status) {
+      const labels = {
+        pending: 'Pending',
+        in_progress: 'In Progress',
+        completed: 'Completed',
+        dismissed: 'Dismissed',
+      };
+      return labels[status] || status;
+    },
+
+    formatNumber(value) {
+      if (!value) return '0';
+      return new Intl.NumberFormat('en-GB').format(value);
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    },
+  },
+};
+</script>
+
+<style scoped>
+/* Additional custom styles if needed */
+</style>
