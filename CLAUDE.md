@@ -123,17 +123,19 @@ npm run dev
 
 **TenGo (Financial Planning System)** - UK-focused comprehensive financial planning application covering five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
-**Current Version**: v0.1.2.13
+**Current Version**: v0.2.1
 **Tech Stack**: Laravel 10.x (PHP 8.2+) + Vue.js 3 + MySQL 8.0+ + Memcached
 
-**Status**: Active Development - Core features complete, spouse management & joint ownership implemented
+**Status**: Active Development - Core modules complete with advanced portfolio optimization
 
-**Recent Updates (v0.1.2.13)**:
-- Letter to Spouse feature with comprehensive auto-population from all FPS modules
-- 4-part structure: Immediate actions, Accounts access, Long-term plans, Final wishes
-- Dual view mode: editable own letter, read-only spouse's letter
-- Auto-populated with data from Protection, Savings, Investment, Estate, Properties modules
-- 33 fields covering all essential estate planning information for surviving spouse
+**Recent Updates (v0.2.1)**:
+- Investment & Savings Plans module with consolidated goal tracking and risk metrics
+- DC Pension Portfolio Optimization - full integration with Investment module tools
+- Polymorphic Holdings System supporting both Investment Accounts and DC Pensions
+- Advanced Risk Metrics: Alpha, Beta, Sharpe Ratio, Volatility, Max Drawdown, VaR (95%)
+- Portfolio Analysis with asset allocation, diversification scoring, and fee optimization
+- Holdings Management for DC pensions with full CRUD functionality
+- Service Reuse Architecture - shared portfolio services across Investment and Retirement modules
 
 ---
 
@@ -848,9 +850,9 @@ For deeper understanding, refer to:
 
 ---
 
-**Current Version**: v0.1.2.13 (Beta)
+**Current Version**: v0.2.1 (Beta)
 **Last Updated**: November 4, 2025
-**Status**: 🚀 Active Development - Core Features Complete
+**Status**: 🚀 Active Development - Core Modules Complete with Advanced Portfolio Optimization
 
 ---
 

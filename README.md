@@ -29,6 +29,26 @@ A comprehensive financial planning web application designed for UK individuals a
 
 ---
 
+## 🆕 Recent Updates (November 2025)
+
+### Version 0.2.1 - DC Pension Portfolio Optimization & Investment Plans
+
+**Release Date**: November 4, 2025
+
+**Major Features**:
+- ✅ **Investment & Savings Plans Module**: Consolidated financial planning tool combining Investment and Savings goals with advanced risk metrics and progress tracking
+- ✅ **DC Pension Portfolio Optimization**: Full integration of Investment module's portfolio optimization tools into Retirement planning with holdings management
+- ✅ **Polymorphic Holdings System**: Flexible data model allowing holdings to belong to both Investment Accounts and DC Pensions
+- ✅ **Advanced Risk Metrics**: Alpha, Beta, Sharpe Ratio, Volatility, Max Drawdown, and Value at Risk (VaR 95%) for portfolios
+- ✅ **Portfolio Analysis**: Asset allocation breakdown, diversification scoring, and comprehensive fee analysis with optimization suggestions
+- ✅ **Service Reuse Architecture**: Shared portfolio services between Investment and Retirement modules eliminating code duplication
+
+**Technical Improvements**:
+- Database migration with rollback support for polymorphic holdings conversion
+- Enhanced RetirementAgent with 5 Investment service integrations
+- 9 new API endpoints for DC pension holdings management and portfolio analysis
+- Portfolio Analysis tab added to Retirement dashboard
+
 ## 🆕 Recent Updates (October 2025)
 
 ### Version 0.1.2.13 - Letter to Spouse Feature
@@ -150,22 +170,33 @@ The system uses an **agent-based architecture** where intelligent agents analyze
 
 ### 📈 Investment Module
 
-- Portfolio analysis with asset allocation
-- Monte Carlo simulations (1,000 iterations)
-- Fee impact analysis
+- Portfolio analysis with comprehensive risk metrics
+- Advanced risk analytics: Alpha, Beta, Sharpe Ratio, Volatility, Max Drawdown, VaR (95%)
+- Asset allocation breakdown and diversification scoring
+- Monte Carlo simulations (1,000 iterations) with scenario modeling
+- Efficient Frontier analysis for optimal risk/return positioning
+- Fee impact analysis with low-cost alternative recommendations
 - Tax efficiency calculations
 - Goal-based probability analysis
+- Holdings management with rebalancing support
 - ISA and pension wrapper optimization
+- **NEW**: Investment & Savings Plans - consolidated view with risk dashboard
 
 ### 🏖️ Retirement Module
 
-- DC/DB/State pension inventory
-- Retirement readiness scoring
-- Income projection (stacked area charts)
-- Contribution optimization
-- Annual allowance tracking (£60,000)
-- Annuity vs. drawdown comparison
-- Decumulation planning
+- DC/DB/State pension inventory with detailed tracking
+- **NEW**: DC Pension Portfolio Optimization with holdings management
+- **NEW**: Portfolio Analysis tab with comprehensive risk metrics
+- **NEW**: Advanced risk analytics for pension holdings (Alpha, Beta, Sharpe Ratio, etc.)
+- **NEW**: Asset allocation and diversification scoring for DC pensions
+- **NEW**: Fee analysis with platform fees and fund OCFs breakdown
+- **NEW**: Integration with Monte Carlo simulations and Efficient Frontier
+- Retirement readiness scoring with multi-factor analysis
+- Income projection with stacked area charts and scenarios
+- Contribution optimization with tax relief calculations
+- Annual allowance tracking (£60,000 + 3-year carry forward)
+- Annuity vs. drawdown comparison with sustainability modeling
+- Decumulation planning with longevity risk assessment
 
 ### 🏛️ Estate Planning Module
 
