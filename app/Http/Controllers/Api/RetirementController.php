@@ -366,10 +366,51 @@ class RetirementController extends Controller
     }
 
     /**
+     * Analyze DC Pension Portfolio (advanced portfolio optimization)
+     *
+     * Provides same analytics as Investment module:
+     * - Risk metrics (Alpha, Beta, Sharpe Ratio, Volatility, Max Drawdown, VaR)
+     * - Asset allocation & diversification
+     * - Fee analysis & optimization
+     * - Monte Carlo simulations
+     * - Efficient Frontier analysis
+     */
+    public function analyzeDCPensionPortfolio(Request $request, ?int $dcPensionId = null): JsonResponse
+    {
+        $user = $request->user();
+
+        // If a specific pension ID is provided, verify ownership
+        if ($dcPensionId) {
+            $pension = DCPension::findOrFail($dcPensionId);
+            if ($pension->user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access to this pension',
+                ], 403);
+            }
+        }
+
+        $analysis = $this->agent->analyzeDCPensionPortfolio($user->id, $dcPensionId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'DC pension portfolio analysis completed',
+            'data' => $analysis,
+        ]);
+    }
+
+    /**
      * Invalidate retirement-related cache for a user.
      */
     private function invalidateRetirementCache(int $userId): void
     {
         Cache::forget("retirement_analysis_{$userId}");
+        Cache::forget("dc_pensions_portfolio_{$userId}");
+
+        // Also clear individual pension portfolio caches
+        $dcPensions = DCPension::where('user_id', $userId)->get();
+        foreach ($dcPensions as $pension) {
+            Cache::forget("dc_pension_{$pension->id}_portfolio");
+        }
     }
 }

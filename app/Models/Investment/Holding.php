@@ -7,13 +7,15 @@ namespace App\Models\Investment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Holding extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'investment_account_id',
+        'holdable_id',
+        'holdable_type',
         'asset_type',
         'allocation_percent',
         'security_name',
@@ -42,10 +44,20 @@ class Holding extends Model
     ];
 
     /**
-     * Investment account relationship
+     * Get the parent holdable model (InvestmentAccount or DCPension)
+     */
+    public function holdable(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    /**
+     * Investment account relationship (for backward compatibility)
+     * @deprecated Use holdable() instead
      */
     public function investmentAccount(): BelongsTo
     {
-        return $this->belongsTo(InvestmentAccount::class);
+        return $this->belongsTo(InvestmentAccount::class, 'holdable_id')
+            ->where('holdable_type', InvestmentAccount::class);
     }
 }

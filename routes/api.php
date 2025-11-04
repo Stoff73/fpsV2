@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\Investment\RebalancingController;
 use App\Http\Controllers\Api\Investment\ModelPortfolioController;
 use App\Http\Controllers\Api\Investment\RiskProfileController;
 use App\Http\Controllers\Api\Investment\TaxOptimizationController;
+use App\Http\Controllers\Api\Plans\InvestmentSavingsPlanController;
 use App\Http\Controllers\Api\PortfolioOptimizationController;
 use App\Http\Controllers\Api\LetterToSpouseController;
 use App\Http\Controllers\Api\MortgageController;
@@ -35,6 +36,7 @@ use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\ProtectionController;
 use App\Http\Controllers\Api\RecommendationsController;
 use App\Http\Controllers\Api\RetirementController;
+use App\Http\Controllers\Api\Retirement\DCPensionHoldingsController;
 use App\Http\Controllers\Api\SavingsController;
 use App\Http\Controllers\Api\SpousePermissionController;
 use App\Http\Controllers\Api\UKTaxesController;
@@ -643,6 +645,10 @@ Route::middleware('auth:sanctum')->prefix('retirement')->group(function () {
     Route::get('/recommendations', [RetirementController::class, 'recommendations']);
     Route::post('/scenarios', [RetirementController::class, 'scenarios']);
 
+    // DC Pension Portfolio Analysis (advanced analytics)
+    Route::get('/portfolio-analysis', [RetirementController::class, 'analyzeDCPensionPortfolio']);
+    Route::get('/portfolio-analysis/{dcPensionId}', [RetirementController::class, 'analyzeDCPensionPortfolio']);
+
     // Annual allowance checking
     Route::get('/annual-allowance/{taxYear}', [RetirementController::class, 'checkAnnualAllowance']);
 
@@ -651,6 +657,13 @@ Route::middleware('auth:sanctum')->prefix('retirement')->group(function () {
         Route::post('/', [RetirementController::class, 'storeDCPension']);
         Route::put('/{id}', [RetirementController::class, 'updateDCPension']);
         Route::delete('/{id}', [RetirementController::class, 'destroyDCPension']);
+
+        // DC Pension Holdings (for portfolio optimization)
+        Route::get('/{dcPensionId}/holdings', [DCPensionHoldingsController::class, 'index']);
+        Route::post('/{dcPensionId}/holdings', [DCPensionHoldingsController::class, 'store']);
+        Route::put('/{dcPensionId}/holdings/{holdingId}', [DCPensionHoldingsController::class, 'update']);
+        Route::delete('/{dcPensionId}/holdings/{holdingId}', [DCPensionHoldingsController::class, 'destroy']);
+        Route::post('/{dcPensionId}/holdings/bulk-update', [DCPensionHoldingsController::class, 'bulkUpdate']);
     });
 
     // DB pensions
@@ -662,6 +675,13 @@ Route::middleware('auth:sanctum')->prefix('retirement')->group(function () {
 
     // State pension
     Route::post('/state-pension', [RetirementController::class, 'updateStatePension']);
+});
+
+// Plans routes (comprehensive cross-module plans)
+Route::middleware('auth:sanctum')->prefix('plans')->group(function () {
+    // Investment & Savings Plan
+    Route::get('/investment-savings', [InvestmentSavingsPlanController::class, 'generate']);
+    Route::delete('/investment-savings/clear-cache', [InvestmentSavingsPlanController::class, 'clearCache']);
 });
 
 // Holistic Planning routes (coordinating agent)

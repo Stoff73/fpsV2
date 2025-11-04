@@ -56,23 +56,26 @@
         </svg>
       </button>
 
-      <!-- Investment & Savings Plan (Greyed Out) -->
-      <div class="w-full flex items-center justify-between p-3 bg-gray-100 rounded-lg opacity-50 cursor-not-allowed">
+      <!-- Investment & Savings Plan -->
+      <button
+        @click="navigateTo('/plans/investment-savings')"
+        class="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group"
+      >
         <div class="flex items-center space-x-3">
-          <div class="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex-shrink-0 w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+            <svg class="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
           </div>
           <div class="text-left">
-            <p class="text-sm font-semibold text-gray-600">Investment & Savings Plan</p>
-            <p class="text-xs text-gray-500">Coming soon</p>
+            <p class="text-sm font-semibold text-gray-800">Investment & Savings Plan</p>
+            <p class="text-xs text-gray-600">Portfolio & cash strategy</p>
           </div>
         </div>
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
-      </div>
+      </button>
 
       <!-- Tax Plan (Greyed Out) -->
       <div class="w-full flex items-center justify-between p-3 bg-gray-100 rounded-lg opacity-50 cursor-not-allowed">

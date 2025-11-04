@@ -47,8 +47,8 @@
           </router-link>
         </div>
 
-        <!-- Investment Plan Component -->
-        <ComprehensiveInvestmentPlan />
+        <!-- Comprehensive Investment & Savings Plan -->
+        <InvestmentSavingsPlanView />
       </div>
     </div>
   </AppLayout>
@@ -56,14 +56,14 @@
 
 <script>
 import AppLayout from '@/layouts/AppLayout.vue';
-import ComprehensiveInvestmentPlan from '@/components/Investment/ComprehensiveInvestmentPlan.vue';
+import InvestmentSavingsPlanView from '@/components/Plans/InvestmentSavingsPlanView.vue';
 
 export default {
   name: 'InvestmentSavingsPlan',
 
   components: {
     AppLayout,
-    ComprehensiveInvestmentPlan,
+    InvestmentSavingsPlanView,
   },
 };
 </script>

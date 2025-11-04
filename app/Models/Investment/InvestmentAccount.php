@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class InvestmentAccount extends Model
 {
@@ -58,11 +58,11 @@ class InvestmentAccount extends Model
     }
 
     /**
-     * Holdings relationship
+     * Holdings relationship (polymorphic)
      */
-    public function holdings(): HasMany
+    public function holdings(): MorphMany
     {
-        return $this->hasMany(Holding::class);
+        return $this->morphMany(Holding::class, 'holdable');
     }
 
     /**

@@ -1,9 +1,11 @@
 import retirementService from '../../services/retirementService';
+import dcPensionHoldingsService from '../../services/dcPensionHoldingsService';
 
 // Track ongoing requests to prevent duplicates
 const ongoingRequests = {
     fetchRecommendations: null,
     fetchAnnualAllowance: null,
+    fetchPortfolioAnalysis: null,
 };
 
 const state = {
@@ -15,6 +17,7 @@ const state = {
     recommendations: [],
     annualAllowance: null,
     scenarios: null,
+    portfolioAnalysis: null, // Portfolio optimization data
     loading: false,
     error: null,
 };
@@ -76,6 +79,9 @@ const mutations = {
     },
     REMOVE_DB_PENSION(state, id) {
         state.dbPensions = state.dbPensions.filter(p => p.id !== id);
+    },
+    SET_PORTFOLIO_ANALYSIS(state, analysis) {
+        state.portfolioAnalysis = analysis;
     },
 };
 
@@ -287,6 +293,81 @@ const actions = {
             commit('SET_LOADING', false);
         }
     },
+
+    // Portfolio Analysis Actions
+    async fetchPortfolioAnalysis({ commit }, dcPensionId = null) {
+        // If request is already ongoing, return that promise
+        const requestKey = dcPensionId ? `fetchPortfolioAnalysis_${dcPensionId}` : 'fetchPortfolioAnalysis';
+        if (ongoingRequests[requestKey]) {
+            return ongoingRequests[requestKey];
+        }
+
+        // DO NOT set loading - causes infinite loop
+        commit('SET_ERROR', null);
+
+        const apiCall = dcPensionId
+            ? dcPensionHoldingsService.getPensionPortfolioAnalysis(dcPensionId)
+            : dcPensionHoldingsService.getPortfolioAnalysis();
+
+        ongoingRequests[requestKey] = apiCall
+            .then(response => {
+                commit('SET_PORTFOLIO_ANALYSIS', response.data);
+                return response;
+            })
+            .catch(error => {
+                commit('SET_ERROR', error.response?.data?.message || 'Failed to fetch portfolio analysis');
+                throw error;
+            })
+            .finally(() => {
+                ongoingRequests[requestKey] = null;
+            });
+
+        return ongoingRequests[requestKey];
+    },
+
+    async createDCPensionHolding({ dispatch }, { dcPensionId, holdingData }) {
+        try {
+            const response = await dcPensionHoldingsService.createHolding(dcPensionId, holdingData);
+            // Refresh portfolio analysis after adding a holding
+            await dispatch('fetchPortfolioAnalysis');
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async updateDCPensionHolding({ dispatch }, { dcPensionId, holdingId, holdingData }) {
+        try {
+            const response = await dcPensionHoldingsService.updateHolding(dcPensionId, holdingId, holdingData);
+            // Refresh portfolio analysis after updating a holding
+            await dispatch('fetchPortfolioAnalysis');
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async deleteDCPensionHolding({ dispatch }, { dcPensionId, holdingId }) {
+        try {
+            const response = await dcPensionHoldingsService.deleteHolding(dcPensionId, holdingId);
+            // Refresh portfolio analysis after deleting a holding
+            await dispatch('fetchPortfolioAnalysis');
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async bulkUpdateDCPensionHoldings({ dispatch }, { dcPensionId, holdings }) {
+        try {
+            const response = await dcPensionHoldingsService.bulkUpdateHoldings(dcPensionId, holdings);
+            // Refresh portfolio analysis after bulk update
+            await dispatch('fetchPortfolioAnalysis');
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    },
 };
 
 const getters = {
@@ -328,6 +409,35 @@ const getters = {
 
     hasIncomeGap: (state, getters) => {
         return getters.incomeGap > 0;
+    },
+
+    // Portfolio Analysis Getters
+    hasPortfolioData: (state) => {
+        return state.portfolioAnalysis?.has_portfolio_data || false;
+    },
+
+    portfolioTotalValue: (state) => {
+        return state.portfolioAnalysis?.portfolio_summary?.total_value || 0;
+    },
+
+    portfolioRiskMetrics: (state) => {
+        return state.portfolioAnalysis?.risk_metrics || null;
+    },
+
+    portfolioAssetAllocation: (state) => {
+        return state.portfolioAnalysis?.asset_allocation || null;
+    },
+
+    portfolioDiversificationScore: (state) => {
+        return state.portfolioAnalysis?.diversification_score || 0;
+    },
+
+    portfolioFeeAnalysis: (state) => {
+        return state.portfolioAnalysis?.fee_analysis || null;
+    },
+
+    pensionsWithHoldings: (state) => {
+        return state.portfolioAnalysis?.pensions_breakdown || [];
     },
 };
 
