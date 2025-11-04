@@ -69,12 +69,19 @@ printenv | grep -E "^APP_|^DB_|^VITE_|^CACHE_"
 
 **SOLUTION - Always start development servers with correct environment:**
 
-Use the provided startup script:
+**Recommended: Use the startup script:**
 ```bash
 ./dev.sh
 ```
+This script automatically:
+- Kills existing server processes
+- Exports correct local environment variables
+- Clears Laravel and Vite caches
+- Verifies MySQL connection and database existence
+- Starts both Laravel and Vite in correct sequence
+- Displays process IDs and helpful information
 
-Or manually export local variables in the SAME bash session:
+**Manual alternative** (if needed):
 ```bash
 export APP_ENV=local && \
 export APP_URL=http://localhost:8000 && \
@@ -189,8 +196,14 @@ php artisan db:seed --class=TaxConfigurationSeeder
 
 ### Development Servers
 
-**⚠️ CRITICAL**: You must run **BOTH** servers simultaneously:
+**⚠️ CRITICAL**: You must run **BOTH** servers simultaneously.
 
+**Recommended Method:**
+```bash
+./dev.sh
+```
+
+**Manual Method (3 separate terminals):**
 ```bash
 # Terminal 1 - Laravel Backend (REQUIRED)
 php artisan serve
@@ -392,37 +405,17 @@ Cache::forget("estate_analysis_{$userId}");
 ```
 app/
 ├── Agents/                    # Module analysis orchestrators (7 files)
-│   ├── BaseAgent.php          # Abstract base class
-│   ├── ProtectionAgent.php
-│   ├── SavingsAgent.php
-│   ├── InvestmentAgent.php
-│   ├── RetirementAgent.php
-│   ├── EstateAgent.php
+│   ├── BaseAgent.php
+│   ├── ProtectionAgent.php, SavingsAgent.php, InvestmentAgent.php
+│   ├── RetirementAgent.php, EstateAgent.php
 │   └── CoordinatingAgent.php
 │
 ├── Http/Controllers/Api/      # RESTful API controllers (25+ files)
-│   ├── AuthController.php
-│   ├── ProtectionController.php
-│   ├── SavingsController.php
-│   ├── InvestmentController.php
-│   ├── RetirementController.php
-│   ├── EstateController.php
-│   ├── Estate/                # Estate sub-controllers
-│   │   ├── IHTController.php
-│   │   ├── GiftingController.php
-│   │   ├── LifePolicyController.php
-│   │   ├── TrustController.php
-│   │   └── WillController.php
-│   └── ... (other controllers)
+│   ├── ProtectionController.php, SavingsController.php, etc.
+│   └── Estate/                # Estate sub-controllers (IHT, Gifting, Trust, Will)
 │
 ├── Services/                  # Business logic (50+ files)
 │   ├── Estate/                # 20+ estate services
-│   │   ├── IHTCalculator.php
-│   │   ├── NetWorthAnalyzer.php
-│   │   ├── CashFlowProjector.php
-│   │   ├── GiftingStrategy.php
-│   │   ├── SecondDeathIHTCalculator.php
-│   │   └── ...
 │   ├── Protection/            # 5 protection services
 │   ├── Savings/               # 5 savings services (includes ISATracker)
 │   ├── Investment/            # 5 investment services
@@ -431,23 +424,11 @@ app/
 │   └── UKTaxCalculator.php    # Shared tax calculator
 │
 ├── Models/                    # Eloquent models (39 files)
-│   ├── User.php
-│   ├── FamilyMember.php
-│   ├── Estate/                # Estate models subdirectory
-│   │   ├── Asset.php
-│   │   ├── Liability.php
-│   │   ├── Gift.php
-│   │   ├── Trust.php
-│   │   ├── IHTProfile.php
-│   │   └── Will.php
+│   ├── User.php, FamilyMember.php
+│   ├── Estate/                # Estate models (Asset, Liability, Gift, Trust, etc.)
 │   └── ... (other models)
 │
 └── Http/Requests/             # Form validation (30+ files)
-    ├── Protection/
-    ├── Savings/
-    ├── Investment/
-    ├── Retirement/
-    └── Estate/
 
 config/
 └── uk_tax_config.php          # CRITICAL: All UK tax rules
@@ -462,41 +443,24 @@ routes/
 resources/js/
 ├── components/                # Vue components (150+ files)
 │   ├── Estate/                # 45+ estate components
-│   │   ├── IHTPlanning.vue
-│   │   ├── GiftingStrategy.vue
-│   │   ├── WillPlanning.vue
-│   │   ├── LifePolicyStrategy.vue
-│   │   └── ...
 │   ├── Protection/            # 20+ protection components
 │   ├── Savings/               # 15+ savings components
 │   ├── Investment/            # 20+ investment components
 │   ├── Retirement/            # 15+ retirement components
-│   ├── NetWorth/              # 12+ net worth components
-│   └── ... (other component directories)
+│   └── NetWorth/              # 12+ net worth components
 │
 ├── views/                     # Page-level components (25 files)
 │   ├── Dashboard.vue
-│   ├── Estate/EstateDashboard.vue
-│   ├── Protection/ProtectionDashboard.vue
-│   └── ... (other dashboards)
+│   └── [Module]/[Module]Dashboard.vue
 │
 ├── store/modules/             # Vuex stores (16 files)
-│   ├── auth.js
-│   ├── estate.js
-│   ├── protection.js
-│   ├── savings.js
-│   ├── investment.js
-│   ├── retirement.js
-│   └── ...
+│   ├── auth.js, estate.js, protection.js, etc.
 │
 ├── services/                  # API wrappers (17 files)
 │   ├── api.js                 # Axios instance
-│   ├── estateService.js
-│   ├── protectionService.js
-│   └── ...
+│   └── [module]Service.js
 │
-└── router/
-    └── index.js               # Vue Router config
+└── router/index.js            # Vue Router config
 ```
 
 ---
@@ -555,93 +519,11 @@ class ProtectionAgent extends BaseAgent
 - Percentages/rates: `DECIMAL(5,4)`
 - Dates: `DATE`, `TIMESTAMP` for created_at/updated_at
 
-**Schema**:
-```sql
-CREATE TABLE dc_pensions (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT UNSIGNED NOT NULL,
-    scheme_name VARCHAR(255) NOT NULL,
-    current_value DECIMAL(15,2) NOT NULL,
-    contribution_rate DECIMAL(5,4) DEFAULT 0.0000,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_user_id (user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-```
-
 ### Vue.js 3 Standards
 
 **Component Naming**:
 - Multi-word component names (e.g., `AssetForm.vue`, `IHTPlanning.vue`)
 - PascalCase in SFC, kebab-case in templates
-
-**Component Structure**:
-```vue
-<template>
-  <div class="component-wrapper">
-    <h2>{{ title }}</h2>
-    <form @submit.prevent="submitForm">
-      <input v-model="formData.name" />
-      <button type="submit">Save</button>
-    </form>
-  </div>
-</template>
-
-<script>
-import estateService from '@/services/estateService';
-
-export default {
-  name: 'AssetForm',
-
-  components: {
-    // Component dependencies
-  },
-
-  props: {
-    asset: {
-      type: Object,
-      default: null
-    }
-  },
-
-  data() {
-    return {
-      formData: this.asset || { name: '' }
-    };
-  },
-
-  computed: {
-    title() {
-      return this.asset ? 'Edit Asset' : 'Add Asset';
-    }
-  },
-
-  methods: {
-    async submitForm() {
-      try {
-        const response = this.asset
-          ? await estateService.updateAsset(this.asset.id, this.formData)
-          : await estateService.storeAsset(this.formData);
-
-        this.$emit('save', response.data);  // NEVER use 'submit' for custom events
-        this.$emit('close');
-      } catch (error) {
-        console.error('Error saving:', error);
-      }
-    }
-  },
-
-  mounted() {
-    // Component lifecycle
-  }
-};
-</script>
-
-<style scoped>
-/* Component styles */
-</style>
-```
 
 **CRITICAL - Form Modal Event Naming**:
 ```vue
@@ -742,75 +624,16 @@ export default {
    ```
 
 5. **Create Form Request** (`app/Http/Requests/Module/StoreNewFeatureRequest.php`)
-   ```php
-   class StoreNewFeatureRequest extends FormRequest
-   {
-       public function authorize(): bool
-       {
-           return true;
-       }
-
-       public function rules(): array
-       {
-           return [
-               'name' => 'required|string|max:255',
-               'value' => 'required|numeric|min:0',
-           ];
-       }
-   }
-   ```
 
 6. **Add Controller Method** (`app/Http/Controllers/Api/ModuleController.php`)
-   ```php
-   public function storeNewFeature(StoreNewFeatureRequest $request): JsonResponse
-   {
-       $user = $request->user();
-       $validated = $request->validated();
-
-       $validated['user_id'] = $user->id;
-       $feature = NewFeature::create($validated);
-
-       Cache::forget("module_analysis_{$user->id}");
-
-       return response()->json([
-           'success' => true,
-           'data' => $feature,
-       ], 201);
-   }
-   ```
 
 7. **Add Route** (`routes/api.php`)
-   ```php
-   Route::post('/module/new-feature', [ModuleController::class, 'storeNewFeature']);
-   ```
 
 8. **Create JS Service** (`resources/js/services/moduleService.js`)
-   ```javascript
-   async storeNewFeature(data) {
-       const response = await api.post('/module/new-feature', data);
-       return response.data;
-   }
-   ```
 
 9. **Update Vuex Store** (`resources/js/store/modules/module.js`)
-   ```javascript
-   actions: {
-       async saveNewFeature({ commit }, data) {
-           const response = await moduleService.storeNewFeature(data);
-           commit('addNewFeature', response.data);
-           return response;
-       }
-   },
-   mutations: {
-       addNewFeature(state, feature) {
-           state.newFeatures.push(feature);
-       }
-   }
-   ```
 
-10. **Create Vue Component** (`resources/js/components/Module/NewFeatureForm.vue`)
-
-11. **Update Dashboard** (`resources/js/views/Module/ModuleDashboard.vue`)
+10. **Create Vue Component** and update dashboard
 
 ### Cross-Module Data Integration
 
@@ -861,14 +684,6 @@ describe('IHTCalculator', function () {
         // Estate: £500k - NRB: £325k = £175k taxable
         // IHT: £175k × 40% = £70k
         expect($result['iht_liability'])->toBe(70000.0);
-    });
-
-    it('applies spouse exemption correctly', function () {
-        $user = User::factory()->create(['marital_status' => 'married']);
-        $profile = IHTProfile::factory()->create(['user_id' => $user->id]);
-
-        // Test implementation...
-        expect($result['spouse_exemption'])->toBeGreaterThan(0);
     });
 });
 ```
@@ -936,18 +751,6 @@ Each module follows this pattern:
 - Green (`#10B981`): Good, on track, adequate
 - Amber (`#F59E0B`): Caution, action needed
 - Red (`#EF4444`): Critical, urgent action required
-
----
-
-## Documentation References
-
-For deeper understanding, refer to:
-
-- **CODEBASE_STRUCTURE.md**: Complete architecture, data flows, module breakdown (1,425 lines)
-- **CODEBASE_FILE_MAP.md**: File locations, dependency relationships (1,063 lines)
-- **DATABASE_SCHEMA_GUIDE.md**: Database schema, table relationships
-- **README.md**: Installation, setup, deployment instructions
-- **OCTOBER_2025_FEATURES_UPDATE.md**: Recent feature updates (v0.1.2)
 
 ---
 
@@ -1020,33 +823,33 @@ MEMCACHED_PORT=11211
 
 ---
 
-## Constraints & Limitations
+## Documentation References
 
-- **UK Only**: No international tax jurisdictions
-- **Manual Entry**: No external integrations or Open Banking
-- **DB Pensions**: Projection only, no transfer advice
-- **Demo System**: Not a production financial advisory tool
-- **Non-Regulated**: Educational/demonstration purposes only
+For deeper understanding, refer to:
+
+- **CODEBASE_STRUCTURE.md**: Complete architecture, data flows, module breakdown
+- **DATABASE_SCHEMA_GUIDE.md**: Database schema, table relationships
+- **README.md**: Installation, setup, deployment instructions
+- **OCTOBER_2025_FEATURES_UPDATE.md**: Recent feature updates (v0.1.2)
+- **DEV_ENVIRONMENT_TROUBLESHOOTING.md**: Environment debugging guide
 
 ---
 
 ## Support & Resources
 
-**Issues/Questions**: Create an issue in the repository
-
-**Documentation Locations**:
-- Main docs: `/Users/Chris/Desktop/fpsApp/tengo/`
-- Skills: `.claude/skills/` (fps-module-builder, fps-feature-builder, fps-component-builder)
-- Tests: `tests/` (Unit, Feature, Architecture)
-
 **Demo Credentials**:
 - User: `demo@fps.com` / `password`
 - Admin: `admin@fps.com` / `admin123456`
 
+**Documentation Locations**:
+- Main docs: Project root directory
+- Skills: `.claude/skills/` (fps-module-builder, fps-feature-builder, fps-component-builder)
+- Tests: `tests/` (Unit, Feature, Architecture)
+
 ---
 
-**Current Version**: v0.1.2.12 (Beta)
-**Last Updated**: October 28, 2025
+**Current Version**: v0.1.2.13 (Beta)
+**Last Updated**: November 4, 2025
 **Status**: 🚀 Active Development - Core Features Complete
 
 ---

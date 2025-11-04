@@ -81,7 +81,7 @@
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                'whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors duration-200',
+                'whitespace-nowrap py-2 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
               ]"
             >
               {{ tab.label }}
@@ -113,7 +113,7 @@
 
           <!-- Performance Tab (Enhanced with Phase 2.7) -->
           <div v-else-if="activeTab === 'performance'">
-            <Performance />
+            <Performance @navigate-to-tab="navigateToTab" />
             <div class="mt-8">
               <PerformanceAttribution />
             </div>
@@ -121,9 +121,6 @@
               <BenchmarkComparison />
             </div>
           </div>
-
-          <!-- Investment Plan Tab -->
-          <ComprehensiveInvestmentPlan v-else-if="activeTab === 'plan'" />
 
           <!-- Contributions Tab (Phase 2.1) -->
           <ContributionPlanner v-else-if="activeTab === 'contributions'" />
@@ -136,7 +133,7 @@
 
           <!-- Goals Tab (Enhanced with Phase 2.3) -->
           <div v-else-if="activeTab === 'goals'">
-            <Goals />
+            <Goals @view-projection="handleViewProjection" />
             <div class="mt-8">
               <GoalProjection />
             </div>
@@ -183,7 +180,6 @@ import WhatIfScenarios from '@/components/Investment/WhatIfScenarios.vue';
 import TaxFees from '@/components/Investment/TaxFees.vue';
 import PortfolioOptimization from '@/components/Investment/PortfolioOptimization.vue';
 import RebalancingCalculator from '@/components/Investment/RebalancingCalculator.vue';
-import ComprehensiveInvestmentPlan from '@/components/Investment/ComprehensiveInvestmentPlan.vue';
 import ContributionPlanner from '@/components/Investment/ContributionPlanner.vue';
 import AssetLocationOptimizer from '@/components/Investment/AssetLocationOptimizer.vue';
 import WrapperOptimizer from '@/components/Investment/WrapperOptimizer.vue';
@@ -202,7 +198,6 @@ export default {
     Accounts,
     Holdings,
     Performance,
-    ComprehensiveInvestmentPlan,
     Goals,
     Recommendations,
     WhatIfScenarios,
@@ -228,14 +223,13 @@ export default {
         { id: 'accounts', label: 'Accounts' },
         { id: 'holdings', label: 'Holdings' },
         { id: 'performance', label: 'Performance' },
-        { id: 'plan', label: 'Investment Plan' },
         { id: 'contributions', label: 'Contributions' },
         { id: 'optimization', label: 'Portfolio Optimization' },
         { id: 'rebalancing', label: 'Rebalancing' },
         { id: 'goals', label: 'Goals' },
         { id: 'taxefficiency', label: 'Tax Efficiency' },
         { id: 'fees', label: 'Fees' },
-        { id: 'recommendations', label: 'Recommendations' },
+        { id: 'recommendations', label: 'Strategy' },
         { id: 'scenarios', label: 'What-If Scenarios' },
       ],
     };
@@ -288,17 +282,44 @@ export default {
       // Clear the selected account filter
       this.selectedAccountId = null;
     },
+
+    navigateToTab(tabId) {
+      // Navigate to a specific tab
+      this.activeTab = tabId;
+    },
+
+    handleViewProjection(goal) {
+      // Handle viewing goal projection
+      // Could store the selected goal and scroll to GoalProjection component
+      console.log('Viewing projection for goal:', goal);
+      // Optionally scroll to the GoalProjection component
+      this.$nextTick(() => {
+        const projectionElement = this.$el.querySelector('.goal-projection');
+        if (projectionElement) {
+          projectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    },
   },
 };
 </script>
 
 <style scoped>
+/* Compact tab navigation for better fit */
+.investment-dashboard nav[aria-label="Tabs"] button {
+  padding-left: 0.5rem;  /* 8px */
+  padding-right: 0.5rem; /* 8px */
+  padding-top: 0.5rem;   /* 8px */
+  padding-bottom: 0.5rem; /* 8px */
+  font-size: 0.8125rem;    /* 13px */
+}
+
 /* Mobile optimization for tab navigation */
 @media (max-width: 640px) {
   .investment-dashboard nav[aria-label="Tabs"] button {
-    font-size: 0.875rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    font-size: 0.75rem;  /* Slightly smaller on mobile */
+    padding-left: 0.5rem;  /* 8px */
+    padding-right: 0.5rem; /* 8px */
   }
 }
 
