@@ -419,9 +419,10 @@ export default {
       this.error = null;
 
       try {
-        const response = await api.post('/investment/performance-attribution/compare-multiple-benchmarks', {
-          benchmarks: this.selectedBenchmarks,
-          period: this.selectedPeriod,
+        const response = await api.get('/investment/performance-attribution/multi-benchmark', {
+          params: {
+            period: this.selectedPeriod,
+          },
         });
 
         this.comparisonData = response.data.data;

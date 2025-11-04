@@ -55,7 +55,8 @@ class TaxOptimizationController extends Controller
         $validated = $validator->validated();
 
         try {
-            $cacheKey = "tax_optimization_analysis_{$user->id}_{$validated['tax_year'] ?? 'current'}";
+            $cacheKey = "tax_optimization_analysis_{$user->id}_".
+                ($validated['tax_year'] ?? 'current');
 
             $result = Cache::remember($cacheKey, 1800, function () use ($user, $validated) {
                 return $this->taxOptimizer->analyzeCompleteTaxPosition(

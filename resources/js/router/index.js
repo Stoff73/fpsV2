@@ -281,6 +281,31 @@ const routes = [
     },
   },
   {
+    path: '/plans',
+    name: 'Plans',
+    component: () => import('@/views/Plans/PlansDashboard.vue'),
+    meta: {
+      requiresAuth: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Plans', path: '/plans' },
+      ],
+    },
+  },
+  {
+    path: '/plans/investment-savings',
+    name: 'InvestmentSavingsPlan',
+    component: () => import('@/views/Plans/InvestmentSavingsPlan.vue'),
+    meta: {
+      requiresAuth: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Plans', path: '/plans' },
+        { label: 'Investment & Savings Plan', path: '/plans/investment-savings' },
+      ],
+    },
+  },
+  {
     path: '/uk-taxes',
     name: 'UKTaxes',
     component: UKTaxesDashboard,

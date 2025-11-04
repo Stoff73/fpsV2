@@ -179,7 +179,7 @@
                 <td class="text-right py-3 px-4">{{ formatPercent(holding.ocf) }}</td>
                 <td class="text-right py-3 px-4 font-semibold">£{{ formatNumber(holding.annual_fee) }}</td>
                 <td class="text-right py-3 px-4">
-                  <span class="px-2 py-1 rounded text-xs font-semibold" :class="getFeeCategory Class(holding.fee_category)">
+                  <span class="px-2 py-1 rounded text-xs font-semibold" :class="getFeeCategoryClass(holding.fee_category)">
                     {{ holding.fee_category }}
                   </span>
                 </td>

@@ -325,7 +325,7 @@ class CapacityForLossAnalyzer
             $factor = 'Portfolio is moderate part of wealth (20-40%)';
         } elseif ($portfolioPercentage <= 60) {
             $score = 3;
-            $factor' => 'Portfolio is significant part of wealth (40-60%)';
+            $factor = 'Portfolio is significant part of wealth (40-60%)';
         } elseif ($portfolioPercentage <= 80) {
             $score = 2;
             $factor = 'Portfolio is major part of wealth (60-80%)';

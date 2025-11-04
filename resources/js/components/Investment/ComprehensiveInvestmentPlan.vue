@@ -333,8 +333,15 @@ export default {
           this.plan = this.investmentPlan?.plan_data || null;
         }
       } catch (err) {
-        console.error('Error loading investment plan:', err);
-        this.error = err.response?.data?.message || 'Failed to load investment plan';
+        // 404 means no plan exists yet - show empty state instead of error
+        if (err.response?.status === 404) {
+          this.plan = null;
+          this.error = null;
+        } else {
+          // Only show error for actual failures (500, network errors, etc.)
+          console.error('Error loading investment plan:', err);
+          this.error = err.response?.data?.message || 'Failed to load investment plan. Please try again.';
+        }
       } finally {
         this.loading = false;
       }

@@ -110,10 +110,10 @@
           :critical-gaps="protectionData.criticalGaps"
         />
 
-        <!-- Card 5: Actions & Recommendations (Phase 5) -->
+        <!-- Card 5: Actions & Recommendations -->
         <QuickActions />
 
-        <!-- Card 6: Trusts (Phase 6) -->
+        <!-- Card 6: Trusts -->
         <TrustsOverviewCard />
 
         <!-- Card 7: UK Taxes & Allowances (Admin Only) -->

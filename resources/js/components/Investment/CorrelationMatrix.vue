@@ -285,7 +285,7 @@ export default {
                 { from: -100, to: 0, color: '#10B981', name: 'Negative' },
                 { from: 0, to: 30, color: '#34D399', name: 'Low (0-0.3)' },
                 { from: 30, to: 70, color: '#FBBF24', name: 'Moderate (0.3-0.7)' },
-                { from: 70, to 90, color: '#FB923C', name: 'High (0.7-0.9)' },
+                { from: 70, to: 90, color: '#FB923C', name: 'High (0.7-0.9)' },
                 { from: 90, to: 100, color: '#EF4444', name: 'Very High (>0.9)' },
               ],
             },
