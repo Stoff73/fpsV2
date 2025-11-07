@@ -200,40 +200,45 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Good Health -->
+          <!-- Health Status -->
           <div>
-            <label for="good_health" class="label">
+            <label for="health_status" class="label">
               Are you in good health? <span class="text-red-500">*</span>
             </label>
             <select
-              id="good_health"
-              v-model="formData.good_health"
+              id="health_status"
+              v-model="formData.health_status"
               class="input-field"
               required
             >
               <option value="">Select...</option>
-              <option :value="true">Yes</option>
-              <option :value="false">No (pre-existing conditions)</option>
+              <option value="yes">Yes</option>
+              <option value="yes_previous">Yes, previous health conditions</option>
+              <option value="no_previous">No, previous health conditions</option>
+              <option value="no_existing">No, existing health conditions</option>
+              <option value="no_both">No, previous and existing health conditions</option>
             </select>
             <p class="mt-1 text-body-sm text-gray-500">
               Affects protection insurance premiums
             </p>
           </div>
 
-          <!-- Smoker Status -->
+          <!-- Smoking Status -->
           <div>
-            <label for="smoker" class="label">
+            <label for="smoking_status" class="label">
               Do you smoke? <span class="text-red-500">*</span>
             </label>
             <select
-              id="smoker"
-              v-model="formData.smoker"
+              id="smoking_status"
+              v-model="formData.smoking_status"
               class="input-field"
               required
             >
               <option value="">Select...</option>
-              <option :value="false">No</option>
-              <option :value="true">Yes</option>
+              <option value="never">Never smoked</option>
+              <option value="quit_recent">No, gave up 12 months or sooner</option>
+              <option value="quit_long_ago">No, gave up more than 12 months ago</option>
+              <option value="yes">Yes</option>
             </select>
             <p class="mt-1 text-body-sm text-gray-500">
               Significantly impacts insurance premiums
@@ -296,8 +301,8 @@ export default {
       county: '',
       postcode: '',
       phone: '',
-      good_health: '',
-      smoker: '',
+      health_status: '',
+      smoking_status: '',
       education_level: '',
     });
 
@@ -352,13 +357,13 @@ export default {
         return false;
       }
 
-      if (formData.value.good_health === '') {
+      if (formData.value.health_status === '') {
         error.value = 'Please indicate your health status';
         return false;
       }
 
-      if (formData.value.smoker === '') {
-        error.value = 'Please indicate your smoker status';
+      if (formData.value.smoking_status === '') {
+        error.value = 'Please indicate your smoking status';
         return false;
       }
 
@@ -402,8 +407,8 @@ export default {
           county: currentUser.county || '',
           postcode: currentUser.postcode || '',
           phone: currentUser.phone || '',
-          good_health: currentUser.good_health !== undefined ? currentUser.good_health : '',
-          smoker: currentUser.smoker !== undefined ? currentUser.smoker : '',
+          health_status: currentUser.health_status || '',
+          smoking_status: currentUser.smoking_status || '',
           education_level: currentUser.education_level || '',
         };
       }

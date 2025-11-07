@@ -89,6 +89,12 @@
           Income Sources
         </h4>
 
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+          <p class="text-body-sm text-amber-800">
+            <strong>Note:</strong> Rental income is entered through the Property section where you can track property values, rental income, and expenses.
+          </p>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Employment Income -->
           <div>
@@ -131,28 +137,6 @@
             </div>
             <p class="mt-1 text-body-sm text-gray-500">
               Income from business or freelancing
-            </p>
-          </div>
-
-          <!-- Rental Income -->
-          <div>
-            <label for="annual_rental_income" class="label">
-              Annual Rental Income
-            </label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-              <input
-                id="annual_rental_income"
-                v-model.number="formData.annual_rental_income"
-                type="number"
-                min="0"
-                step="1000"
-                class="input-field pl-8"
-                placeholder="0"
-              >
-            </div>
-            <p class="mt-1 text-body-sm text-gray-500">
-              Gross rental income (before expenses)
             </p>
           </div>
 
@@ -210,69 +194,6 @@
         </div>
       </div>
 
-      <!-- Expenditure Section -->
-      <div class="border-t pt-4">
-        <h4 class="text-body font-medium text-gray-900 mb-4">
-          Expenditure
-        </h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Monthly Expenditure -->
-          <div>
-            <label for="monthly_expenditure" class="label">
-              Monthly Expenditure <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-              <input
-                id="monthly_expenditure"
-                v-model.number="formData.monthly_expenditure"
-                type="number"
-                min="0"
-                step="100"
-                class="input-field pl-8"
-                placeholder="3000"
-                required
-                @input="calculateAnnualExpenditure"
-              >
-            </div>
-            <p class="mt-1 text-body-sm text-gray-500">
-              Average monthly household expenses
-            </p>
-          </div>
-
-          <!-- Annual Expenditure (calculated) -->
-          <div>
-            <label for="annual_expenditure" class="label">
-              Annual Expenditure <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-              <input
-                id="annual_expenditure"
-                v-model.number="formData.annual_expenditure"
-                type="number"
-                min="0"
-                step="1000"
-                class="input-field pl-8"
-                placeholder="36000"
-                required
-                @input="calculateMonthlyExpenditure"
-              >
-            </div>
-            <p class="mt-1 text-body-sm text-gray-500">
-              Total annual expenses (auto-calculated: monthly × 12)
-            </p>
-          </div>
-        </div>
-
-        <div v-if="discretionaryIncome !== null" class="mt-4 bg-blue-50 rounded-lg p-4">
-          <p class="text-body-sm text-blue-800">
-            <strong>Discretionary Income:</strong> £{{ discretionaryIncome.toLocaleString() }} per year
-            <span v-if="discretionaryIncome < 0" class="text-red-600">(Expenses exceed income)</span>
-          </p>
-        </div>
-      </div>
     </div>
   </OnboardingStep>
 </template>
@@ -301,11 +222,8 @@ export default {
       employment_status: '',
       annual_employment_income: 0,
       annual_self_employment_income: 0,
-      annual_rental_income: 0,
       annual_dividend_income: 0,
       annual_other_income: 0,
-      monthly_expenditure: 0,
-      annual_expenditure: 0,
     });
 
     const loading = ref(false);
@@ -315,42 +233,14 @@ export default {
       return (
         (formData.value.annual_employment_income || 0) +
         (formData.value.annual_self_employment_income || 0) +
-        (formData.value.annual_rental_income || 0) +
         (formData.value.annual_dividend_income || 0) +
         (formData.value.annual_other_income || 0)
       );
     });
 
-    const discretionaryIncome = computed(() => {
-      if (!formData.value.annual_expenditure) return null;
-      return totalIncome.value - formData.value.annual_expenditure;
-    });
-
-    const calculateAnnualExpenditure = () => {
-      if (formData.value.monthly_expenditure) {
-        formData.value.annual_expenditure = Math.round(formData.value.monthly_expenditure * 12);
-      }
-    };
-
-    const calculateMonthlyExpenditure = () => {
-      if (formData.value.annual_expenditure) {
-        formData.value.monthly_expenditure = Math.round(formData.value.annual_expenditure / 12);
-      }
-    };
-
     const validateForm = () => {
       if (!formData.value.employment_status) {
         error.value = 'Please select your employment status';
-        return false;
-      }
-
-      if (!formData.value.monthly_expenditure || formData.value.monthly_expenditure <= 0) {
-        error.value = 'Please enter your monthly expenditure';
-        return false;
-      }
-
-      if (!formData.value.annual_expenditure || formData.value.annual_expenditure <= 0) {
-        error.value = 'Please enter your annual expenditure';
         return false;
       }
 
@@ -394,11 +284,8 @@ export default {
           employment_status: currentUser.employment_status || '',
           annual_employment_income: currentUser.annual_employment_income || 0,
           annual_self_employment_income: currentUser.annual_self_employment_income || 0,
-          annual_rental_income: currentUser.annual_rental_income || 0,
           annual_dividend_income: currentUser.annual_dividend_income || 0,
           annual_other_income: currentUser.annual_other_income || 0,
-          monthly_expenditure: currentUser.monthly_expenditure || 0,
-          annual_expenditure: currentUser.annual_expenditure || 0,
         };
       }
 
@@ -418,9 +305,6 @@ export default {
       loading,
       error,
       totalIncome,
-      discretionaryIncome,
-      calculateAnnualExpenditure,
-      calculateMonthlyExpenditure,
       handleNext,
       handleBack,
     };

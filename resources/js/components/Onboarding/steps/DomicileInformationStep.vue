@@ -17,41 +17,24 @@
       </div>
 
       <div class="grid grid-cols-1 gap-6">
-        <!-- Domicile Status -->
-        <div>
-          <label for="domicile_status" class="label">
-            Domicile Status <span class="text-red-500">*</span>
-          </label>
-          <select
-            id="domicile_status"
-            v-model="formData.domicile_status"
-            class="input-field"
-            required
-            @change="handleDomicileChange"
-          >
-            <option value="">Select domicile status</option>
-            <option value="uk_domiciled">UK Domiciled</option>
-            <option value="non_uk_domiciled">Non-UK Domiciled</option>
-          </select>
-          <p class="mt-1 text-body-sm text-gray-500">
-            Generally, you're UK domiciled if you were born in the UK and intend to remain here permanently.
-          </p>
-        </div>
-
         <!-- Country of Birth -->
         <div>
           <label for="country_of_birth" class="label">
-            Country of Birth <span class="text-red-500">*</span>
+            Where were you born? <span class="text-red-500">*</span>
           </label>
           <CountrySelector
             v-model="formData.country_of_birth"
             :required="true"
             :disabled="false"
             placeholder="Search for your country of birth..."
+            @update:model-value="handleCountryChange"
           />
+          <p class="mt-1 text-body-sm text-gray-500">
+            Your country of birth helps us determine your domicile status for tax purposes.
+          </p>
         </div>
 
-        <!-- UK Arrival Date (shown for non-UK born or non-UK domiciled) -->
+        <!-- UK Arrival Date (shown only for non-UK born) -->
         <div v-if="shouldShowUKArrivalDate" class="space-y-4 border-t pt-4">
           <h4 class="text-body font-medium text-gray-900">
             UK Residency Information
@@ -79,11 +62,14 @@
             <p class="text-body-sm text-gray-700">
               <strong>Years UK Resident:</strong> {{ yearsResident }} years
             </p>
-            <p v-if="isDeemedDomiciled" class="mt-2 text-body-sm text-amber-700">
-              <strong>Deemed Domicile:</strong> You are considered deemed domiciled in the UK because you have been resident for at least 15 of the last 20 tax years. This means you are subject to UK IHT on your worldwide assets.
+            <p class="mt-2 text-body-sm font-medium text-gray-900">
+              <strong>Domicile Status:</strong> {{ domicileStatusLabel }}
             </p>
-            <p v-else class="mt-2 text-body-sm text-green-700">
-              <strong>Not Deemed Domiciled:</strong> You are not yet deemed domiciled. You only pay UK IHT on UK assets.
+            <p v-if="isDeemedDomiciled" class="mt-2 text-body-sm text-amber-700">
+              You are considered deemed domiciled in the UK because you have been resident for at least 15 of the last 20 tax years. This means you are subject to UK IHT on your worldwide assets.
+            </p>
+            <p v-else class="mt-2 text-body-sm text-blue-700">
+              You are not yet deemed domiciled. You only pay UK IHT on UK assets. You will need {{ 15 - yearsResident }} more year(s) of UK residence to become deemed domiciled.
             </p>
           </div>
         </div>
@@ -112,8 +98,8 @@ export default {
     const store = useStore();
 
     const formData = ref({
-      domicile_status: '',
-      country_of_birth: '',
+      domicile_status: 'uk_domiciled', // Will be auto-determined
+      country_of_birth: 'United Kingdom', // Default to UK
       uk_arrival_date: null,
       years_uk_resident: null,
       deemed_domicile_date: null,
@@ -133,19 +119,21 @@ export default {
     });
 
     const shouldShowUKArrivalDate = computed(() => {
-      // Show if non-UK domiciled (regardless of birth country)
-      if (formData.value.domicile_status === 'non_uk_domiciled') {
-        return true;
+      // Show UK arrival date field only if born outside UK
+      return formData.value.country_of_birth &&
+             formData.value.country_of_birth !== 'United Kingdom';
+    });
+
+    const domicileStatusLabel = computed(() => {
+      if (formData.value.country_of_birth === 'United Kingdom') {
+        return 'UK Domiciled';
       }
 
-      // Show if UK domiciled but born outside UK
-      if (formData.value.domicile_status === 'uk_domiciled' &&
-          formData.value.country_of_birth &&
-          formData.value.country_of_birth !== 'United Kingdom') {
-        return true;
+      if (isDeemedDomiciled.value) {
+        return 'Deemed UK Domiciled';
       }
 
-      return false;
+      return 'Non-UK Domiciled';
     });
 
     const calculateYearsResident = () => {
@@ -169,36 +157,52 @@ export default {
       } else {
         formData.value.deemed_domicile_date = null;
       }
+
+      // Auto-determine domicile status
+      updateDomicileStatus();
     };
 
-    const handleDomicileChange = () => {
-      // Only clear UK arrival fields if UK domiciled AND born in UK
-      if (formData.value.domicile_status === 'uk_domiciled' &&
-          formData.value.country_of_birth === 'United Kingdom') {
+    const handleCountryChange = () => {
+      // If UK born, clear UK arrival fields and set as UK domiciled
+      if (formData.value.country_of_birth === 'United Kingdom') {
         formData.value.uk_arrival_date = null;
         formData.value.years_uk_resident = null;
         formData.value.deemed_domicile_date = null;
         yearsResident.value = null;
+        formData.value.domicile_status = 'uk_domiciled';
+      } else {
+        // Non-UK born - status will be determined by years resident
+        updateDomicileStatus();
+      }
+    };
+
+    const updateDomicileStatus = () => {
+      // Auto-determine domicile status based on country of birth and years resident
+      if (formData.value.country_of_birth === 'United Kingdom') {
+        formData.value.domicile_status = 'uk_domiciled';
+      } else if (yearsResident.value !== null && yearsResident.value >= 15) {
+        // Deemed domiciled if 15+ years resident
+        formData.value.domicile_status = 'uk_domiciled';
+      } else {
+        formData.value.domicile_status = 'non_uk_domiciled';
       }
     };
 
     const handleNext = async () => {
       // Validate required fields
-      if (!formData.value.domicile_status) {
-        error.value = 'Please select your domicile status';
-        return;
-      }
-
       if (!formData.value.country_of_birth) {
         error.value = 'Please select your country of birth';
         return;
       }
 
-      // Validate UK arrival date if required
+      // Validate UK arrival date if required (non-UK born)
       if (shouldShowUKArrivalDate.value && !formData.value.uk_arrival_date) {
         error.value = 'Please enter the date you moved to the UK';
         return;
       }
+
+      // Auto-determine domicile status before saving
+      updateDomicileStatus();
 
       loading.value = true;
       error.value = null;
@@ -245,9 +249,10 @@ export default {
       today,
       yearsResident,
       isDeemedDomiciled,
+      domicileStatusLabel,
       shouldShowUKArrivalDate,
       calculateYearsResident,
-      handleDomicileChange,
+      handleCountryChange,
       handleNext,
       handleBack,
     };

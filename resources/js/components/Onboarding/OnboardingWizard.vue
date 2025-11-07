@@ -59,6 +59,7 @@ import FocusAreaSelection from './FocusAreaSelection.vue';
 import SkipConfirmationModal from './SkipConfirmationModal.vue';
 import PersonalInfoStep from './steps/PersonalInfoStep.vue';
 import IncomeStep from './steps/IncomeStep.vue';
+import ExpenditureStep from './steps/ExpenditureStep.vue';
 import DomicileInformationStep from './steps/DomicileInformationStep.vue';
 import ProtectionPoliciesStep from './steps/ProtectionPoliciesStep.vue';
 import AssetsStep from './steps/AssetsStep.vue';
@@ -76,6 +77,7 @@ export default {
     SkipConfirmationModal,
     PersonalInfoStep,
     IncomeStep,
+    ExpenditureStep,
     DomicileInformationStep,
     ProtectionPoliciesStep,
     AssetsStep,
@@ -106,6 +108,7 @@ export default {
       const componentMap = {
         personal_info: 'PersonalInfoStep',
         income: 'IncomeStep',
+        expenditure: 'ExpenditureStep',
         domicile_info: 'DomicileInformationStep',
         protection_policies: 'ProtectionPoliciesStep',
         assets: 'AssetsStep',
@@ -159,10 +162,14 @@ export default {
       // Fetch onboarding status on mount
       await store.dispatch('onboarding/fetchOnboardingStatus');
 
-      // If already completed, redirect to dashboard
-      if (store.getters['onboarding/isOnboardingComplete']) {
-        router.push({ name: 'Dashboard' });
-      }
+      // Always reset to welcome screen when user navigates to onboarding
+      // This ensures users see the welcome screen whether:
+      // 1. They just registered (new user)
+      // 2. They clicked "Complete Setup" (returning user)
+      // 3. Onboarding is already completed (revisiting)
+      store.commit('onboarding/SET_FOCUS_AREA', null);
+      store.commit('onboarding/SET_CURRENT_STEP_INDEX', 0);
+      store.commit('onboarding/SET_CURRENT_STEP', null);
     });
 
     return {
