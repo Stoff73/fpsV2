@@ -282,7 +282,7 @@
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select joint owner</option>
-                  <option v-if="spouse" :value="spouse.id">{{ spouse.name }} (Spouse)</option>
+                  <option v-if="spouse" :value="spouse.id">{{ spouse.name }} (Spouse - Linked Account)</option>
                   <option v-if="!spouse" value="" disabled>No spouse linked - add spouse in Family Members</option>
                 </select>
                 <p class="text-sm text-gray-500 mt-1">

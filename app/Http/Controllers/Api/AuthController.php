@@ -89,10 +89,17 @@ class AuthController extends Controller
      */
     public function user(Request $request): JsonResponse
     {
+        $user = $request->user();
+
+        // Load spouse relationship if spouse_id exists
+        if ($user->spouse_id) {
+            $user->load('spouse');
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
         ]);
     }

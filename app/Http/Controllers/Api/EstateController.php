@@ -560,6 +560,8 @@ class EstateController extends Controller
     {
         $user = $request->user();
 
+        \Log::info('Creating liability', ['data' => $request->all()]);
+
         $validated = $request->validate([
             'liability_type' => 'required|in:mortgage,secured_loan,personal_loan,credit_card,overdraft,hire_purchase,student_loan,business_loan,other',
             'liability_name' => 'required|string|max:255',
@@ -587,6 +589,10 @@ class EstateController extends Controller
                 'data' => $liability,
             ], 201);
         } catch (\Exception $e) {
+            \Log::error('Failed to create liability', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create liability: '.$e->getMessage(),

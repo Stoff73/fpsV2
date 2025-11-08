@@ -319,6 +319,25 @@ export default {
   },
 
   methods: {
+    formatDateForInput(date) {
+      if (!date) return new Date().toISOString().split('T')[0];
+      try {
+        // If it's already in YYYY-MM-DD format, return it
+        if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          return date;
+        }
+        // Parse and format the date
+        const dateObj = new Date(date);
+        if (isNaN(dateObj.getTime())) return new Date().toISOString().split('T')[0];
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return new Date().toISOString().split('T')[0];
+      }
+    },
+
     populateForm(asset) {
       this.formData = {
         asset_type: asset.asset_type || '',
@@ -327,7 +346,7 @@ export default {
         ownership_type: asset.ownership_type || '',
         beneficiary_designation: asset.beneficiary_designation || '',
         is_iht_exempt: asset.is_iht_exempt || false,
-        valuation_date: asset.valuation_date || new Date().toISOString().split('T')[0],
+        valuation_date: this.formatDateForInput(asset.valuation_date),
         property_address: asset.property_address || '',
         mortgage_outstanding: asset.mortgage_outstanding || null,
         is_main_residence: asset.is_main_residence || false,

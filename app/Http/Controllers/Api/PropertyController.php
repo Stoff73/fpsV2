@@ -30,6 +30,7 @@ class PropertyController extends Controller
         $user = $request->user();
 
         $properties = Property::where('user_id', $user->id)
+            ->with('mortgages')  // Load mortgages relationship for edit functionality
             ->orderBy('property_type')
             ->orderBy('created_at', 'desc')
             ->get();

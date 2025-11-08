@@ -217,12 +217,31 @@ export default {
     if (this.statePension) {
       this.formData = {
         ...this.statePension,
-        forecast_date: this.statePension.forecast_date || null,
+        forecast_date: this.formatDateForInput(this.statePension.forecast_date),
       };
     }
   },
 
   methods: {
+    formatDateForInput(date) {
+      if (!date) return null;
+      try {
+        // If it's already in YYYY-MM-DD format, return it
+        if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          return date;
+        }
+        // Parse and format the date
+        const dateObj = new Date(date);
+        if (isNaN(dateObj.getTime())) return null;
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return null;
+      }
+    },
+
     handleSubmit() {
       // Basic validation
       if (!this.formData.forecast_weekly_amount || this.formData.forecast_weekly_amount < 0) {

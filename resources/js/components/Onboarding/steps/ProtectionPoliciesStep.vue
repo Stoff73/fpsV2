@@ -15,6 +15,26 @@
         Protection policies provide financial security for you and your family. Adding your existing coverage helps us analyze any gaps in your protection.
       </p>
 
+      <!-- I have no policies checkbox -->
+      <div class="border border-gray-200 rounded-lg p-4 bg-blue-50">
+        <label class="flex items-start gap-3 cursor-pointer">
+          <input
+            v-model="hasNoPolicies"
+            type="checkbox"
+            class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            @change="handleNoPoliciesChange"
+          >
+          <div>
+            <span class="text-body font-medium text-gray-900">
+              I have no protection policies in place
+            </span>
+            <p class="text-body-sm text-gray-600 mt-1">
+              Check this if you don't currently have any life insurance, critical illness, income protection, or other protection policies. We'll help you understand what coverage you might need in the Protection module.
+            </p>
+          </div>
+        </label>
+      </div>
+
       <!-- Added Policies List -->
       <div v-if="policies.length > 0" class="space-y-3">
         <h4 class="text-body font-medium text-gray-900">
@@ -75,6 +95,7 @@
 
       <!-- Add Policy Button -->
       <button
+        v-if="!hasNoPolicies"
         type="button"
         class="btn-secondary w-full md:w-auto"
         @click="showForm = true"
@@ -82,8 +103,12 @@
         + Add Protection Policy
       </button>
 
-      <p v-if="policies.length === 0" class="text-body-sm text-gray-500 italic">
+      <p v-if="policies.length === 0 && !hasNoPolicies" class="text-body-sm text-gray-500 italic">
         You can skip this step and add protection policies later from your dashboard.
+      </p>
+
+      <p v-if="hasNoPolicies" class="text-body-sm text-green-700 bg-green-50 p-3 rounded-lg">
+        You've indicated you have no protection policies. The Protection module will help you understand your protection needs and recommend suitable coverage.
       </p>
     </div>
 
@@ -91,6 +116,7 @@
     <PolicyFormModal
       v-if="showForm"
       :policy="editingPolicy"
+      :is-editing="!!editingPolicy"
       @close="closeForm"
       @save="handlePolicySaved"
     />
@@ -119,6 +145,7 @@ export default {
     const editingPolicy = ref(null);
     const loading = ref(false);
     const error = ref(null);
+    const hasNoPolicies = ref(false);
 
     const getPolicyTypeLabel = (type) => {
       const labels = {
@@ -138,28 +165,68 @@ export default {
     async function loadPolicies() {
       try {
         const response = await protectionService.getProtectionData();
+        console.log('Protection data response:', response);
+
         // Combine all policy types into single array
         const allPolicies = [];
 
-        if (response.data?.life_policies) {
-          allPolicies.push(...response.data.life_policies.map(p => ({ ...p, policyType: 'life' })));
+        // Response structure: response.data.policies contains the policies
+        const data = response.data || response;
+        const policyData = data.policies || {};
+
+        console.log('Policy data:', policyData);
+
+        if (policyData?.life && Array.isArray(policyData.life)) {
+          console.log('Adding life policies:', policyData.life.length);
+          allPolicies.push(...policyData.life.map(p => ({ ...p, policyType: 'life', policy_type: 'life' })));
         }
-        if (response.data?.critical_illness_policies) {
-          allPolicies.push(...response.data.critical_illness_policies.map(p => ({ ...p, policyType: 'criticalIllness' })));
+        if (policyData?.criticalIllness && Array.isArray(policyData.criticalIllness)) {
+          console.log('Adding CI policies:', policyData.criticalIllness.length);
+          allPolicies.push(...policyData.criticalIllness.map(p => ({ ...p, policyType: 'criticalIllness', policy_type: 'criticalIllness' })));
         }
-        if (response.data?.income_protection_policies) {
-          allPolicies.push(...response.data.income_protection_policies.map(p => ({ ...p, policyType: 'incomeProtection' })));
+        if (policyData?.incomeProtection && Array.isArray(policyData.incomeProtection)) {
+          console.log('Adding IP policies:', policyData.incomeProtection.length);
+          allPolicies.push(...policyData.incomeProtection.map(p => ({ ...p, policyType: 'incomeProtection', policy_type: 'incomeProtection' })));
         }
-        if (response.data?.disability_policies) {
-          allPolicies.push(...response.data.disability_policies.map(p => ({ ...p, policyType: 'disability' })));
+        if (policyData?.disability && Array.isArray(policyData.disability)) {
+          console.log('Adding disability policies:', policyData.disability.length);
+          allPolicies.push(...policyData.disability.map(p => ({ ...p, policyType: 'disability', policy_type: 'disability' })));
         }
-        if (response.data?.sickness_illness_policies) {
-          allPolicies.push(...response.data.sickness_illness_policies.map(p => ({ ...p, policyType: 'sicknessIllness' })));
+        if (policyData?.sicknessIllness && Array.isArray(policyData.sicknessIllness)) {
+          console.log('Adding sickness policies:', policyData.sicknessIllness.length);
+          allPolicies.push(...policyData.sicknessIllness.map(p => ({ ...p, policyType: 'sicknessIllness', policy_type: 'sicknessIllness' })));
         }
 
         policies.value = allPolicies;
+        console.log('Loaded policies:', policies.value);
+        console.log('Total policies loaded:', allPolicies.length);
+
+        // Load has_no_policies flag from protection profile
+        if (data?.profile) {
+          hasNoPolicies.value = data.profile.has_no_policies || false;
+        }
       } catch (err) {
         console.error('Failed to load policies', err);
+        error.value = 'Failed to load policies';
+      }
+    }
+
+    async function handleNoPoliciesChange() {
+      try {
+        loading.value = true;
+        await protectionService.updateHasNoPolicies(hasNoPolicies.value);
+
+        // If user checks "no policies", disable adding policies
+        if (hasNoPolicies.value) {
+          showForm.value = false;
+        }
+      } catch (err) {
+        error.value = 'Failed to update protection preferences';
+        console.error('Failed to update has_no_policies:', err);
+        // Revert checkbox on error
+        hasNoPolicies.value = !hasNoPolicies.value;
+      } finally {
+        loading.value = false;
       }
     }
 
@@ -205,9 +272,68 @@ export default {
       editingPolicy.value = null;
     }
 
-    async function handlePolicySaved() {
-      closeForm();
-      await loadPolicies();
+    async function handlePolicySaved(policyData) {
+      try {
+        console.log('handlePolicySaved called with:', policyData);
+        loading.value = true;
+        error.value = null;
+
+        const { policyType, ...actualPolicyData } = policyData;
+        console.log('Policy type:', policyType);
+        console.log('Actual policy data:', actualPolicyData);
+
+        // Call the appropriate API endpoint based on policy type
+        switch (policyType) {
+          case 'life':
+            if (editingPolicy.value) {
+              await protectionService.updateLifePolicy(editingPolicy.value.id, actualPolicyData);
+            } else {
+              await protectionService.createLifePolicy(actualPolicyData);
+            }
+            break;
+          case 'criticalIllness':
+            if (editingPolicy.value) {
+              await protectionService.updateCriticalIllnessPolicy(editingPolicy.value.id, actualPolicyData);
+            } else {
+              await protectionService.createCriticalIllnessPolicy(actualPolicyData);
+            }
+            break;
+          case 'incomeProtection':
+            if (editingPolicy.value) {
+              await protectionService.updateIncomeProtectionPolicy(editingPolicy.value.id, actualPolicyData);
+            } else {
+              await protectionService.createIncomeProtectionPolicy(actualPolicyData);
+            }
+            break;
+          case 'disability':
+            if (editingPolicy.value) {
+              await protectionService.updateDisabilityPolicy(editingPolicy.value.id, actualPolicyData);
+            } else {
+              await protectionService.createDisabilityPolicy(actualPolicyData);
+            }
+            break;
+          case 'sicknessIllness':
+            if (editingPolicy.value) {
+              await protectionService.updateSicknessIllnessPolicy(editingPolicy.value.id, actualPolicyData);
+            } else {
+              await protectionService.createSicknessIllnessPolicy(actualPolicyData);
+            }
+            break;
+        }
+
+        console.log('Policy saved successfully, closing form and reloading...');
+        closeForm();
+        await loadPolicies();
+        console.log('Policies reloaded, should now be visible');
+      } catch (err) {
+        error.value = 'Failed to save policy';
+        console.error('Failed to save policy:', err);
+        console.error('Validation errors:', err.response?.data?.errors);
+        console.error('Full error:', err.response?.data);
+        console.error('Sent data:', policyData);
+      } finally {
+        loading.value = false;
+      }
     }
 
     const handleNext = () => {
@@ -228,11 +354,13 @@ export default {
       editingPolicy,
       loading,
       error,
+      hasNoPolicies,
       getPolicyTypeLabel,
       editPolicy,
       deletePolicy,
       closeForm,
       handlePolicySaved,
+      handleNoPoliciesChange,
       handleNext,
       handleBack,
       handleSkip,

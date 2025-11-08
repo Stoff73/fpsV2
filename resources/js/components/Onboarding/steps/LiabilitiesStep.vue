@@ -59,140 +59,8 @@
         </div>
       </div>
 
-      <!-- Liability Form (Inline) -->
-      <div v-if="showForm" class="border border-gray-200 rounded-lg p-4 bg-white">
-        <h4 class="text-body font-medium text-gray-900 mb-4">
-          {{ editingLiability !== null ? 'Edit Liability' : 'Add Liability' }}
-        </h4>
-
-        <div class="grid grid-cols-1 gap-4">
-          <div>
-            <label for="liability_type" class="label">
-              Liability Type <span class="text-red-500">*</span>
-            </label>
-            <select
-              id="liability_type"
-              v-model="currentLiability.liability_type"
-              class="input-field"
-              required
-            >
-              <option value="">Select type</option>
-              <option value="personal_loan">Personal Loan</option>
-              <option value="hire_purchase">Car Finance / Hire Purchase</option>
-              <option value="credit_card">Credit Card</option>
-              <option value="student_loan">Student Loan</option>
-              <option value="secured_loan">Secured Loan</option>
-              <option value="overdraft">Bank Overdraft</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="liability_name" class="label">
-              Liability Name / Description <span class="text-red-500">*</span>
-            </label>
-            <input
-              id="liability_name"
-              v-model="currentLiability.liability_name"
-              type="text"
-              class="input-field"
-              placeholder="e.g., Car loan, Credit card"
-              required
-            >
-          </div>
-
-          <div>
-            <label for="current_balance" class="label">
-              Outstanding Balance <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-              <input
-                id="current_balance"
-                v-model.number="currentLiability.current_balance"
-                type="number"
-                min="0"
-                step="0.01"
-                class="input-field pl-8"
-                placeholder="0"
-                required
-              >
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="monthly_payment" class="label">
-                Monthly Payment
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input
-                  id="monthly_payment"
-                  v-model.number="currentLiability.monthly_payment"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  class="input-field pl-8"
-                  placeholder="0"
-                >
-              </div>
-            </div>
-
-            <div>
-              <label for="interest_rate" class="label">
-                Interest Rate (%)
-              </label>
-              <div class="relative">
-                <input
-                  id="interest_rate"
-                  v-model.number="currentLiability.interest_rate"
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                  class="input-field pr-8"
-                  placeholder="0.0"
-                >
-                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label for="notes" class="label">
-              Notes
-            </label>
-            <textarea
-              id="notes"
-              v-model="currentLiability.notes"
-              rows="2"
-              class="input-field"
-              placeholder="Any additional information..."
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="flex gap-3 mt-4">
-          <button
-            type="button"
-            class="btn-primary"
-            @click="saveLiability"
-          >
-            {{ editingLiability !== null ? 'Update Liability' : 'Add Liability' }}
-          </button>
-          <button
-            type="button"
-            class="btn-secondary"
-            @click="cancelForm"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-
       <!-- Add Liability Button -->
-      <div v-if="!showForm">
+      <div>
         <button
           type="button"
           class="btn-secondary w-full md:w-auto"
@@ -206,12 +74,25 @@
         You can skip this step if you don't have any loans or credit card debt.
       </p>
     </div>
+
+    <!-- Liability Form Modal -->
+    <div v-if="showForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden">
+        <LiabilityForm
+          :liability="editingLiability"
+          :mode="editingLiability ? 'edit' : 'create'"
+          @save="handleLiabilitySave"
+          @cancel="closeLiabilityForm"
+        />
+      </div>
+    </div>
   </OnboardingStep>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue';
 import OnboardingStep from '../OnboardingStep.vue';
+import LiabilityForm from '@/components/Estate/LiabilityForm.vue';
 import estateService from '@/services/estateService';
 
 export default {
@@ -219,6 +100,7 @@ export default {
 
   components: {
     OnboardingStep,
+    LiabilityForm,
   },
 
   emits: ['next', 'back', 'skip'],
@@ -227,15 +109,6 @@ export default {
     const liabilities = ref([]);
     const showForm = ref(false);
     const editingLiability = ref(null);
-    const currentLiability = ref({
-      liability_type: '',
-      liability_name: '',
-      current_balance: 0,
-      monthly_payment: 0,
-      interest_rate: 0,
-      notes: '',
-    });
-
     const loading = ref(false);
     const error = ref(null);
 
@@ -255,53 +128,28 @@ export default {
     const showAddForm = () => {
       showForm.value = true;
       editingLiability.value = null;
-      resetCurrentLiability();
     };
 
-    const resetCurrentLiability = () => {
-      currentLiability.value = {
-        liability_type: '',
-        liability_name: '',
-        current_balance: 0,
-        monthly_payment: 0,
-        interest_rate: 0,
-        notes: '',
-      };
-    };
-
-    const saveLiability = async () => {
-      // Validation
-      if (
-        !currentLiability.value.liability_type ||
-        !currentLiability.value.liability_name ||
-        !currentLiability.value.current_balance
-      ) {
-        error.value = 'Please fill in all required fields';
-        return;
-      }
-
-      error.value = null;
-
+    const handleLiabilitySave = async (formData) => {
       try {
-        if (editingLiability.value !== null) {
+        if (editingLiability.value) {
           // Update existing liability
-          await estateService.updateLiability(editingLiability.value.id, currentLiability.value);
+          await estateService.updateLiability(editingLiability.value.id, formData);
         } else {
           // Create new liability
-          await estateService.createLiability(currentLiability.value);
+          await estateService.createLiability(formData);
         }
 
-        showForm.value = false;
-        resetCurrentLiability();
+        closeLiabilityForm();
         await loadLiabilities();
       } catch (err) {
         error.value = 'Failed to save liability';
+        console.error('Failed to save liability:', err);
       }
     };
 
     const editLiability = (liability) => {
       editingLiability.value = liability;
-      currentLiability.value = { ...liability };
       showForm.value = true;
     };
 
@@ -316,11 +164,9 @@ export default {
       }
     };
 
-    const cancelForm = () => {
+    const closeLiabilityForm = () => {
       showForm.value = false;
       editingLiability.value = null;
-      resetCurrentLiability();
-      error.value = null;
     };
 
     const handleNext = () => {
@@ -332,21 +178,20 @@ export default {
     };
 
     const handleSkip = () => {
-      emit('skip', 'liabilities');
+      emit('skip');
     };
 
     return {
       liabilities,
       showForm,
       editingLiability,
-      currentLiability,
       loading,
       error,
       showAddForm,
-      saveLiability,
+      handleLiabilitySave,
       editLiability,
       deleteLiability,
-      cancelForm,
+      closeLiabilityForm,
       handleNext,
       handleBack,
       handleSkip,

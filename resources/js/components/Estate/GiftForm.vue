@@ -212,9 +212,28 @@ export default {
   },
 
   methods: {
+    formatDateForInput(date) {
+      if (!date) return '';
+      try {
+        // If it's already in YYYY-MM-DD format, return it
+        if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          return date;
+        }
+        // Parse and format the date
+        const dateObj = new Date(date);
+        if (isNaN(dateObj.getTime())) return '';
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return '';
+      }
+    },
+
     populateForm(gift) {
       this.formData = {
-        gift_date: gift.gift_date || '',
+        gift_date: this.formatDateForInput(gift.gift_date),
         recipient: gift.recipient || '',
         gift_value: gift.gift_value || null,
         gift_type: gift.gift_type || '',

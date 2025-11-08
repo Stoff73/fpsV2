@@ -62,15 +62,35 @@ class MortgageController extends Controller
 
         $validated = $request->validated();
 
-        // Set default ownership type if not provided
+        // Set sensible defaults for optional fields
         $validated['ownership_type'] = $validated['ownership_type'] ?? 'individual';
+        $validated['lender_name'] = $validated['lender_name'] ?? 'To be completed';
+        $validated['mortgage_type'] = $validated['mortgage_type'] ?? 'repayment';
+        $validated['interest_rate'] = $validated['interest_rate'] ?? 0.0000;
+        $validated['rate_type'] = $validated['rate_type'] ?? 'fixed';
+        $validated['start_date'] = $validated['start_date'] ?? now();
+        $validated['original_loan_amount'] = $validated['original_loan_amount'] ?? $validated['outstanding_balance'];
 
-        // Calculate remaining_term_months if not provided
-        if (! isset($validated['remaining_term_months'])) {
-            $startDate = new \DateTime($validated['start_date']);
-            $maturityDate = new \DateTime($validated['maturity_date']);
-            $interval = $startDate->diff($maturityDate);
-            $validated['remaining_term_months'] = ($interval->y * 12) + $interval->m;
+        // Calculate maturity date if not provided (assume 25 year term)
+        if (! isset($validated['maturity_date'])) {
+            $validated['maturity_date'] = now()->addYears(25);
+        }
+
+        // Calculate remaining_term_months if not provided but dates are available
+        if (! isset($validated['remaining_term_months']) &&
+            isset($validated['start_date']) && $validated['start_date'] &&
+            isset($validated['maturity_date']) && $validated['maturity_date']) {
+            // Convert to Carbon if not already
+            $startDate = $validated['start_date'] instanceof \Carbon\Carbon
+                ? $validated['start_date']
+                : \Carbon\Carbon::parse($validated['start_date']);
+            $maturityDate = $validated['maturity_date'] instanceof \Carbon\Carbon
+                ? $validated['maturity_date']
+                : \Carbon\Carbon::parse($validated['maturity_date']);
+
+            $validated['remaining_term_months'] = $startDate->diffInMonths($maturityDate);
+        } else {
+            $validated['remaining_term_months'] = $validated['remaining_term_months'] ?? 300; // 25 years default
         }
 
         $mortgage = Mortgage::create([

@@ -18,7 +18,6 @@
           @change="handleLiabilityTypeChange"
         >
           <option value="">Select liability type...</option>
-          <option value="mortgage">Mortgage</option>
           <option value="secured_loan">Secured Loan</option>
           <option value="personal_loan">Personal Loan</option>
           <option value="credit_card">Credit Card</option>

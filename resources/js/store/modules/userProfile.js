@@ -69,7 +69,7 @@ const getters = {
       return null;
     }
 
-    // Try to find spouse in family members first (has more details)
+    // Try to find spouse in family members first (has more details like date_of_birth)
     const spouseInFamily = state.familyMembers.find(member => member.relationship === 'spouse');
     if (spouseInFamily) {
       // Add the spouse_id to the object for consistency
@@ -79,8 +79,17 @@ const getters = {
       };
     }
 
-    // If not in family members, return basic spouse info from current user
-    // The PropertyForm just needs id and name for the dropdown
+    // If not in family members, check if spouse relationship is loaded from user
+    if (currentUser.spouse) {
+      return {
+        id: currentUser.spouse_id,
+        name: currentUser.spouse.name || 'Spouse',
+        email: currentUser.spouse.email,
+        relationship: 'spouse',
+      };
+    }
+
+    // Fallback: return basic spouse info with just the ID
     return {
       id: currentUser.spouse_id,
       name: 'Spouse', // Placeholder name

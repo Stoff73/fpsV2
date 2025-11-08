@@ -378,6 +378,25 @@ export default {
   },
 
   methods: {
+    formatDateForInput(date) {
+      if (!date) return '';
+      try {
+        // If it's already in YYYY-MM-DD format, return it
+        if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          return date;
+        }
+        // Parse and format the date
+        const dateObj = new Date(date);
+        if (isNaN(dateObj.getTime())) return '';
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return '';
+      }
+    },
+
     loadPolicyData() {
       this.formData = {
         policyType: this.policy.policy_type,
@@ -386,7 +405,7 @@ export default {
         coverage_amount: this.policy.sum_assured || this.policy.benefit_amount || 0,
         premium_amount: this.policy.premium_amount || 0,
         premium_frequency: this.policy.premium_frequency || 'monthly',
-        start_date: this.policy.start_date || '',
+        start_date: this.formatDateForInput(this.policy.start_date),
         term_years: this.policy.term_years || null,
         benefit_frequency: this.policy.benefit_frequency || 'monthly',
         deferred_period_weeks: this.policy.deferred_period_weeks || null,

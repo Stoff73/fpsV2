@@ -549,7 +549,26 @@ export default {
     const error = ref(null);
 
     const totalMonthlyExpenditure = computed(() => {
-      return Object.values(formData.value).reduce((sum, val) => sum + (val || 0), 0);
+      // Sum only the individual category fields, NOT the totals
+      const categories = [
+        'food_groceries',
+        'transport_fuel',
+        'healthcare_medical',
+        'insurance',
+        'mobile_phones',
+        'internet_tv',
+        'subscriptions',
+        'clothing_personal_care',
+        'entertainment_dining',
+        'holidays_travel',
+        'pets',
+        'childcare',
+        'school_fees',
+        'children_activities',
+        'other_expenditure'
+      ];
+
+      return categories.reduce((sum, key) => sum + (formData.value[key] || 0), 0);
     });
 
     const totalAnnualExpenditure = computed(() => {
@@ -707,7 +726,24 @@ export default {
 
           if (hasStepDetailedData) {
             useSimpleEntry.value = false;
-            formData.value = { ...formData.value, ...stepData };
+            // Load only the category fields, NOT the totals (to avoid compounding)
+            formData.value = {
+              food_groceries: stepData.food_groceries || 0,
+              transport_fuel: stepData.transport_fuel || 0,
+              healthcare_medical: stepData.healthcare_medical || 0,
+              insurance: stepData.insurance || 0,
+              mobile_phones: stepData.mobile_phones || 0,
+              internet_tv: stepData.internet_tv || 0,
+              subscriptions: stepData.subscriptions || 0,
+              clothing_personal_care: stepData.clothing_personal_care || 0,
+              entertainment_dining: stepData.entertainment_dining || 0,
+              holidays_travel: stepData.holidays_travel || 0,
+              pets: stepData.pets || 0,
+              childcare: stepData.childcare || 0,
+              school_fees: stepData.school_fees || 0,
+              children_activities: stepData.children_activities || 0,
+              other_expenditure: stepData.other_expenditure || 0,
+            };
           } else if (stepData.monthly_expenditure && stepData.monthly_expenditure > 0) {
             useSimpleEntry.value = true;
             simpleMonthlyExpenditure.value = stepData.monthly_expenditure;

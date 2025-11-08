@@ -328,7 +328,8 @@ export default {
     async function loadProperties() {
       try {
         const response = await propertyService.getProperties();
-        properties.value = response.data || [];
+        // propertyService already returns response.data, so response is the properties array
+        properties.value = Array.isArray(response) ? response : [];
       } catch (err) {
         console.error('Failed to load properties', err);
       }
@@ -355,9 +356,43 @@ export default {
       editingProperty.value = null;
     }
 
-    async function handlePropertySaved() {
-      closePropertyForm();
-      await loadProperties();
+    async function handlePropertySaved(data) {
+      try {
+        // Save property first
+        const propertyResponse = editingProperty.value
+          ? await propertyService.updateProperty(editingProperty.value.id, data.property)
+          : await propertyService.createProperty(data.property);
+
+        // Get property ID from response (API returns property directly, not wrapped in data)
+        const propertyId = editingProperty.value?.id || propertyResponse.data?.id || propertyResponse.id;
+
+        // If mortgage data provided and property was saved successfully, save/update mortgage
+        if (data.mortgage && propertyId) {
+          console.log('Mortgage data being sent:', JSON.stringify(data.mortgage, null, 2));
+
+          // Check if property already has a mortgage (when editing)
+          const existingMortgage = editingProperty.value?.mortgages?.[0];
+
+          if (existingMortgage) {
+            // Update existing mortgage
+            await propertyService.updatePropertyMortgage(propertyId, existingMortgage.id, data.mortgage);
+          } else {
+            // Create new mortgage
+            try {
+              await propertyService.createPropertyMortgage(propertyId, data.mortgage);
+            } catch (error) {
+              console.error('Validation errors:', error.response?.data?.errors);
+              throw error;
+            }
+          }
+        }
+
+        closePropertyForm();
+        await loadProperties();
+      } catch (err) {
+        console.error('Failed to save property/mortgage:', err);
+        error.value = 'Failed to save property. Please try again.';
+      }
     }
 
     // Investments methods
@@ -391,9 +426,21 @@ export default {
       editingInvestment.value = null;
     }
 
-    async function handleInvestmentSaved() {
-      closeInvestmentForm();
-      await loadInvestments();
+    async function handleInvestmentSaved(data) {
+      try {
+        // Save investment account
+        if (editingInvestment.value) {
+          await investmentService.updateAccount(editingInvestment.value.id, data);
+        } else {
+          await investmentService.createAccount(data);
+        }
+
+        closeInvestmentForm();
+        await loadInvestments();
+      } catch (err) {
+        console.error('Failed to save investment account:', err);
+        error.value = 'Failed to save investment account. Please try again.';
+      }
     }
 
     // Savings methods
@@ -427,9 +474,21 @@ export default {
       editingSavings.value = null;
     }
 
-    async function handleSavingsSaved() {
-      closeSavingsForm();
-      await loadSavingsAccounts();
+    async function handleSavingsSaved(data) {
+      try {
+        // Save savings account
+        if (editingSavings.value) {
+          await savingsService.updateAccount(editingSavings.value.id, data);
+        } else {
+          await savingsService.createAccount(data);
+        }
+
+        closeSavingsForm();
+        await loadSavingsAccounts();
+      } catch (err) {
+        console.error('Failed to save savings account:', err);
+        error.value = 'Failed to save savings account. Please try again.';
+      }
     }
 
     // Navigation

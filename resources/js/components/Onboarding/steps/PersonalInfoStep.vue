@@ -392,12 +392,27 @@ export default {
       }
     };
 
+    // Format date to yyyy-MM-dd for HTML5 date input
+    const formatDate = (dateString) => {
+      if (!dateString) return '';
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '';
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return '';
+      }
+    };
+
     onMounted(async () => {
       // Load existing user data if available
       const currentUser = store.getters['auth/currentUser'];
       if (currentUser) {
         formData.value = {
-          date_of_birth: currentUser.date_of_birth || '',
+          date_of_birth: formatDate(currentUser.date_of_birth),
           gender: currentUser.gender || '',
           marital_status: currentUser.marital_status || '',
           national_insurance_number: currentUser.national_insurance_number || '',
@@ -417,6 +432,10 @@ export default {
       try {
         const stepData = await store.dispatch('onboarding/fetchStepData', 'personal_info');
         if (stepData && Object.keys(stepData).length > 0) {
+          // Format date_of_birth if it exists in step data
+          if (stepData.date_of_birth) {
+            stepData.date_of_birth = formatDate(stepData.date_of_birth);
+          }
           formData.value = { ...formData.value, ...stepData };
         }
       } catch (err) {

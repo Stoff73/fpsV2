@@ -307,4 +307,102 @@ class TaxConfigService
 
         return $this->taxConfigModel;
     }
+
+    /**
+     * Get property ownership information including joint ownership types and leasehold reform
+     *
+     * @return array Contains joint_ownership_types, leasehold_reform, tenure_types
+     */
+    public function getPropertyOwnership(): array
+    {
+        return $this->get('property_ownership', []);
+    }
+
+    /**
+     * Get joint ownership type information
+     *
+     * @param string|null $type Optional specific type ('joint_tenancy' or 'tenants_in_common')
+     * @return array|null
+     */
+    public function getJointOwnershipType(?string $type = null): ?array
+    {
+        $types = $this->get('property_ownership.joint_ownership_types', []);
+
+        if ($type !== null) {
+            return $types[$type] ?? null;
+        }
+
+        return $types;
+    }
+
+    /**
+     * Get leasehold reform information
+     *
+     * @return array Contains ground_rent_abolished_date, valuation_thresholds, etc.
+     */
+    public function getLeaseholdReform(): array
+    {
+        return $this->get('property_ownership.leasehold_reform', []);
+    }
+
+    /**
+     * Check if a leasehold property is approaching problematic remaining lease term
+     *
+     * @param int $remainingYears
+     * @return array Returns warnings and thresholds
+     */
+    public function getLeaseholdValuationWarnings(int $remainingYears): array
+    {
+        $reform = $this->getLeaseholdReform();
+        $thresholds = $reform['valuation_thresholds'] ?? ['difficult_to_mortgage' => 80, 'significant_value_loss' => 60];
+
+        $warnings = [];
+
+        if ($remainingYears < $thresholds['difficult_to_mortgage']) {
+            $warnings[] = [
+                'level' => 'warning',
+                'message' => 'Properties with less than ' . $thresholds['difficult_to_mortgage'] . ' years remaining may be difficult to mortgage',
+            ];
+        }
+
+        if ($remainingYears < $thresholds['significant_value_loss']) {
+            $warnings[] = [
+                'level' => 'danger',
+                'message' => 'Properties with less than ' . $thresholds['significant_value_loss'] . ' years remaining may significantly lose value',
+            ];
+        }
+
+        return [
+            'has_warnings' => count($warnings) > 0,
+            'warnings' => $warnings,
+            'thresholds' => $thresholds,
+            'remaining_years' => $remainingYears,
+        ];
+    }
+
+    /**
+     * Check if joint tenancy has survivorship rights (for IHT calculations)
+     *
+     * @param string $jointOwnershipType
+     * @return bool
+     */
+    public function hasSurvivorshipRights(string $jointOwnershipType): bool
+    {
+        $typeInfo = $this->getJointOwnershipType($jointOwnershipType);
+
+        return $typeInfo['survivorship'] ?? false;
+    }
+
+    /**
+     * Check if joint ownership type allows will override
+     *
+     * @param string $jointOwnershipType
+     * @return bool
+     */
+    public function allowsWillOverride(string $jointOwnershipType): bool
+    {
+        $typeInfo = $this->getJointOwnershipType($jointOwnershipType);
+
+        return $typeInfo['will_override'] ?? false;
+    }
 }

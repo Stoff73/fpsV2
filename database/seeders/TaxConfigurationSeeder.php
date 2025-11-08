@@ -243,28 +243,31 @@ class TaxConfigurationSeeder extends Seeder
                     'standard' => [
                         'bands' => [
                             ['threshold' => 0, 'rate' => 0.00],
+                            ['threshold' => 125000, 'rate' => 0.02],
                             ['threshold' => 250000, 'rate' => 0.05],
                             ['threshold' => 925000, 'rate' => 0.10],
                             ['threshold' => 1500000, 'rate' => 0.12],
                         ],
                     ],
                     'additional_properties' => [
-                        'surcharge' => 0.03,
+                        'surcharge' => 0.05,  // 5% surcharge for additional properties
                         'bands' => [
-                            ['threshold' => 0, 'rate' => 0.03],
-                            ['threshold' => 250000, 'rate' => 0.08],
-                            ['threshold' => 925000, 'rate' => 0.13],
-                            ['threshold' => 1500000, 'rate' => 0.15],
+                            ['threshold' => 0, 'rate' => 0.05],
+                            ['threshold' => 125000, 'rate' => 0.07],
+                            ['threshold' => 250000, 'rate' => 0.10],
+                            ['threshold' => 925000, 'rate' => 0.15],
+                            ['threshold' => 1500000, 'rate' => 0.17],
                         ],
                     ],
                     'first_time_buyers' => [
-                        'nil_rate_threshold' => 425000,
-                        'max_property_value' => 625000,
+                        'nil_rate_threshold' => 300000,  // Updated to £300k
+                        'max_property_value' => 500000,  // Updated to £500k
                         'bands' => [
                             ['threshold' => 0, 'rate' => 0.00],
-                            ['threshold' => 425000, 'rate' => 0.05],
+                            ['threshold' => 300000, 'rate' => 0.05],
                         ],
                     ],
+                    'non_resident_surcharge' => 0.02,  // 2% for non-UK residents
                 ],
             ],
 
@@ -279,6 +282,54 @@ class TaxConfigurationSeeder extends Seeder
                 ],
                 'inflation' => 0.02,
                 'salary_growth' => 0.03,
+            ],
+
+            // Property ownership and leasehold information
+            'property_ownership' => [
+                'joint_ownership_types' => [
+                    'joint_tenancy' => [
+                        'name' => 'Joint Tenancy',
+                        'description' => 'Equal rights to whole property',
+                        'survivorship' => true,
+                        'will_override' => false,
+                        'notes' => 'Property automatically passes to surviving owner(s), bypassing will',
+                    ],
+                    'tenants_in_common' => [
+                        'name' => 'Tenants in Common',
+                        'description' => 'Specified shares (may be unequal)',
+                        'survivorship' => false,
+                        'will_override' => true,
+                        'notes' => 'Your share passes according to your will or intestacy rules',
+                    ],
+                ],
+
+                'leasehold_reform' => [
+                    'ground_rent_abolished_date' => '2022-06-30',  // Leasehold Reform (Ground Rent) Act 2022
+                    'ground_rent_cap' => 0,  // £0 for new leases from 2022 (2023 for retirement homes)
+                    'retirement_homes_date' => '2023-04-01',
+                    'commonhold_consultation_year' => 2025,
+                    'notes' => 'UK government phasing out leasehold for new builds. Commonhold will become default tenure.',
+                    'valuation_thresholds' => [
+                        'difficult_to_mortgage' => 80,  // Years remaining - harder to get mortgage
+                        'significant_value_loss' => 60,  // Years remaining - property value significantly affected
+                    ],
+                ],
+
+                'tenure_types' => [
+                    'freehold' => [
+                        'name' => 'Freehold',
+                        'description' => 'Outright ownership of property and land',
+                        'ground_rent' => false,
+                        'lease_expiry' => false,
+                    ],
+                    'leasehold' => [
+                        'name' => 'Leasehold',
+                        'description' => 'Long-term rental of property (typically 99-999 years)',
+                        'ground_rent' => true,  // Abolished for new leases from 2022
+                        'lease_expiry' => true,
+                        'notes' => 'Being phased out for new builds. Ground rent eliminated 2022.',
+                    ],
+                ],
             ],
         ];
     }
