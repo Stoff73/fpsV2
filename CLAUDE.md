@@ -329,17 +329,53 @@ php artisan view:cache
 
 ### Centralized Tax Configuration
 
-**Location**: `config/uk_tax_config.php` (or `tax_configurations` table)
+**Database-Driven System**: All UK tax values are stored in the `tax_configurations` table and managed via the admin panel.
 
-Contains all UK tax rules for 2025/26:
-- Income tax bands & personal allowance (£12,570)
-- National Insurance thresholds
-- ISA allowance (£20,000 per tax year)
-- Pension annual allowance (£60,000)
-- IHT: NRB £325k, RNRB £175k, 40% rate
-- PET/CLT gifting rules with 7-year taper relief
+**TaxConfigService**: Centralized service for retrieving active tax configuration.
 
-**CRITICAL**: Never hardcode tax rates - always use config values
+**Location**:
+- **Service**: `app/Services/TaxConfigService.php`
+- **Database**: `tax_configurations` table (seeded with 5 years: 2021/22 - 2025/26)
+- **Admin Panel**: Tax Settings page (admin-only access)
+
+**Active Tax Year**: 2025/26 (configurable via admin panel)
+
+**Usage in Services**:
+```php
+use App\Services\TaxConfigService;
+
+class MyService
+{
+    public function __construct(private TaxConfigService $taxConfig) {}
+
+    public function calculate()
+    {
+        // Get specific values
+        $personalAllowance = $this->taxConfig->getIncomeTax()['personal_allowance'];
+        $isaAllowance = $this->taxConfig->getISAAllowances()['annual_allowance'];
+
+        // Get entire sections
+        $incomeTax = $this->taxConfig->getIncomeTax();
+        $iht = $this->taxConfig->getInheritanceTax();
+        $pension = $this->taxConfig->getPensionAllowances();
+    }
+}
+```
+
+**Available Methods**:
+- `getIncomeTax()` - Income tax bands and personal allowance
+- `getNationalInsurance()` - NI thresholds and rates
+- `getCapitalGainsTax()` - CGT rates and exemptions
+- `getDividendTax()` - Dividend tax allowances and rates
+- `getISAAllowances()` - ISA annual limits
+- `getPensionAllowances()` - Pension annual allowance, MPAA, taper rules
+- `getInheritanceTax()` - IHT rates, NRB, RNRB, gifting rules
+- `getStampDuty()` - SDLT bands and rates
+- `get(string $key)` - Get any nested value using dot notation
+
+**CRITICAL**: Never hardcode tax rates - always use TaxConfigService
+
+**Historical Tax Years**: Previous years (2021/22 - 2024/25) available for calculations. Switch active year via admin panel.
 
 ### ISA Allowance Tracking (Cross-Module)
 
@@ -398,6 +434,74 @@ Cache::remember("estate_analysis_{$userId}", 3600, function() {
 Cache::forget("estate_analysis_{$userId}");
 ```
 
+### Admin Panel: Tax Configuration Management
+
+**Access**: Admin users only (`is_admin = true`)
+
+**Location**: Admin Panel → Tax Settings
+
+**Features**:
+1. **View All Tax Years**: See all configured tax years (2021/22 - 2025/26)
+2. **Active Tax Year**: Only one tax year can be active at a time
+3. **Switch Active Year**: Activate a different tax year for calculations
+4. **Edit Tax Values**: Update tax rates, allowances, bands, thresholds
+5. **Duplicate Tax Year**: Copy existing year as template for new year
+6. **Historical Reference**: View previous years' tax configurations
+
+**Annual Tax Update Workflow**:
+
+1. **Before April 6** (start of new tax year):
+   ```
+   1. Login as admin (admin@fps.com / admin123456)
+   2. Navigate to Tax Settings page
+   3. Click "Duplicate" on current year (e.g., 2025/26)
+   4. Enter new tax year (e.g., 2026/27)
+   5. Update all tax values for new year:
+      - Income tax bands and personal allowance
+      - National Insurance thresholds
+      - ISA allowances
+      - Pension annual allowance
+      - IHT: NRB, RNRB, rates
+      - SDLT bands
+      - CGT rates and exemptions
+      - Dividend tax allowances
+   6. Click "Save"
+   ```
+
+2. **On April 6** (activation day):
+   ```
+   1. Navigate to Tax Settings
+   2. Find new tax year (2026/27)
+   3. Click "Activate"
+   4. Confirm activation
+   5. System automatically deactivates previous year
+   6. All calculations now use new tax year values
+   ```
+
+**Data Validation**:
+- Tax year format: `YYYY/YY` (e.g., 2025/26)
+- All required fields must be filled
+- Income tax must have 3+ bands
+- Rates must be 0-100%
+- Thresholds must be in ascending order
+- Cannot delete active tax year
+- Only one tax year can be active
+
+**Database Seeding**:
+```bash
+# Seed 5 years of UK tax configurations (2021/22 - 2025/26)
+php artisan db:seed --class=TaxConfigurationSeeder
+```
+
+**API Endpoints** (Admin only):
+- `GET /api/tax-settings/all` - List all tax years
+- `GET /api/tax-settings/current` - Get active tax year
+- `POST /api/tax-settings/create` - Create new tax year
+- `PUT /api/tax-settings/{id}` - Update tax year
+- `POST /api/tax-settings/{id}/activate` - Activate tax year
+- `POST /api/tax-settings/{id}/duplicate` - Duplicate tax year
+- `DELETE /api/tax-settings/{id}` - Delete inactive tax year
+
 ---
 
 ## File Structure & Key Locations
@@ -433,7 +537,13 @@ app/
 └── Http/Requests/             # Form validation (30+ files)
 
 config/
-└── uk_tax_config.php          # CRITICAL: All UK tax rules
+└── uk_tax_config.php          # DEPRECATED: Tax rules now in tax_configurations table
+
+database/
+├── migrations/                # Database migrations
+│   └── *_create_tax_configurations_table.php
+└── seeders/
+    └── TaxConfigurationSeeder.php  # Seeds 5 years of UK tax data (2021/22-2025/26)
 
 routes/
 └── api.php                    # All API routes (420+ lines)
@@ -547,7 +657,13 @@ class ProtectionAgent extends BaseAgent
 
 ## Important UK Tax Rules
 
-### Inheritance Tax (IHT)
+**NOTE**: Values shown below are examples from the **2025/26 tax year**. The application uses database-driven tax configuration, so actual values are retrieved from the active tax year in the `tax_configurations` table.
+
+**To view/update current values**: Use the admin panel → Tax Settings page.
+
+**Historical tax years**: 2021/22, 2022/23, 2023/24, 2024/25 are available in the database for historical calculations.
+
+### Inheritance Tax (IHT) - 2025/26 Example
 - **Rate**: 40% on estate above nil rate band
 - **NRB**: £325,000 (transferable to spouse)
 - **RNRB**: £175,000 (residence nil rate band, transferable)
@@ -555,13 +671,13 @@ class ProtectionAgent extends BaseAgent
 - **PETs**: Potentially Exempt Transfers - 7-year rule with taper relief
 - **CLTs**: Chargeable Lifetime Transfers - 14-year lookback
 
-### Pensions
+### Pensions - 2025/26 Example
 - **Annual Allowance**: £60,000 (tapered for high earners)
 - **Carry Forward**: 3-year lookback for unused allowance
 - **MPAA**: £10,000 (Money Purchase Annual Allowance after accessing pension)
 - **Lifetime Allowance**: Abolished from April 2024
 
-### ISAs (Individual Savings Accounts)
+### ISAs (Individual Savings Accounts) - 2025/26 Example
 - **Annual Allowance**: £20,000 (tax year April 6 - April 5)
 - **LISA**: £4,000 (counts towards total allowance)
 - **Tax Treatment**: Tax-free growth and withdrawals
@@ -569,11 +685,100 @@ class ProtectionAgent extends BaseAgent
 
 ### Tax Year
 - **Period**: April 6 to April 5
-- **Current**: 2025/26
+- **Current Active**: 2025/26 (configurable via admin panel)
+- **Available Historical**: 2021/22, 2022/23, 2023/24, 2024/25
 
 ---
 
 ## Common Development Patterns
+
+### Using TaxConfigService in New Services
+
+**Pattern**: Always inject TaxConfigService via constructor dependency injection.
+
+```php
+<?php
+
+namespace App\Services\MyModule;
+
+use App\Services\TaxConfigService;
+
+class MyCalculatorService
+{
+    public function __construct(
+        private TaxConfigService $taxConfig
+    ) {}
+
+    public function calculateTax(float $amount): array
+    {
+        // Get tax configuration
+        $incomeTax = $this->taxConfig->getIncomeTax();
+        $personalAllowance = $incomeTax['personal_allowance'];
+        $bands = $incomeTax['bands'];
+
+        // Perform calculations using tax config values
+        $taxableIncome = max(0, $amount - $personalAllowance);
+
+        // Calculate tax across bands
+        $tax = 0;
+        foreach ($bands as $band) {
+            // ... calculation logic
+        }
+
+        return [
+            'gross_income' => $amount,
+            'personal_allowance' => $personalAllowance,
+            'taxable_income' => $taxableIncome,
+            'tax' => $tax,
+        ];
+    }
+}
+```
+
+**Testing Pattern**: Mock TaxConfigService in unit tests:
+
+```php
+<?php
+
+use App\Services\MyModule\MyCalculatorService;
+use App\Services\TaxConfigService;
+use Mockery;
+
+test('calculates tax correctly', function () {
+    // Mock TaxConfigService
+    $mockTaxConfig = Mockery::mock(TaxConfigService::class);
+    $mockTaxConfig->shouldReceive('getIncomeTax')
+        ->andReturn([
+            'personal_allowance' => 12570,
+            'bands' => [
+                ['name' => 'Basic Rate', 'threshold' => 0, 'rate' => 0.20],
+                ['name' => 'Higher Rate', 'threshold' => 37700, 'rate' => 0.40],
+                ['name' => 'Additional Rate', 'threshold' => 125140, 'rate' => 0.45],
+            ],
+        ]);
+
+    // Create service with mocked dependency
+    $service = new MyCalculatorService($mockTaxConfig);
+
+    // Test calculation
+    $result = $service->calculateTax(50000);
+
+    expect($result['personal_allowance'])->toBe(12570.0);
+    expect($result['tax'])->toBeGreaterThan(0);
+});
+```
+
+**DO NOT**:
+- ❌ Use `config('uk_tax_config')` - this is deprecated
+- ❌ Hardcode tax values in services
+- ❌ Access database directly for tax values
+
+**DO**:
+- ✅ Inject TaxConfigService via constructor
+- ✅ Mock TaxConfigService in unit tests
+- ✅ Use specific getter methods (`getIncomeTax()`, `getPensionAllowances()`, etc.)
+
+---
 
 ### Adding a New Feature to a Module
 
@@ -815,7 +1020,7 @@ MEMCACHED_PORT=11211
 
 1. **UK-Specific**: Follow UK tax rules (2025/26 baseline), tax year April 6 - April 5
 2. **Agent Pattern**: Encapsulate module logic in Agent classes with standardized interface
-3. **Centralized Config**: Never hardcode tax rates; use `config/uk_tax_config.php`
+3. **Centralized Config**: Never hardcode tax rates; use `TaxConfigService` to retrieve database-driven tax configuration
 4. **Data Isolation**: Users only access their own data; always filter by `user_id`
 5. **Progressive Disclosure**: Summaries first, details on demand
 6. **Mobile-First**: Responsive design 320px to 2560px
