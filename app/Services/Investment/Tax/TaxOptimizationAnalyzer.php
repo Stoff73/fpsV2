@@ -7,22 +7,29 @@ namespace App\Services\Investment\Tax;
 use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\Holding;
 use App\Models\Savings\SavingsAccount;
+use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Comprehensive tax optimization analyzer
  * Analyzes portfolio for tax efficiency opportunities across UK tax wrappers
- *
- * UK Tax Rules (2024/25):
- * - ISA allowance: £20,000/year (tax-free growth and withdrawals)
- * - CGT allowance: £12,300/year (£6,150 from 2024/25)
- * - Dividend allowance: £500/year (£1,000 from 2023/24)
- * - CGT rates: 10% basic, 20% higher (18%/28% for property)
- * - Dividend tax: 8.75% basic, 33.75% higher, 39.35% additional
+ * Uses active tax year rates from TaxConfigService
  */
 class TaxOptimizationAnalyzer
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Analyze complete tax position and identify optimization opportunities
      *
@@ -96,8 +103,13 @@ class TaxOptimizationAnalyzer
         Collection $savingsAccounts,
         string $taxYear
     ): array {
+        // Get tax allowances from config
+        $isaConfig = $this->taxConfig->getISAAllowances();
+        $cgtConfig = $this->taxConfig->getCapitalGainsTax();
+        $dividendConfig = $this->taxConfig->getDividendTax();
+
         // ISA allowance usage
-        $isaAllowance = 20000; // 2024/25
+        $isaAllowance = $isaConfig['annual_allowance'];
         $isaUsed = $this->calculateISAUsage($investmentAccounts, $savingsAccounts, $taxYear);
         $isaRemaining = max(0, $isaAllowance - $isaUsed);
 
@@ -131,9 +143,9 @@ class TaxOptimizationAnalyzer
         // Calculate annual dividend income
         $dividendIncome = $this->calculateDividendIncome($investmentAccounts);
 
-        // Tax allowances
-        $cgtAllowance = 12300; // 2024/25 (note: reducing to £6,150 from April 2024)
-        $dividendAllowance = 500; // 2024/25 (reduced from £1,000)
+        // Tax allowances from config
+        $cgtAllowance = $cgtConfig['annual_exempt_amount'];
+        $dividendAllowance = $dividendConfig['allowance'];
 
         return [
             'isa_allowance' => $isaAllowance,
@@ -190,7 +202,9 @@ class TaxOptimizationAnalyzer
 
         // Note: This is simplified - proper tracking would need contribution history
         // Cap at allowance to avoid showing impossible usage
-        return min($usage, 20000);
+        $isaConfig = $this->taxConfig->getISAAllowances();
+
+        return min($usage, $isaConfig['annual_allowance']);
     }
 
     /**

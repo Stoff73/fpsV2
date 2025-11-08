@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Trust;
 
 use App\Models\Estate\Trust;
+use App\Services\TaxConfigService;
 use Carbon\Carbon;
 
 class IHTPeriodicChargeCalculator
@@ -19,11 +20,25 @@ class IHTPeriodicChargeCalculator
     private const EXIT_CHARGE_MAX = 0.06; // 6% max exit charge
 
     /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
+
+    /**
      * Get Nil Rate Band from config
      */
     private function getNRB(): float
     {
-        return config('uk_tax_config.inheritance_tax.nil_rate_band');
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        return $ihtConfig['nil_rate_band'];
     }
 
     /**

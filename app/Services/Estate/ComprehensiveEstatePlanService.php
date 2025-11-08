@@ -7,6 +7,7 @@ namespace App\Services\Estate;
 use App\Models\Estate\IHTProfile;
 use App\Models\FamilyMember;
 use App\Models\User;
+use App\Services\TaxConfigService;
 use App\Services\UserProfile\ProfileCompletenessChecker;
 use Illuminate\Support\Collection;
 
@@ -27,7 +28,8 @@ class ComprehensiveEstatePlanService
         private IHTCalculator $ihtCalculator,
         private EstateAssetAggregatorService $assetAggregator,
         private ProfileCompletenessChecker $completenessChecker,
-        private SecondDeathIHTCalculator $secondDeathCalculator
+        private SecondDeathIHTCalculator $secondDeathCalculator,
+        private TaxConfigService $taxConfig
     ) {}
 
     /**
@@ -43,11 +45,11 @@ class ComprehensiveEstatePlanService
         // Get IHT profile
         $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
         if (! $ihtProfile) {
-            $config = config('uk_tax_config.inheritance_tax');
+            $ihtConfig = $this->taxConfig->getInheritanceTax();
             $ihtProfile = new IHTProfile([
                 'user_id' => $user->id,
                 'marital_status' => $user->marital_status ?? 'single',
-                'available_nrb' => $config['nil_rate_band'],
+                'available_nrb' => $ihtConfig['nil_rate_band'],
                 'nrb_transferred_from_spouse' => 0,
                 'charitable_giving_percent' => 0,
             ]);
@@ -532,8 +534,8 @@ class ComprehensiveEstatePlanService
                     'gross_estate' => $secondDeathAnalysis['current_combined_totals']['gross_assets'],
                     'liabilities' => $secondDeathAnalysis['current_combined_totals']['total_liabilities'],
                     'net_estate' => $secondDeathAnalysis['current_combined_totals']['net_estate'],
-                    'user_nrb' => config('uk_tax_config.inheritance_tax.nil_rate_band'),
-                    'spouse_nrb' => config('uk_tax_config.inheritance_tax.nil_rate_band'),
+                    'user_nrb' => $this->taxConfig->getInheritanceTax()['nil_rate_band'],
+                    'spouse_nrb' => $this->taxConfig->getInheritanceTax()['nil_rate_band'],
                     'available_nrb' => $secondDeathAnalysis['current_iht_calculation']['available_nrb'] ?? 650000,
                     'user_rnrb' => $secondDeathAnalysis['current_iht_calculation']['rnrb'] ? ($secondDeathAnalysis['current_iht_calculation']['rnrb'] / 2) : 0,
                     'spouse_rnrb' => $secondDeathAnalysis['current_iht_calculation']['rnrb'] ? ($secondDeathAnalysis['current_iht_calculation']['rnrb'] / 2) : 0,
@@ -553,8 +555,8 @@ class ComprehensiveEstatePlanService
                     'gross_estate' => $secondDeathAnalysis['second_death']['projected_combined_estate_at_second_death'],
                     'liabilities' => $secondDeathAnalysis['liability_breakdown']['projected']['survivor_liabilities'] ?? 0,
                     'net_estate' => $secondDeathAnalysis['second_death']['projected_combined_estate_at_second_death'] - ($secondDeathAnalysis['liability_breakdown']['projected']['survivor_liabilities'] ?? 0),
-                    'user_nrb' => config('uk_tax_config.inheritance_tax.nil_rate_band'),
-                    'spouse_nrb' => config('uk_tax_config.inheritance_tax.nil_rate_band'),
+                    'user_nrb' => $this->taxConfig->getInheritanceTax()['nil_rate_band'],
+                    'spouse_nrb' => $this->taxConfig->getInheritanceTax()['nil_rate_band'],
                     'available_nrb' => $secondDeathAnalysis['iht_calculation']['available_nrb'] ?? 650000,
                     'user_rnrb' => $secondDeathAnalysis['iht_calculation']['rnrb'] ? ($secondDeathAnalysis['iht_calculation']['rnrb'] / 2) : 0,
                     'spouse_rnrb' => $secondDeathAnalysis['iht_calculation']['rnrb'] ? ($secondDeathAnalysis['iht_calculation']['rnrb'] / 2) : 0,
@@ -570,12 +572,13 @@ class ComprehensiveEstatePlanService
         }
 
         // Single person - just show current position
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
         return [
             'has_projection' => false,
             'gross_estate' => $ihtAnalysis['net_estate_value'] ?? 0,
-            'available_nrb' => $profile->available_nrb ?? config('uk_tax_config.inheritance_tax.nil_rate_band'),
+            'available_nrb' => $profile->available_nrb ?? $ihtConfig['nil_rate_band'],
             'rnrb' => $ihtAnalysis['rnrb'] ?? 0,
-            'total_allowances' => $ihtAnalysis['total_allowance'] ?? config('uk_tax_config.inheritance_tax.nil_rate_band'),
+            'total_allowances' => $ihtAnalysis['total_allowance'] ?? $ihtConfig['nil_rate_band'],
             'taxable_estate' => $ihtAnalysis['taxable_estate'] ?? 0,
             'iht_liability' => $ihtAnalysis['iht_liability'] ?? 0,
             'effective_rate' => $ihtAnalysis['net_estate_value'] > 0
@@ -612,15 +615,15 @@ class ComprehensiveEstatePlanService
                 ],
                 [
                     'action' => 'Establish discretionary trust within NRB',
-                    'details' => 'Transfer £'.number_format($profile->available_nrb ?? config('uk_tax_config.inheritance_tax.nil_rate_band'), 0).' to discretionary trust',
-                    'iht_saving' => ($profile->available_nrb ?? config('uk_tax_config.inheritance_tax.nil_rate_band')) * 0.40,
+                    'details' => 'Transfer £'.number_format($profile->available_nrb ?? $this->taxConfig->getInheritanceTax()['nil_rate_band'], 0).' to discretionary trust',
+                    'iht_saving' => ($profile->available_nrb ?? $this->taxConfig->getInheritanceTax()['nil_rate_band']) * 0.40,
                     'cost' => 0,
                     'timeframe' => 'Once-off (Year 1)',
                 ],
             ],
         ];
 
-        $totalIHTSaving += 1200 + (($profile->available_nrb ?? config('uk_tax_config.inheritance_tax.nil_rate_band')) * 0.40);
+        $totalIHTSaving += 1200 + (($profile->available_nrb ?? $this->taxConfig->getInheritanceTax()['nil_rate_band']) * 0.40);
 
         // Priority 2: Medium-term strategy (PET cycles)
         if ($giftingPlan['summary']['total_gifted'] > 0) {

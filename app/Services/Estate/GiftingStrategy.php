@@ -6,17 +6,31 @@ namespace App\Services\Estate;
 
 use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
+use App\Services\TaxConfigService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class GiftingStrategy
 {
     /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
+    /**
      * Analyze potentially exempt transfers (PETs)
      */
     public function analyzePETs(Collection $gifts): array
     {
-        $config = config('uk_tax_config.inheritance_tax.potentially_exempt_transfers');
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        $config = $ihtConfig['potentially_exempt_transfers'];
         $yearsToExemption = $config['years_to_exemption'];
 
         // Filter PETs within 7 years
@@ -60,7 +74,8 @@ class GiftingStrategy
      */
     private function getTaperReliefPercent(int $yearsAgo): int
     {
-        $config = config('uk_tax_config.inheritance_tax.potentially_exempt_transfers.taper_relief');
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        $config = $ihtConfig['potentially_exempt_transfers']['taper_relief'];
 
         foreach ($config as $tier) {
             if ($yearsAgo >= $tier['years'] - 1) {
@@ -80,7 +95,7 @@ class GiftingStrategy
      */
     public function calculateAnnualExemption(int $userId, string $taxYear): float
     {
-        $config = config('uk_tax_config.gifting_exemptions');
+        $config = $this->taxConfig->getGiftingExemptions();
         $annualExemption = $config['annual_exemption'];
         $canCarryForward = $config['annual_exemption_can_carry_forward'];
         $carryForwardYears = $config['carry_forward_years'];
@@ -122,8 +137,8 @@ class GiftingStrategy
      */
     public function identifySmallGifts(Collection $gifts): array
     {
-        $config = config('uk_tax_config.gifting_exemptions.small_gifts');
-        $smallGiftLimit = $config['amount'];
+        $giftingConfig = $this->taxConfig->getGiftingExemptions();
+        $smallGiftLimit = $giftingConfig['small_gifts_limit'];
 
         $smallGifts = $gifts->filter(function ($gift) use ($smallGiftLimit) {
             return $gift->gift_type === 'small_gift' && $gift->gift_value <= $smallGiftLimit;
@@ -166,7 +181,8 @@ class GiftingStrategy
      */
     public function calculateMarriageGifts(string $relationship): float
     {
-        $config = config('uk_tax_config.gifting_exemptions.wedding_gifts');
+        $giftingConfig = $this->taxConfig->getGiftingExemptions();
+        $config = $giftingConfig['wedding_gifts'];
 
         return match ($relationship) {
             'child' => $config['child'],
@@ -180,9 +196,8 @@ class GiftingStrategy
      */
     public function recommendOptimalGiftingStrategy(float $estate, IHTProfile $profile): array
     {
-        $config = config('uk_tax_config');
-        $ihtConfig = $config['inheritance_tax'];
-        $giftingConfig = $config['gifting_exemptions'];
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        $giftingConfig = $this->taxConfig->getGiftingExemptions();
 
         $nrb = $ihtConfig['nil_rate_band'];
         $annualExemption = $giftingConfig['annual_exemption'];

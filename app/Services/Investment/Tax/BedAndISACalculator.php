@@ -6,12 +6,14 @@ namespace App\Services\Investment\Tax;
 
 use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\Holding;
+use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
 
 /**
  * Bed and ISA Calculator
  * Calculate opportunities to transfer holdings from GIA to ISA
  * while utilizing CGT allowance
+ * Uses active tax year rates from TaxConfigService
  *
  * Bed and ISA Strategy:
  * 1. Sell holdings in GIA (realizing gain within CGT allowance)
@@ -19,13 +21,25 @@ use Illuminate\Support\Collection;
  * 3. Future growth and income become tax-free
  *
  * UK Tax Rules:
- * - CGT allowance: £12,300 (2024/25)
+ * - CGT allowance varies by tax year
  * - No "bed and breakfasting" rule when moving to ISA
- * - ISA allowance: £20,000/year
+ * - ISA allowance varies by tax year
  * - Can transfer up to ISA allowance remaining
  */
 class BedAndISACalculator
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Calculate Bed and ISA opportunities
      *
@@ -35,8 +49,12 @@ class BedAndISACalculator
      */
     public function calculateOpportunities(int $userId, array $options = []): array
     {
-        $cgtAllowance = $options['cgt_allowance'] ?? 12300;
-        $isaAllowance = $options['isa_allowance_remaining'] ?? 20000;
+        // Get tax allowances from config
+        $cgtConfig = $this->taxConfig->getCapitalGainsTax();
+        $isaConfig = $this->taxConfig->getISAAllowances();
+
+        $cgtAllowance = $options['cgt_allowance'] ?? $cgtConfig['annual_exempt_amount'];
+        $isaAllowance = $options['isa_allowance_remaining'] ?? $isaConfig['annual_allowance'];
         $taxRate = $options['tax_rate'] ?? 0.20;
 
         // Get GIA holdings

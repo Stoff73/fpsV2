@@ -5,41 +5,78 @@ declare(strict_types=1);
 namespace App\Services\Retirement;
 
 use App\Models\DCPension;
+use App\Services\TaxConfigService;
 
 /**
  * Annual Allowance Checker Service
  *
  * Checks pension annual allowance, tapering for high earners, carry forward, and MPAA.
+ * Uses active tax year rates from TaxConfigService.
  */
 class AnnualAllowanceChecker
 {
     /**
-     * Get standard annual allowance from config
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
+
+    /**
+     * Get standard annual allowance from tax config
      */
     private function getStandardAnnualAllowance(): float
     {
-        return config('uk_tax_config.pension.annual_allowance');
+        $pensionConfig = $this->taxConfig->getPensionAllowances();
+
+        return $pensionConfig['annual_allowance'];
     }
 
     /**
-     * Get minimum tapered allowance from config
+     * Get minimum tapered allowance from tax config
      */
     private function getMinimumTaperedAllowance(): float
     {
-        return config('uk_tax_config.pension.tapered_annual_allowance.minimum_allowance');
+        $pensionConfig = $this->taxConfig->getPensionAllowances();
+
+        return $pensionConfig['tapered_annual_allowance']['minimum_allowance'];
     }
 
     /**
-     * Get threshold income from config
+     * Get threshold income from tax config
      */
     private function getThresholdIncome(): float
     {
-        return config('uk_tax_config.pension.tapered_annual_allowance.threshold_income');
+        $pensionConfig = $this->taxConfig->getPensionAllowances();
+
+        return $pensionConfig['tapered_annual_allowance']['threshold_income'];
     }
 
-    private const ADJUSTED_INCOME_THRESHOLD = 260000;
+    /**
+     * Get adjusted income threshold from tax config
+     */
+    private function getAdjustedIncomeThreshold(): float
+    {
+        $pensionConfig = $this->taxConfig->getPensionAllowances();
 
-    private const MPAA = 10000;
+        return $pensionConfig['tapered_annual_allowance']['adjusted_income_threshold'];
+    }
+
+    /**
+     * Get Money Purchase Annual Allowance from tax config
+     */
+    private function getMPAA(): float
+    {
+        $pensionConfig = $this->taxConfig->getPensionAllowances();
+
+        return $pensionConfig['mpaa'];
+    }
 
     /**
      * Check annual allowance for a user in a given tax year.
@@ -64,7 +101,7 @@ class AnnualAllowanceChecker
         $isTapered = false;
         $taperingDetails = null;
 
-        if ($thresholdIncome > $this->getThresholdIncome() && $adjustedIncome > self::ADJUSTED_INCOME_THRESHOLD) {
+        if ($thresholdIncome > $this->getThresholdIncome() && $adjustedIncome > $this->getAdjustedIncomeThreshold()) {
             $isTapered = true;
             $availableAllowance = $this->calculateTapering($thresholdIncome, $adjustedIncome);
             $taperingDetails = [
@@ -107,12 +144,12 @@ class AnnualAllowanceChecker
      */
     public function calculateTapering(float $thresholdIncome, float $adjustedIncome): float
     {
-        if ($thresholdIncome <= $this->getThresholdIncome() || $adjustedIncome <= self::ADJUSTED_INCOME_THRESHOLD) {
+        if ($thresholdIncome <= $this->getThresholdIncome() || $adjustedIncome <= $this->getAdjustedIncomeThreshold()) {
             return $this->getStandardAnnualAllowance();
         }
 
         // Calculate reduction
-        $excessIncome = $adjustedIncome - self::ADJUSTED_INCOME_THRESHOLD;
+        $excessIncome = $adjustedIncome - $this->getAdjustedIncomeThreshold();
         $reduction = $excessIncome / 2;
 
         // Apply reduction but ensure minimum allowance
@@ -133,8 +170,8 @@ class AnnualAllowanceChecker
     {
         // Simplified: Assume unused allowance from previous years
         // In a full implementation, we would track this in a separate table
-        // For now, return a conservative estimate of £60,000 (1 year's unused allowance)
-        return config('uk_tax_config.pension.annual_allowance');
+        // For now, return a conservative estimate (1 year's unused allowance)
+        return $this->getStandardAnnualAllowance();
     }
 
     /**
@@ -147,12 +184,13 @@ class AnnualAllowanceChecker
         // In a full implementation, we would track flexible access events
         // For now, return false (not triggered)
         $isTriggered = false;
+        $mpaaAmount = $this->getMPAA();
 
         return [
             'is_triggered' => $isTriggered,
-            'mpaa_amount' => self::MPAA,
+            'mpaa_amount' => $mpaaAmount,
             'message' => $isTriggered
-                ? 'MPAA triggered - your annual allowance is reduced to £'.number_format(self::MPAA).' per year.'
+                ? 'MPAA triggered - your annual allowance is reduced to £'.number_format($mpaaAmount).' per year.'
                 : 'MPAA not triggered - standard annual allowance applies.',
         ];
     }

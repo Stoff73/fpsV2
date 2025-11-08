@@ -6,6 +6,7 @@ namespace App\Services\Retirement;
 
 use App\Models\DCPension;
 use App\Models\RetirementProfile;
+use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
 
 /**
@@ -16,6 +17,18 @@ use Illuminate\Support\Collection;
  */
 class ContributionOptimizer
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Optimize pension contributions based on retirement profile and goals.
      */
@@ -203,7 +216,8 @@ class ContributionOptimizer
 
         if ($isHigherRateTaxpayer && $currentContributions < 40000) {
             $optimizationAvailable = true;
-            $additionalContribution = min(20000, config('uk_tax_config.pension.annual_allowance') - $currentContributions);
+            $pensionConfig = $this->taxConfig->getPensionAllowances();
+            $additionalContribution = min(20000, $pensionConfig['annual_allowance'] - $currentContributions);
             $potentialSaving = $this->calculateTaxRelief($additionalContribution, $income);
 
             $message = sprintf(

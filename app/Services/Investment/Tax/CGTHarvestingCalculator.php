@@ -6,21 +6,35 @@ namespace App\Services\Investment\Tax;
 
 use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\Holding;
+use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
 
 /**
  * Capital Gains Tax Loss Harvesting Calculator
  * Identifies opportunities to realize losses to offset gains
+ * Uses active tax year rates from TaxConfigService
  *
- * UK CGT Rules (2024/25):
- * - Annual exemption: £12,300 (reducing to £6,150 from April 2024)
- * - CGT rates: 10% basic rate, 20% higher rate
+ * UK CGT Rules:
+ * - Annual exemption varies by tax year
+ * - CGT rates vary by tax year and income level
  * - Can carry forward losses indefinitely
  * - 30-day bed and breakfasting rule
  * - Same-day and 30-day rule for share identification
  */
 class CGTHarvestingCalculator
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Calculate tax-loss harvesting opportunities
      *
@@ -30,7 +44,10 @@ class CGTHarvestingCalculator
      */
     public function calculateHarvestingOpportunities(int $userId, array $options = []): array
     {
-        $cgtAllowance = $options['cgt_allowance'] ?? 12300;
+        // Get CGT allowance from config
+        $cgtConfig = $this->taxConfig->getCapitalGainsTax();
+
+        $cgtAllowance = $options['cgt_allowance'] ?? $cgtConfig['annual_exempt_amount'];
         $expectedGains = $options['expected_gains'] ?? 0;
         $taxRate = $options['tax_rate'] ?? 0.20;
         $lossCarryforward = $options['loss_carryforward'] ?? 0;

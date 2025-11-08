@@ -9,11 +9,24 @@ use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Trust;
 use App\Models\Estate\Will;
 use App\Models\User;
+use App\Services\TaxConfigService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class IHTCalculator
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Calculate IHT liability on an estate
      *
@@ -79,7 +92,7 @@ class IHTCalculator
         $taxableNetEstate = max(0, $netEstateValue - $spouseExemption);
 
         // Get tax config
-        $config = config('uk_tax_config.inheritance_tax');
+        $config = $this->taxConfig->getInheritanceTax();
 
         // Apply NRB (Nil Rate Band)
         $nrb = $config['nil_rate_band'];
@@ -227,7 +240,7 @@ class IHTCalculator
      */
     public function calculateCharitableReduction(float $estate, float $charitablePercent): float
     {
-        $config = config('uk_tax_config.inheritance_tax');
+        $config = $this->taxConfig->getInheritanceTax();
 
         if ($charitablePercent >= 10) {
             return $config['reduced_rate_charity'];
@@ -242,7 +255,8 @@ class IHTCalculator
      */
     public function applyTaperRelief(Gift $gift): float
     {
-        $config = config('uk_tax_config.inheritance_tax.potentially_exempt_transfers');
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        $config = $ihtConfig['potentially_exempt_transfers'];
         $yearsAgo = Carbon::now()->diffInYears($gift->gift_date);
 
         // If gift is more than 7 years old, it's fully exempt
@@ -273,7 +287,7 @@ class IHTCalculator
      */
     public function calculatePETLiability(Collection $gifts): array
     {
-        $config = config('uk_tax_config.inheritance_tax');
+        $config = $this->taxConfig->getInheritanceTax();
         $nrb = $config['nil_rate_band'];
 
         // Filter gifts within 7 years
@@ -327,7 +341,7 @@ class IHTCalculator
      */
     public function calculateCLTLiability(Collection $gifts): array
     {
-        $config = config('uk_tax_config.inheritance_tax');
+        $config = $this->taxConfig->getInheritanceTax();
         $nrb = $config['nil_rate_band'];
         $ihtRate = $config['chargeable_lifetime_transfers']['rate'];
 
@@ -418,7 +432,7 @@ class IHTCalculator
      */
     public function calculateGiftingLiabilityWithNRB(Collection $gifts, float $totalNRB): array
     {
-        $config = config('uk_tax_config.inheritance_tax');
+        $config = $this->taxConfig->getInheritanceTax();
 
         // Get all gifts within 7 years, sorted by date (oldest first)
         $recentGifts = $gifts->filter(function ($gift) {

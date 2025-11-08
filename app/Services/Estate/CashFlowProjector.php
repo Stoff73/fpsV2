@@ -6,10 +6,23 @@ namespace App\Services\Estate;
 
 use App\Models\Estate\Liability;
 use App\Models\User;
+use App\Services\TaxConfigService;
 use Carbon\Carbon;
 
 class CashFlowProjector
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Create personal profit & loss statement for a tax year
      */
@@ -198,7 +211,8 @@ class CashFlowProjector
             $pl = $this->createPersonalPL($userId, (string) $taxYear);
 
             // Apply inflation assumptions
-            $inflationRate = config('uk_tax_config.assumptions.inflation_rate', 0.02);
+            $assumptions = $this->taxConfig->getAssumptions();
+            $inflationRate = $assumptions['inflation_rate'] ?? 0.02;
 
             if ($i > 0) {
                 $inflationMultiplier = pow(1 + $inflationRate, $i);

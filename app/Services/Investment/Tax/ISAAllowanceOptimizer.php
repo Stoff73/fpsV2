@@ -7,22 +7,36 @@ namespace App\Services\Investment\Tax;
 use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\Holding;
 use App\Models\Savings\SavingsAccount;
+use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
 
 /**
  * ISA Allowance Optimizer
  * Recommends optimal ISA contribution and transfer strategies
+ * Uses active tax year rates from TaxConfigService
  *
- * UK ISA Rules (2024/25):
- * - Annual allowance: £20,000
+ * UK ISA Rules:
+ * - Annual allowance varies by tax year
  * - Tax year: April 6 to April 5
  * - Can split between Cash ISA and Stocks & Shares ISA
- * - LISA: £4,000 (counts towards total allowance)
- * - Junior ISA: £9,000 (separate allowance)
+ * - LISA: counts towards total allowance
+ * - Junior ISA: separate allowance
  * - Tax benefits: No income tax on interest/dividends, no CGT on gains
  */
 class ISAAllowanceOptimizer
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Calculate optimal ISA contribution strategy
      *
@@ -33,7 +47,10 @@ class ISAAllowanceOptimizer
     public function calculateOptimalStrategy(int $userId, array $options = []): array
     {
         $taxYear = $this->getCurrentTaxYear();
-        $annualAllowance = 20000;
+
+        // Get ISA allowance from tax config
+        $isaConfig = $this->taxConfig->getISAAllowances();
+        $annualAllowance = $isaConfig['annual_allowance'];
 
         // Get current ISA usage
         $currentUsage = $this->calculateCurrentUsage($userId, $taxYear);

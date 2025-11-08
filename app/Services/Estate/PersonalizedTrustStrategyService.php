@@ -6,6 +6,7 @@ namespace App\Services\Estate;
 
 use App\Models\Estate\IHTProfile;
 use App\Models\User;
+use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
 
 /**
@@ -22,7 +23,8 @@ use Illuminate\Support\Collection;
 class PersonalizedTrustStrategyService
 {
     public function __construct(
-        private AssetLiquidityAnalyzer $liquidityAnalyzer
+        private AssetLiquidityAnalyzer $liquidityAnalyzer,
+        private TaxConfigService $taxConfig
     ) {}
 
     /**
@@ -106,7 +108,8 @@ class PersonalizedTrustStrategyService
         int $yearsUntilDeath
     ): array {
         $strategies = [];
-        $availableNRB = $profile->available_nrb ?? config('uk_tax_config.inheritance_tax.nil_rate_band');
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        $availableNRB = $profile->available_nrb ?? $ihtConfig['nil_rate_band'];
 
         // Strategy 1: Immediate CLT using available NRB (Discretionary Trust)
         $strategies[] = $this->buildImmediateCLTStrategy(
@@ -439,6 +442,9 @@ class PersonalizedTrustStrategyService
         $liquidAssets = collect($liquidityAnalysis['assets_by_liquidity']['liquid'] ?? []);
         $totalLiquid = $giftableAmounts['immediately_giftable'];
 
+        // Get IHT configuration
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+
         // Discounted gift trust: gift with retained income rights
         // Discount reduces the CLT value
         $assumedIncomeRate = 0.04; // 4% income
@@ -461,8 +467,8 @@ class PersonalizedTrustStrategyService
             'discount_value' => $discountValue,
             'discount_percentage' => $discountRate * 100,
             'iht_saving_potential' => $ihtSavingOnGift,
-            'lifetime_tax_charge' => max(0, ($cltValue - config('uk_tax_config.inheritance_tax.nil_rate_band')) * 0.20), // 20% on excess over NRB
-            'potential_death_charge' => max(0, ($cltValue - config('uk_tax_config.inheritance_tax.nil_rate_band')) * 0.40), // 40% if death within 7 years
+            'lifetime_tax_charge' => max(0, ($cltValue - $ihtConfig['nil_rate_band']) * 0.20), // 20% on excess over NRB
+            'potential_death_charge' => max(0, ($cltValue - $ihtConfig['nil_rate_band']) * 0.40), // 40% if death within 7 years
             'time_frame' => '7 years for full effectiveness',
             'risk_level' => 'Medium',
             'suitable_for' => 'Those wanting to gift but retain income',

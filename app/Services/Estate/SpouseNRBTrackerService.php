@@ -7,10 +7,23 @@ namespace App\Services\Estate;
 use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\User;
+use App\Services\TaxConfigService;
 use Carbon\Carbon;
 
 class SpouseNRBTrackerService
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Calculate how much NRB the spouse has used from their own estate
      *
@@ -23,8 +36,8 @@ class SpouseNRBTrackerService
      */
     public function calculateSpouseNRBUsage(User $spouse): array
     {
-        $config = config('uk_tax_config.inheritance_tax');
-        $nrb = $config['nil_rate_band']; // £325,000
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        $nrb = $ihtConfig['nil_rate_band']; // £325,000
 
         // Get spouse's IHT profile
         $spouseIHTProfile = IHTProfile::where('user_id', $spouse->id)->first();
@@ -92,8 +105,8 @@ class SpouseNRBTrackerService
      */
     public function calculateSurvivorTotalNRB(User $survivor, User $deceased): array
     {
-        $config = config('uk_tax_config.inheritance_tax');
-        $nrb = $config['nil_rate_band'];
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        $nrb = $ihtConfig['nil_rate_band'];
 
         // Get deceased spouse's NRB usage
         $deceasedNRBUsage = $this->calculateSpouseNRBUsage($deceased);
@@ -141,8 +154,8 @@ class SpouseNRBTrackerService
      */
     public function calculateRNRBTransfer(User $deceased): array
     {
-        $config = config('uk_tax_config.inheritance_tax');
-        $rnrb = $config['residence_nil_rate_band']; // £175,000
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        $rnrb = $ihtConfig['residence_nil_rate_band']; // £175,000
 
         $deceasedIHTProfile = IHTProfile::where('user_id', $deceased->id)->first();
 
