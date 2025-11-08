@@ -8,14 +8,55 @@ use App\Models\Investment\InvestmentAccount;
 use App\Models\Property;
 use App\Models\User;
 use App\Services\Shared\CrossModuleAssetAggregator;
+use App\Services\TaxConfigService;
+use App\Services\UKTaxCalculator;
 use App\Services\UserProfile\UserProfileService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $aggregator = new CrossModuleAssetAggregator;
-    $this->service = new UserProfileService($aggregator);
+
+    // Mock TaxConfigService for UKTaxCalculator
+    $mockTaxConfig = Mockery::mock(TaxConfigService::class);
+    $mockTaxConfig->shouldReceive('getIncomeTax')
+        ->andReturn([
+            'personal_allowance' => 12570,
+            'bands' => [
+                ['name' => 'Basic Rate', 'lower_limit' => 12570, 'upper_limit' => 50270, 'min' => 0, 'max' => 37700, 'rate' => 20],
+                ['name' => 'Higher Rate', 'lower_limit' => 50270, 'upper_limit' => 125140, 'min' => 37700, 'max' => 125140, 'rate' => 40],
+                ['name' => 'Additional Rate', 'lower_limit' => 125140, 'upper_limit' => null, 'min' => 125140, 'max' => null, 'rate' => 45],
+            ],
+        ]);
+    $mockTaxConfig->shouldReceive('getNationalInsurance')
+        ->andReturn([
+            'class_1' => [
+                'employee' => [
+                    'primary_threshold' => 12570,
+                    'upper_earnings_limit' => 50270,
+                    'main_rate' => 0.08,
+                    'additional_rate' => 0.02,
+                ],
+            ],
+            'class_4' => [
+                'lower_profits_limit' => 12570,
+                'upper_profits_limit' => 50270,
+                'main_rate' => 0.09,
+                'additional_rate' => 0.02,
+            ],
+        ]);
+    $mockTaxConfig->shouldReceive('getDividendTax')
+        ->andReturn([
+            'allowance' => 500,
+            'basic_rate' => 8.75,        // Flattened structure with percentages
+            'higher_rate' => 33.75,
+            'additional_rate' => 39.35,
+        ]);
+
+    $taxCalculator = new UKTaxCalculator($mockTaxConfig);
+    $this->service = new UserProfileService($aggregator, $taxCalculator);
 
     // Create a household
     $this->household = Household::factory()->create();

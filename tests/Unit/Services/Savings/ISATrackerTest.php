@@ -6,11 +6,28 @@ use App\Models\ISAAllowanceTracking;
 use App\Models\SavingsAccount;
 use App\Models\User;
 use App\Services\Savings\ISATracker;
+use App\Services\TaxConfigService;
+use Mockery;
+
+// Mock TaxConfigService before running tests
+beforeEach(function () {
+    $mockTaxConfig = Mockery::mock(TaxConfigService::class);
+    $mockTaxConfig->shouldReceive('getISAAllowances')
+        ->andReturn([
+            'annual_allowance' => 20000,
+            'lifetime_isa' => [
+                'annual_allowance' => 4000,
+            ],
+        ]);
+
+    // Bind the mock to the service container
+    $this->app->instance(TaxConfigService::class, $mockTaxConfig);
+});
 
 describe('ISATracker', function () {
     describe('getCurrentTaxYear', function () {
         it('returns correct tax year format', function () {
-            $tracker = new ISATracker;
+            $tracker = app(ISATracker::class);
             $taxYear = $tracker->getCurrentTaxYear();
             expect($taxYear)->toMatch('/^\d{4}\/\d{2}$/');
         });
@@ -18,7 +35,7 @@ describe('ISATracker', function () {
         it('returns correct tax year based on date', function () {
             // This test assumes we're in 2024/25 tax year (after April 6, 2024)
             // In production, this would be more dynamic
-            $tracker = new ISATracker;
+            $tracker = app(ISATracker::class);
             $taxYear = $tracker->getCurrentTaxYear();
             expect($taxYear)->toBeString();
             expect(strlen($taxYear))->toBe(7);
@@ -27,7 +44,7 @@ describe('ISATracker', function () {
 
     describe('getTotalAllowance', function () {
         it('returns correct ISA allowance from config', function () {
-            $tracker = new ISATracker;
+            $tracker = app(ISATracker::class);
             $allowance = $tracker->getTotalAllowance('2024/25');
             expect($allowance)->toBe(20000.0);
         });
@@ -35,7 +52,7 @@ describe('ISATracker', function () {
 
     describe('getLISAAllowance', function () {
         it('returns correct LISA allowance from config', function () {
-            $tracker = new ISATracker;
+            $tracker = app(ISATracker::class);
             $allowance = $tracker->getLISAAllowance();
             expect($allowance)->toBe(4000.0);
         });
@@ -43,7 +60,7 @@ describe('ISATracker', function () {
 
     describe('getISAAllowanceStatus', function () {
         it('creates tracking record if not exists', function () {
-            $tracker = new ISATracker;
+            $tracker = app(ISATracker::class);
             $user = User::factory()->create();
             $status = $tracker->getISAAllowanceStatus($user->id, '2024/25');
 
@@ -63,7 +80,7 @@ describe('ISATracker', function () {
         });
 
         it('calculates ISA usage from savings accounts', function () {
-            $tracker = new ISATracker;
+            $tracker = app(ISATracker::class);
             $user = User::factory()->create();
 
             // Create cash ISA account
@@ -94,7 +111,7 @@ describe('ISATracker', function () {
         });
 
         it('only counts ISAs for the specified tax year', function () {
-            $tracker = new ISATracker;
+            $tracker = app(ISATracker::class);
             $user = User::factory()->create();
 
             // Create ISA for 2024/25
@@ -124,7 +141,7 @@ describe('ISATracker', function () {
 
     describe('updateISAUsage', function () {
         it('updates ISA usage for a specific type', function () {
-            $tracker = new ISATracker;
+            $tracker = app(ISATracker::class);
             $user = User::factory()->create();
 
             $tracker->updateISAUsage($user->id, 'stocks_shares', 10000);
@@ -138,7 +155,7 @@ describe('ISATracker', function () {
         });
 
         it('updates total when multiple types are used', function () {
-            $tracker = new ISATracker;
+            $tracker = app(ISATracker::class);
             $user = User::factory()->create();
 
             $tracker->updateISAUsage($user->id, 'stocks_shares', 10000);

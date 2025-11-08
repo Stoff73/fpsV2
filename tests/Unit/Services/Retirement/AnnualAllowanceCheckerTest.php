@@ -1,9 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Services\Retirement\AnnualAllowanceChecker;
+use App\Services\TaxConfigService;
+use Mockery;
 
 beforeEach(function () {
-    $this->checker = new AnnualAllowanceChecker;
+    // Mock TaxConfigService
+    $mockTaxConfig = Mockery::mock(TaxConfigService::class);
+    $mockTaxConfig->shouldReceive('getPensionAllowances')
+        ->andReturn([
+            'annual_allowance' => 60000,
+            'mpaa' => 10000,
+            'tapered_annual_allowance' => [
+                'threshold_income' => 200000,
+                'adjusted_income_threshold' => 260000,
+                'minimum_allowance' => 10000,
+            ],
+        ]);
+
+    // Inject the mocked service
+    $this->checker = new AnnualAllowanceChecker($mockTaxConfig);
 });
 
 test('calculates tapering for high earners correctly', function () {
@@ -59,5 +77,5 @@ test('checks MPAA status when not triggered', function () {
 
     expect($mpaaStatus)->toHaveKeys(['is_triggered', 'mpaa_amount', 'message'])
         ->and($mpaaStatus['is_triggered'])->toBeFalse()
-        ->and($mpaaStatus['mpaa_amount'])->toBe(10000);
+        ->and($mpaaStatus['mpaa_amount'])->toBe(10000.0);
 });

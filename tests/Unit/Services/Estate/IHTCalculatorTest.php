@@ -6,10 +6,38 @@ use App\Models\Estate\Asset;
 use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Services\Estate\IHTCalculator;
+use App\Services\TaxConfigService;
 use Carbon\Carbon;
+use Mockery;
 
 beforeEach(function () {
-    $this->calculator = new IHTCalculator;
+    // Mock TaxConfigService
+    $mockTaxConfig = Mockery::mock(TaxConfigService::class);
+    $mockTaxConfig->shouldReceive('getInheritanceTax')
+        ->andReturn([
+            'nil_rate_band' => 325000,
+            'residence_nil_rate_band' => 175000,
+            'rnrb_taper_threshold' => 2000000,
+            'rnrb_taper_rate' => 0.5,
+            'standard_rate' => 0.40,
+            'reduced_rate_charity' => 0.36,
+            'potentially_exempt_transfers' => [
+                'years_to_exemption' => 7,
+                'taper_relief' => [
+                    ['years' => 3, 'rate' => 0.40],
+                    ['years' => 4, 'rate' => 0.32],
+                    ['years' => 5, 'rate' => 0.24],
+                    ['years' => 6, 'rate' => 0.16],
+                    ['years' => 7, 'rate' => 0.08],
+                ],
+            ],
+            'chargeable_lifetime_transfers' => [
+                'rate' => 0.20,
+            ],
+        ]);
+
+    // Inject the mocked service
+    $this->calculator = new IHTCalculator($mockTaxConfig);
 });
 
 describe('calculateIHTLiability', function () {

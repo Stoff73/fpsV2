@@ -5,10 +5,55 @@ declare(strict_types=1);
 use App\Models\ProtectionProfile;
 use App\Models\User;
 use App\Services\Protection\CoverageGapAnalyzer;
+use App\Services\TaxConfigService;
 use App\Services\UKTaxCalculator;
+use Mockery;
 
 beforeEach(function () {
-    $taxCalculator = new UKTaxCalculator;
+    // Mock TaxConfigService
+    $mockTaxConfig = Mockery::mock(TaxConfigService::class);
+    $mockTaxConfig->shouldReceive('getIncomeTax')
+        ->andReturn([
+            'personal_allowance' => 12570,
+            'bands' => [
+                ['name' => 'Basic Rate', 'min' => 0, 'max' => 37700, 'rate' => 0.20],
+                ['name' => 'Higher Rate', 'min' => 37700, 'max' => 112570, 'rate' => 0.40],
+                ['name' => 'Additional Rate', 'min' => 112570, 'max' => null, 'rate' => 0.45],
+            ],
+        ]);
+
+    $mockTaxConfig->shouldReceive('getNationalInsurance')
+        ->andReturn([
+            'class_1' => [
+                'employee' => [
+                    'primary_threshold' => 12570,
+                    'upper_earnings_limit' => 50270,
+                    'main_rate' => 0.08,
+                    'additional_rate' => 0.02,
+                ],
+            ],
+            'class_4' => [
+                'lower_profits_limit' => 12570,
+                'upper_profits_limit' => 50270,
+                'main_rate' => 0.06,
+                'additional_rate' => 0.02,
+            ],
+        ]);
+
+    $mockTaxConfig->shouldReceive('getDividendTax')
+        ->andReturn([
+            'allowance' => 500,
+            'rates' => [
+                'basic_rate' => 0.0875,
+                'higher_rate' => 0.3375,
+                'additional_rate' => 0.3935,
+            ],
+        ]);
+
+    // Create UKTaxCalculator with mocked TaxConfigService
+    $taxCalculator = new UKTaxCalculator($mockTaxConfig);
+
+    // Create CoverageGapAnalyzer with mocked UKTaxCalculator
     $this->analyzer = new CoverageGapAnalyzer($taxCalculator);
 });
 
