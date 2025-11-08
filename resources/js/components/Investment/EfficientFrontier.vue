@@ -402,6 +402,16 @@ export default {
           this.error = response.message || 'Failed to calculate efficient frontier';
         }
       } catch (err) {
+        // Handle "no holdings" gracefully without logging error
+        if (err.response && err.response.status === 400) {
+          const message = err.response.data?.message || '';
+          if (message.includes('No investment accounts') || message.includes('No holdings')) {
+            this.error = 'Add investment holdings to view efficient frontier analysis';
+            return; // Don't log this as an error - it's expected for new users
+          }
+        }
+
+        // Log unexpected errors
         console.error('Error loading efficient frontier:', err);
         this.error = err.message || 'Unable to load efficient frontier data';
       } finally {

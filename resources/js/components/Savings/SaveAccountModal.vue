@@ -266,7 +266,7 @@
                   required
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="sole">Sole Owner</option>
+                  <option value="individual">Sole Owner</option>
                   <option value="joint">Joint Owner</option>
                 </select>
               </div>
