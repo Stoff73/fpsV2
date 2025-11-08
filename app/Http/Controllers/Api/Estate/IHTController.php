@@ -20,6 +20,7 @@ use App\Services\Estate\IHTStrategyGeneratorService;
 use App\Services\Estate\LifeCoverCalculator;
 use App\Services\Estate\NetWorthAnalyzer;
 use App\Services\Estate\SecondDeathIHTCalculator;
+use App\Services\TaxConfigService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -37,7 +38,8 @@ class IHTController extends Controller
         private GiftingStrategyOptimizer $giftingOptimizer,
         private LifeCoverCalculator $lifeCoverCalculator,
         private IHTStrategyGeneratorService $strategyGenerator,
-        private GiftingTimelineService $giftingTimeline
+        private GiftingTimelineService $giftingTimeline,
+        private TaxConfigService $taxConfig
     ) {}
 
     public function calculateIHT(Request $request): JsonResponse
@@ -73,8 +75,8 @@ class IHTController extends Controller
                 // For married users, default to full spouse NRB (£325,000)
                 // This will be verified once spouse accounts are linked
                 $isMarried = in_array($user->marital_status, ['married']);
-                $config = config('uk_tax_config.inheritance_tax');
-                $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
+                $ihtConfig = $this->taxConfig->getInheritanceTax();
+                $defaultSpouseNRB = $isMarried ? $ihtConfig['nil_rate_band'] : 0;
 
                 $ihtProfile = new IHTProfile([
                     'user_id' => $user->id,
@@ -252,8 +254,8 @@ class IHTController extends Controller
             if (! $ihtProfile) {
                 // For married users, default to full spouse NRB (£325,000)
                 $isMarried = in_array($user->marital_status, ['married']);
-                $config = config('uk_tax_config.inheritance_tax');
-                $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
+                $ihtConfig = $this->taxConfig->getInheritanceTax();
+                $defaultSpouseNRB = $isMarried ? $ihtConfig['nil_rate_band'] : 0;
 
                 $ihtProfile = new IHTProfile([
                     'user_id' => $user->id,
@@ -335,8 +337,8 @@ class IHTController extends Controller
                 if (! $userProfile) {
                     // For married users, default to full spouse NRB (£325,000)
                     $isMarried = in_array($user->marital_status, ['married']);
-                    $config = config('uk_tax_config.inheritance_tax');
-                    $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
+                    $ihtConfig = $this->taxConfig->getInheritanceTax();
+                    $defaultSpouseNRB = $isMarried ? $ihtConfig['nil_rate_band'] : 0;
 
                     $userProfile = new IHTProfile([
                         'user_id' => $user->id,
@@ -359,8 +361,8 @@ class IHTController extends Controller
                 );
 
                 // Calculate effective IHT liability for display (potential second death liability)
-                $config = config('uk_tax_config.inheritance_tax');
-                $totalNRB = $ihtCalculation['total_nrb'] ?? $config['nil_rate_band'];
+                $ihtConfig = $this->taxConfig->getInheritanceTax();
+                $totalNRB = $ihtCalculation['total_nrb'] ?? $ihtConfig['nil_rate_band'];
                 $rnrb = $ihtCalculation['rnrb'] ?? 0;
                 $totalAllowance = $totalNRB + $rnrb;
                 $taxableNetEstate = $ihtCalculation['taxable_net_estate'] ?? 0;
@@ -418,7 +420,7 @@ class IHTController extends Controller
                     $currentIHT = $ihtCalculation['iht_liability'] ?? 0;
 
                     // Calculate projected IHT based on projected net estate
-                    $totalNRB = $ihtCalculation['total_nrb'] ?? $config['nil_rate_band'];
+                    $totalNRB = $ihtCalculation['total_nrb'] ?? $ihtConfig['nil_rate_band'];
                     $rnrb = $ihtCalculation['rnrb'] ?? 0;
                     $projectedTaxableEstate = max(0, $projectedNetEstate - $totalNRB - $rnrb);
                     $projectedIHT = $projectedTaxableEstate * 0.40;
@@ -481,8 +483,8 @@ class IHTController extends Controller
             if (! $userProfile) {
                 // For married users, default to full spouse NRB (£325,000)
                 $isMarried = in_array($user->marital_status, ['married']);
-                $config = config('uk_tax_config.inheritance_tax');
-                $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
+                $ihtConfig = $this->taxConfig->getInheritanceTax();
+                $defaultSpouseNRB = $isMarried ? $ihtConfig['nil_rate_band'] : 0;
 
                 $userProfile = new IHTProfile([
                     'user_id' => $user->id,
@@ -548,8 +550,8 @@ class IHTController extends Controller
             // CRITICAL: For LIFETIME GIFTING, use ONLY the survivor's own NRB (£325k)
             // Even though total_nrb includes inherited spouse NRB for IHT on death,
             // lifetime PET gifts are limited to the individual's own NRB only
-            $config = config('uk_tax_config.inheritance_tax');
-            $totalNRB = $config['nil_rate_band']; // £325,000 - survivor's own NRB only
+            $ihtConfig = $this->taxConfig->getInheritanceTax();
+            $totalNRB = $ihtConfig['nil_rate_band']; // £325,000 - survivor's own NRB only
             $rnrb = $secondDeathAnalysis['iht_calculation']['rnrb'];
 
             // Determine which user survives (for income/expenditure check)
@@ -692,14 +694,14 @@ class IHTController extends Controller
      */
     private function calculateProjectedIHT(float $projectedNetEstate, IHTProfile $profile): float
     {
-        $config = config('uk_tax_config.inheritance_tax');
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
 
         // Apply allowances
-        $nrb = $config['nil_rate_band'];
+        $nrb = $ihtConfig['nil_rate_band'];
         $totalNRB = $nrb + $profile->nrb_transferred_from_spouse;
 
         // RNRB (assuming still eligible at death)
-        $rnrb = $config['residence_nil_rate_band'];
+        $rnrb = $ihtConfig['residence_nil_rate_band'];
         if ($profile->own_home && $projectedNetEstate > 0) {
             // Double RNRB if married
             if (in_array($profile->marital_status, ['married'])) {
@@ -712,9 +714,9 @@ class IHTController extends Controller
         $totalAllowances = $totalNRB + $rnrb;
         $taxableEstate = max(0, $projectedNetEstate - $totalAllowances);
 
-        $ihtRate = $config['standard_rate'];
+        $ihtRate = $ihtConfig['standard_rate'];
         if ($profile->charitable_giving_percent >= 10) {
-            $ihtRate = $config['reduced_rate_charity'];
+            $ihtRate = $ihtConfig['reduced_rate_charity'];
         }
 
         return $taxableEstate * $ihtRate;

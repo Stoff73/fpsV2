@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTaxConfigurationRequest;
 use App\Models\TaxConfiguration;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class TaxSettingsController extends Controller
@@ -140,43 +142,29 @@ class TaxSettingsController extends Controller
     /**
      * Create new tax configuration
      */
-    public function create(Request $request): JsonResponse
+    public function create(StoreTaxConfigurationRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'tax_year' => 'required|string|unique:tax_configurations,tax_year',
-            'effective_from' => 'required|date',
-            'effective_to' => 'required|date',
-            'config_data' => 'required|array',
-            'is_active' => 'boolean',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
         try {
-            // If setting as active, deactivate all others
-            if ($request->is_active) {
-                TaxConfiguration::where('is_active', true)->update(['is_active' => false]);
-            }
+            return DB::transaction(function () use ($request) {
+                // If setting as active, deactivate all others
+                if ($request->is_active) {
+                    TaxConfiguration::where('is_active', true)->update(['is_active' => false]);
+                }
 
-            $config = TaxConfiguration::create([
-                'tax_year' => $request->tax_year,
-                'effective_from' => $request->effective_from,
-                'effective_to' => $request->effective_to,
-                'config_data' => $request->config_data,
-                'is_active' => $request->is_active ?? false,
-            ]);
+                $config = TaxConfiguration::create([
+                    'tax_year' => $request->tax_year,
+                    'effective_from' => $request->effective_from,
+                    'effective_to' => $request->effective_to,
+                    'config_data' => $request->config_data,
+                    'is_active' => $request->is_active ?? false,
+                ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Tax configuration created successfully',
-                'data' => $config,
-            ], 201);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Tax configuration created successfully',
+                    'data' => $config,
+                ], 201);
+            });
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -308,6 +296,96 @@ class TaxSettingsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch calculations: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Duplicate an existing tax configuration
+     */
+    public function duplicate(Request $request, int $id): JsonResponse
+    {
+        $source = TaxConfiguration::find($id);
+
+        if (! $source) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Source tax configuration not found',
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'new_tax_year' => 'required|string|regex:/^\d{4}\/\d{2}$/|unique:tax_configurations,tax_year',
+            'effective_from' => 'required|date',
+            'effective_to' => 'required|date|after:effective_from',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            return DB::transaction(function () use ($source, $request) {
+                // Create duplicate with new dates and tax year
+                $duplicate = TaxConfiguration::create([
+                    'tax_year' => $request->new_tax_year,
+                    'effective_from' => $request->effective_from,
+                    'effective_to' => $request->effective_to,
+                    'config_data' => $source->config_data, // Copy all tax values
+                    'is_active' => false, // New config starts as inactive
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Tax configuration duplicated successfully',
+                    'data' => $duplicate,
+                ], 201);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to duplicate tax configuration: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a tax configuration
+     */
+    public function delete(int $id): JsonResponse
+    {
+        $config = TaxConfiguration::find($id);
+
+        if (! $config) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tax configuration not found',
+            ], 404);
+        }
+
+        // Prevent deletion of active tax year
+        if ($config->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot delete active tax configuration. Please activate another tax year first.',
+            ], 403);
+        }
+
+        try {
+            $config->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tax configuration deleted successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete tax configuration: '.$e->getMessage(),
             ], 500);
         }
     }

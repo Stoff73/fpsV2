@@ -15,6 +15,7 @@ use App\Models\Estate\Will;
 use App\Models\Investment\InvestmentAccount;
 use App\Services\Estate\CashFlowProjector;
 use App\Services\Estate\NetWorthAnalyzer;
+use App\Services\TaxConfigService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -25,7 +26,8 @@ class EstateController extends Controller
         private EstateAgent $estateAgent,
         private NetWorthAnalyzer $netWorthAnalyzer,
         private CashFlowProjector $cashFlowProjector,
-        private \App\Services\Estate\ComprehensiveEstatePlanService $comprehensiveEstatePlan
+        private \App\Services\Estate\ComprehensiveEstatePlanService $comprehensiveEstatePlan,
+        private TaxConfigService $taxConfig
     ) {}
 
     /**
@@ -243,8 +245,8 @@ class EstateController extends Controller
                 // For married users, default to full spouse NRB (£325,000)
                 // This will be verified once spouse accounts are linked
                 $isMarried = in_array($user->marital_status, ['married']);
-                $config = config('uk_tax_config.inheritance_tax');
-                $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
+                $ihtConfig = $this->taxConfig->getInheritanceTax();
+                $defaultSpouseNRB = $isMarried ? $ihtConfig['nil_rate_band'] : 0;
 
                 $ihtProfile = new IHTProfile([
                     'user_id' => $user->id,
@@ -333,6 +335,13 @@ class EstateController extends Controller
                 'projection' => $projection,
             ]);
         } catch (\Exception $e) {
+            \Log::error('IHT Calculation Error', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to calculate IHT: '.$e->getMessage(),
@@ -355,6 +364,13 @@ class EstateController extends Controller
                 'data' => $plan,
             ]);
         } catch (\Exception $e) {
+            \Log::error('Comprehensive Estate Plan Error:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate comprehensive estate plan: '.$e->getMessage(),

@@ -746,4 +746,6 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('tax-settings')->group(func
     Route::post('/create', [\App\Http\Controllers\Api\TaxSettingsController::class, 'create']);
     Route::put('/{id}', [\App\Http\Controllers\Api\TaxSettingsController::class, 'update']);
     Route::post('/{id}/activate', [\App\Http\Controllers\Api\TaxSettingsController::class, 'setActive']);
+    Route::post('/{id}/duplicate', [\App\Http\Controllers\Api\TaxSettingsController::class, 'duplicate']);
+    Route::delete('/{id}', [\App\Http\Controllers\Api\TaxSettingsController::class, 'delete']);
 });
