@@ -136,7 +136,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="card p-8 text-center">
+    <div v-else class="card p-8 text-centre">
       <p class="text-body-base text-gray-500">
         No data available. Click "Calculate" to generate your Balance Sheet.
       </p>

@@ -2,14 +2,14 @@
   <div class="what-if-scenarios bg-white rounded-lg shadow-sm">
     <!-- Header -->
     <div class="p-6 border-b border-gray-200">
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex items-centre justify-between mb-6">
         <div>
           <h2 class="text-2xl font-bold text-gray-900">What-If Scenarios</h2>
           <p class="mt-1 text-sm text-gray-600">Model portfolio changes and compare outcomes</p>
         </div>
         <button
           @click="showCreateModal = true"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colours duration-200"
         >
           + Create Scenario
         </button>
@@ -71,7 +71,7 @@
         </div>
 
         <div class="flex items-end">
-          <label class="flex items-center cursor-pointer">
+          <label class="flex items-centre cursor-pointer">
             <input
               type="checkbox"
               v-model="filters.saved_only"
@@ -85,7 +85,7 @@
         <div class="flex items-end">
           <button
             @click="clearFilters"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colours duration-200"
           >
             Clear Filters
           </button>
@@ -96,24 +96,24 @@
     <!-- Scenarios List -->
     <div class="p-6">
       <!-- Loading State -->
-      <div v-if="loading" class="text-center py-12">
+      <div v-if="loading" class="text-centre py-12">
         <svg class="animate-spin h-12 w-12 mx-auto text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColour" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColour" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
         <p class="mt-4 text-gray-600">Loading scenarios...</p>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="!scenarios || scenarios.length === 0" class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div v-else-if="!scenarios || scenarios.length === 0" class="text-centre py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColour">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
         <h3 class="mt-4 text-lg font-medium text-gray-900">No scenarios found</h3>
         <p class="mt-2 text-gray-500">Create your first what-if scenario to explore different outcomes.</p>
         <button
           @click="showCreateModal = true"
-          class="mt-4 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200"
+          class="mt-4 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colours duration-200"
         >
           Create Scenario
         </button>
@@ -130,7 +130,7 @@
           <!-- Header Row -->
           <div class="flex items-start justify-between mb-3">
             <div class="flex-1">
-              <div class="flex items-center gap-3 mb-2">
+              <div class="flex items-centre gap-3 mb-2">
                 <!-- Status Badge -->
                 <span
                   class="px-2 py-1 text-xs font-semibold rounded"
@@ -164,7 +164,7 @@
                   class="text-gray-400 hover:text-amber-500"
                   title="Bookmark scenario"
                 >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                   </svg>
                 </button>
@@ -181,7 +181,7 @@
                 @click="toggleActionMenu(scenario.id)"
                 class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
               >
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5" fill="currentColour" viewBox="0 0 20 20">
                   <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                 </svg>
               </button>
@@ -234,20 +234,20 @@
         v-if="selectedForComparison.length > 0"
         class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-50"
       >
-        <div class="flex items-center gap-4">
+        <div class="flex items-centre gap-4">
           <span class="text-sm font-medium text-gray-700">
             {{ selectedForComparison.length }} scenario(s) selected for comparison
           </span>
           <button
             @click="compareSelectedScenarios"
             :disabled="selectedForComparison.length < 2"
-            class="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors duration-200"
+            class="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colours duration-200"
           >
             Compare
           </button>
           <button
             @click="selectedForComparison = []"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colours duration-200"
           >
             Clear
           </button>
@@ -258,7 +258,7 @@
     <!-- Create Scenario Modal -->
     <div
       v-if="showCreateModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-centre justify-centre z-50 p-4"
       @click.self="closeCreateModal"
     >
       <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -273,7 +273,7 @@
                 v-for="template in scenarioTemplates"
                 :key="template.id"
                 @click="selectTemplate(template)"
-                class="text-left p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
+                class="text-left p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colours duration-200"
                 :class="selectedTemplate?.id === template.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'"
               >
                 <div class="font-medium text-gray-900">{{ template.name }}</div>
@@ -281,7 +281,7 @@
               </button>
               <button
                 @click="selectTemplate(null)"
-                class="text-left p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
+                class="text-left p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colours duration-200"
                 :class="selectedTemplate === null ? 'border-blue-500 bg-blue-50' : 'border-gray-200'"
               >
                 <div class="font-medium text-gray-900">Custom Scenario</div>
@@ -324,14 +324,14 @@
           <div class="flex justify-end gap-3 mt-6">
             <button
               @click="closeCreateModal"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colours duration-200"
             >
               Cancel
             </button>
             <button
               @click="createScenario"
               :disabled="!newScenario.scenario_name"
-              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors duration-200"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colours duration-200"
             >
               Create Scenario
             </button>

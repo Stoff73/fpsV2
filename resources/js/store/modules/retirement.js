@@ -103,15 +103,15 @@ const actions = {
         }
     },
 
-    async analyzeRetirement({ commit }, data) {
+    async analyseRetirement({ commit }, data) {
         commit('SET_LOADING', true);
         commit('SET_ERROR', null);
         try {
-            const response = await retirementService.analyzeRetirement(data);
+            const response = await retirementService.analyseRetirement(data);
             commit('SET_ANALYSIS', response.data);
             return response.data;
         } catch (error) {
-            commit('SET_ERROR', error.response?.data?.message || 'Failed to analyze retirement');
+            commit('SET_ERROR', error.response?.data?.message || 'Failed to analyse retirement');
             throw error;
         } finally {
             commit('SET_LOADING', false);
@@ -190,7 +190,7 @@ const actions = {
         try {
             const response = await retirementService.createDCPension(pensionData);
             commit('ADD_DC_PENSION', response.data);
-            await dispatch('analyzeRetirement');
+            await dispatch('analyseRetirement');
             return response.data;
         } catch (error) {
             commit('SET_ERROR', error.response?.data?.message || 'Failed to create DC pension');
@@ -206,7 +206,7 @@ const actions = {
         try {
             const response = await retirementService.updateDCPension(id, data);
             commit('UPDATE_DC_PENSION', response.data);
-            await dispatch('analyzeRetirement');
+            await dispatch('analyseRetirement');
             return response.data;
         } catch (error) {
             commit('SET_ERROR', error.response?.data?.message || 'Failed to update DC pension');
@@ -222,7 +222,7 @@ const actions = {
         try {
             await retirementService.deleteDCPension(id);
             commit('REMOVE_DC_PENSION', id);
-            await dispatch('analyzeRetirement');
+            await dispatch('analyseRetirement');
         } catch (error) {
             commit('SET_ERROR', error.response?.data?.message || 'Failed to delete DC pension');
             throw error;
@@ -237,7 +237,7 @@ const actions = {
         try {
             const response = await retirementService.createDBPension(pensionData);
             commit('ADD_DB_PENSION', response.data);
-            await dispatch('analyzeRetirement');
+            await dispatch('analyseRetirement');
             return response.data;
         } catch (error) {
             commit('SET_ERROR', error.response?.data?.message || 'Failed to create DB pension');
@@ -253,7 +253,7 @@ const actions = {
         try {
             const response = await retirementService.updateDBPension(id, data);
             commit('UPDATE_DB_PENSION', response.data);
-            await dispatch('analyzeRetirement');
+            await dispatch('analyseRetirement');
             return response.data;
         } catch (error) {
             commit('SET_ERROR', error.response?.data?.message || 'Failed to update DB pension');
@@ -269,7 +269,7 @@ const actions = {
         try {
             await retirementService.deleteDBPension(id);
             commit('REMOVE_DB_PENSION', id);
-            await dispatch('analyzeRetirement');
+            await dispatch('analyseRetirement');
         } catch (error) {
             commit('SET_ERROR', error.response?.data?.message || 'Failed to delete DB pension');
             throw error;
@@ -284,7 +284,7 @@ const actions = {
         try {
             const response = await retirementService.updateStatePension(data);
             commit('SET_STATE_PENSION', response.data);
-            await dispatch('analyzeRetirement');
+            await dispatch('analyseRetirement');
             return response.data;
         } catch (error) {
             commit('SET_ERROR', error.response?.data?.message || 'Failed to update state pension');

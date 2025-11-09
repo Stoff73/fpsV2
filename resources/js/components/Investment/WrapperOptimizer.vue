@@ -1,14 +1,14 @@
 <template>
-  <div class="wrapper-optimizer">
+  <div class="wrapper-optimiser">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-12">
+    <div v-if="loading" class="flex justify-centre items-centre py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-center">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <div class="flex items-centre">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -24,25 +24,25 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- ISA Wrapper -->
           <div class="border-2 border-green-300 bg-green-50 rounded-lg p-6">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-centre justify-between mb-4">
               <h3 class="text-lg font-semibold text-gray-800">ISA</h3>
               <span class="px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-full">TAX-FREE</span>
             </div>
 
             <div class="space-y-3 mb-4">
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Annual Limit:</span>
                 <span class="font-semibold text-gray-800">£20,000</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Tax on Growth:</span>
                 <span class="font-semibold text-green-600">£0 (0%)</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Tax on Income:</span>
                 <span class="font-semibold text-green-600">£0 (0%)</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Withdrawal:</span>
                 <span class="font-semibold text-green-600">Tax-Free</span>
               </div>
@@ -73,25 +73,25 @@
 
           <!-- GIA Wrapper -->
           <div class="border-2 border-yellow-300 bg-yellow-50 rounded-lg p-6">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-centre justify-between mb-4">
               <h3 class="text-lg font-semibold text-gray-800">GIA</h3>
               <span class="px-3 py-1 bg-yellow-600 text-white text-xs font-semibold rounded-full">TAXABLE</span>
             </div>
 
             <div class="space-y-3 mb-4">
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Annual Limit:</span>
                 <span class="font-semibold text-gray-800">None</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Tax on Growth:</span>
                 <span class="font-semibold text-orange-600">CGT (10-20%)</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Tax on Income:</span>
                 <span class="font-semibold text-orange-600">Income Tax</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Withdrawal:</span>
                 <span class="font-semibold text-yellow-600">May Trigger Tax</span>
               </div>
@@ -122,25 +122,25 @@
 
           <!-- Pension Wrapper -->
           <div class="border-2 border-blue-300 bg-blue-50 rounded-lg p-6">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-centre justify-between mb-4">
               <h3 class="text-lg font-semibold text-gray-800">Pension</h3>
               <span class="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">TAX RELIEF</span>
             </div>
 
             <div class="space-y-3 mb-4">
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Annual Limit:</span>
                 <span class="font-semibold text-gray-800">£60,000</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Tax Relief:</span>
                 <span class="font-semibold text-green-600">20-45%</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Tax on Growth:</span>
                 <span class="font-semibold text-green-600">£0 (0%)</span>
               </div>
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-centre">
                 <span class="text-sm text-gray-600">Withdrawal:</span>
                 <span class="font-semibold text-blue-600">Age 55+ only</span>
               </div>
@@ -335,7 +335,7 @@
 
         <!-- Winner Summary -->
         <div v-if="comparisonResults" class="mt-6 p-4 rounded-lg" :class="getWinnerClass()">
-          <div class="flex items-center justify-between">
+          <div class="flex items-centre justify-between">
             <div>
               <p class="text-sm font-semibold text-gray-800 mb-1">Best Choice for This Scenario:</p>
               <p class="text-lg font-bold" :class="getWinnerTextClass()">{{ getWinner() }}</p>
@@ -355,7 +355,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- ISA Allowance -->
           <div>
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex justify-between items-centre mb-2">
               <h4 class="text-sm font-semibold text-gray-700">ISA Allowance</h4>
               <span class="text-sm font-semibold text-gray-600">£20,000</span>
             </div>
@@ -370,7 +370,7 @@
 
           <!-- CGT Allowance -->
           <div>
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex justify-between items-centre mb-2">
               <h4 class="text-sm font-semibold text-gray-700">CGT Allowance</h4>
               <span class="text-sm font-semibold text-gray-600">£3,000</span>
             </div>
@@ -385,7 +385,7 @@
 
           <!-- Pension Annual Allowance -->
           <div>
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex justify-between items-centre mb-2">
               <h4 class="text-sm font-semibold text-gray-700">Pension Allowance</h4>
               <span class="text-sm font-semibold text-gray-600">£60,000</span>
             </div>
@@ -428,7 +428,7 @@
           <div class="border-l-4 border-yellow-500 bg-yellow-50 p-4 rounded-r-lg">
             <h4 class="font-semibold text-gray-800 mb-2">Step 3: Use GIA (Priority 3)</h4>
             <p class="text-sm text-gray-700 mb-2">
-              After ISA limit exhausted, use GIA. Optimize with growth stocks (CGT-efficient) and index funds.
+              After ISA limit exhausted, use GIA. Optimise with growth stocks (CGT-efficient) and index funds.
             </p>
             <p class="text-xs text-gray-600">
               <strong>Best for:</strong> Large portfolios, growth investing, after ISA/Pension limits reached
@@ -442,7 +442,7 @@
 
 <script>
 export default {
-  name: 'WrapperOptimizer',
+  name: 'WrapperOptimiser',
 
   data() {
     return {
@@ -484,7 +484,7 @@ export default {
           style: {
             fontSize: '11px',
             fontWeight: 'bold',
-            colors: ['#333'],
+            colours: ['#333'],
           },
         },
         xaxis: {
@@ -495,7 +495,7 @@ export default {
             formatter: (val) => '£' + Math.round(val).toLocaleString('en-GB'),
           },
         },
-        colors: ['#10B981', '#F59E0B', '#3B82F6'],
+        colours: ['#10B981', '#F59E0B', '#3B82F6'],
         tooltip: {
           y: {
             formatter: (val) => '£' + Math.round(val).toLocaleString('en-GB'),

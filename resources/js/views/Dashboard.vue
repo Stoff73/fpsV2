@@ -1,7 +1,7 @@
 <template>
   <AppLayout>
     <div class="px-4 sm:px-0">
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex items-centre justify-between mb-6">
         <h1 class="font-display text-h1 text-gray-900">
           Welcome to TenGo
         </h1>
@@ -10,13 +10,13 @@
         <button
           @click="refreshDashboard"
           :disabled="refreshing"
-          class="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          class="flex items-centre gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colours"
         >
           <svg
             :class="{'animate-spin': refreshing}"
             class="w-5 h-5"
             fill="none"
-            stroke="currentColor"
+            stroke="currentColour"
             viewBox="0 0 24 24"
           >
             <path
@@ -47,7 +47,7 @@
           </p>
           <button
             @click="retryLoadModule('retirement')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colours"
           >
             Retry
           </button>
@@ -72,7 +72,7 @@
           </p>
           <button
             @click="retryLoadModule('estate')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colours"
           >
             Retry
           </button>
@@ -97,7 +97,7 @@
           </p>
           <button
             @click="retryLoadModule('protection')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colours"
           >
             Retry
           </button>
@@ -201,7 +201,7 @@ export default {
       const gaps = this.protectionCoverageGaps?.gaps_by_category || {};
       const criticalGaps = Object.values(gaps).filter(gap => gap > 10000).length || 0;
 
-      // protectionAdequacyScore is an object with {score, category, color, insights}
+      // protectionAdequacyScore is an object with {score, category, colour, insights}
       const adequacyScore = typeof this.protectionAdequacyScore === 'object'
         ? (this.protectionAdequacyScore?.score ?? 0)
         : (this.protectionAdequacyScore || 0);
@@ -234,17 +234,13 @@ export default {
   methods: {
     async loadAllData() {
       // Load all module data in parallel with Promise.allSettled
-      // Check if user is married to determine which IHT calculation to use
-      const user = this.$store.state.auth?.user;
-      const isMarried = user?.marital_status === 'married';
-
       const moduleLoaders = [
         { name: 'netWorth', action: 'netWorth/fetchOverview' },
         { name: 'protection', action: 'protection/fetchProtectionData' },
         { name: 'retirement', action: 'retirement/fetchRetirementData' },
-        { name: 'retirement', action: 'retirement/analyzeRetirement' },
+        { name: 'retirement', action: 'retirement/analyseRetirement' },
         { name: 'estate', action: 'estate/fetchEstateData' },
-        { name: 'estate', action: isMarried ? 'estate/calculateSecondDeathIHTPlanning' : 'estate/calculateIHT', payload: {} },
+        { name: 'estate', action: 'estate/calculateIHT', payload: {} },
       ];
 
       // Set all modules to loading
@@ -290,7 +286,7 @@ export default {
 
       const actions = {
         protection: ['protection/fetchProtectionData'],
-        retirement: ['retirement/fetchRetirementData', 'retirement/analyzeRetirement'],
+        retirement: ['retirement/fetchRetirementData', 'retirement/analyseRetirement'],
         estate: ['estate/fetchEstateData', 'estate/calculateIHT'],
       };
 

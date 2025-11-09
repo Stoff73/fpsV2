@@ -1,7 +1,7 @@
 <template>
   <div class="will-planning-tab">
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-8">
+    <div v-if="loading" class="text-centre py-8">
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       <p class="mt-2 text-gray-600">Loading will details...</p>
     </div>
@@ -67,8 +67,42 @@
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Will Configuration</h3>
 
         <div class="space-y-6">
-          <!-- Death Scenario -->
+          <!-- Will Last Updated -->
           <div>
+            <label for="will_last_updated" class="block text-sm font-medium text-gray-700 mb-2">
+              When was your will last updated?
+            </label>
+            <input
+              id="will_last_updated"
+              v-model="form.will_last_updated"
+              type="date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              :max="today"
+            />
+            <p class="mt-1 text-xs text-gray-500">
+              It's recommended to review your will every 5 years or after major life events
+            </p>
+          </div>
+
+          <!-- Executor Name -->
+          <div>
+            <label for="executor_name" class="block text-sm font-medium text-gray-700 mb-2">
+              Who is your executor?
+            </label>
+            <input
+              id="executor_name"
+              v-model="form.executor_name"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Executor name"
+            />
+            <p class="mt-1 text-xs text-gray-500">
+              The person responsible for administering your estate
+            </p>
+          </div>
+
+          <!-- Death Scenario -->
+          <div class="border-t border-gray-200 pt-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Death Scenario
             </label>
@@ -104,7 +138,7 @@
 
           <!-- Spouse Bequest (only show if married and user_only scenario) -->
           <div v-if="isMarried && form.death_scenario === 'user_only'" class="border-t border-gray-200 pt-6">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-centre justify-between mb-4">
               <label class="block text-sm font-medium text-gray-700">
                 Spouse as Primary Beneficiary
               </label>
@@ -113,7 +147,7 @@
                 @click="form.spouse_primary_beneficiary = !form.spouse_primary_beneficiary"
                 :class="[
                   form.spouse_primary_beneficiary ? 'bg-blue-600' : 'bg-gray-200',
-                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colours duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                 ]"
               >
                 <span
@@ -161,7 +195,7 @@
           <div v-if="form.death_scenario === 'both_simultaneous'" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div class="flex">
               <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColour">
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                 </svg>
               </div>
@@ -202,7 +236,7 @@
 
       <!-- Bequests Section (only shown when has_will is true) -->
       <div v-if="form.has_will === true" class="bg-white rounded-lg border border-gray-200 p-6">
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-centre mb-4">
           <h3 class="text-lg font-semibold text-gray-900">Specific Bequests</h3>
           <button
             @click="showBequestModal = true"
@@ -259,7 +293,7 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else class="text-center py-8 text-gray-500">
+        <div v-else class="text-centre py-8 text-gray-500">
           <p class="text-sm">No specific bequests added yet.</p>
           <p class="text-xs mt-1">Click "Add Bequest" to specify gifts to beneficiaries.</p>
         </div>
@@ -296,6 +330,8 @@ export default {
       will: null,
       form: {
         has_will: null,
+        will_last_updated: '',
+        executor_name: '',
         death_scenario: 'user_only',
         spouse_primary_beneficiary: true,
         spouse_bequest_percentage: 100,
@@ -321,6 +357,10 @@ export default {
     nonSpouseAmount() {
       return this.netEstateValue - this.spouseAmount;
     },
+
+    today() {
+      return new Date().toISOString().split('T')[0];
+    },
   },
 
   mounted() {
@@ -330,6 +370,25 @@ export default {
   },
 
   methods: {
+    formatDateForInput(date) {
+      if (!date) return '';
+      try {
+        // If it's already in YYYY-MM-DD format, return it
+        if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          return date;
+        }
+        // Parse and format the date
+        const dateObj = new Date(date);
+        if (isNaN(dateObj.getTime())) return '';
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return '';
+      }
+    },
+
     async loadWill() {
       try {
         const response = await api.get('/estate/will');
@@ -337,6 +396,8 @@ export default {
 
         this.form = {
           has_will: this.will.has_will,
+          will_last_updated: this.formatDateForInput(this.will.will_last_updated),
+          executor_name: this.will.executor_name || '',
           death_scenario: this.will.death_scenario,
           spouse_primary_beneficiary: this.will.spouse_primary_beneficiary,
           spouse_bequest_percentage: parseFloat(this.will.spouse_bequest_percentage),

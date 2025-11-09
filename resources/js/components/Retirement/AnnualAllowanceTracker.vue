@@ -1,6 +1,6 @@
 <template>
   <div class="annual-allowance-tracker bg-white rounded-lg shadow p-6">
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-centre justify-between mb-6">
       <h3 class="text-lg font-semibold text-gray-900">Annual Allowance Tracker</h3>
       <select
         v-model="selectedTaxYear"
@@ -15,7 +15,7 @@
 
     <!-- Current Year Progress -->
     <div v-if="selectedTaxYear === '2024/25'" class="mb-8">
-      <div class="flex items-center justify-between mb-3">
+      <div class="flex items-centre justify-between mb-3">
         <span class="text-sm font-medium text-gray-700">Contributions Used</span>
         <div class="text-right">
           <span class="text-2xl font-bold text-gray-900">
@@ -29,13 +29,13 @@
       <div class="relative w-full bg-gray-200 rounded-full h-4 mb-2">
         <div
           class="h-4 rounded-full transition-all duration-500"
-          :class="progressBarColor"
+          :class="progressBarColour"
           :style="{ width: progressPercent + '%' }"
         ></div>
       </div>
 
-      <div class="flex items-center justify-between text-sm">
-        <span :class="statusTextColor" class="font-medium">
+      <div class="flex items-centre justify-between text-sm">
+        <span :class="statusTextColour" class="font-medium">
           {{ statusText }}
         </span>
         <span class="text-gray-600">
@@ -45,7 +45,7 @@
 
       <!-- Remaining Allowance -->
       <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-        <div class="flex items-center justify-between">
+        <div class="flex items-centre justify-between">
           <span class="text-sm text-gray-600">Remaining Allowance</span>
           <span class="text-lg font-bold" :class="remainingAllowance > 0 ? 'text-green-600' : 'text-red-600'">
             £{{ Math.max(0, remainingAllowance).toLocaleString() }}
@@ -56,7 +56,7 @@
 
     <!-- Historical View for Past Years -->
     <div v-else class="mb-8">
-      <div class="flex items-center justify-between mb-3">
+      <div class="flex items-centre justify-between mb-3">
         <span class="text-sm font-medium text-gray-700">Contributions Used ({{ selectedTaxYear }})</span>
         <span class="text-lg font-bold text-gray-900">
           £{{ getHistoricalContributions(selectedTaxYear).toLocaleString() }}
@@ -77,8 +77,8 @@
 
     <!-- Carry Forward Available -->
     <div class="border-t border-gray-200 pt-6 mb-6">
-      <div class="flex items-center mb-4">
-        <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="flex items-centre mb-4">
+        <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
         </svg>
         <h4 class="font-semibold text-gray-900">Carry Forward Available</h4>
@@ -88,7 +88,7 @@
         <div
           v-for="year in carryForwardYears"
           :key="year.taxYear"
-          class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+          class="flex items-centre justify-between p-3 bg-gray-50 rounded-lg"
         >
           <div>
             <p class="text-sm font-medium text-gray-900">{{ year.taxYear }}</p>
@@ -101,7 +101,7 @@
       </div>
 
       <div class="mt-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
-        <div class="flex items-center justify-between">
+        <div class="flex items-centre justify-between">
           <span class="text-sm font-medium text-indigo-900">Total Available (with carry forward)</span>
           <span class="text-xl font-bold text-indigo-600">
             £{{ totalAvailableWithCarryForward.toLocaleString() }}
@@ -112,7 +112,7 @@
 
     <!-- MPAA Warning (if applicable) -->
     <div v-if="mpaaTriggered" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start">
-      <svg class="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
       </svg>
       <div>
@@ -126,7 +126,7 @@
 
     <!-- Tapered Allowance Info (if applicable) -->
     <div v-if="isTapered" class="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start">
-      <svg class="w-5 h-5 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-5 h-5 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
       <div>
@@ -200,14 +200,14 @@ export default {
       return Math.min(100, Math.round((this.contributionsUsed / this.currentAllowance) * 100));
     },
 
-    progressBarColor() {
+    progressBarColour() {
       if (this.progressPercent >= 100) return 'bg-red-500';
       if (this.progressPercent >= 80) return 'bg-amber-500';
       if (this.progressPercent >= 60) return 'bg-yellow-500';
       return 'bg-green-500';
     },
 
-    statusTextColor() {
+    statusTextColour() {
       if (this.progressPercent >= 100) return 'text-red-600';
       if (this.progressPercent >= 80) return 'text-amber-600';
       return 'text-green-600';
@@ -286,6 +286,6 @@ export default {
 .bg-yellow-500,
 .bg-amber-500,
 .bg-red-500 {
-  transition: width 0.5s ease-out, background-color 0.3s ease;
+  transition: width 0.5s ease-out, background-colour 0.3s ease;
 }
 </style>

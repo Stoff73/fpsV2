@@ -3,12 +3,9 @@
     <!-- Progress Bar -->
     <div v-if="focusArea" class="max-w-5xl mx-auto mb-8">
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div class="flex items-center justify-between mb-2">
+        <div class="mb-2">
           <span class="text-body-sm font-medium text-gray-700">
             Step {{ currentStepIndex + 1 }} of {{ totalSteps }}
-          </span>
-          <span class="text-body-sm font-medium text-primary-600">
-            {{ progressPercentage }}% Complete
           </span>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2">

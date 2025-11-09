@@ -4,21 +4,21 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <!-- Readiness Score -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-centre justify-between mb-2">
           <h3 class="text-sm font-medium text-gray-600">Readiness Score</h3>
-          <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
-        <p class="text-3xl font-bold" :class="scoreColor">{{ readinessScore }}</p>
+        <p class="text-3xl font-bold" :class="scoreColour">{{ readinessScore }}</p>
         <p class="text-sm text-gray-500 mt-1">{{ statusText }}</p>
       </div>
 
       <!-- Years to Retirement -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-centre justify-between mb-2">
           <h3 class="text-sm font-medium text-gray-600">Years to Retirement</h3>
-          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
@@ -28,9 +28,9 @@
 
       <!-- Projected Income -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-centre justify-between mb-2">
           <h3 class="text-sm font-medium text-gray-600">Projected Income</h3>
-          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
@@ -40,9 +40,9 @@
 
       <!-- Income Gap/Surplus -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-centre justify-between mb-2">
           <h3 class="text-sm font-medium text-gray-600">{{ incomeGapLabel }}</h3>
-          <svg class="w-5 h-5" :class="incomeGap > 0 ? 'text-red-600' : 'text-green-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" :class="incomeGap > 0 ? 'text-red-600' : 'text-green-600'" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
           </svg>
         </div>
@@ -64,20 +64,20 @@
       <div class="bg-white rounded-lg shadow p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Readiness Breakdown</h3>
         <div class="space-y-4" v-if="analysis">
-          <div v-for="factor in readinessFactors" :key="factor.name" class="flex items-center justify-between">
-            <div class="flex items-center flex-1">
+          <div v-for="factor in readinessFactors" :key="factor.name" class="flex items-centre justify-between">
+            <div class="flex items-centre flex-1">
               <span class="text-sm text-gray-700 mr-4 w-32">{{ factor.name }}</span>
               <div class="flex-1 bg-gray-200 rounded-full h-2 mr-4">
                 <div
                   class="h-2 rounded-full transition-all duration-500"
-                  :style="{ width: factor.score + '%', backgroundColor: getFactorColor(factor.score) }"
+                  :style="{ width: factor.score + '%', backgroundColour: getFactorColour(factor.score) }"
                 ></div>
               </div>
             </div>
             <span class="text-sm font-semibold text-gray-900 w-12 text-right">{{ factor.score }}</span>
           </div>
         </div>
-        <div v-else class="text-center text-gray-500 py-8">
+        <div v-else class="text-centre text-gray-500 py-8">
           No analysis data available
         </div>
       </div>
@@ -138,7 +138,7 @@ export default {
       return this.retirementReadinessScore;
     },
 
-    scoreColor() {
+    scoreColour() {
       if (this.readinessScore >= 90) return 'text-green-600';
       if (this.readinessScore >= 70) return 'text-amber-600';
       if (this.readinessScore >= 50) return 'text-orange-600';
@@ -198,7 +198,7 @@ export default {
   },
 
   methods: {
-    getFactorColor(score) {
+    getFactorColour(score) {
       if (score >= 80) return '#10b981'; // green
       if (score >= 60) return '#f59e0b'; // amber
       if (score >= 40) return '#f97316'; // orange

@@ -24,15 +24,15 @@
     <!-- Legend -->
     <div class="legend">
       <div class="legend-item">
-        <span class="legend-color" style="background-color: #ef4444;"></span>
+        <span class="legend-colour" style="background-colour: #ef4444;"></span>
         <span>Within 7 years (potentially taxable)</span>
       </div>
       <div class="legend-item">
-        <span class="legend-color" style="background-color: #f59e0b;"></span>
+        <span class="legend-colour" style="background-colour: #f59e0b;"></span>
         <span>Years 3-7 (taper relief applies)</span>
       </div>
       <div class="legend-item">
-        <span class="legend-color" style="background-color: #10b981;"></span>
+        <span class="legend-colour" style="background-colour: #10b981;"></span>
         <span>Survived 7 years (IHT-exempt)</span>
       </div>
     </div>
@@ -129,12 +129,12 @@ export default {
             sevenYearsLater.setFullYear(sevenYearsLater.getFullYear() + 7);
 
             const yearsElapsed = this.calculateYearsElapsed(giftDate, today);
-            const color = this.getGiftColor(yearsElapsed);
+            const colour = this.getGiftColour(yearsElapsed);
 
             return {
               x: gift.recipient || 'Unknown',
               y: [giftDate.getTime(), sevenYearsLater.getTime()],
-              fillColor: color,
+              fillColour: colour,
               meta: {
                 gift_value: gift.gift_value,
                 gift_type: gift.gift_type,
@@ -195,7 +195,7 @@ export default {
             return this.formatCurrency(meta.gift_value);
           },
           style: {
-            colors: ['#fff'],
+            colours: ['#fff'],
             fontSize: '11px',
             fontWeight: 'bold',
           },
@@ -265,7 +265,7 @@ export default {
       return diffYears;
     },
 
-    getGiftColor(yearsElapsed) {
+    getGiftColour(yearsElapsed) {
       if (yearsElapsed >= 7) {
         return '#10b981'; // Green - survived 7 years
       } else if (yearsElapsed >= 3) {
@@ -326,20 +326,20 @@ export default {
 }
 
 .chart-header {
-  text-align: center;
+  text-align: centre;
   margin-bottom: 24px;
 }
 
 .chart-header h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  colour: #1f2937;
   margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #6b7280;
+  colour: #6b7280;
   margin: 0;
 }
 
@@ -348,42 +348,42 @@ export default {
 }
 
 .empty-state {
-  text-align: center;
+  text-align: centre;
   padding: 60px 20px;
-  color: #9ca3af;
+  colour: #9ca3af;
 }
 
 .empty-state i {
-  color: #d1d5db;
+  colour: #d1d5db;
   margin-bottom: 16px;
 }
 
 .empty-state p {
   margin: 8px 0;
   font-size: 16px;
-  color: #6b7280;
+  colour: #6b7280;
 }
 
 .legend {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: center;
+  justify-content: centre;
   margin: 24px 0;
   padding: 16px;
-  background-color: #f9fafb;
+  background-colour: #f9fafb;
   border-radius: 6px;
 }
 
 .legend-item {
   display: flex;
-  align-items: center;
+  align-items: centre;
   gap: 8px;
   font-size: 13px;
-  color: #374151;
+  colour: #374151;
 }
 
-.legend-color {
+.legend-colour {
   width: 16px;
   height: 16px;
   border-radius: 3px;
@@ -399,7 +399,7 @@ export default {
 .taper-relief-info h4 {
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  colour: #1f2937;
   margin: 0 0 16px 0;
 }
 
@@ -410,34 +410,34 @@ export default {
 }
 
 .relief-table thead {
-  background-color: #f3f4f6;
+  background-colour: #f3f4f6;
 }
 
 .relief-table th {
   padding: 12px;
   text-align: left;
   font-weight: 600;
-  color: #374151;
+  colour: #374151;
   border-bottom: 2px solid #e5e7eb;
 }
 
 .relief-table td {
   padding: 12px;
-  color: #6b7280;
+  colour: #6b7280;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .relief-table tbody tr:hover {
-  background-color: #f9fafb;
+  background-colour: #f9fafb;
 }
 
 .relief-table tbody tr.highlight {
-  background-color: #d1fae5;
+  background-colour: #d1fae5;
   font-weight: 600;
 }
 
 .relief-table tbody tr.highlight td {
-  color: #065f46;
+  colour: #065f46;
 }
 </style>
 
@@ -452,12 +452,12 @@ export default {
 }
 
 .tooltip-header {
-  background-color: #f3f4f6;
+  background-colour: #f3f4f6;
   padding: 12px 16px;
   border-bottom: 1px solid #e5e7eb;
   border-radius: 6px 6px 0 0;
   font-size: 14px;
-  color: #1f2937;
+  colour: #1f2937;
 }
 
 .tooltip-body {
@@ -472,11 +472,11 @@ export default {
 }
 
 .tooltip-row span {
-  color: #6b7280;
+  colour: #6b7280;
 }
 
 .tooltip-row strong {
-  color: #1f2937;
+  colour: #1f2937;
 }
 
 .tooltip-row.highlight {

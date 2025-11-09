@@ -210,13 +210,13 @@ export default {
           offsetY: -20,
           style: {
             fontSize: '10px',
-            colors: ['#304758'],
+            colours: ['#304758'],
           },
         },
         stroke: {
           show: true,
           width: 2,
-          colors: ['transparent'],
+          colours: ['transparent'],
         },
         xaxis: {
           categories: this.chartData.labels,
@@ -239,7 +239,7 @@ export default {
         fill: {
           opacity: 1,
         },
-        colors: ['#3B82F6', '#10B981'],
+        colours: ['#3B82F6', '#10B981'],
         legend: {
           position: 'top',
           horizontalAlign: 'left',

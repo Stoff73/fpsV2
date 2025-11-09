@@ -195,7 +195,7 @@ export default {
 }
 
 .subtitle {
-  color: #666;
+  colour: #666;
   font-size: 14px;
 }
 
@@ -220,15 +220,15 @@ export default {
 }
 
 .card.high .card-value {
-  color: #dc2626;
+  colour: #dc2626;
 }
 
 .card.medium .card-value {
-  color: #f59e0b;
+  colour: #f59e0b;
 }
 
 .card.low .card-value {
-  color: #10b981;
+  colour: #10b981;
 }
 
 .recommendations-list {
@@ -261,32 +261,32 @@ export default {
 
 .priority-badge.high {
   background: #fee2e2;
-  color: #dc2626;
+  colour: #dc2626;
 }
 
 .priority-badge.medium {
   background: #fef3c7;
-  color: #f59e0b;
+  colour: #f59e0b;
 }
 
 .priority-badge.low {
   background: #d1fae5;
-  color: #10b981;
+  colour: #10b981;
 }
 
 .module-badge {
   background: #e0e7ff;
-  color: #4f46e5;
+  colour: #4f46e5;
 }
 
 .timeline-badge {
   background: #e5e7eb;
-  color: #374151;
+  colour: #374151;
 }
 
 .rec-text {
   font-size: 16px;
-  color: #111827;
+  colour: #111827;
   margin-bottom: 12px;
 }
 
@@ -298,11 +298,11 @@ export default {
 }
 
 .cost {
-  color: #dc2626;
+  colour: #dc2626;
 }
 
 .benefit {
-  color: #10b981;
+  colour: #10b981;
 }
 
 .rec-actions {
@@ -323,23 +323,23 @@ export default {
 
 .btn-primary {
   background: #4f46e5;
-  color: white;
+  colour: white;
 }
 
 .btn-secondary {
   background: #e5e7eb;
-  color: #374151;
+  colour: #374151;
 }
 
 .btn-text {
   background: transparent;
-  color: #6b7280;
+  colour: #6b7280;
 }
 
 .loading,
 .error,
 .empty-state {
-  text-align: center;
+  text-align: centre;
   padding: 40px;
 }
 

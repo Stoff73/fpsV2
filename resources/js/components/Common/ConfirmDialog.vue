@@ -13,7 +13,7 @@
     ></div>
 
     <!-- Modal Dialog -->
-    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+    <div class="flex items-centre justify-centre min-h-screen px-4 pt-4 pb-20 text-centre sm:p-0">
       <div
         class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
       >
@@ -22,14 +22,14 @@
             <!-- Icon -->
             <div
               :class="[
-                'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10',
+                'mx-auto flex-shrink-0 flex items-centre justify-centre h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10',
                 iconBgClass
               ]"
             >
               <svg
-                :class="['h-6 w-6', iconColorClass]"
+                :class="['h-6 w-6', iconColourClass]"
                 fill="none"
-                stroke="currentColor"
+                stroke="currentColour"
                 viewBox="0 0 24 24"
               >
                 <path
@@ -64,7 +64,7 @@
             </div>
 
             <!-- Content -->
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
+            <div class="mt-3 text-centre sm:mt-0 sm:ml-4 sm:text-left flex-1">
               <h3
                 id="modal-title"
                 class="text-lg leading-6 font-medium text-gray-900"
@@ -85,7 +85,7 @@
           <button
             type="button"
             :class="[
-              'w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm',
+              'w-full inline-flex justify-centre rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm',
               confirmButtonClass
             ]"
             :disabled="loading"
@@ -102,12 +102,12 @@
                 cx="12"
                 cy="12"
                 r="10"
-                stroke="currentColor"
+                stroke="currentColour"
                 stroke-width="4"
               ></circle>
               <path
                 class="opacity-75"
-                fill="currentColor"
+                fill="currentColour"
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
@@ -115,7 +115,7 @@
           </button>
           <button
             type="button"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            class="mt-3 w-full inline-flex justify-centre rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
             :disabled="loading"
             @click="handleCancel"
           >
@@ -178,7 +178,7 @@ export default {
       return classes[this.type] || classes.danger;
     },
 
-    iconColorClass() {
+    iconColourClass() {
       const classes = {
         danger: 'text-red-600',
         warning: 'text-yellow-600',

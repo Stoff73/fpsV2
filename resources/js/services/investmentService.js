@@ -18,8 +18,8 @@ const investmentService = {
      * Run comprehensive portfolio analysis
      * @returns {Promise} Analysis results with recommendations
      */
-    async analyzeInvestment() {
-        const response = await api.post('/investment/analyze');
+    async analyseInvestment() {
+        const response = await api.post('/investment/analyse');
         return response.data;
     },
 
@@ -224,8 +224,8 @@ const investmentService = {
      * @param {String} params.tax_year - Tax year (e.g., '2024/25')
      * @returns {Promise} Complete tax analysis with opportunities and efficiency score
      */
-    async analyzeTaxPosition(params = {}) {
-        const response = await api.get('/investment/tax-optimization/analyze', { params });
+    async analyseTaxPosition(params = {}) {
+        const response = await api.get('/investment/tax-optimization/analyse', { params });
         return response.data;
     },
 
@@ -248,7 +248,7 @@ const investmentService = {
      * Get CGT tax-loss harvesting opportunities
      * @param {Object} params - Optional parameters
      * @param {Number} params.cgt_allowance - CGT annual allowance
-     * @param {Number} params.expected_gains - Expected realized gains this tax year
+     * @param {Number} params.expected_gains - Expected realised gains this tax year
      * @param {Number} params.tax_rate - CGT tax rate (0-1)
      * @param {Number} params.loss_carryforward - Existing loss carryforward
      * @returns {Promise} Loss harvesting opportunities and strategy
@@ -326,8 +326,8 @@ const investmentService = {
      * @param {Boolean} params.prefer_pension - Prefer pension over ISA recommendations
      * @returns {Promise} Complete asset location analysis
      */
-    async analyzeAssetLocation(params = {}) {
-        const response = await api.get('/investment/asset-location/analyze', { params });
+    async analyseAssetLocation(params = {}) {
+        const response = await api.get('/investment/asset-location/analyse', { params });
         return response.data;
     },
 
@@ -388,8 +388,8 @@ const investmentService = {
      * @param {String} period - Period (1y, 3y, 5y, 10y, max)
      * @returns {Promise} Performance attribution by asset class, sector, geography
      */
-    async analyzePerformance(period = '1y') {
-        const response = await api.get('/investment/performance/analyze', { params: { period } });
+    async analysePerformance(period = '1y') {
+        const response = await api.get('/investment/performance/analyse', { params: { period } });
         return response.data;
     },
 
@@ -437,30 +437,30 @@ const investmentService = {
     // ===== Goal Progress & Tracking Methods =====
 
     /**
-     * Analyze progress for a specific goal
+     * Analyse progress for a specific goal
      * @param {number} goalId - Goal ID
      * @returns {Promise} Goal progress analysis
      */
-    async analyzeGoalProgress(goalId) {
+    async analyseGoalProgress(goalId) {
         const response = await api.get(`/investment/goals/${goalId}/progress`);
         return response.data;
     },
 
     /**
-     * Analyze progress for all user goals
+     * Analyse progress for all user goals
      * @returns {Promise} All goals progress summary
      */
-    async analyzeAllGoals() {
+    async analyseAllGoals() {
         const response = await api.get('/investment/goals/progress/all');
         return response.data;
     },
 
     /**
-     * Analyze goal shortfall and get mitigation strategies
+     * Analyse goal shortfall and get mitigation strategies
      * @param {number} goalId - Goal ID
      * @returns {Promise} Shortfall analysis and strategies
      */
-    async analyzeShortfall(goalId) {
+    async analyseShortfall(goalId) {
         const response = await api.get(`/investment/goals/${goalId}/shortfall`);
         return response.data;
     },
@@ -540,19 +540,19 @@ const investmentService = {
     // ===== Fee Impact Analysis Methods =====
 
     /**
-     * Analyze portfolio fees (platform, OCF, transaction costs)
+     * Analyse portfolio fees (platform, OCF, transaction costs)
      * @returns {Promise} Fee analysis with breakdown by account
      */
-    async analyzePortfolioFees() {
-        const response = await api.get('/investment/fees/analyze');
+    async analysePortfolioFees() {
+        const response = await api.get('/investment/fees/analyse');
         return response.data;
     },
 
     /**
-     * Analyze fees by holding
+     * Analyse fees by holding
      * @returns {Promise} Fee breakdown for each holding
      */
-    async analyzeHoldingFees() {
+    async analyseHoldingFees() {
         const response = await api.get('/investment/fees/holdings');
         return response.data;
     },
@@ -669,7 +669,7 @@ const investmentService = {
     },
 
     /**
-     * Analyze capacity for loss
+     * Analyse capacity for loss
      * @param {Object} financialData - User financial data
      * @param {number} financialData.age - Current age
      * @param {number} financialData.retirement_age - Retirement age
@@ -684,7 +684,7 @@ const investmentService = {
      * @param {number} financialData.portfolio_value - Portfolio value
      * @returns {Promise} Capacity for loss analysis
      */
-    async analyzeCapacityForLoss(financialData) {
+    async analyseCapacityForLoss(financialData) {
         const response = await api.post('/investment/risk-profile/capacity', financialData);
         return response.data;
     },
@@ -743,27 +743,27 @@ const investmentService = {
     },
 
     /**
-     * Optimize allocation by age
+     * Optimise allocation by age
      * @param {number} age - User age
      * @param {string} rule - Age-based rule ('100_minus_age', '110_minus_age', '120_minus_age')
-     * @returns {Promise} Optimized asset allocation
+     * @returns {Promise} Optimised asset allocation
      */
-    async optimizeAllocationByAge(age, rule = '110_minus_age') {
-        const response = await api.get('/investment/model-portfolio/optimize-by-age', {
+    async optimiseAllocationByAge(age, rule = '110_minus_age') {
+        const response = await api.get('/investment/model-portfolio/optimise-by-age', {
             params: { age, rule },
         });
         return response.data;
     },
 
     /**
-     * Optimize allocation by time horizon
+     * Optimise allocation by time horizon
      * @param {number} years - Years to goal
      * @param {number} targetValue - Target portfolio value
      * @param {number} currentValue - Current portfolio value
-     * @returns {Promise} Optimized allocation and required return
+     * @returns {Promise} Optimised allocation and required return
      */
-    async optimizeAllocationByTimeHorizon(years, targetValue, currentValue) {
-        const response = await api.post('/investment/model-portfolio/optimize-by-horizon', {
+    async optimiseAllocationByTimeHorizon(years, targetValue, currentValue) {
+        const response = await api.post('/investment/model-portfolio/optimise-by-horizon', {
             years,
             target_value: targetValue,
             current_value: currentValue,
@@ -802,17 +802,17 @@ const investmentService = {
     // ==========================================
 
     /**
-     * Analyze portfolio drift from target allocation
+     * Analyse portfolio drift from target allocation
      * @param {Object} targetAllocation - Target asset allocation percentages
      * @param {number} targetAllocation.equities - Equity percentage
      * @param {number} targetAllocation.bonds - Bond percentage
      * @param {number} targetAllocation.cash - Cash percentage
      * @param {number} targetAllocation.alternatives - Alternatives percentage
-     * @param {Array} accountIds - Optional investment account IDs to analyze
+     * @param {Array} accountIds - Optional investment account IDs to analyse
      * @returns {Promise} Drift analysis with metrics and urgency
      */
-    async analyzeDrift(targetAllocation, accountIds = null) {
-        const response = await api.post('/investment/rebalancing/analyze-drift', {
+    async analyseDrift(targetAllocation, accountIds = null) {
+        const response = await api.post('/investment/rebalancing/analyse-drift', {
             target_allocation: targetAllocation,
             account_ids: accountIds,
         });
@@ -1011,13 +1011,13 @@ const investmentService = {
     },
 
     /**
-     * Analyze user's current portfolio efficiency
-     * @param {Array} accountIds - Optional investment account IDs to analyze
+     * Analyse user's current portfolio efficiency
+     * @param {Array} accountIds - Optional investment account IDs to analyse
      * @param {number} riskFreeRate - Risk-free rate
      * @returns {Promise} Current portfolio analysis with efficiency metrics
      */
-    async analyzeCurrentPortfolioEfficiency(accountIds = null, riskFreeRate = 0.04) {
-        const response = await api.get('/investment/efficient-frontier/analyze-current', {
+    async analyseCurrentPortfolioEfficiency(accountIds = null, riskFreeRate = 0.04) {
+        const response = await api.get('/investment/efficient-frontier/analyse-current', {
             params: {
                 account_ids: accountIds,
                 risk_free_rate: riskFreeRate,
@@ -1340,8 +1340,8 @@ const investmentService = {
     // ===================================================================
 
     /**
-     * Optimize contribution strategy across ISA, GIA, and Pension wrappers
-     * POST /api/investment/contribution/optimize
+     * Optimise contribution strategy across ISA, GIA, and Pension wrappers
+     * POST /api/investment/contribution/optimise
      * @param {Object} inputs Contribution optimization inputs
      * @param {number} inputs.monthly_investable_income Monthly investable income
      * @param {number} inputs.lump_sum_amount One-time lump sum amount (optional)
@@ -1351,8 +1351,8 @@ const investmentService = {
      * @param {number} inputs.expected_return Expected annual return (decimal)
      * @returns {Promise} Wrapper allocation, projections, and tax efficiency score
      */
-    async optimizeContributions(inputs) {
-        const response = await api.post('/investment/contribution/optimize', inputs);
+    async optimiseContributions(inputs) {
+        const response = await api.post('/investment/contribution/optimise', inputs);
         return response.data;
     },
 
@@ -1372,7 +1372,7 @@ const investmentService = {
     },
 
     /**
-     * Analyze lump sum vs dollar-cost averaging (DCA)
+     * Analyse lump sum vs dollar-cost averaging (DCA)
      * POST /api/investment/contribution/lump-sum-vs-dca
      * @param {Object} inputs Analysis inputs
      * @param {number} inputs.lump_sum_amount Lump sum amount
@@ -1382,7 +1382,7 @@ const investmentService = {
      * @param {string} inputs.dca_period DCA period (monthly, quarterly)
      * @returns {Promise} Comparison analysis with recommendations
      */
-    async analyzeLumpSumVsDCA(inputs) {
+    async analyseLumpSumVsDCA(inputs) {
         const response = await api.post('/investment/contribution/lump-sum-vs-dca', inputs);
         return response.data;
     },
@@ -1413,12 +1413,12 @@ const investmentService = {
     // ===================================================================
 
     /**
-     * Analyze portfolio fees in detail
-     * GET /api/investment/fees/analyze
+     * Analyse portfolio fees in detail
+     * GET /api/investment/fees/analyse
      * @returns {Promise} Comprehensive fee analysis with breakdown by type and holdings
      */
-    async analyzeFees() {
-        const response = await api.get('/investment/fees/analyze');
+    async analyseFees() {
+        const response = await api.get('/investment/fees/analyse');
         return response.data;
     },
 
@@ -1444,12 +1444,12 @@ const investmentService = {
     // ===================================================================
 
     /**
-     * Analyze asset location optimization
-     * GET /api/investment/asset-location/analyze
+     * Analyse asset location optimization
+     * GET /api/investment/asset-location/analyse
      * @returns {Promise} Asset location analysis with tax drag and recommendations
      */
-    async analyzeAssetLocation() {
-        const response = await api.get('/investment/asset-location/analyze');
+    async analyseAssetLocation() {
+        const response = await api.get('/investment/asset-location/analyse');
         return response.data;
     },
 
@@ -1473,14 +1473,14 @@ const investmentService = {
     // ===================================================================
 
     /**
-     * Analyze performance attribution
+     * Analyse performance attribution
      * GET /api/investment/performance/attribution
      * @param {Object} params Attribution parameters
      * @param {string} params.period Period (1y, 3y, 5y, 10y)
      * @param {string} params.benchmark Benchmark code (optional)
      * @returns {Promise} Performance attribution by allocation, selection, interaction
      */
-    async analyzePerformanceAttribution(params = {}) {
+    async analysePerformanceAttribution(params = {}) {
         const response = await api.get('/investment/performance/attribution', { params });
         return response.data;
     },

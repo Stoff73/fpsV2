@@ -1,6 +1,6 @@
 <template>
   <div class="isa-allowance-tracker bg-white rounded-lg border border-gray-200 p-6">
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-centre mb-4">
       <h3 class="text-lg font-semibold text-gray-900">ISA Allowance {{ currentTaxYear }}</h3>
       <span class="text-sm text-gray-600">{{ formatCurrency(totalAllowance) }} total</span>
     </div>
@@ -12,7 +12,7 @@
           <!-- Cash ISA -->
           <div
             v-if="cashISAUsed > 0"
-            class="bg-blue-500 flex items-center justify-center text-xs text-white font-medium"
+            class="bg-blue-500 flex items-centre justify-centre text-xs text-white font-medium"
             :style="{ width: cashISAPercent + '%' }"
             :title="`Cash ISA: ${formatCurrency(cashISAUsed)}`"
           >
@@ -21,7 +21,7 @@
           <!-- Stocks & Shares ISA -->
           <div
             v-if="stocksISAUsed > 0"
-            class="bg-purple-500 flex items-center justify-center text-xs text-white font-medium"
+            class="bg-purple-500 flex items-centre justify-centre text-xs text-white font-medium"
             :style="{ width: stocksISAPercent + '%' }"
             :title="`Stocks ISA: ${formatCurrency(stocksISAUsed)}`"
           >
@@ -33,17 +33,17 @@
 
     <!-- Breakdown -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-      <div class="text-center p-3 bg-blue-50 rounded-lg">
+      <div class="text-centre p-3 bg-blue-50 rounded-lg">
         <p class="text-sm text-gray-600 mb-1">Cash ISA Used</p>
         <p class="text-lg font-bold text-blue-700">{{ formatCurrency(cashISAUsed) }}</p>
       </div>
 
-      <div class="text-center p-3 bg-purple-50 rounded-lg">
+      <div class="text-centre p-3 bg-purple-50 rounded-lg">
         <p class="text-sm text-gray-600 mb-1">Stocks ISA Used</p>
         <p class="text-lg font-bold text-purple-700">{{ formatCurrency(stocksISAUsed) }}</p>
       </div>
 
-      <div class="text-center p-3 bg-green-50 rounded-lg">
+      <div class="text-centre p-3 bg-green-50 rounded-lg">
         <p class="text-sm text-gray-600 mb-1">Remaining</p>
         <p class="text-lg font-bold text-green-700">{{ formatCurrency(remaining) }}</p>
       </div>

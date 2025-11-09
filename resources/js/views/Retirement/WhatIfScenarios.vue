@@ -24,7 +24,7 @@
             class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             @input="calculateScenario"
           />
-          <div class="flex items-center justify-between text-xs text-gray-500 mt-1">
+          <div class="flex items-centre justify-between text-xs text-gray-500 mt-1">
             <span>55</span>
             <span>75</span>
           </div>
@@ -44,7 +44,7 @@
             class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             @input="calculateScenario"
           />
-          <div class="flex items-center justify-between text-xs text-gray-500 mt-1">
+          <div class="flex items-centre justify-between text-xs text-gray-500 mt-1">
             <span>£0</span>
             <span>£2,000</span>
           </div>
@@ -64,7 +64,7 @@
             class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             @input="calculateScenario"
           />
-          <div class="flex items-center justify-between text-xs text-gray-500 mt-1">
+          <div class="flex items-centre justify-between text-xs text-gray-500 mt-1">
             <span>0%</span>
             <span>10%</span>
           </div>
@@ -73,7 +73,7 @@
         <!-- Calculate Button -->
         <button
           @click="calculateScenario"
-          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colours duration-200"
         >
           Calculate Scenario
         </button>
@@ -84,21 +84,21 @@
     <div v-if="scenarioResults" class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Current Plan -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-centre justify-between mb-4">
           <h4 class="text-lg font-semibold text-gray-900">Current Plan</h4>
           <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">Baseline</span>
         </div>
 
         <div class="space-y-4">
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div class="flex items-centre justify-between p-3 bg-gray-50 rounded-lg">
             <span class="text-sm text-gray-600">Retirement Age</span>
             <span class="font-semibold text-gray-900">{{ baseline.retirementAge }}</span>
           </div>
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div class="flex items-centre justify-between p-3 bg-gray-50 rounded-lg">
             <span class="text-sm text-gray-600">Projected Income</span>
             <span class="font-semibold text-gray-900">£{{ baseline.income.toLocaleString() }}/year</span>
           </div>
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div class="flex items-centre justify-between p-3 bg-gray-50 rounded-lg">
             <span class="text-sm text-gray-600">Pension Pot</span>
             <span class="font-semibold text-gray-900">£{{ baseline.pot.toLocaleString() }}</span>
           </div>
@@ -107,13 +107,13 @@
 
       <!-- Scenario Results -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-centre justify-between mb-4">
           <h4 class="text-lg font-semibold text-gray-900">Scenario Result</h4>
           <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">Modified</span>
         </div>
 
         <div class="space-y-4">
-          <div class="flex items-center justify-between p-3 bg-indigo-50 rounded-lg">
+          <div class="flex items-centre justify-between p-3 bg-indigo-50 rounded-lg">
             <span class="text-sm text-gray-600">Retirement Age</span>
             <div class="text-right">
               <span class="font-semibold text-gray-900">{{ scenarioResults.retirementAge }}</span>
@@ -125,7 +125,7 @@
               </span>
             </div>
           </div>
-          <div class="flex items-center justify-between p-3 bg-indigo-50 rounded-lg">
+          <div class="flex items-centre justify-between p-3 bg-indigo-50 rounded-lg">
             <span class="text-sm text-gray-600">Projected Income</span>
             <div class="text-right">
               <span class="font-semibold text-gray-900">£{{ scenarioResults.income.toLocaleString() }}/year</span>
@@ -137,7 +137,7 @@
               </span>
             </div>
           </div>
-          <div class="flex items-center justify-between p-3 bg-indigo-50 rounded-lg">
+          <div class="flex items-centre justify-between p-3 bg-indigo-50 rounded-lg">
             <span class="text-sm text-gray-600">Pension Pot</span>
             <div class="text-right">
               <span class="font-semibold text-gray-900">£{{ scenarioResults.pot.toLocaleString() }}</span>

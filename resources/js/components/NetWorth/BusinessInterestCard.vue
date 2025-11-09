@@ -103,13 +103,13 @@ export default {
 .business-interest-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-color: #8b5cf6;
+  border-colour: #8b5cf6;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: centre;
   margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 8px;
@@ -124,22 +124,22 @@ export default {
 
 .type-sole_trader {
   background: #dbeafe;
-  color: #1e40af;
+  colour: #1e40af;
 }
 
 .type-partnership {
   background: #fef3c7;
-  color: #92400e;
+  colour: #92400e;
 }
 
 .type-limited_company {
   background: #d1fae5;
-  color: #065f46;
+  colour: #065f46;
 }
 
 .type-llp {
   background: #f3e8ff;
-  color: #6b21a8;
+  colour: #6b21a8;
 }
 
 .ownership-badge {
@@ -148,7 +148,7 @@ export default {
   font-size: 12px;
   font-weight: 600;
   background: #e0e7ff;
-  color: #3730a3;
+  colour: #3730a3;
 }
 
 .card-content {
@@ -160,7 +160,7 @@ export default {
 .business-name {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  colour: #111827;
   margin: 0;
 }
 
@@ -175,7 +175,7 @@ export default {
 .detail-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: centre;
   font-size: 14px;
 }
 
@@ -186,11 +186,11 @@ export default {
 }
 
 .detail-label {
-  color: #6b7280;
+  colour: #6b7280;
 }
 
 .detail-value {
-  color: #111827;
+  colour: #111827;
   font-weight: 600;
 }
 

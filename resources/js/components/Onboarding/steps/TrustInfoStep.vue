@@ -16,7 +16,7 @@
           Have you created or do you benefit from any trusts?
         </label>
         <div class="mt-2 space-y-2">
-          <label class="inline-flex items-center">
+          <label class="inline-flex items-centre">
             <input
               v-model="formData.has_trusts"
               type="radio"
@@ -25,7 +25,7 @@
             >
             <span class="ml-2 text-body text-gray-700">Yes</span>
           </label>
-          <label class="inline-flex items-center ml-6">
+          <label class="inline-flex items-centre ml-6">
             <input
               v-model="formData.has_trusts"
               type="radio"

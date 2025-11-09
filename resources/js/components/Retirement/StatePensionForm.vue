@@ -1,11 +1,11 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click.self="$emit('close')">
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-centre justify-centre z-50 p-4" @click.self="$emit('close')">
     <div class="bg-white rounded-lg shadow-xl max-w-xl w-full">
       <!-- Header -->
-      <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+      <div class="border-b border-gray-200 px-6 py-4 flex items-centre justify-between">
         <h3 class="text-xl font-semibold text-gray-900">Update State Pension Details</h3>
-        <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 transition-colours">
+          <svg class="w-6 h-6" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
@@ -13,7 +13,7 @@
 
       <!-- Info Box -->
       <div class="mx-6 mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start">
-        <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
         <div>
@@ -167,17 +167,17 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+        <div class="flex items-centre justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
           <button
             type="button"
             @click="$emit('close')"
-            class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+            class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colours duration-200"
           >
             Cancel
           </button>
           <button
             type="submit"
-            class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+            class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colours duration-200"
           >
             Update State Pension
           </button>

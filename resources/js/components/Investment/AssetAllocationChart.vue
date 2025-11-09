@@ -1,6 +1,6 @@
 <template>
   <div class="asset-allocation-chart">
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-centre mb-4">
       <h3 class="text-lg font-semibold text-gray-900">Asset Allocation</h3>
       <button
         v-if="showViewDetails"
@@ -11,7 +11,7 @@
       </button>
     </div>
 
-    <div v-if="loading" class="flex items-center justify-center h-64">
+    <div v-if="loading" class="flex items-centre justify-centre h-64">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
@@ -24,9 +24,9 @@
       />
     </div>
 
-    <div v-else class="flex items-center justify-center h-64 text-gray-500">
-      <div class="text-center max-w-md p-6">
-        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div v-else class="flex items-centre justify-centre h-64 text-gray-500">
+      <div class="text-centre max-w-md p-6">
+        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColour">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
         </svg>
@@ -36,7 +36,7 @@
         </p>
         <button
           @click="$emit('add-holding')"
-          class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colours"
         >
           Add Your First Holding
         </button>
@@ -117,7 +117,7 @@ export default {
           },
         },
         labels: labels,
-        colors: [
+        colours: [
           '#3b82f6', // UK Equities - blue
           '#8b5cf6', // US Equities - violet
           '#ec4899', // International Equities - pink
@@ -136,13 +136,13 @@ export default {
                   show: true,
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#1f2937',
+                  colour: '#1f2937',
                 },
                 value: {
                   show: true,
                   fontSize: '24px',
                   fontWeight: 700,
-                  color: '#111827',
+                  colour: '#111827',
                   formatter: (val) => `${val.toFixed(1)}%`,
                 },
                 total: {
@@ -150,7 +150,7 @@ export default {
                   label: 'Total Value',
                   fontSize: '14px',
                   fontWeight: 500,
-                  color: '#6b7280',
+                  colour: '#6b7280',
                   formatter: () => {
                     const total = this.series.reduce((sum, val) => sum + val, 0);
                     return `${total.toFixed(1)}%`;
@@ -168,7 +168,7 @@ export default {
           fontSize: '14px',
           fontWeight: 500,
           labels: {
-            colors: '#374151',
+            colours: '#374151',
           },
           markers: {
             width: 12,

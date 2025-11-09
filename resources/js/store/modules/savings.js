@@ -139,13 +139,13 @@ const actions = {
         }
     },
 
-    // Analyze savings
-    async analyzeSavings({ commit }, data) {
+    // Analyse savings
+    async analyseSavings({ commit }, data) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
-            const response = await savingsService.analyzeSavings(data);
+            const response = await savingsService.analyseSavings(data);
             commit('setAnalysis', response.data.analysis);
             return response;
         } catch (error) {

@@ -11,7 +11,7 @@
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColor"
+          stroke="currentColour"
         >
           <path
             stroke-linecap="round"
@@ -28,7 +28,7 @@
       <div class="flex items-baseline mb-2">
         <span
           class="text-4xl font-bold"
-          :class="adequacyScoreColor"
+          :class="adequacyScoreColour"
         >
           {{ adequacyScore }}%
         </span>
@@ -37,7 +37,7 @@
       <div class="w-full bg-gray-200 rounded-full h-2">
         <div
           class="h-2 rounded-full transition-all duration-300"
-          :class="adequacyScoreBarColor"
+          :class="adequacyScoreBarColour"
           :style="{ width: adequacyScore + '%' }"
         ></div>
       </div>
@@ -62,13 +62,13 @@
     <!-- Critical Gaps -->
     <div
       v-if="criticalGaps > 0"
-      class="flex items-center p-3 bg-red-50 rounded-md"
+      class="flex items-centre p-3 bg-red-50 rounded-md"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 text-red-600 mr-2"
         viewBox="0 0 20 20"
-        fill="currentColor"
+        fill="currentColour"
       >
         <path
           fill-rule="evenodd"
@@ -83,13 +83,13 @@
 
     <div
       v-else
-      class="flex items-center p-3 bg-green-50 rounded-md"
+      class="flex items-centre p-3 bg-green-50 rounded-md"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 text-green-600 mr-2"
         viewBox="0 0 20 20"
-        fill="currentColor"
+        fill="currentColour"
       >
         <path
           fill-rule="evenodd"
@@ -132,7 +132,7 @@ export default {
   },
 
   computed: {
-    adequacyScoreColor() {
+    adequacyScoreColour() {
       if (this.adequacyScore >= 80) {
         return 'text-green-600';
       } else if (this.adequacyScore >= 60) {
@@ -142,7 +142,7 @@ export default {
       }
     },
 
-    adequacyScoreBarColor() {
+    adequacyScoreBarColour() {
       if (this.adequacyScore >= 80) {
         return 'bg-green-600';
       } else if (this.adequacyScore >= 60) {

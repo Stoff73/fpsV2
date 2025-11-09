@@ -15,7 +15,7 @@
           <div
             v-for="(item, index) in data.inflows"
             :key="index"
-            class="flex justify-between items-center py-2 border-b border-gray-200 last:border-0"
+            class="flex justify-between items-centre py-2 border-b border-gray-200 last:border-0"
           >
             <span class="text-body-base text-gray-700">{{ item.line_item }}</span>
             <span class="text-body-base font-medium text-gray-900">
@@ -23,7 +23,7 @@
             </span>
           </div>
         </div>
-        <div class="mt-4 pt-4 border-t-2 border-gray-300 flex justify-between items-center">
+        <div class="mt-4 pt-4 border-t-2 border-gray-300 flex justify-between items-centre">
           <span class="text-body-base font-semibold text-gray-900">Total Inflows</span>
           <span class="text-h5 font-bold text-success-700">
             {{ formatCurrency(data.total_inflows) }}
@@ -38,7 +38,7 @@
           <div
             v-for="(item, index) in data.outflows"
             :key="index"
-            class="flex justify-between items-center py-2 border-b border-gray-200 last:border-0"
+            class="flex justify-between items-centre py-2 border-b border-gray-200 last:border-0"
           >
             <span class="text-body-base text-gray-700">{{ item.line_item }}</span>
             <span class="text-body-base font-medium text-gray-900">
@@ -46,7 +46,7 @@
             </span>
           </div>
         </div>
-        <div class="mt-4 pt-4 border-t-2 border-gray-300 flex justify-between items-center">
+        <div class="mt-4 pt-4 border-t-2 border-gray-300 flex justify-between items-centre">
           <span class="text-body-base font-semibold text-gray-900">Total Outflows</span>
           <span class="text-h5 font-bold text-error-700">
             {{ formatCurrency(data.total_outflows) }}
@@ -56,7 +56,7 @@
 
       <!-- Net Cashflow -->
       <div class="card p-6 bg-gradient-to-r from-primary-50 to-primary-100">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-centre">
           <div>
             <h3 class="text-h5 font-semibold text-gray-900">Net Cashflow</h3>
             <p class="text-body-sm text-gray-600 mt-1">Total Inflows minus Total Outflows</p>
@@ -74,7 +74,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="card p-8 text-center">
+    <div v-else class="card p-8 text-centre">
       <p class="text-body-base text-gray-500">
         No data available. Click "Calculate" to generate your Cashflow statement.
       </p>

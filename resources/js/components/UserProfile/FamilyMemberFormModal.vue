@@ -1,10 +1,10 @@
 <template>
   <div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="flex items-end justify-centre min-h-screen pt-4 px-4 pb-20 text-centre sm:block sm:p-0">
       <!-- Background overlay -->
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
 
-      <!-- Center modal -->
+      <!-- Centre modal -->
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
       <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
@@ -126,7 +126,7 @@
                   Annual Income
                 </label>
                 <div class="relative rounded-md shadow-sm">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-centre pointer-events-none">
                     <span class="text-gray-500 sm:text-sm">£</span>
                   </div>
                   <input
@@ -144,7 +144,7 @@
 
             <!-- Is Dependent -->
             <div class="flex items-start">
-              <div class="flex items-center h-5">
+              <div class="flex items-centre h-5">
                 <input
                   id="is_dependent"
                   v-model="form.is_dependent"

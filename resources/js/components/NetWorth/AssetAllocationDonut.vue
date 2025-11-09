@@ -49,7 +49,7 @@ export default {
           fontFamily: 'Inter, system-ui, sans-serif',
         },
         labels: ['Property', 'Investments', 'Cash', 'Business', 'Chattels'],
-        colors: ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'],
+        colours: ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'],
         legend: {
           position: 'bottom',
           fontSize: '14px',
@@ -84,7 +84,7 @@ export default {
                   label: 'Total Assets',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#6b7280',
+                  colour: '#6b7280',
                   formatter: () => {
                     const total = this.series.reduce((sum, val) => sum + val, 0);
                     return this.formatCurrency(total);
@@ -143,7 +143,7 @@ export default {
 .chart-title {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  colour: #111827;
   margin: 0 0 20px 0;
 }
 
@@ -152,9 +152,9 @@ export default {
 }
 
 .no-data {
-  text-align: center;
+  text-align: centre;
   padding: 60px 20px;
-  color: #9ca3af;
+  colour: #9ca3af;
 }
 
 .no-data p {

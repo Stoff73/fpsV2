@@ -1,14 +1,14 @@
 <template>
   <div class="comprehensive-investment-plan">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-12">
+    <div v-if="loading" class="flex justify-centre items-centre py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-center">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <div class="flex items-centre">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -22,7 +22,7 @@
         <!-- Portfolio Health Score Card -->
         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md p-6 lg:col-span-1">
           <h3 class="text-lg font-semibold text-gray-800 mb-4">Portfolio Health Score</h3>
-          <div class="flex items-center justify-center mb-4">
+          <div class="flex items-centre justify-centre mb-4">
             <div class="relative">
               <apexchart
                 v-if="plan.portfolio_health_score !== undefined"
@@ -33,8 +33,8 @@
               />
             </div>
           </div>
-          <div class="text-center">
-            <p class="text-3xl font-bold mb-1" :class="getHealthScoreColor(plan.portfolio_health_score)">
+          <div class="text-centre">
+            <p class="text-3xl font-bold mb-1" :class="getHealthScoreColour(plan.portfolio_health_score)">
               {{ plan.portfolio_health_score || 0 }}/100
             </p>
             <p class="text-sm text-gray-600">{{ getHealthScoreInterpretation(plan.portfolio_health_score) }}</p>
@@ -108,7 +108,7 @@
               :key="tab.id"
               @click="activeTab = tab.id"
               :class="[
-                'py-4 px-6 text-sm font-medium border-b-2 transition-colors duration-200 whitespace-nowrap',
+                'py-4 px-6 text-sm font-medium border-b-2 transition-colours duration-200 whitespace-nowrap',
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -176,11 +176,11 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="bg-white rounded-lg shadow p-12 text-center">
+    <div v-else class="bg-white rounded-lg shadow p-12 text-centre">
       <svg
         class="mx-auto h-16 w-16 text-gray-400 mb-4"
         fill="none"
-        stroke="currentColor"
+        stroke="currentColour"
         viewBox="0 0 24 24"
       >
         <path
@@ -287,7 +287,7 @@ export default {
                 fontSize: '24px',
                 fontWeight: 'bold',
                 offsetY: 8,
-                color: this.getHealthScoreColorHex(score),
+                colour: this.getHealthScoreColourHex(score),
                 formatter: (val) => `${Math.round(val)}`,
               },
             },
@@ -299,14 +299,14 @@ export default {
             shade: 'dark',
             type: 'horizontal',
             shadeIntensity: 0.5,
-            gradientToColors: [this.getHealthScoreColorHex(score)],
+            gradientToColours: [this.getHealthScoreColourHex(score)],
             stops: [0, 100],
           },
         },
         stroke: {
           lineCap: 'round',
         },
-        colors: [this.getHealthScoreColorHex(score)],
+        colours: [this.getHealthScoreColourHex(score)],
       };
     },
   },
@@ -381,7 +381,7 @@ export default {
       return value.toFixed(1);
     },
 
-    getHealthScoreColor(score) {
+    getHealthScoreColour(score) {
       if (score >= 80) return 'text-green-600';
       if (score >= 60) return 'text-blue-600';
       if (score >= 40) return 'text-yellow-600';
@@ -389,7 +389,7 @@ export default {
       return 'text-red-600';
     },
 
-    getHealthScoreColorHex(score) {
+    getHealthScoreColourHex(score) {
       if (score >= 80) return '#10B981'; // green-600
       if (score >= 60) return '#3B82F6'; // blue-600
       if (score >= 40) return '#FBBF24'; // yellow-600

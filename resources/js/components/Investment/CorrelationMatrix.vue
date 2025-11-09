@@ -1,6 +1,6 @@
 <template>
   <div class="correlation-matrix">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-centre mb-6">
       <div>
         <h3 class="text-lg font-semibold text-gray-900">Correlation Matrix</h3>
         <p class="text-sm text-gray-600 mt-1">
@@ -17,8 +17,8 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-center justify-center py-12">
-      <div class="text-center">
+    <div v-if="loading" class="flex items-centre justify-centre py-12">
+      <div class="text-centre">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         <p class="mt-2 text-sm text-gray-600">Calculating correlations...</p>
       </div>
@@ -27,7 +27,7 @@
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4">
       <div class="flex">
-        <svg class="h-5 w-5 text-red-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="h-5 w-5 text-red-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColour">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div>
@@ -38,8 +38,8 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="!correlationData || !correlationData.matrix" class="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div v-else-if="!correlationData || !correlationData.matrix" class="bg-gray-50 border border-gray-200 rounded-lg p-8 text-centre">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColour">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
       </svg>
       <h3 class="mt-2 text-sm font-medium text-gray-900">No Correlation Data</h3>
@@ -62,7 +62,7 @@
 
         <div class="bg-white rounded-lg border border-gray-200 p-4">
           <p class="text-xs text-gray-600 mb-1">Highest Correlation</p>
-          <p class="text-2xl font-bold" :class="getCorrelationColor(correlationData.statistics?.max_correlation)">
+          <p class="text-2xl font-bold" :class="getCorrelationColour(correlationData.statistics?.max_correlation)">
             {{ formatCorrelation(correlationData.statistics?.max_correlation) }}
           </p>
           <p class="text-xs text-gray-600 mt-1" v-if="correlationData.statistics?.max_pair">
@@ -72,7 +72,7 @@
 
         <div class="bg-white rounded-lg border border-gray-200 p-4">
           <p class="text-xs text-gray-600 mb-1">Lowest Correlation</p>
-          <p class="text-2xl font-bold" :class="getCorrelationColor(correlationData.statistics?.min_correlation)">
+          <p class="text-2xl font-bold" :class="getCorrelationColour(correlationData.statistics?.min_correlation)">
             {{ formatCorrelation(correlationData.statistics?.min_correlation) }}
           </p>
           <p class="text-xs text-gray-600 mt-1" v-if="correlationData.statistics?.min_pair">
@@ -109,8 +109,8 @@
 
         <!-- High Correlations (Redundancy) -->
         <div v-if="highCorrelations.length > 0" class="mb-4">
-          <div class="flex items-center mb-2">
-            <svg class="h-5 w-5 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="flex items-centre mb-2">
+            <svg class="h-5 w-5 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColour">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <h5 class="text-sm font-medium text-gray-900">Highly Correlated Pairs (>0.90)</h5>
@@ -131,8 +131,8 @@
 
         <!-- Low Correlations (Diversification) -->
         <div v-if="lowCorrelations.length > 0" class="mb-4">
-          <div class="flex items-center mb-2">
-            <svg class="h-5 w-5 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="flex items-centre mb-2">
+            <svg class="h-5 w-5 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColour">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <h5 class="text-sm font-medium text-gray-900">Well Diversified Pairs (<0.30)</h5>
@@ -152,7 +152,7 @@
         </div>
 
         <!-- No Issues -->
-        <div v-if="highCorrelations.length === 0 && lowCorrelations.length === 0" class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+        <div v-if="highCorrelations.length === 0 && lowCorrelations.length === 0" class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-centre">
           <p class="text-sm text-gray-600">
             Your portfolio has moderate correlations across all holdings. Consider adding more diversified assets.
           </p>
@@ -170,7 +170,7 @@
                 <th
                   v-for="(label, index) in labels"
                   :key="index"
-                  class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase"
+                  class="px-3 py-2 text-centre text-xs font-medium text-gray-500 uppercase"
                   :title="label"
                 >
                   {{ truncateLabel(label, 10) }}
@@ -185,8 +185,8 @@
                 <td
                   v-for="(value, colIndex) in row"
                   :key="colIndex"
-                  class="px-3 py-2 text-sm text-center font-medium"
-                  :class="getCellColorClass(value, rowIndex, colIndex)"
+                  class="px-3 py-2 text-sm text-centre font-medium"
+                  :class="getCellColourClass(value, rowIndex, colIndex)"
                   :title="`${labels[rowIndex]} vs ${labels[colIndex]}: ${formatCorrelation(value)}`"
                 >
                   {{ formatCorrelation(value) }}
@@ -275,18 +275,18 @@ export default {
           enabled: true,
           formatter: (val) => val.toFixed(0),
         },
-        colors: ['#3B82F6'],
+        colours: ['#3B82F6'],
         plotOptions: {
           heatmap: {
             shadeIntensity: 0.5,
             radius: 0,
-            colorScale: {
+            colourScale: {
               ranges: [
-                { from: -100, to: 0, color: '#10B981', name: 'Negative' },
-                { from: 0, to: 30, color: '#34D399', name: 'Low (0-0.3)' },
-                { from: 30, to: 70, color: '#FBBF24', name: 'Moderate (0.3-0.7)' },
-                { from: 70, to: 90, color: '#FB923C', name: 'High (0.7-0.9)' },
-                { from: 90, to: 100, color: '#EF4444', name: 'Very High (>0.9)' },
+                { from: -100, to: 0, colour: '#10B981', name: 'Negative' },
+                { from: 0, to: 30, colour: '#34D399', name: 'Low (0-0.3)' },
+                { from: 30, to: 70, colour: '#FBBF24', name: 'Moderate (0.3-0.7)' },
+                { from: 70, to: 90, colour: '#FB923C', name: 'High (0.7-0.9)' },
+                { from: 90, to: 100, colour: '#EF4444', name: 'Very High (>0.9)' },
               ],
             },
           },
@@ -416,7 +416,7 @@ export default {
       return 'Negative correlation';
     },
 
-    getCorrelationColor(value) {
+    getCorrelationColour(value) {
       if (value === null || value === undefined) return 'text-gray-900';
       if (value >= 0.90) return 'text-red-600';
       if (value >= 0.70) return 'text-orange-600';
@@ -425,7 +425,7 @@ export default {
       return 'text-blue-600';
     },
 
-    getCellColorClass(value, rowIndex, colIndex) {
+    getCellColourClass(value, rowIndex, colIndex) {
       if (rowIndex === colIndex) {
         return 'bg-gray-100 text-gray-500';
       }

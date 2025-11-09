@@ -1,11 +1,11 @@
 <template>
   <div class="fixed inset-0 z-50 overflow-y-auto" @click.self="$emit('close')">
-    <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="flex items-centre justify-centre min-h-screen px-4">
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
       <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-centre justify-between mb-6">
           <h2 class="text-2xl font-bold text-gray-900">
             {{ trust ? 'Edit Trust' : 'Create New Trust' }}
           </h2>
@@ -13,7 +13,7 @@
             @click="$emit('close')"
             class="text-gray-400 hover:text-gray-600"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-6 h-6" fill="none" stroke="currentColour" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -149,7 +149,7 @@
             </div>
 
             <!-- Is Active -->
-            <div class="flex items-center">
+            <div class="flex items-centre">
               <input
                 v-model="formData.is_active"
                 type="checkbox"

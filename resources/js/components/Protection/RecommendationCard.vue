@@ -2,7 +2,7 @@
   <div
     class="recommendation-card bg-white rounded-lg border shadow-sm transition-all duration-200"
     :class="[
-      borderColorClass,
+      borderColourClass,
       isExpanded ? 'shadow-md' : 'hover:shadow-md',
     ]"
   >
@@ -13,7 +13,7 @@
     >
       <div class="flex items-start justify-between">
         <div class="flex-1">
-          <div class="flex items-center gap-3 mb-2">
+          <div class="flex items-centre gap-3 mb-2">
             <span
               class="px-3 py-1 text-xs font-semibold rounded-full"
               :class="priorityBadgeClass"
@@ -33,7 +33,7 @@
         </div>
 
         <button
-          class="ml-4 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+          class="ml-4 text-gray-400 hover:text-gray-600 transition-colours flex-shrink-0"
           @click.stop="isExpanded = !isExpanded"
         >
           <svg
@@ -41,7 +41,7 @@
             :class="{ 'transform rotate-180': isExpanded }"
             fill="none"
             viewBox="0 0 24 24"
-            stroke="currentColor"
+            stroke="currentColour"
           >
             <path
               stroke-linecap="round"
@@ -96,12 +96,12 @@
       <div class="flex gap-3 mt-4">
         <button
           @click="handleMarkDone"
-          class="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          class="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colours"
         >
           Mark as Done
         </button>
         <button
-          class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+          class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colours"
         >
           Learn More
         </button>
@@ -140,7 +140,7 @@ export default {
       return classes[this.recommendation.priority] || 'bg-gray-100 text-gray-800';
     },
 
-    borderColorClass() {
+    borderColourClass() {
       const classes = {
         high: 'border-red-300',
         medium: 'border-amber-300',

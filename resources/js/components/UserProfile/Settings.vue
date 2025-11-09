@@ -14,9 +14,9 @@
 
       <div class="px-6 py-4 space-y-4">
         <!-- User Information Display -->
-        <div class="flex items-center space-x-4 pb-4 border-b border-gray-200">
+        <div class="flex items-centre space-x-4 pb-4 border-b border-gray-200">
           <div class="flex-shrink-0">
-            <div class="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+            <div class="h-12 w-12 rounded-full bg-primary-100 flex items-centre justify-centre">
               <span class="text-h4 font-semibold text-primary-700">
                 {{ userInitials }}
               </span>
@@ -43,7 +43,7 @@
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">Status:</span>
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success-100 text-success-800">
+                <span class="inline-flex items-centre px-2 py-1 rounded-full text-xs font-medium bg-success-100 text-success-800">
                   Active
                 </span>
               </div>
@@ -64,7 +64,7 @@
 
       <div class="px-6 py-4 space-y-4">
         <!-- Logout Button -->
-        <div class="flex items-center justify-between py-3">
+        <div class="flex items-centre justify-between py-3">
           <div>
             <h4 class="text-body-base font-medium text-gray-900">Sign out of your account</h4>
             <p class="text-body-sm text-gray-600 mt-1">
@@ -94,7 +94,7 @@
       </div>
 
       <div class="px-6 py-4">
-        <div class="flex items-center justify-between py-3">
+        <div class="flex items-centre justify-between py-3">
           <div>
             <h4 class="text-body-base font-medium text-gray-900">Clear all data</h4>
             <p class="text-body-sm text-gray-600 mt-1">
@@ -102,7 +102,7 @@
             </p>
           </div>
           <button
-            class="px-4 py-2 border border-error-600 text-error-700 rounded-button text-body-sm font-medium hover:bg-error-50 transition-colors"
+            class="px-4 py-2 border border-error-600 text-error-700 rounded-button text-body-sm font-medium hover:bg-error-50 transition-colours"
             disabled
           >
             Clear Data

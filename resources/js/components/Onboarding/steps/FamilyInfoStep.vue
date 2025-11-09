@@ -19,7 +19,7 @@
       <div v-if="successMessage" class="bg-green-50 border border-green-200 rounded-lg p-4">
         <div class="flex">
           <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColour">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
             </svg>
           </div>
@@ -42,14 +42,14 @@
         >
           <div class="flex justify-between items-start">
             <div class="flex-1">
-              <div class="flex items-center gap-2 mb-2">
+              <div class="flex items-centre gap-2 mb-2">
                 <h5 class="text-body font-medium text-gray-900">{{ member.name }}</h5>
                 <span class="text-body-sm px-2 py-0.5 bg-blue-100 text-blue-700 rounded capitalize">
                   {{ formatRelationship(member.relationship) }}
                 </span>
                 <!-- Linked Account Indicator for Spouse -->
-                <span v-if="member.relationship === 'spouse' && member.email" class="inline-flex items-center gap-1 text-body-sm px-2 py-0.5 bg-green-100 text-green-700 rounded" title="Account Linked">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <span v-if="member.relationship === 'spouse' && member.email" class="inline-flex items-centre gap-1 text-body-sm px-2 py-0.5 bg-green-100 text-green-700 rounded" title="Account Linked">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColour">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
                   Linked
@@ -97,7 +97,7 @@
           Do you wish to leave anything to charity?
         </label>
         <div class="mt-2 space-x-4">
-          <label class="inline-flex items-center">
+          <label class="inline-flex items-centre">
             <input
               v-model="charitableBequest"
               type="radio"
@@ -106,7 +106,7 @@
             >
             <span class="ml-2 text-body text-gray-700">Yes</span>
           </label>
-          <label class="inline-flex items-center">
+          <label class="inline-flex items-centre">
             <input
               v-model="charitableBequest"
               type="radio"

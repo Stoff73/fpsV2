@@ -221,17 +221,17 @@ export default {
             dataLabels: {
               position: 'top',
             },
-            colors: {
+            colours: {
               ranges: [
                 {
                   from: -Infinity,
                   to: 0,
-                  color: '#ef4444',
+                  colour: '#ef4444',
                 },
                 {
                   from: 0,
                   to: Infinity,
-                  color: '#10b981',
+                  colour: '#10b981',
                 },
               ],
             },
@@ -245,7 +245,7 @@ export default {
           offsetY: -25,
           style: {
             fontSize: '11px',
-            colors: ['#374151'],
+            colours: ['#374151'],
             fontWeight: 600,
           },
         },
@@ -306,9 +306,9 @@ export default {
             },
           },
         },
-        colors: ['#10b981', '#3b82f6'],
+        colours: ['#10b981', '#3b82f6'],
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
           strokeDashArray: 4,
         },
       };
@@ -370,43 +370,43 @@ export default {
 }
 
 .chart-header {
-  text-align: center;
+  text-align: centre;
   margin-bottom: 20px;
 }
 
 .chart-header h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  colour: #1f2937;
   margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #6b7280;
+  colour: #6b7280;
   margin: 0;
 }
 
 .chart-controls {
   display: flex;
-  justify-content: center;
+  justify-content: centre;
   gap: 32px;
   margin-bottom: 24px;
   padding: 16px;
-  background-color: #f9fafb;
+  background-colour: #f9fafb;
   border-radius: 6px;
 }
 
 .control-group {
   display: flex;
-  align-items: center;
+  align-items: centre;
   gap: 10px;
 }
 
 .control-group label {
   font-size: 13px;
   font-weight: 500;
-  color: #374151;
+  colour: #374151;
   white-space: nowrap;
 }
 
@@ -415,13 +415,13 @@ export default {
   font-size: 13px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
-  background-color: white;
+  background-colour: white;
   cursor: pointer;
 }
 
 .form-control-sm:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-colour: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -430,20 +430,20 @@ export default {
 }
 
 .empty-state {
-  text-align: center;
+  text-align: centre;
   padding: 80px 20px;
-  color: #9ca3af;
+  colour: #9ca3af;
 }
 
 .empty-state i {
-  color: #d1d5db;
+  colour: #d1d5db;
   margin-bottom: 16px;
 }
 
 .empty-state p {
   margin: 8px 0;
   font-size: 16px;
-  color: #6b7280;
+  colour: #6b7280;
 }
 
 .summary-cards {
@@ -455,10 +455,10 @@ export default {
 
 .summary-card {
   display: flex;
-  align-items: center;
+  align-items: centre;
   gap: 16px;
   padding: 20px;
-  background-color: #f9fafb;
+  background-colour: #f9fafb;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
 }
@@ -468,19 +468,19 @@ export default {
   height: 48px;
   border-radius: 50%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: centre;
+  justify-content: centre;
   font-size: 20px;
 }
 
 .card-icon.positive {
-  background-color: #d1fae5;
-  color: #059669;
+  background-colour: #d1fae5;
+  colour: #059669;
 }
 
 .card-icon.negative {
-  background-color: #fee2e2;
-  color: #dc2626;
+  background-colour: #fee2e2;
+  colour: #dc2626;
 }
 
 .card-content {
@@ -492,7 +492,7 @@ export default {
 
 .card-label {
   font-size: 13px;
-  color: #6b7280;
+  colour: #6b7280;
   font-weight: 500;
 }
 
@@ -502,11 +502,11 @@ export default {
 }
 
 .card-value.positive {
-  color: #059669;
+  colour: #059669;
 }
 
 .card-value.negative {
-  color: #dc2626;
+  colour: #dc2626;
 }
 
 @media (max-width: 768px) {

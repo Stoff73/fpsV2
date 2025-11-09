@@ -4,7 +4,7 @@
       <div class="modal-header">
         <h3 class="modal-title">{{ isEdit ? 'Edit Property' : 'Add Property' }}</h3>
         <button @click="closeModal" class="close-button">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColour" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -129,7 +129,7 @@
         <div class="form-group">
           <label class="form-label">Ownership Type *</label>
           <div class="flex gap-4">
-            <label class="flex items-center">
+            <label class="flex items-centre">
               <input
                 type="radio"
                 v-model="formData.ownership_type"
@@ -138,7 +138,7 @@
               />
               <span>Individual</span>
             </label>
-            <label class="flex items-center">
+            <label class="flex items-centre">
               <input
                 type="radio"
                 v-model="formData.ownership_type"
@@ -359,8 +359,8 @@ export default {
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: centre;
+  justify-content: centre;
   z-index: 50;
   padding: 16px;
 }
@@ -378,7 +378,7 @@ export default {
 .modal-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: centre;
   padding: 24px;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -386,14 +386,14 @@ export default {
 .modal-title {
   font-size: 20px;
   font-weight: 700;
-  color: #111827;
+  colour: #111827;
   margin: 0;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #6b7280;
+  colour: #6b7280;
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
@@ -402,7 +402,7 @@ export default {
 
 .close-button:hover {
   background: #f3f4f6;
-  color: #111827;
+  colour: #111827;
 }
 
 .modal-body {
@@ -417,7 +417,7 @@ export default {
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  colour: #374151;
   margin-bottom: 6px;
 }
 
@@ -429,7 +429,7 @@ export default {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
-  color: #111827;
+  colour: #111827;
   transition: all 0.2s;
 }
 
@@ -437,7 +437,7 @@ export default {
 .form-select:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-colour: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -448,7 +448,7 @@ export default {
 
 .error-message {
   display: block;
-  color: #ef4444;
+  colour: #ef4444;
   font-size: 12px;
   margin-top: 4px;
 }
@@ -475,7 +475,7 @@ export default {
 
 .btn-primary {
   background: #3b82f6;
-  color: white;
+  colour: white;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -489,13 +489,13 @@ export default {
 
 .btn-secondary {
   background: white;
-  color: #374151;
+  colour: #374151;
   border: 1px solid #d1d5db;
 }
 
 .btn-secondary:hover {
   background: #f9fafb;
-  border-color: #9ca3af;
+  border-colour: #9ca3af;
 }
 
 @media (max-width: 640px) {

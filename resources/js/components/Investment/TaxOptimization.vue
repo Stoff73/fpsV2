@@ -1,14 +1,14 @@
 <template>
   <div class="tax-optimization-tab">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-12">
+    <div v-if="loading" class="flex justify-centre items-centre py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-center">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <div class="flex items-centre">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -22,7 +22,7 @@
         <!-- Tax Efficiency Score Card -->
         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md p-6 lg:col-span-1">
           <h3 class="text-lg font-semibold text-gray-800 mb-4">Tax Efficiency Score</h3>
-          <div class="flex items-center justify-center mb-4">
+          <div class="flex items-centre justify-centre mb-4">
             <div class="relative">
               <apexchart
                 v-if="taxAnalysis"
@@ -33,8 +33,8 @@
               />
             </div>
           </div>
-          <div class="text-center">
-            <p class="text-3xl font-bold mb-1" :class="getScoreColor(taxAnalysis?.efficiency_score?.grade)">
+          <div class="text-centre">
+            <p class="text-3xl font-bold mb-1" :class="getScoreColour(taxAnalysis?.efficiency_score?.grade)">
               {{ taxAnalysis?.efficiency_score?.grade || 'N/A' }}
             </p>
             <p class="text-sm text-gray-600">{{ taxAnalysis?.efficiency_score?.interpretation }}</p>
@@ -55,15 +55,15 @@
               </p>
             </div>
             <div>
-              <p class="text-sm text-gray-600 mb-1">Unrealized Gains</p>
+              <p class="text-sm text-gray-600 mb-1">Unrealised Gains</p>
               <p class="text-xl font-semibold text-green-600">
-                £{{ formatNumber(taxAnalysis?.current_position?.unrealized_gains || 0) }}
+                £{{ formatNumber(taxAnalysis?.current_position?.unrealised_gains || 0) }}
               </p>
             </div>
             <div>
-              <p class="text-sm text-gray-600 mb-1">Unrealized Losses</p>
+              <p class="text-sm text-gray-600 mb-1">Unrealised Losses</p>
               <p class="text-xl font-semibold text-red-600">
-                £{{ formatNumber(Math.abs(taxAnalysis?.current_position?.unrealized_losses || 0)) }}
+                £{{ formatNumber(Math.abs(taxAnalysis?.current_position?.unrealised_losses || 0)) }}
               </p>
             </div>
             <div>
@@ -77,7 +77,7 @@
 
           <!-- Potential Annual Savings -->
           <div class="mt-4 p-4 bg-green-50 rounded-md border border-green-200">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-centre">
               <span class="text-sm font-medium text-gray-700">Potential Annual Tax Savings:</span>
               <span class="text-2xl font-bold text-green-600">
                 £{{ formatNumber(taxAnalysis?.potential_savings?.annual || 0) }}
@@ -96,7 +96,7 @@
               :key="tab.id"
               @click="activeTab = tab.id"
               :class="[
-                'py-4 px-6 text-sm font-medium border-b-2 transition-colors duration-200',
+                'py-4 px-6 text-sm font-medium border-b-2 transition-colours duration-200',
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -226,7 +226,7 @@ export default {
                 fontSize: '24px',
                 fontWeight: 'bold',
                 offsetY: 8,
-                color: this.getScoreColorHex(grade),
+                colour: this.getScoreColourHex(grade),
                 formatter: (val) => `${Math.round(val)}`,
               },
             },
@@ -238,14 +238,14 @@ export default {
             shade: 'dark',
             type: 'horizontal',
             shadeIntensity: 0.5,
-            gradientToColors: [this.getScoreColorHex(grade)],
+            gradientToColours: [this.getScoreColourHex(grade)],
             stops: [0, 100],
           },
         },
         stroke: {
           lineCap: 'round',
         },
-        colors: [this.getScoreColorHex(grade)],
+        colours: [this.getScoreColourHex(grade)],
       };
     },
   },
@@ -277,7 +277,7 @@ export default {
 
     async loadTaxAnalysis() {
       try {
-        const response = await investmentService.analyzeTaxPosition({
+        const response = await investmentService.analyseTaxPosition({
           tax_year: this.taxYear,
         });
         this.taxAnalysis = response.data;
@@ -343,8 +343,8 @@ export default {
       }
     },
 
-    getScoreColor(grade) {
-      const colors = {
+    getScoreColour(grade) {
+      const colours = {
         'A': 'text-green-600',
         'B': 'text-blue-600',
         'C': 'text-yellow-600',
@@ -352,11 +352,11 @@ export default {
         'E': 'text-red-600',
         'F': 'text-red-700',
       };
-      return colors[grade] || 'text-gray-600';
+      return colours[grade] || 'text-gray-600';
     },
 
-    getScoreColorHex(grade) {
-      const colors = {
+    getScoreColourHex(grade) {
+      const colours = {
         'A': '#10B981', // green-600
         'B': '#3B82F6', // blue-600
         'C': '#FBBF24', // yellow-600
@@ -364,7 +364,7 @@ export default {
         'E': '#EF4444', // red-600
         'F': '#DC2626', // red-700
       };
-      return colors[grade] || '#6B7280'; // gray-600
+      return colours[grade] || '#6B7280'; // gray-600
     },
 
     formatNumber(value) {

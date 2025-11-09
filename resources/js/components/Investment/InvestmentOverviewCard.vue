@@ -11,7 +11,7 @@
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColor"
+          stroke="currentColour"
         >
           <path
             stroke-linecap="round"
@@ -37,7 +37,7 @@
     <div class="grid grid-cols-2 gap-4 mb-4">
       <div>
         <p class="text-sm text-gray-600 mb-1">YTD Return</p>
-        <p class="text-lg font-semibold" :class="returnColor">
+        <p class="text-lg font-semibold" :class="returnColour">
           {{ formattedYtdReturn }}
         </p>
       </div>
@@ -52,13 +52,13 @@
     <!-- Rebalancing Alert / All Good -->
     <div
       v-if="needsRebalancing"
-      class="flex items-center p-3 bg-amber-50 rounded-md"
+      class="flex items-centre p-3 bg-amber-50 rounded-md"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 text-amber-600 mr-2"
         viewBox="0 0 20 20"
-        fill="currentColor"
+        fill="currentColour"
       >
         <path
           fill-rule="evenodd"
@@ -73,13 +73,13 @@
 
     <div
       v-else
-      class="flex items-center p-3 bg-green-50 rounded-md"
+      class="flex items-centre p-3 bg-green-50 rounded-md"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 text-green-600 mr-2"
         viewBox="0 0 20 20"
-        fill="currentColor"
+        fill="currentColour"
       >
         <path
           fill-rule="evenodd"
@@ -136,7 +136,7 @@ export default {
       return `${sign}${this.ytdReturn.toFixed(2)}%`;
     },
 
-    returnColor() {
+    returnColour() {
       if (this.ytdReturn >= 5) {
         return 'text-green-600';
       } else if (this.ytdReturn >= 0) {

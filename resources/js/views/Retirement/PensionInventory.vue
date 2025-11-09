@@ -1,7 +1,7 @@
 <template>
   <div class="pension-inventory">
     <!-- Header with Add Button -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-centre justify-between mb-6">
       <div>
         <h2 class="text-2xl font-bold text-gray-900">Pension Inventory</h2>
         <p class="text-gray-600 mt-1">Manage all your pension arrangements</p>
@@ -9,9 +9,9 @@
       <div class="relative">
         <button
           @click="showAddMenu = !showAddMenu"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-centre transition-colours duration-200"
         >
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
           Add Pension
@@ -23,14 +23,14 @@
         >
           <button
             @click="openAddForm('dc')"
-            class="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-200 transition-colors duration-150"
+            class="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-200 transition-colours duration-150"
           >
             <p class="font-medium text-gray-900">DC Pension</p>
             <p class="text-xs text-gray-500">Defined Contribution</p>
           </button>
           <button
             @click="openAddForm('db')"
-            class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors duration-150"
+            class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colours duration-150"
           >
             <p class="font-medium text-gray-900">DB Pension</p>
             <p class="text-xs text-gray-500">Defined Benefit</p>
@@ -41,7 +41,7 @@
 
     <!-- DC Pensions -->
     <div class="mb-8">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-centre">
         <div class="w-1 h-6 bg-blue-500 mr-3 rounded"></div>
         DC Pensions (Defined Contribution)
       </h3>
@@ -55,8 +55,8 @@
           @delete="deleteDCPension"
         />
       </div>
-      <div v-else class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div v-else class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-centre">
+        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColour" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
         </svg>
         <p class="text-gray-600">No DC pensions added yet</p>
@@ -68,14 +68,14 @@
 
     <!-- DB Pensions -->
     <div class="mb-8">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-centre">
         <div class="w-1 h-6 bg-purple-500 mr-3 rounded"></div>
         DB Pensions (Defined Benefit)
       </h3>
       <div v-if="dbPensions.length > 0">
         <!-- DB Pension Warning -->
         <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 flex items-start">
-          <svg class="w-5 h-5 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
           </svg>
           <div>
@@ -96,8 +96,8 @@
           />
         </div>
       </div>
-      <div v-else class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div v-else class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-centre">
+        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColour" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
         </svg>
         <p class="text-gray-600">No DB pensions added yet</p>
@@ -109,7 +109,7 @@
 
     <!-- State Pension -->
     <div>
-      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-centre">
         <div class="w-1 h-6 bg-green-500 mr-3 rounded"></div>
         State Pension
       </h3>
@@ -138,8 +138,8 @@
           Update State Pension Details
         </button>
       </div>
-      <div v-else class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div v-else class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-centre">
+        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColour" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
         </svg>
         <p class="text-gray-600">No state pension information</p>

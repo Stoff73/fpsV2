@@ -70,7 +70,7 @@ export default {
           curve: 'smooth',
           width: 3,
         },
-        colors: ['#3B82F6'],
+        colours: ['#3B82F6'],
         fill: {
           type: 'gradient',
           gradient: {
@@ -85,7 +85,7 @@ export default {
           labels: {
             style: {
               fontSize: '12px',
-              colors: '#6b7280',
+              colours: '#6b7280',
             },
           },
         },
@@ -93,7 +93,7 @@ export default {
           labels: {
             style: {
               fontSize: '12px',
-              colors: '#6b7280',
+              colours: '#6b7280',
             },
             formatter: (val) => {
               return this.formatCurrency(val);
@@ -108,7 +108,7 @@ export default {
           },
         },
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
           strokeDashArray: 4,
         },
         responsive: [
@@ -155,7 +155,7 @@ export default {
 .chart-title {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  colour: #111827;
   margin: 0 0 20px 0;
 }
 
@@ -164,9 +164,9 @@ export default {
 }
 
 .no-data {
-  text-align: center;
+  text-align: centre;
   padding: 60px 20px;
-  color: #9ca3af;
+  colour: #9ca3af;
 }
 
 .no-data p {

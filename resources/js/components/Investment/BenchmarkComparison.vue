@@ -1,14 +1,14 @@
 <template>
   <div class="benchmark-comparison">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-12">
+    <div v-if="loading" class="flex justify-centre items-centre py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-center">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <div class="flex items-centre">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -19,10 +19,10 @@
     <div v-else class="space-y-6">
       <!-- Benchmark Selector & Period -->
       <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-centre justify-between gap-4">
           <h2 class="text-xl font-semibold text-gray-800">Benchmark Comparison</h2>
 
-          <div class="flex items-center space-x-4">
+          <div class="flex items-centre space-x-4">
             <select
               v-model="selectedBenchmarks"
               multiple
@@ -53,7 +53,7 @@
             <button
               @click="compareSelected"
               :disabled="selectedBenchmarks.length === 0"
-              class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colours disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Compare
             </button>
@@ -127,14 +127,14 @@
               <!-- Sharpe Ratio -->
               <tr class="border-b border-gray-100">
                 <td class="py-3 px-4 font-medium">Sharpe Ratio</td>
-                <td class="text-right py-3 px-4 font-semibold" :class="getSharpeColor(comparisonData.portfolio.sharpe_ratio)">
+                <td class="text-right py-3 px-4 font-semibold" :class="getSharpeColour(comparisonData.portfolio.sharpe_ratio)">
                   {{ formatDecimal(comparisonData.portfolio.sharpe_ratio) }}
                 </td>
                 <td
                   v-for="benchmark in comparisonData.benchmarks"
                   :key="`sharpe-${benchmark.id}`"
                   class="text-right py-3 px-4"
-                  :class="getSharpeColor(benchmark.sharpe_ratio)"
+                  :class="getSharpeColour(benchmark.sharpe_ratio)"
                 >
                   {{ formatDecimal(benchmark.sharpe_ratio) }}
                 </td>
@@ -235,7 +235,7 @@
         <div class="bg-white rounded-lg shadow-md p-6">
           <h4 class="text-sm font-semibold text-gray-700 mb-4">Volatility Assessment</h4>
           <p class="text-xs text-gray-600 mb-2">vs Average Benchmark</p>
-          <p class="text-2xl font-bold mb-1" :class="getVolatilityColor(comparisonData.summary.vs_avg_volatility)">
+          <p class="text-2xl font-bold mb-1" :class="getVolatilityColour(comparisonData.summary.vs_avg_volatility)">
             {{ comparisonData.summary.vs_avg_volatility >= 0 ? '+' : '' }}{{ formatPercent(comparisonData.summary.vs_avg_volatility) }}
           </p>
           <p class="text-xs text-gray-500">
@@ -317,7 +317,7 @@ export default {
         legend: {
           position: 'top',
         },
-        colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+        colours: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
         tooltip: {
           y: {
             formatter: (val) => this.formatPercent(val / 100),
@@ -370,7 +370,7 @@ export default {
             formatter: (val) => this.formatPercent(val / 100),
           },
         },
-        colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'],
+        colours: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'],
         markers: {
           size: 8,
         },
@@ -449,14 +449,14 @@ export default {
       return value.toFixed(2);
     },
 
-    getSharpeColor(sharpe) {
+    getSharpeColour(sharpe) {
       if (sharpe >= 2) return 'text-green-600';
       if (sharpe >= 1) return 'text-blue-600';
       if (sharpe >= 0) return 'text-yellow-600';
       return 'text-red-600';
     },
 
-    getVolatilityColor(diff) {
+    getVolatilityColour(diff) {
       return diff < 0 ? 'text-green-600' : 'text-red-600';
     },
 

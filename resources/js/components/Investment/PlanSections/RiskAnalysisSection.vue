@@ -2,7 +2,7 @@
   <div class="risk-analysis-section">
     <h4 class="text-md font-semibold text-gray-800 mb-4">Risk Analysis</h4>
 
-    <div v-if="!data" class="text-center py-8 text-gray-500">
+    <div v-if="!data" class="text-centre py-8 text-gray-500">
       <p>No risk analysis data available</p>
     </div>
 
@@ -11,32 +11,32 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white border border-gray-200 rounded-lg p-5">
           <h5 class="text-sm font-semibold text-gray-700 mb-3">Current Risk Score</h5>
-          <div class="flex items-center justify-center mb-2">
-            <div class="text-4xl font-bold" :class="getRiskScoreColor(data.current_risk_score)">
+          <div class="flex items-centre justify-centre mb-2">
+            <div class="text-4xl font-bold" :class="getRiskScoreColour(data.current_risk_score)">
               {{ data.current_risk_score || 0 }}<span class="text-2xl text-gray-600">/10</span>
             </div>
           </div>
-          <p class="text-center text-sm text-gray-600">{{ getRiskScoreLabel(data.current_risk_score) }}</p>
+          <p class="text-centre text-sm text-gray-600">{{ getRiskScoreLabel(data.current_risk_score) }}</p>
         </div>
 
         <div class="bg-white border border-gray-200 rounded-lg p-5">
           <h5 class="text-sm font-semibold text-gray-700 mb-3">Target Risk Score</h5>
-          <div class="flex items-center justify-center mb-2">
+          <div class="flex items-centre justify-centre mb-2">
             <div class="text-4xl font-bold text-blue-600">
               {{ data.target_risk_score || 0 }}<span class="text-2xl text-gray-600">/10</span>
             </div>
           </div>
-          <p class="text-center text-sm text-gray-600">{{ getRiskScoreLabel(data.target_risk_score) }}</p>
+          <p class="text-centre text-sm text-gray-600">{{ getRiskScoreLabel(data.target_risk_score) }}</p>
         </div>
 
         <div class="bg-white border border-gray-200 rounded-lg p-5">
           <h5 class="text-sm font-semibold text-gray-700 mb-3">Risk Alignment</h5>
-          <div class="flex items-center justify-center mb-2">
-            <div class="text-4xl font-bold" :class="getAlignmentColor(data.risk_alignment)">
+          <div class="flex items-centre justify-centre mb-2">
+            <div class="text-4xl font-bold" :class="getAlignmentColour(data.risk_alignment)">
               {{ formatPercentage(data.risk_alignment || 0) }}<span class="text-2xl">%</span>
             </div>
           </div>
-          <p class="text-center text-sm text-gray-600">{{ getAlignmentLabel(data.risk_alignment) }}</p>
+          <p class="text-centre text-sm text-gray-600">{{ getAlignmentLabel(data.risk_alignment) }}</p>
         </div>
       </div>
 
@@ -78,7 +78,7 @@
             :class="getRecommendationClass(rec.priority)"
           >
             <div class="flex items-start">
-              <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" :class="getRecommendationIconColor(rec.priority)" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" :class="getRecommendationIconColour(rec.priority)" fill="currentColour" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
               </svg>
               <div class="flex-1">
@@ -132,7 +132,7 @@ export default {
       return value.toFixed(2);
     },
 
-    getRiskScoreColor(score) {
+    getRiskScoreColour(score) {
       if (score <= 3) return 'text-green-600';
       if (score <= 5) return 'text-blue-600';
       if (score <= 7) return 'text-amber-600';
@@ -147,7 +147,7 @@ export default {
       return 'Very High Risk';
     },
 
-    getAlignmentColor(alignment) {
+    getAlignmentColour(alignment) {
       if (alignment >= 90) return 'text-green-600';
       if (alignment >= 75) return 'text-blue-600';
       if (alignment >= 60) return 'text-amber-600';
@@ -170,13 +170,13 @@ export default {
       return classes[priority] || 'bg-gray-50 border-gray-200';
     },
 
-    getRecommendationIconColor(priority) {
-      const colors = {
+    getRecommendationIconColour(priority) {
+      const colours = {
         high: 'text-red-600',
         medium: 'text-amber-600',
         low: 'text-blue-600',
       };
-      return colors[priority] || 'text-gray-600';
+      return colours[priority] || 'text-gray-600';
     },
   },
 };

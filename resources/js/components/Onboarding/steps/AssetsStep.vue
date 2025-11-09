@@ -52,7 +52,7 @@
           >
             <div class="flex justify-between items-start">
               <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
+                <div class="flex items-centre gap-2 mb-2">
                   <h5 class="text-body font-medium text-gray-900 capitalize">
                     {{ property.property_type?.replace(/_/g, ' ') }}
                   </h5>
@@ -107,6 +107,23 @@
 
       <!-- Investments Tab -->
       <div v-show="activeTab === 'investments'" class="space-y-4">
+        <!-- Feature Status Notice -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex">
+            <svg class="h-5 w-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+            <div>
+              <p class="text-body-sm text-blue-800">
+                <strong>Investment Module - Coming Soon</strong>
+              </p>
+              <p class="text-body-sm text-blue-700 mt-1">
+                While the comprehensive Investment Planning module is currently in development, you can record your investment accounts and holdings here. This information will be used in your Estate Planning calculations and Inheritance Tax liability assessments. Full portfolio analysis, performance tracking, and investment recommendations will be available in upcoming releases.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <p class="text-body-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
           Investment accounts include ISAs, General Investment Accounts, and bonds. These form part of your overall wealth.
         </p>
@@ -124,7 +141,7 @@
           >
             <div class="flex justify-between items-start">
               <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
+                <div class="flex items-centre gap-2 mb-2">
                   <h5 class="text-body font-medium text-gray-900">
                     {{ investment.provider }}
                   </h5>
@@ -190,7 +207,7 @@
           >
             <div class="flex justify-between items-start">
               <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
+                <div class="flex items-centre gap-2 mb-2">
                   <h5 class="text-body font-medium text-gray-900">
                     {{ savings.institution }}
                   </h5>

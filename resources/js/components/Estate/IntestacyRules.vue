@@ -4,7 +4,7 @@
     <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <svg class="h-5 w-5 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColour">
             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
           </svg>
         </div>
@@ -18,7 +18,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-8">
+    <div v-if="loading" class="text-centre py-8">
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       <p class="mt-2 text-gray-600">Calculating intestacy distribution...</p>
     </div>
@@ -38,7 +38,7 @@
 
           <!-- Estate Value -->
           <div class="border-t border-gray-200 pt-4">
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex justify-between items-centre mb-2">
               <span class="text-sm font-medium text-gray-700">Total Estate Value</span>
               <span class="text-lg font-bold text-gray-900">{{ formatCurrency(distribution.estate_value) }}</span>
             </div>
@@ -54,7 +54,7 @@
                 class="flex justify-between items-start p-3 bg-gray-50 rounded-lg"
               >
                 <div class="flex-1">
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-centre gap-2">
                     <span class="text-sm font-medium text-gray-900">{{ beneficiary.relationship }}</span>
                     <span v-if="beneficiary.count > 1" class="text-xs text-gray-600">({{ beneficiary.count }} person{{ beneficiary.count > 1 ? 's' : '' }})</span>
                   </div>
@@ -74,7 +74,7 @@
             <div class="bg-red-50 border border-red-200 rounded-lg p-4">
               <div class="flex">
                 <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColour">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                   </svg>
                 </div>
@@ -101,7 +101,7 @@
           >
             <div class="flex-shrink-0 mt-1">
               <div :class="[
-                'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold',
+                'w-6 h-6 rounded-full flex items-centre justify-centre text-xs font-bold',
                 step.answer === 'YES' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
               ]">
                 {{ index + 1 }}
@@ -126,7 +126,7 @@
         </p>
         <button
           @click="$emit('create-will')"
-          class="px-6 py-2 bg-white text-blue-700 rounded-md hover:bg-blue-50 font-semibold transition-colors"
+          class="px-6 py-2 bg-white text-blue-700 rounded-md hover:bg-blue-50 font-semibold transition-colours"
         >
           Create Your Will
         </button>

@@ -7,7 +7,7 @@
       :series="series"
       height="350"
     />
-    <div v-if="!hasData" class="flex items-center justify-center h-64 text-gray-400">
+    <div v-if="!hasData" class="flex items-centre justify-centre h-64 text-gray-400">
       <p>No policy timeline data available</p>
     </div>
   </div>
@@ -43,7 +43,7 @@ export default {
     },
 
     series() {
-      const policyTypeColors = {
+      const policyTypeColours = {
         life: '#3B82F6',
         criticalIllness: '#8B5CF6',
         incomeProtection: '#10B981',
@@ -73,7 +73,7 @@ export default {
         return {
           x: policyLabel,
           y: [startDate.getTime(), endDate.getTime()],
-          fillColor: policyTypeColors[policyType] || '#6B7280',
+          fillColour: policyTypeColours[policyType] || '#6B7280',
         };
       });
 

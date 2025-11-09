@@ -12,7 +12,7 @@
           class="text-blue-600 hover:text-blue-800"
           title="Edit goal"
         >
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColour">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
         </button>
@@ -21,7 +21,7 @@
           class="text-red-600 hover:text-red-800"
           title="Delete goal"
         >
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColour">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
         </button>
@@ -50,7 +50,7 @@
 
     <!-- Progress Bar -->
     <div class="mb-4">
-      <div class="flex justify-between items-center mb-2">
+      <div class="flex justify-between items-centre mb-2">
         <span class="text-sm font-medium text-gray-700">Progress</span>
         <span class="text-sm font-semibold" :class="progressClass">{{ progressPercent }}%</span>
       </div>
@@ -64,14 +64,14 @@
     </div>
 
     <!-- Monthly Contribution -->
-    <div class="flex justify-between items-center py-3 border-t border-gray-200 mb-4">
+    <div class="flex justify-between items-centre py-3 border-t border-gray-200 mb-4">
       <span class="text-sm text-gray-600">Monthly Contribution:</span>
       <span class="text-sm font-medium text-gray-900">{{ formatCurrency(goal.monthly_contribution || 0) }}</span>
     </div>
 
     <!-- Monte Carlo Section -->
     <div v-if="monteCarloResult" class="border-t border-gray-200 pt-4">
-      <div class="flex justify-between items-center mb-3">
+      <div class="flex justify-between items-centre mb-3">
         <h4 class="text-sm font-semibold text-gray-900">Monte Carlo Analysis</h4>
         <button
           @click="$emit('run-monte-carlo', goal)"
@@ -83,7 +83,7 @@
 
       <!-- Success Probability Gauge -->
       <div class="mb-4">
-        <div class="flex justify-between items-center mb-2">
+        <div class="flex justify-between items-centre mb-2">
           <span class="text-sm text-gray-700">Success Probability</span>
           <span class="text-lg font-bold" :class="probabilityClass">{{ successProbability }}%</span>
         </div>
@@ -119,7 +119,7 @@
       <!-- View Chart Button -->
       <button
         @click="$emit('view-chart', goal)"
-        class="w-full mt-4 bg-blue-50 text-blue-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-100 transition-colors"
+        class="w-full mt-4 bg-blue-50 text-blue-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-100 transition-colours"
       >
         View Detailed Chart
       </button>
@@ -127,15 +127,15 @@
 
     <!-- No Monte Carlo Yet -->
     <div v-else class="border-t border-gray-200 pt-4">
-      <div class="text-center py-4">
-        <svg class="mx-auto h-10 w-10 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="text-centre py-4">
+        <svg class="mx-auto h-10 w-10 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColour">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
         <p class="text-sm text-gray-600 mb-3">No Monte Carlo analysis yet</p>
         <button
           @click="$emit('run-monte-carlo', goal)"
           :disabled="runningMonteCarlo"
-          class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colours disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ runningMonteCarlo ? 'Running...' : 'Run Monte Carlo Simulation' }}
         </button>
@@ -145,7 +145,7 @@
     <!-- Status Badge -->
     <div class="mt-4 pt-4 border-t border-gray-200">
       <span
-        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+        class="inline-flex items-centre px-3 py-1 rounded-full text-xs font-medium"
         :class="statusBadgeClass"
       >
         <span class="w-2 h-2 rounded-full mr-2" :class="statusDotClass"></span>

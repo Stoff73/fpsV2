@@ -43,7 +43,60 @@ Available Skills:
 
 **FAILURE TO USE AVAILABLE SKILLS IS UNACCEPTABLE.**
 
-### 4. ENVIRONMENT VARIABLE CONTAMINATION - CRITICAL WARNING
+### 4. UNIFIED FORM COMPONENTS - CRITICAL RULE
+
+**⚠️ THE APPLICATION USES ONE FORM FOR ALL INPUTS ACROSS ALL AREAS**
+
+**CRITICAL**: All data input forms MUST be reusable across the entire application:
+- ✅ The SAME form component is used whether adding data during onboarding, from the module dashboard, or editing existing data
+- ✅ Forms are located in module-specific component folders (e.g., `components/Protection/PolicyFormModal.vue`, `components/Estate/LiabilityForm.vue`)
+- ✅ Forms accept a data prop (e.g., `:policy`, `:property`, `:account`) and a mode/isEditing prop
+- ✅ Forms emit `@save` and `@close` events (NEVER use `@submit` which causes double submission)
+
+**Examples of Unified Forms:**
+- `Protection/PolicyFormModal.vue` - Used in onboarding, protection dashboard, and policy editing
+- `NetWorth/Property/PropertyForm.vue` - Used in onboarding, net worth module, and estate planning
+- `Investment/AccountForm.vue` - Used in onboarding and investment dashboard
+- `Savings/SaveAccountModal.vue` - Used in onboarding and savings dashboard
+- `Estate/LiabilityForm.vue` - Used in onboarding and estate planning
+
+**Pattern to Follow:**
+```vue
+<!-- Parent Component (Onboarding Step or Dashboard) -->
+<template>
+  <button @click="showForm = true">Add Item</button>
+
+  <ItemForm
+    v-if="showForm"
+    :item="editingItem"
+    :is-editing="!!editingItem"
+    @save="handleItemSaved"
+    @close="closeForm"
+  />
+</template>
+
+<script>
+async function handleItemSaved(data) {
+  if (editingItem.value) {
+    await service.updateItem(editingItem.value.id, data);
+  } else {
+    await service.createItem(data);
+  }
+  closeForm();
+  await loadItems(); // Refresh list
+}
+</script>
+```
+
+**DO NOT:**
+- ❌ Create separate forms for onboarding vs. dashboard
+- ❌ Duplicate form logic across components
+- ❌ Use `@submit` event name (causes double submission bug)
+- ❌ Create inline forms without extracting to reusable components
+
+**VIOLATION OF THIS RULE REQUIRES IMMEDIATE REFACTORING.**
+
+### 5. ENVIRONMENT VARIABLE CONTAMINATION - CRITICAL WARNING
 
 **⚠️ THE #1 CAUSE OF DEVELOPMENT ENVIRONMENT FAILURES IS ENVIRONMENT VARIABLE POLLUTION**
 
@@ -461,6 +514,38 @@ this.formData.start_date = this.formatDateForInput(policy.start_date);
 - Never use `v-if` with `v-for` on same element
 - Use shorthand syntax (`:` for `v-bind`, `@` for `v-on`)
 
+**Currency Formatting**:
+- **ALWAYS** use the `formatCurrency()` method for displaying currency values
+- **NEVER** use `.toLocaleString()` or manual string concatenation
+- Standard implementation:
+
+```javascript
+formatCurrency(value) {
+  if (value === null || value === undefined) return '£0';
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+```
+
+**Usage**:
+```vue
+<!-- CORRECT -->
+<p>Total: {{ formatCurrency(totalValue) }}</p>
+
+<!-- WRONG - DO NOT USE -->
+<p>Total: £{{ totalValue.toLocaleString() }}</p>
+```
+
+**Benefits**:
+- Consistent formatting across the entire application
+- Proper handling of null/undefined values
+- UK-specific currency format (£ symbol, comma separators)
+- No decimal places for whole pound amounts
+
 ---
 
 ## UK Tax Configuration
@@ -600,6 +685,45 @@ resources/js/
 
 ---
 
+## Recent Fixes (November 2025)
+
+### Expenditure Data Type Fix ✅
+
+**Issue**: Expenditure totals displaying as "£NaN" due to incorrect data type handling
+
+**Resolution**:
+- Changed database columns from `DECIMAL(15,2)` to `DOUBLE` for all income and expenditure fields
+- Updated Eloquent model casts from `'decimal:2'` to `'float'` in User model
+- Migration: `2025_11_09_133324_change_expenditure_columns_to_double.php`
+- **Impact**: All monetary values now serialize as numbers instead of strings, preventing NaN issues
+
+### User Profile UI Improvements ✅
+
+**Edit Button Repositioning**:
+- Moved "Edit Information" button from bottom to top right in all User Profile tabs
+- Affected components:
+  - `PersonalInformation.vue`
+  - `IncomeOccupation.vue`
+  - `DomicileInformation.vue`
+  - `HealthInformation.vue` (already had button at top)
+- **Benefit**: Improved UX with consistent button placement
+
+### British Spelling Conversion ✅
+
+**Scope**: Converted all user-facing text from American to British English spelling
+
+**Changes Applied**:
+- `-ize` → `-ise` (organise, analyse, optimise, realise, recognise, customise)
+- `-or` → `-our` (colour, behaviour, favour, neighbour)
+- `-er` → `-re` (centre, fibre, theatre)
+- Additional: travelling, cancelled, defence, offence
+- **Files Modified**: 252 Vue and JavaScript files across entire frontend
+
+**Technical Notes**:
+- Component names and file paths preserved as American spelling (code convention)
+- JavaScript API parameters unchanged (e.g., `behavior: 'smooth'`)
+- CSS class names unchanged (e.g., `items-center`)
+
 ## Known Issues
 
 ### Protection Policies Onboarding (⚠️ IN PROGRESS)
@@ -646,7 +770,7 @@ resources/js/
 ---
 
 **Current Version**: v0.2.1 (Beta)
-**Last Updated**: November 8, 2025
+**Last Updated**: November 9, 2025
 **Status**: 🚀 Active Development - Core Modules Complete
 
 ---

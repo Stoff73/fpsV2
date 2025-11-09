@@ -3,10 +3,10 @@
     <!-- Account Header -->
     <div class="flex justify-between items-start mb-4">
       <div class="flex-1">
-        <div class="flex items-center gap-2 mb-1">
+        <div class="flex items-centre gap-2 mb-1">
           <h3 class="text-lg font-semibold text-gray-900">{{ account.provider }}</h3>
           <span
-            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+            class="inline-flex items-centre px-2 py-1 rounded-full text-xs font-medium"
             :class="accountTypeBadgeClass"
           >
             {{ accountTypeLabel }}
@@ -20,7 +20,7 @@
           class="text-blue-600 hover:text-blue-800"
           title="Edit account"
         >
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColour">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
         </button>
@@ -29,7 +29,7 @@
           class="text-red-600 hover:text-red-800"
           title="Delete account"
         >
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColour">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
         </button>
@@ -43,9 +43,9 @@
     </div>
 
     <!-- Holdings Count -->
-    <div class="flex items-center justify-between py-3 border-t border-gray-200 mb-4">
-      <div class="flex items-center gap-2">
-        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="flex items-centre justify-between py-3 border-t border-gray-200 mb-4">
+      <div class="flex items-centre gap-2">
+        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColour">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
         <span class="text-sm text-gray-600">Holdings:</span>
@@ -54,7 +54,7 @@
     </div>
 
     <!-- Platform Fee -->
-    <div v-if="account.platform_fee_percent" class="flex items-center justify-between py-3 border-t border-gray-200 mb-4">
+    <div v-if="account.platform_fee_percent" class="flex items-centre justify-between py-3 border-t border-gray-200 mb-4">
       <span class="text-sm text-gray-600">Platform Fee:</span>
       <span class="text-sm font-medium text-gray-900">{{ account.platform_fee_percent }}% p.a.</span>
     </div>
@@ -62,7 +62,7 @@
     <!-- ISA Specific Information -->
     <div v-if="isISA" class="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
       <div class="flex items-start gap-2">
-        <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColour">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div class="flex-1">
@@ -75,7 +75,7 @@
     <!-- Action Button -->
     <button
       @click="$emit('view-holdings', account)"
-      class="w-full bg-blue-50 text-blue-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-100 transition-colors"
+      class="w-full bg-blue-50 text-blue-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-100 transition-colours"
     >
       View Holdings
     </button>

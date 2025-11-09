@@ -61,36 +61,36 @@ export default {
         dataLabels: {
           enabled: false,
         },
-        colors: ['#EF4444'],
+        colours: ['#EF4444'],
         plotOptions: {
           heatmap: {
             shadeIntensity: 0.5,
             radius: 4,
-            useFillColorAsStroke: false,
-            colorScale: {
+            useFillColourAsStroke: false,
+            colourScale: {
               ranges: [
                 {
                   from: 0,
                   to: 50000,
-                  color: '#10B981',
+                  colour: '#10B981',
                   name: 'Low Gap',
                 },
                 {
                   from: 50001,
                   to: 150000,
-                  color: '#F59E0B',
+                  colour: '#F59E0B',
                   name: 'Medium Gap',
                 },
                 {
                   from: 150001,
                   to: 500000,
-                  color: '#EF4444',
+                  colour: '#EF4444',
                   name: 'High Gap',
                 },
                 {
                   from: 500001,
                   to: 10000000,
-                  color: '#991B1B',
+                  colour: '#991B1B',
                   name: 'Critical Gap',
                 },
               ],
@@ -129,7 +129,7 @@ export default {
         legend: {
           show: true,
           position: 'bottom',
-          horizontalAlign: 'center',
+          horizontalAlign: 'centre',
           fontSize: '12px',
           markers: {
             width: 20,

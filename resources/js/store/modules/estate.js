@@ -192,13 +192,13 @@ const actions = {
         }
     },
 
-    // Analyze estate
-    async analyzeEstate({ commit }, data) {
+    // Analyse estate
+    async analyseEstate({ commit }, data) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
-            const response = await estateService.analyzeEstate(data);
+            const response = await estateService.analyseEstate(data);
             // Extract the actual analysis data from the response
             commit('setAnalysis', response.data?.data || response.data);
             return response;

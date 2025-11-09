@@ -2,11 +2,11 @@
   <div class="recommendations-tracker bg-white rounded-lg shadow-sm">
     <!-- Header with Statistics -->
     <div class="p-6 border-b border-gray-200">
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex items-centre justify-between mb-6">
         <h2 class="text-2xl font-bold text-gray-900">Investment Recommendations</h2>
         <button
           @click="refreshRecommendations"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colours duration-200"
           :disabled="loading"
         >
           {{ loading ? 'Loading...' : 'Refresh' }}
@@ -101,7 +101,7 @@
         <div class="flex items-end">
           <button
             @click="clearFilters"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colours duration-200"
           >
             Clear Filters
           </button>
@@ -112,17 +112,17 @@
     <!-- Recommendations List -->
     <div class="p-6">
       <!-- Loading State -->
-      <div v-if="loading" class="text-center py-12">
+      <div v-if="loading" class="text-centre py-12">
         <svg class="animate-spin h-12 w-12 mx-auto text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColour" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColour" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
         <p class="mt-4 text-gray-600">Loading recommendations...</p>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="!recommendations || recommendations.length === 0" class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div v-else-if="!recommendations || recommendations.length === 0" class="text-centre py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColour">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
         </svg>
         <h3 class="mt-4 text-lg font-medium text-gray-900">No recommendations found</h3>
@@ -140,7 +140,7 @@
           <!-- Header Row -->
           <div class="flex items-start justify-between mb-3">
             <div class="flex-1">
-              <div class="flex items-center gap-3 mb-2">
+              <div class="flex items-centre gap-3 mb-2">
                 <!-- Priority Badge -->
                 <span
                   class="px-2 py-1 text-xs font-semibold rounded"
@@ -175,7 +175,7 @@
                 @click="toggleActionMenu(recommendation.id)"
                 class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
               >
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5" fill="currentColour" viewBox="0 0 20 20">
                   <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                 </svg>
               </button>
@@ -227,15 +227,15 @@
 
           <!-- Metrics Row -->
           <div class="flex flex-wrap gap-4 text-sm">
-            <div v-if="recommendation.potential_saving" class="flex items-center gap-1">
+            <div v-if="recommendation.potential_saving" class="flex items-centre gap-1">
               <span class="font-medium text-gray-700">Potential Saving:</span>
               <span class="text-green-600 font-semibold">£{{ formatNumber(recommendation.potential_saving) }}</span>
             </div>
-            <div v-if="recommendation.impact_level" class="flex items-center gap-1">
+            <div v-if="recommendation.impact_level" class="flex items-centre gap-1">
               <span class="font-medium text-gray-700">Impact:</span>
               <span :class="getImpactClass(recommendation.impact_level)">{{ recommendation.impact_level }}</span>
             </div>
-            <div v-if="recommendation.estimated_effort" class="flex items-center gap-1">
+            <div v-if="recommendation.estimated_effort" class="flex items-centre gap-1">
               <span class="font-medium text-gray-700">Effort:</span>
               <span class="text-gray-600">{{ recommendation.estimated_effort }}</span>
             </div>
@@ -256,7 +256,7 @@
     <!-- Dismiss Modal -->
     <div
       v-if="showDismissModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-centre justify-centre z-50"
       @click.self="closeDismissModal"
     >
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
@@ -272,13 +272,13 @@
           <div class="flex justify-end gap-3 mt-4">
             <button
               @click="closeDismissModal"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colours duration-200"
             >
               Cancel
             </button>
             <button
               @click="confirmDismiss"
-              class="px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors duration-200"
+              class="px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colours duration-200"
               :disabled="!dismissalReason"
             >
               Dismiss

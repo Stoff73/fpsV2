@@ -11,7 +11,7 @@
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColor"
+          stroke="currentColour"
         >
           <path
             stroke-linecap="round"
@@ -39,14 +39,14 @@
         <p class="text-sm text-gray-600 mb-1">IHT Liability</p>
         <p
           class="text-lg font-semibold"
-          :class="ihtLiabilityColor"
+          :class="ihtLiabilityColour"
         >
           {{ formattedIHTLiability }}
         </p>
       </div>
       <div>
         <p class="text-sm text-gray-600 mb-1">Probate Readiness</p>
-        <p class="text-lg font-semibold" :class="probateReadinessColor">
+        <p class="text-lg font-semibold" :class="probateReadinessColour">
           {{ probateReadiness }}%
         </p>
       </div>
@@ -55,13 +55,13 @@
     <!-- Status Banner -->
     <div
       v-if="ihtLiability > 0"
-      class="flex items-center p-3 bg-amber-50 rounded-md"
+      class="flex items-centre p-3 bg-amber-50 rounded-md"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 text-amber-600 mr-2"
         viewBox="0 0 20 20"
-        fill="currentColor"
+        fill="currentColour"
       >
         <path
           fill-rule="evenodd"
@@ -76,13 +76,13 @@
 
     <div
       v-else
-      class="flex items-center p-3 bg-green-50 rounded-md"
+      class="flex items-centre p-3 bg-green-50 rounded-md"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 text-green-600 mr-2"
         viewBox="0 0 20 20"
-        fill="currentColor"
+        fill="currentColour"
       >
         <path
           fill-rule="evenodd"
@@ -138,7 +138,7 @@ export default {
       }).format(this.ihtLiability);
     },
 
-    ihtLiabilityColor() {
+    ihtLiabilityColour() {
       if (this.ihtLiability === 0) {
         return 'text-green-600';
       } else if (this.ihtLiability < 100000) {
@@ -148,7 +148,7 @@ export default {
       }
     },
 
-    probateReadinessColor() {
+    probateReadinessColour() {
       if (this.probateReadiness >= 80) {
         return 'text-green-600';
       } else if (this.probateReadiness >= 50) {

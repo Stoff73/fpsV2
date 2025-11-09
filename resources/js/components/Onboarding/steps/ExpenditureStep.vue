@@ -24,18 +24,18 @@
 
       <!-- Entry Mode Toggle -->
       <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <div class="flex items-center justify-between">
+        <div class="flex items-centre justify-between">
           <div>
             <h4 class="text-body font-medium text-gray-900">Entry Method</h4>
             <p class="text-body-sm text-gray-600 mt-1">
               Choose how you'd like to enter your expenditure
             </p>
           </div>
-          <div class="flex items-center space-x-3">
+          <div class="flex items-centre space-x-3">
             <button
               type="button"
               :class="[
-                'px-4 py-2 rounded-md text-body-sm font-medium transition-colors',
+                'px-4 py-2 rounded-md text-body-sm font-medium transition-colours',
                 useSimpleEntry
                   ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   : 'bg-primary-600 text-white'
@@ -47,7 +47,7 @@
             <button
               type="button"
               :class="[
-                'px-4 py-2 rounded-md text-body-sm font-medium transition-colors',
+                'px-4 py-2 rounded-md text-body-sm font-medium transition-colours',
                 useSimpleEntry
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

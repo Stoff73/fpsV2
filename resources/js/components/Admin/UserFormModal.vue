@@ -13,14 +13,14 @@
     ></div>
 
     <!-- Modal Dialog -->
-    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+    <div class="flex items-centre justify-centre min-h-screen px-4 pt-4 pb-20 text-centre sm:p-0">
       <div
         class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full"
       >
         <form @submit.prevent="submitForm">
           <!-- Header -->
           <div class="bg-white px-6 pt-6">
-            <div class="flex items-center justify-between">
+            <div class="flex items-centre justify-between">
               <h3 class="text-lg font-semibold text-gray-900">
                 {{ isEditMode ? 'Edit User' : 'Create New User' }}
               </h3>
@@ -29,7 +29,7 @@
                 class="text-gray-400 hover:text-gray-500 focus:outline-none"
                 @click="handleClose"
               >
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="h-6 w-6" fill="none" stroke="currentColour" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -45,7 +45,7 @@
             >
               <div class="flex">
                 <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColour" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -126,7 +126,7 @@
 
             <!-- Admin Role Checkbox -->
             <div class="flex items-start">
-              <div class="flex items-center h-5">
+              <div class="flex items-centre h-5">
                 <input
                   id="is_admin"
                   v-model="formData.is_admin"
@@ -147,7 +147,7 @@
             <!-- Edit Mode: Password Reset Option -->
             <div v-if="isEditMode" class="border-t border-gray-200 pt-4">
               <div class="flex items-start">
-                <div class="flex items-center h-5">
+                <div class="flex items-centre h-5">
                   <input
                     id="reset_password"
                     v-model="formData.reset_password"
@@ -179,7 +179,7 @@
             </button>
             <button
               type="submit"
-              class="btn-primary inline-flex items-center"
+              class="btn-primary inline-flex items-centre"
               :disabled="submitting"
             >
               <svg
@@ -193,12 +193,12 @@
                   cx="12"
                   cy="12"
                   r="10"
-                  stroke="currentColor"
+                  stroke="currentColour"
                   stroke-width="4"
                 ></circle>
                 <path
                   class="opacity-75"
-                  fill="currentColor"
+                  fill="currentColour"
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>

@@ -238,6 +238,18 @@ const actions = {
     }
   },
 
+  async goToStep({ commit, state, dispatch }, stepIndex) {
+    if (stepIndex >= 0 && stepIndex < state.steps.length) {
+      const step = state.steps[stepIndex];
+
+      commit('SET_CURRENT_STEP_INDEX', stepIndex);
+      commit('SET_CURRENT_STEP', step.name);
+
+      // Fetch data for this step if it exists
+      await dispatch('fetchStepData', step.name);
+    }
+  },
+
   async completeOnboarding({ commit, dispatch }) {
     commit('SET_LOADING', true);
     commit('SET_ERROR', null);

@@ -26,11 +26,11 @@
       />
 
       <!-- Dropdown Icon -->
-      <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+      <div class="absolute inset-y-0 right-0 flex items-centre pr-3 pointer-events-none">
         <svg
           class="w-5 h-5 text-gray-400"
           fill="none"
-          stroke="currentColor"
+          stroke="currentColour"
           viewBox="0 0 24 24"
         >
           <path
@@ -51,7 +51,7 @@
           <li
             v-for="country in filteredCountries"
             :key="country"
-            class="px-4 py-2 hover:bg-primary-50 cursor-pointer transition-colors"
+            class="px-4 py-2 hover:bg-primary-50 cursor-pointer transition-colours"
             :class="{ 'bg-primary-100': country === modelValue }"
             @mousedown.prevent="selectCountry(country)"
           >
@@ -65,7 +65,7 @@
         v-show="showDropdown && searchQuery && filteredCountries.length === 0"
         class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-4"
       >
-        <p class="text-body-sm text-gray-500 text-center">
+        <p class="text-body-sm text-gray-500 text-centre">
           No countries found matching "{{ searchQuery }}"
         </p>
       </div>

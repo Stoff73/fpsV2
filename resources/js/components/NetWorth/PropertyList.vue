@@ -4,7 +4,7 @@
       <h2 class="list-title">Properties</h2>
       <div class="list-controls">
         <button @click="addProperty" class="add-property-button">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="button-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColour" class="button-icon">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           Add Property
@@ -32,7 +32,7 @@
     </div>
 
     <div v-else-if="filteredProperties.length === 0" class="empty-state">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="empty-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColour" class="empty-icon">
         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
       </svg>
       <p>No properties found</p>
@@ -207,7 +207,7 @@ export default {
 .list-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: centre;
   margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 16px;
@@ -216,23 +216,23 @@ export default {
 .list-title {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  colour: #111827;
   margin: 0;
 }
 
 .list-controls {
   display: flex;
   gap: 12px;
-  align-items: center;
+  align-items: centre;
 }
 
 .add-property-button {
   display: inline-flex;
-  align-items: center;
+  align-items: centre;
   gap: 8px;
   padding: 10px 16px;
   background: #3b82f6;
-  color: white;
+  colour: white;
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -256,7 +256,7 @@ export default {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
-  color: #374151;
+  colour: #374151;
   background: white;
   cursor: pointer;
 }
@@ -264,7 +264,7 @@ export default {
 .filter-select:focus,
 .sort-select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-colour: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -277,19 +277,19 @@ export default {
 .loading-state,
 .error-state,
 .empty-state {
-  text-align: center;
+  text-align: centre;
   padding: 60px 20px;
 }
 
 .loading-state p,
 .error-state p {
-  color: #6b7280;
+  colour: #6b7280;
   font-size: 16px;
   margin: 0;
 }
 
 .error-state p {
-  color: #ef4444;
+  colour: #ef4444;
 }
 
 .empty-state {
@@ -302,19 +302,19 @@ export default {
 .empty-icon {
   width: 64px;
   height: 64px;
-  color: #9ca3af;
+  colour: #9ca3af;
   margin: 0 auto 16px;
 }
 
 .empty-state p {
-  color: #6b7280;
+  colour: #6b7280;
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 8px 0;
 }
 
 .empty-subtitle {
-  color: #9ca3af;
+  colour: #9ca3af;
   font-size: 14px;
   font-weight: 400;
 }
@@ -334,12 +334,12 @@ export default {
 
 .notification.success {
   background: #10b981;
-  color: white;
+  colour: white;
 }
 
 .notification.error {
   background: #ef4444;
-  color: white;
+  colour: white;
 }
 
 @keyframes slideIn {

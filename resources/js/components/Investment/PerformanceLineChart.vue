@@ -1,9 +1,9 @@
 <template>
   <div class="performance-line-chart">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-centre mb-4 gap-4">
       <h3 class="text-lg font-semibold text-gray-900">Portfolio Performance</h3>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-centre gap-2">
         <label for="time-period" class="text-sm font-medium text-gray-700">Period:</label>
         <select
           id="time-period"
@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <div v-if="loading" class="flex items-center justify-center h-96">
+    <div v-if="loading" class="flex items-centre justify-centre h-96">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
@@ -36,9 +36,9 @@
       />
     </div>
 
-    <div v-else class="flex items-center justify-center h-96 text-gray-500 border border-gray-200 rounded-lg">
-      <div class="text-center">
-        <svg class="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div v-else class="flex items-centre justify-centre h-96 text-gray-500 border border-gray-200 rounded-lg">
+      <div class="text-centre">
+        <svg class="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColour">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
         </svg>
         <p>No performance data available</p>
@@ -176,7 +176,7 @@ export default {
             },
           },
         },
-        colors: ['#3b82f6', '#10b981', '#8b5cf6'],
+        colours: ['#3b82f6', '#10b981', '#8b5cf6'],
         stroke: {
           width: [3, 2, 2],
           curve: 'smooth',
@@ -186,7 +186,7 @@ export default {
           labels: {
             format: 'MMM yyyy',
             style: {
-              colors: '#6b7280',
+              colours: '#6b7280',
               fontSize: '12px',
             },
           },
@@ -195,7 +195,7 @@ export default {
           labels: {
             formatter: (val) => this.formatCurrency(val),
             style: {
-              colors: '#6b7280',
+              colours: '#6b7280',
               fontSize: '12px',
             },
           },
@@ -217,7 +217,7 @@ export default {
           fontSize: '14px',
           fontWeight: 500,
           labels: {
-            colors: '#374151',
+            colours: '#374151',
           },
           markers: {
             width: 12,
@@ -226,7 +226,7 @@ export default {
           },
         },
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
           strokeDashArray: 3,
           xaxis: {
             lines: {

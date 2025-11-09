@@ -68,9 +68,9 @@ const getters = {
         return state.analysis?.fee_analysis?.fee_drag_percent || 0;
     },
 
-    // Get unrealized gains
-    unrealizedGains: (state) => {
-        return state.analysis?.tax_efficiency?.unrealized_gains?.total_unrealized_gains || 0;
+    // Get unrealised gains
+    unrealisedGains: (state) => {
+        return state.analysis?.tax_efficiency?.unrealised_gains?.total_unrealised_gains || 0;
     },
 
     // Get tax efficiency score
@@ -268,13 +268,13 @@ const actions = {
         }
     },
 
-    // Analyze investment portfolio
-    async analyzeInvestment({ commit }) {
+    // Analyse investment portfolio
+    async analyseInvestment({ commit }) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
-            const response = await investmentService.analyzeInvestment();
+            const response = await investmentService.analyseInvestment();
             commit('setAnalysis', response.data.analysis);
             commit('setRecommendations', response.data.recommendations);
             return response;
@@ -381,7 +381,7 @@ const actions = {
             const response = await investmentService.createAccount(accountData);
             commit('addAccount', response.data);
             // Refresh analysis after adding account
-            await dispatch('analyzeInvestment');
+            await dispatch('analyseInvestment');
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create account';
@@ -399,7 +399,7 @@ const actions = {
         try {
             const response = await investmentService.updateAccount(id, accountData);
             commit('updateAccount', response.data);
-            await dispatch('analyzeInvestment');
+            await dispatch('analyseInvestment');
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update account';
@@ -417,7 +417,7 @@ const actions = {
         try {
             const response = await investmentService.deleteAccount(id);
             commit('removeAccount', id);
-            await dispatch('analyzeInvestment');
+            await dispatch('analyseInvestment');
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to delete account';
@@ -439,7 +439,7 @@ const actions = {
                 accountId: holdingData.investment_account_id,
                 holding: response.data
             });
-            await dispatch('analyzeInvestment');
+            await dispatch('analyseInvestment');
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to create holding';
@@ -457,7 +457,7 @@ const actions = {
         try {
             const response = await investmentService.updateHolding(id, holdingData);
             commit('updateHolding', response.data);
-            await dispatch('analyzeInvestment');
+            await dispatch('analyseInvestment');
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to update holding';
@@ -475,7 +475,7 @@ const actions = {
         try {
             const response = await investmentService.deleteHolding(id);
             commit('removeHolding', id);
-            await dispatch('analyzeInvestment');
+            await dispatch('analyseInvestment');
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to delete holding';
@@ -546,7 +546,7 @@ const actions = {
         try {
             const response = await investmentService.saveRiskProfile(profileData);
             commit('setRiskProfile', response.data);
-            await dispatch('analyzeInvestment');
+            await dispatch('analyseInvestment');
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to save risk profile';
@@ -997,18 +997,18 @@ const actions = {
     // Phase 2 actions
 
     // Phase 2.1: Contribution Planning
-    async optimizeContributions({ commit }, inputs) {
+    async optimiseContributions({ commit }, inputs) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
-            const response = await investmentService.optimizeContributions(inputs);
+            const response = await investmentService.optimiseContributions(inputs);
             if (response.success && response.data) {
                 commit('setContributionOptimization', response.data);
             }
             return response;
         } catch (error) {
-            const errorMessage = error.message || 'Failed to optimize contributions';
+            const errorMessage = error.message || 'Failed to optimise contributions';
             commit('setError', errorMessage);
             throw error;
         } finally {
@@ -1032,15 +1032,15 @@ const actions = {
         }
     },
 
-    async analyzeLumpSumVsDCA({ commit }, inputs) {
+    async analyseLumpSumVsDCA({ commit }, inputs) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
-            const response = await investmentService.analyzeLumpSumVsDCA(inputs);
+            const response = await investmentService.analyseLumpSumVsDCA(inputs);
             return response;
         } catch (error) {
-            const errorMessage = error.message || 'Failed to analyze lump sum vs DCA';
+            const errorMessage = error.message || 'Failed to analyse lump sum vs DCA';
             commit('setError', errorMessage);
             throw error;
         } finally {
@@ -1049,18 +1049,18 @@ const actions = {
     },
 
     // Phase 2.6: Asset Location & Tax Efficiency
-    async analyzeAssetLocation({ commit }) {
+    async analyseAssetLocation({ commit }) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
-            const response = await investmentService.analyzeAssetLocation();
+            const response = await investmentService.analyseAssetLocation();
             if (response.success && response.data) {
                 commit('setAssetLocationAnalysis', response.data);
             }
             return response;
         } catch (error) {
-            const errorMessage = error.message || 'Failed to analyze asset location';
+            const errorMessage = error.message || 'Failed to analyse asset location';
             commit('setError', errorMessage);
             throw error;
         } finally {
@@ -1069,18 +1069,18 @@ const actions = {
     },
 
     // Phase 2.7: Performance Attribution
-    async analyzePerformanceAttribution({ commit }, params = {}) {
+    async analysePerformanceAttribution({ commit }, params = {}) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
-            const response = await investmentService.analyzePerformanceAttribution(params);
+            const response = await investmentService.analysePerformanceAttribution(params);
             if (response.success && response.data) {
                 commit('setPerformanceAttribution', response.data);
             }
             return response;
         } catch (error) {
-            const errorMessage = error.message || 'Failed to analyze performance attribution';
+            const errorMessage = error.message || 'Failed to analyse performance attribution';
             commit('setError', errorMessage);
             throw error;
         } finally {
@@ -1128,18 +1128,18 @@ const actions = {
     },
 
     // Phase 2.5: Fee Analysis
-    async analyzeFees({ commit }) {
+    async analyseFees({ commit }) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
-            const response = await investmentService.analyzeFees();
+            const response = await investmentService.analyseFees();
             if (response.success && response.data) {
                 commit('setFeeAnalysis', response.data);
             }
             return response;
         } catch (error) {
-            const errorMessage = error.message || 'Failed to analyze fees';
+            const errorMessage = error.message || 'Failed to analyse fees';
             commit('setError', errorMessage);
             throw error;
         } finally {

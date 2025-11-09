@@ -3,8 +3,8 @@
     <h3 class="text-lg font-semibold text-gray-800 mb-4">CGT Tax-Loss Harvesting</h3>
 
     <!-- No Data State -->
-    <div v-if="!opportunities || opportunities.opportunities.length === 0" class="text-center py-12 text-gray-500">
-      <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div v-if="!opportunities || opportunities.opportunities.length === 0" class="text-centre py-12 text-gray-500">
+      <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColour">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <p>No tax-loss harvesting opportunities found</p>
@@ -39,7 +39,7 @@
 
         <!-- Harvest Now -->
         <div v-if="opportunities.harvesting_strategy.harvest_now.length > 0" class="mb-4">
-          <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+          <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-centre">
             <span class="inline-block w-3 h-3 bg-red-600 rounded-full mr-2"></span>
             Harvest Now ({{ opportunities.harvesting_strategy.harvest_now.length }})
           </h5>
@@ -47,7 +47,7 @@
             <div
               v-for="(item, index) in opportunities.harvesting_strategy.harvest_now"
               :key="index"
-              class="flex items-center justify-between p-3 bg-red-50 rounded-md border border-red-200"
+              class="flex items-centre justify-between p-3 bg-red-50 rounded-md border border-red-200"
             >
               <div>
                 <p class="text-sm font-medium text-gray-800">{{ item.security_name }}</p>
@@ -71,7 +71,7 @@
 
         <!-- Harvest Later -->
         <div v-if="opportunities.harvesting_strategy.harvest_later.length > 0">
-          <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+          <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-centre">
             <span class="inline-block w-3 h-3 bg-gray-400 rounded-full mr-2"></span>
             Consider for Future ({{ opportunities.harvesting_strategy.harvest_later.length }})
           </h5>
@@ -79,7 +79,7 @@
             <div
               v-for="(item, index) in opportunities.harvesting_strategy.harvest_later.slice(0, 3)"
               :key="index"
-              class="flex items-center justify-between p-3 bg-gray-50 rounded-md border border-gray-200"
+              class="flex items-centre justify-between p-3 bg-gray-50 rounded-md border border-gray-200"
             >
               <div>
                 <p class="text-sm font-medium text-gray-800">{{ item.security_name }}</p>
@@ -159,7 +159,7 @@
       <div class="mt-6 flex justify-end">
         <button
           @click="$emit('refresh')"
-          class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors duration-200"
+          class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colours duration-200"
         >
           Refresh Analysis
         </button>

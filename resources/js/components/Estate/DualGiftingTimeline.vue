@@ -33,7 +33,7 @@
           </div>
         </div>
 
-        <div v-else class="text-sm text-gray-500 text-center py-8 border-2 border-dashed border-gray-300 rounded">
+        <div v-else class="text-sm text-gray-500 text-centre py-8 border-2 border-dashed border-gray-300 rounded">
           No gifts recorded within last 7 years
         </div>
       </div>
@@ -46,13 +46,13 @@
 
         <div v-if="spouseTimeline.show_empty_timeline">
           <!-- Empty state with data sharing message -->
-          <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-centre">
             <svg
               class="mx-auto h-12 w-12 text-gray-400"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              stroke="currentColor"
+              stroke="currentColour"
             >
               <path
                 stroke-linecap="round"
@@ -97,7 +97,7 @@
           </div>
         </div>
 
-        <div v-else class="text-sm text-gray-500 text-center py-8 border-2 border-dashed border-gray-300 rounded">
+        <div v-else class="text-sm text-gray-500 text-centre py-8 border-2 border-dashed border-gray-300 rounded">
           No gifts recorded within last 7 years
         </div>
       </div>
@@ -156,7 +156,7 @@ export default {
         xaxis: {
           type: 'datetime',
         },
-        colors: ['#3B82F6'], // Blue for user
+        colours: ['#3B82F6'], // Blue for user
         dataLabels: {
           enabled: true,
           formatter: (val) => {
@@ -194,7 +194,7 @@ export default {
     getSpouseChartOptions() {
       return {
         ...this.getUserChartOptions(),
-        colors: ['#8B5CF6'], // Purple for spouse
+        colours: ['#8B5CF6'], // Purple for spouse
       };
     },
 

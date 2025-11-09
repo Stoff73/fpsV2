@@ -12,7 +12,7 @@
       <!-- Current Version Card -->
       <div class="bg-white rounded-lg shadow-sm mb-6">
         <div class="p-6 border-b border-gray-200">
-          <div class="flex items-center justify-between">
+          <div class="flex items-centre justify-between">
             <div>
               <h2 class="text-h3 font-display text-gray-900">Current Version</h2>
               <p class="mt-1 text-body-sm text-gray-600">Latest release information</p>
@@ -32,7 +32,7 @@
             </div>
             <div>
               <h3 class="text-body-sm font-semibold text-gray-700 mb-2">Status</h3>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-body-sm font-medium bg-blue-100 text-blue-800">
+              <span class="inline-flex items-centre px-3 py-1 rounded-full text-body-sm font-medium bg-blue-100 text-blue-800">
                 🚀 Active Development
               </span>
             </div>
@@ -43,37 +43,37 @@
             <h3 class="text-body-lg font-semibold text-gray-900 mb-4">✨ What's New in v0.2.1</h3>
             <ul class="space-y-2">
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>Investment & Savings Plans Module:</strong> Comprehensive financial planning tool combining Investment and Savings goals with advanced risk metrics, asset allocation analysis, and consolidated progress tracking. Accessible from Quick Actions on the dashboard.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>DC Pension Portfolio Optimization:</strong> Full integration of Investment module's portfolio optimization tools into Retirement planning. DC pensions now support individual holdings management with complete portfolio analysis including risk metrics, asset allocation, and fee analysis.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>Polymorphic Holdings System:</strong> Implemented flexible polymorphic relationship allowing holdings to belong to both Investment Accounts and DC Pensions, enabling consistent portfolio management across all investment vehicles.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>Advanced Risk Metrics:</strong> Added comprehensive portfolio risk analysis including Alpha (excess returns vs benchmark), Beta (market sensitivity), Sharpe Ratio (risk-adjusted returns), Volatility, Max Drawdown, and Value at Risk (VaR 95%) for both Investment and Retirement modules.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>Portfolio Analysis & Optimization:</strong> Asset allocation breakdown, diversification scoring, fee analysis with low-cost alternative comparison, and integration with Monte Carlo Simulation and Efficient Frontier analysis tools.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>Holdings Management for DC Pensions:</strong> Full CRUD functionality for managing individual fund holdings within DC pension pots, enabling detailed tracking of fund allocations, fees, and performance across pension providers.</span>
@@ -86,25 +86,25 @@
             <h3 class="text-body-lg font-semibold text-gray-900 mb-4">⚙️ Technical Improvements in v0.2.1</h3>
             <ul class="space-y-2">
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>Service Reuse Architecture:</strong> Share Investment module services (PortfolioAnalyzer, FeeAnalyzer, MonteCarloSimulator) with Retirement module via dependency injection, eliminating code duplication while maintaining consistency.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>Database Migration with Rollback:</strong> Safely migrated existing investment holdings data to polymorphic structure with full rollback capability, ensuring zero data loss and backward compatibility.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>Enhanced RetirementAgent:</strong> Integrated 5 Investment module services into RetirementAgent for comprehensive DC pension portfolio analysis with risk metrics, fee breakdown, and optimization recommendations.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-body-base text-gray-700"><strong>New API Endpoints:</strong> Added 9 new API endpoints for DC pension holdings management, portfolio analysis, and Investment/Savings plans, all with proper authentication and authorization.</span>
@@ -201,12 +201,12 @@
         <div class="p-6">
           <!-- v0.1.2.13 -->
           <div class="mb-8 pb-8 border-b border-gray-200">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-centre justify-between mb-4">
               <div>
                 <h3 class="text-xl font-bold text-gray-900">v0.1.2.13</h3>
                 <p class="text-body-sm text-gray-600">29 October 2025</p>
               </div>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-body-sm font-medium bg-green-100 text-green-800">
+              <span class="inline-flex items-centre px-3 py-1 rounded-full text-body-sm font-medium bg-green-100 text-green-800">
                 Beta Release
               </span>
             </div>
@@ -234,12 +234,12 @@
 
           <!-- v0.1.2.3 -->
           <div class="mb-8 pb-8 border-b border-gray-200">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-centre justify-between mb-4">
               <div>
                 <h3 class="text-xl font-bold text-gray-900">v0.1.2.3</h3>
                 <p class="text-body-sm text-gray-600">25 October 2025</p>
               </div>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-body-sm font-medium bg-green-100 text-green-800">
+              <span class="inline-flex items-centre px-3 py-1 rounded-full text-body-sm font-medium bg-green-100 text-green-800">
                 Beta Release
               </span>
             </div>
@@ -250,7 +250,7 @@
                   <li>• Comprehensive Protection Plan with professional report generation</li>
                   <li>• Executive Summary with adequacy scores (0-100)</li>
                   <li>• Coverage Gap Analysis for Life/CI/IP</li>
-                  <li>• Optimized Strategy with prioritized recommendations</li>
+                  <li>• Optimised Strategy with prioritized recommendations</li>
                   <li>• Scenario Analysis (death, critical illness, disability)</li>
                   <li>• Print/PDF Export functionality</li>
                 </ul>
@@ -268,12 +268,12 @@
 
           <!-- v0.1.2.2 -->
           <div class="mb-8 pb-8 border-b border-gray-200">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-centre justify-between mb-4">
               <div>
                 <h3 class="text-xl font-bold text-gray-900">v0.1.2.2</h3>
                 <p class="text-body-sm text-gray-600">21-23 October 2025</p>
               </div>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-body-sm font-medium bg-green-100 text-green-800">
+              <span class="inline-flex items-centre px-3 py-1 rounded-full text-body-sm font-medium bg-green-100 text-green-800">
                 Beta Release
               </span>
             </div>
@@ -314,30 +314,30 @@
 
           <!-- v0.1.1 -->
           <div class="mb-8 pb-8 border-b border-gray-200">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-centre justify-between mb-4">
               <div>
                 <h3 class="text-xl font-bold text-gray-900">v0.1.1</h3>
                 <p class="text-body-sm text-gray-600">20 October 2025</p>
               </div>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-body-sm font-medium bg-gray-100 text-gray-700">
+              <span class="inline-flex items-centre px-3 py-1 rounded-full text-body-sm font-medium bg-gray-100 text-gray-700">
                 Internal Release
               </span>
             </div>
             <ul class="space-y-2 text-body-sm text-gray-700">
               <li class="flex items-start">
-                <svg class="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 Net Worth module improvements (property management, ISA tracking)
               </li>
               <li class="flex items-start">
-                <svg class="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 Investment account management components
               </li>
               <li class="flex items-start">
-                <svg class="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 Emergency fund tracking and analysis
@@ -347,12 +347,12 @@
 
           <!-- v0.1.0 -->
           <div class="mb-4">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-centre justify-between mb-4">
               <div>
                 <h3 class="text-xl font-bold text-gray-900">v0.1.0</h3>
                 <p class="text-body-sm text-gray-600">18 October 2025</p>
               </div>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-body-sm font-medium bg-yellow-100 text-yellow-800">
+              <span class="inline-flex items-centre px-3 py-1 rounded-full text-body-sm font-medium bg-yellow-100 text-yellow-800">
                 Alpha Release
               </span>
             </div>
@@ -426,7 +426,7 @@
       </div>
 
       <!-- Footer Note -->
-      <div class="mt-8 text-center text-body-sm text-gray-500">
+      <div class="mt-8 text-centre text-body-sm text-gray-500">
         <p>For detailed changelog and bug fixes, see the <a href="/OCTOBER_2025_FEATURES_UPDATE.md" class="text-primary-600 hover:text-primary-700 underline">October 2025 Features Update</a> document.</p>
         <p class="mt-2">Built with Claude Code</p>
       </div>

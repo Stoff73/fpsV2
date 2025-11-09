@@ -9,7 +9,7 @@
     <div class="card-header">
       <h3 class="card-title">Net Worth</h3>
       <span class="card-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColour" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
         </svg>
       </span>
@@ -153,25 +153,25 @@ export default {
 .net-worth-overview-card:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
-  border-color: #3b82f6;
+  border-colour: #3b82f6;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: centre;
   margin-bottom: 20px;
 }
 
 .card-title {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  colour: #111827;
   margin: 0;
 }
 
 .card-icon {
-  color: #3b82f6;
+  colour: #3b82f6;
 }
 
 .card-icon svg {
@@ -195,22 +195,22 @@ export default {
 
 .value-label {
   font-size: 14px;
-  color: #6b7280;
+  colour: #6b7280;
   font-weight: 500;
 }
 
 .value-amount {
   font-size: 32px;
   font-weight: 700;
-  color: #111827;
+  colour: #111827;
 }
 
 .value-amount.positive {
-  color: #10b981;
+  colour: #10b981;
 }
 
 .value-amount.negative {
-  color: #ef4444;
+  colour: #ef4444;
 }
 
 .asset-breakdown {
@@ -222,17 +222,17 @@ export default {
 .breakdown-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: centre;
   font-size: 14px;
 }
 
 .breakdown-label {
-  color: #6b7280;
+  colour: #6b7280;
   font-weight: 500;
 }
 
 .breakdown-value {
-  color: #111827;
+  colour: #111827;
   font-weight: 600;
 }
 
@@ -242,11 +242,11 @@ export default {
 }
 
 .view-details {
-  color: #3b82f6;
+  colour: #3b82f6;
   font-size: 14px;
   font-weight: 600;
   display: inline-flex;
-  align-items: center;
+  align-items: centre;
   gap: 4px;
 }
 
@@ -285,18 +285,18 @@ export default {
 
 .error-state {
   padding: 20px;
-  text-align: center;
+  text-align: centre;
 }
 
 .error-message {
-  color: #ef4444;
+  colour: #ef4444;
   font-size: 14px;
   margin-bottom: 12px;
 }
 
 .retry-button {
   background: #3b82f6;
-  color: white;
+  colour: white;
   padding: 8px 16px;
   border-radius: 6px;
   border: none;

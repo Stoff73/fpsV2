@@ -1,7 +1,7 @@
 <template>
   <div class="account-details">
     <!-- Header with Add Button -->
-    <div class="mb-6 flex justify-between items-center">
+    <div class="mb-6 flex justify-between items-centre">
       <div>
         <h3 class="text-lg font-semibold text-gray-900">Your Accounts</h3>
         <p class="text-sm text-gray-600 mt-1">
@@ -10,14 +10,14 @@
       </div>
       <button
         @click="handleAddAccount"
-        class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+        class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colours flex items-centre gap-2"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColor"
+          stroke="currentColour"
         >
           <path
             stroke-linecap="round"
@@ -39,7 +39,7 @@
       >
         <div class="flex justify-between items-start mb-4">
           <div>
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-centre gap-2 mb-1">
               <h4 class="text-lg font-semibold text-gray-900">{{ account.institution }}</h4>
               <span
                 v-if="account.is_isa"
@@ -93,12 +93,12 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-center py-12 bg-white rounded-lg border border-gray-200">
+    <div v-else class="text-centre py-12 bg-white rounded-lg border border-gray-200">
       <svg
         class="mx-auto h-12 w-12 text-gray-400"
         fill="none"
         viewBox="0 0 24 24"
-        stroke="currentColor"
+        stroke="currentColour"
       >
         <path
           stroke-linecap="round"
@@ -113,14 +113,14 @@
       </p>
       <button
         @click="handleAddAccount"
-        class="mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+        class="mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colours inline-flex items-centre gap-2"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColor"
+          stroke="currentColour"
         >
           <path
             stroke-linecap="round"

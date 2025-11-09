@@ -22,7 +22,7 @@
       </div>
       <div class="detail-row">
         <span class="label">IHT Liability:</span>
-        <span class="value liability-value" :class="liabilityColorClass">
+        <span class="value liability-value" :class="liabilityColourClass">
           {{ formatCurrency(ihtLiability) }}
         </span>
       </div>
@@ -88,13 +88,13 @@ export default {
       return [Math.min(this.ihtPercentage, 100)];
     },
 
-    gaugeColor() {
+    gaugeColour() {
       if (this.ihtPercentage >= 20) return '#EF4444'; // Red
       if (this.ihtPercentage >= 10) return '#F59E0B'; // Amber
       return '#10B981'; // Green
     },
 
-    liabilityColorClass() {
+    liabilityColourClass() {
       if (this.ihtPercentage >= 20) return 'text-red-600';
       if (this.ihtPercentage >= 10) return 'text-amber-600';
       return 'text-green-600';
@@ -159,14 +159,14 @@ export default {
               name: {
                 offsetY: -10,
                 show: true,
-                color: '#888',
+                colour: '#888',
                 fontSize: '14px',
               },
               value: {
                 formatter: (val) => {
                   return this.formatCurrency(this.ihtLiability);
                 },
-                color: this.gaugeColor,
+                colour: this.gaugeColour,
                 fontSize: '28px',
                 fontWeight: 'bold',
                 show: true,
@@ -181,14 +181,14 @@ export default {
             shade: 'dark',
             type: 'horizontal',
             shadeIntensity: 0.5,
-            gradientToColors: [this.gaugeColor],
-            inverseColors: true,
+            gradientToColours: [this.gaugeColour],
+            inverseColours: true,
             opacityFrom: 1,
             opacityTo: 1,
             stops: [0, 100],
           },
         },
-        colors: [this.gaugeColor],
+        colours: [this.gaugeColour],
         stroke: {
           lineCap: 'round',
         },
@@ -220,20 +220,20 @@ export default {
 }
 
 .gauge-header {
-  text-align: center;
+  text-align: centre;
   margin-bottom: 20px;
 }
 
 .gauge-header h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  colour: #1f2937;
   margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #6b7280;
+  colour: #6b7280;
   margin: 0;
 }
 
@@ -255,12 +255,12 @@ export default {
 }
 
 .detail-row .label {
-  color: #6b7280;
+  colour: #6b7280;
   font-weight: 500;
 }
 
 .detail-row .value {
-  color: #1f2937;
+  colour: #1f2937;
   font-weight: 600;
 }
 
@@ -273,7 +273,7 @@ export default {
   padding: 12px 16px;
   border-radius: 6px;
   display: flex;
-  align-items: center;
+  align-items: centre;
   gap: 12px;
   font-size: 14px;
   font-weight: 500;
@@ -284,20 +284,20 @@ export default {
 }
 
 .status-good {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-colour: #d1fae5;
+  colour: #065f46;
   border: 1px solid #10b981;
 }
 
 .status-warning {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-colour: #fef3c7;
+  colour: #92400e;
   border: 1px solid #f59e0b;
 }
 
 .status-critical {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-colour: #fee2e2;
+  colour: #991b1b;
   border: 1px solid #ef4444;
 }
 </style>

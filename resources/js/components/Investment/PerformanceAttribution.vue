@@ -1,14 +1,14 @@
 <template>
   <div class="performance-attribution">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-12">
+    <div v-if="loading" class="flex justify-centre items-centre py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-center">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <div class="flex items-centre">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -19,10 +19,10 @@
     <div v-else class="space-y-6">
       <!-- Period Selector -->
       <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-centre justify-between gap-4">
           <h2 class="text-xl font-semibold text-gray-800">Performance Attribution Analysis</h2>
 
-          <div class="flex items-center space-x-4">
+          <div class="flex items-centre space-x-4">
             <select
               v-model="selectedPeriod"
               @change="loadPerformanceData"
@@ -39,7 +39,7 @@
 
             <button
               @click="refreshData"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colours"
             >
               Refresh
             </button>
@@ -79,7 +79,7 @@
         <!-- Sharpe Ratio -->
         <div class="bg-white rounded-lg shadow-md p-6">
           <p class="text-sm text-gray-600 mb-2">Sharpe Ratio</p>
-          <p class="text-3xl font-bold mb-1" :class="getSharpeColor(performanceData.sharpe_ratio)">
+          <p class="text-3xl font-bold mb-1" :class="getSharpeColour(performanceData.sharpe_ratio)">
             {{ formatDecimal(performanceData.sharpe_ratio) }}
           </p>
           <p class="text-xs text-gray-500">Risk-Adjusted Return</p>
@@ -107,7 +107,7 @@
             <h4 class="text-sm font-semibold text-gray-700 mb-3">Detailed Breakdown</h4>
             <div class="space-y-3">
               <div class="border-b border-gray-200 pb-2">
-                <div class="flex justify-between items-center mb-1">
+                <div class="flex justify-between items-centre mb-1">
                   <span class="text-sm text-gray-700">Asset Allocation Effect</span>
                   <span class="font-semibold" :class="performanceData.attribution.allocation >= 0 ? 'text-green-600' : 'text-red-600'">
                     {{ formatPercent(performanceData.attribution.allocation) }}
@@ -119,7 +119,7 @@
               </div>
 
               <div class="border-b border-gray-200 pb-2">
-                <div class="flex justify-between items-center mb-1">
+                <div class="flex justify-between items-centre mb-1">
                   <span class="text-sm text-gray-700">Security Selection Effect</span>
                   <span class="font-semibold" :class="performanceData.attribution.selection >= 0 ? 'text-green-600' : 'text-red-600'">
                     {{ formatPercent(performanceData.attribution.selection) }}
@@ -131,7 +131,7 @@
               </div>
 
               <div class="border-b border-gray-200 pb-2">
-                <div class="flex justify-between items-center mb-1">
+                <div class="flex justify-between items-centre mb-1">
                   <span class="text-sm text-gray-700">Interaction Effect</span>
                   <span class="font-semibold" :class="performanceData.attribution.interaction >= 0 ? 'text-green-600' : 'text-red-600'">
                     {{ formatPercent(performanceData.attribution.interaction) }}
@@ -143,7 +143,7 @@
               </div>
 
               <div class="border-b border-gray-200 pb-2">
-                <div class="flex justify-between items-center mb-1">
+                <div class="flex justify-between items-centre mb-1">
                   <span class="text-sm text-gray-700">Currency Effect</span>
                   <span class="font-semibold" :class="performanceData.attribution.currency >= 0 ? 'text-green-600' : 'text-red-600'">
                     {{ formatPercent(performanceData.attribution.currency || 0) }}
@@ -155,7 +155,7 @@
               </div>
 
               <div class="pt-2 bg-blue-50 p-3 rounded">
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-centre">
                   <span class="font-semibold text-gray-800">Total Attribution</span>
                   <span class="text-lg font-bold" :class="performanceData.alpha >= 0 ? 'text-green-600' : 'text-red-600'">
                     {{ formatPercent(performanceData.alpha) }}
@@ -184,7 +184,7 @@
           <!-- Sharpe Ratio -->
           <div class="border border-gray-200 rounded-lg p-4">
             <p class="text-sm text-gray-600 mb-2">Sharpe Ratio</p>
-            <p class="text-2xl font-bold mb-1" :class="getSharpeColor(riskMetrics.sharpe_ratio)">
+            <p class="text-2xl font-bold mb-1" :class="getSharpeColour(riskMetrics.sharpe_ratio)">
               {{ formatDecimal(riskMetrics.sharpe_ratio) }}
             </p>
             <p class="text-xs text-gray-500">Return per unit of risk</p>
@@ -193,7 +193,7 @@
           <!-- Sortino Ratio -->
           <div class="border border-gray-200 rounded-lg p-4">
             <p class="text-sm text-gray-600 mb-2">Sortino Ratio</p>
-            <p class="text-2xl font-bold mb-1" :class="getSharpeColor(riskMetrics.sortino_ratio)">
+            <p class="text-2xl font-bold mb-1" :class="getSharpeColour(riskMetrics.sortino_ratio)">
               {{ formatDecimal(riskMetrics.sortino_ratio) }}
             </p>
             <p class="text-xs text-gray-500">Downside risk-adjusted</p>
@@ -202,7 +202,7 @@
           <!-- Information Ratio -->
           <div class="border border-gray-200 rounded-lg p-4">
             <p class="text-sm text-gray-600 mb-2">Information Ratio</p>
-            <p class="text-2xl font-bold mb-1" :class="getSharpeColor(riskMetrics.information_ratio)">
+            <p class="text-2xl font-bold mb-1" :class="getSharpeColour(riskMetrics.information_ratio)">
               {{ formatDecimal(riskMetrics.information_ratio) }}
             </p>
             <p class="text-xs text-gray-500">Active return per tracking error</p>
@@ -288,13 +288,13 @@
             :class="getInsightClass(insight.type)"
           >
             <div class="flex items-start">
-              <svg v-if="insight.type === 'positive'" class="h-5 w-5 text-green-600 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg v-if="insight.type === 'positive'" class="h-5 w-5 text-green-600 mr-3 mt-0.5" fill="currentColour" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
-              <svg v-else-if="insight.type === 'warning'" class="h-5 w-5 text-yellow-600 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg v-else-if="insight.type === 'warning'" class="h-5 w-5 text-yellow-600 mr-3 mt-0.5" fill="currentColour" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
               </svg>
-              <svg v-else class="h-5 w-5 text-blue-600 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg v-else class="h-5 w-5 text-blue-600 mr-3 mt-0.5" fill="currentColour" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
               </svg>
               <div class="flex-1">
@@ -357,7 +357,7 @@ export default {
             formatter: (val) => this.formatPercent(val),
           },
         },
-        colors: ['#3B82F6'],
+        colours: ['#3B82F6'],
         tooltip: {
           y: {
             formatter: (val) => this.formatPercent(val),
@@ -392,7 +392,7 @@ export default {
 
       try {
         // Fetch performance analysis
-        const perfResponse = await api.get('/investment/performance-attribution/analyze', {
+        const perfResponse = await api.get('/investment/performance-attribution/analyse', {
           params: {
             period: this.selectedPeriod,
           },
@@ -429,7 +429,7 @@ export default {
       return value.toFixed(2);
     },
 
-    getSharpeColor(sharpe) {
+    getSharpeColour(sharpe) {
       if (sharpe >= 2) return 'text-green-600';
       if (sharpe >= 1) return 'text-blue-600';
       if (sharpe >= 0) return 'text-yellow-600';

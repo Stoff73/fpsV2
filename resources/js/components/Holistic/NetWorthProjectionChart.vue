@@ -14,8 +14,8 @@
         <p class="text-xs text-blue-600 mt-1">in {{ projectionYears }} years</p>
       </div>
       <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-        <p class="text-sm text-green-600 font-medium">Projected (Optimized)</p>
-        <p class="text-2xl font-bold text-green-900 mt-1">{{ formatCurrency(finalOptimizedValue) }}</p>
+        <p class="text-sm text-green-600 font-medium">Projected (Optimised)</p>
+        <p class="text-2xl font-bold text-green-900 mt-1">{{ formatCurrency(finalOptimisedValue) }}</p>
         <p class="text-xs text-green-600 mt-1">{{ formatCurrency(projectionData.improvement) }} improvement</p>
       </div>
     </div>
@@ -33,7 +33,7 @@
     <!-- Improvement Summary -->
     <div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-6">
       <div class="flex items-start">
-        <svg class="h-6 w-6 text-green-500 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="h-6 w-6 text-green-500 mr-3 mt-0.5" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
         </svg>
         <div class="flex-1">
@@ -53,7 +53,7 @@
         <summary class="text-sm font-medium text-gray-700 cursor-pointer">View Assumptions</summary>
         <ul class="mt-3 space-y-2 text-xs text-gray-600">
           <li>• Baseline projection assumes current savings rate and 4% average annual growth</li>
-          <li>• Optimized projection assumes recommended contribution increases and 6% average annual growth</li>
+          <li>• Optimised projection assumes recommended contribution increases and 6% average annual growth</li>
           <li>• Projections do not account for inflation</li>
           <li>• Investment returns are assumed to be consistent (actual returns will vary)</li>
           <li>• Does not include potential inheritance or one-off windfalls</li>
@@ -84,14 +84,14 @@ export default {
       return projections.length > 0 ? projections[projections.length - 1].value : 0;
     },
 
-    finalOptimizedValue() {
-      const projections = this.projectionData.optimized_projections || [];
+    finalOptimisedValue() {
+      const projections = this.projectionData.optimised_projections || [];
       return projections.length > 0 ? projections[projections.length - 1].value : 0;
     },
 
     chartSeries() {
       const baseline = this.projectionData.baseline_projections || [];
-      const optimized = this.projectionData.optimized_projections || [];
+      const optimised = this.projectionData.optimised_projections || [];
 
       return [
         {
@@ -99,8 +99,8 @@ export default {
           data: baseline.map(p => ({ x: p.year, y: p.value })),
         },
         {
-          name: 'Optimized',
-          data: optimized.map(p => ({ x: p.year, y: p.value })),
+          name: 'Optimised',
+          data: optimised.map(p => ({ x: p.year, y: p.value })),
         },
       ];
     },
@@ -116,7 +116,7 @@ export default {
             enabled: true,
           },
         },
-        colors: ['#3B82F6', '#10B981'],
+        colours: ['#3B82F6', '#10B981'],
         dataLabels: {
           enabled: false,
         },
@@ -157,7 +157,7 @@ export default {
           },
         },
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
         },
       };
     },

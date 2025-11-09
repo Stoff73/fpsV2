@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-3xl mx-auto text-center">
+  <div class="max-w-3xl mx-auto text-centre">
     <div class="mb-8">
-      <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-success-100 mb-6">
-        <svg class="h-12 w-12 text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="mx-auto flex items-centre justify-centre h-20 w-20 rounded-full bg-success-100 mb-6">
+        <svg class="h-12 w-12 text-success-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
       </div>
@@ -21,28 +21,37 @@
         Your Setup Summary
       </h3>
 
-      <div v-if="loading" class="text-center py-8">
+      <div v-if="loading" class="text-centre py-8">
         <p class="text-gray-500">Loading your information...</p>
       </div>
 
-      <div v-else class="space-y-3">
+      <div v-else class="space-y-2">
         <!-- Personal Information -->
-        <div class="flex items-start">
-          <svg class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <button
+          @click="goToStep('personal_info')"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colours group"
+        >
+          <svg class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
           </svg>
           <div class="flex-1">
-            <p class="text-body font-medium text-gray-900">Personal Information</p>
+            <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Personal Information</p>
             <p class="text-body-sm text-gray-600">Profile setup complete</p>
           </div>
-        </div>
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colours" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
 
         <!-- Protection Policies -->
-        <div class="flex items-start">
+        <button
+          @click="goToStep('protection_policies')"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colours group"
+        >
           <svg
             v-if="summary.policies > 0"
             class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
+            fill="currentColour"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -50,26 +59,32 @@
           <svg
             v-else
             class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
+            fill="currentColour"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
           </svg>
           <div class="flex-1">
-            <p class="text-body font-medium text-gray-900">Protection Policies</p>
+            <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Protection Policies</p>
             <p v-if="summary.policies > 0" class="text-body-sm text-gray-600">
               {{ summary.policies }} {{ summary.policies === 1 ? 'policy' : 'policies' }} added
             </p>
             <p v-else class="text-body-sm text-gray-500">Skipped - you can add policies later</p>
           </div>
-        </div>
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colours" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
 
-        <!-- Properties -->
-        <div class="flex items-start">
+        <!-- Assets & Wealth (Properties, Investments, Savings) -->
+        <button
+          @click="goToStep('assets')"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colours group"
+        >
           <svg
-            v-if="summary.properties > 0"
+            v-if="summary.properties > 0 || summary.investments > 0 || summary.savings > 0"
             class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
+            fill="currentColour"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -77,80 +92,42 @@
           <svg
             v-else
             class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
+            fill="currentColour"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
           </svg>
           <div class="flex-1">
-            <p class="text-body font-medium text-gray-900">Properties</p>
-            <p v-if="summary.properties > 0" class="text-body-sm text-gray-600">
-              {{ summary.properties }} {{ summary.properties === 1 ? 'property' : 'properties' }} added (Total value: £{{ summary.propertyValue.toLocaleString() }})
-            </p>
-            <p v-else class="text-body-sm text-gray-500">Skipped - you can add properties later</p>
+            <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Assets & Wealth</p>
+            <div class="text-body-sm text-gray-600 space-y-0.5">
+              <p v-if="summary.properties > 0">
+                {{ summary.properties }} {{ summary.properties === 1 ? 'property' : 'properties' }} ({{ formatCurrency(summary.propertyValue) }})
+              </p>
+              <p v-if="summary.investments > 0">
+                {{ summary.investments }} investment {{ summary.investments === 1 ? 'account' : 'accounts' }} ({{ formatCurrency(summary.investmentValue) }})
+              </p>
+              <p v-if="summary.savings > 0">
+                {{ summary.savings }} savings {{ summary.savings === 1 ? 'account' : 'accounts' }} ({{ formatCurrency(summary.savingsValue) }})
+              </p>
+              <p v-if="summary.properties === 0 && summary.investments === 0 && summary.savings === 0" class="text-gray-500">
+                Skipped - you can add assets later
+              </p>
+            </div>
           </div>
-        </div>
-
-        <!-- Investment Accounts -->
-        <div class="flex items-start">
-          <svg
-            v-if="summary.investments > 0"
-            class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colours" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
-          <svg
-            v-else
-            class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
-          </svg>
-          <div class="flex-1">
-            <p class="text-body font-medium text-gray-900">Investment Accounts</p>
-            <p v-if="summary.investments > 0" class="text-body-sm text-gray-600">
-              {{ summary.investments }} {{ summary.investments === 1 ? 'account' : 'accounts' }} added (Total value: £{{ summary.investmentValue.toLocaleString() }})
-            </p>
-            <p v-else class="text-body-sm text-gray-500">Skipped - you can add investments later</p>
-          </div>
-        </div>
-
-        <!-- Savings Accounts -->
-        <div class="flex items-start">
-          <svg
-            v-if="summary.savings > 0"
-            class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-          </svg>
-          <svg
-            v-else
-            class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
-          </svg>
-          <div class="flex-1">
-            <p class="text-body font-medium text-gray-900">Savings Accounts</p>
-            <p v-if="summary.savings > 0" class="text-body-sm text-gray-600">
-              {{ summary.savings }} {{ summary.savings === 1 ? 'account' : 'accounts' }} added (Total balance: £{{ summary.savingsValue.toLocaleString() }})
-            </p>
-            <p v-else class="text-body-sm text-gray-500">Skipped - you can add savings later</p>
-          </div>
-        </div>
+        </button>
 
         <!-- Liabilities -->
-        <div class="flex items-start">
+        <button
+          @click="goToStep('liabilities')"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colours group"
+        >
           <svg
             v-if="summary.liabilities > 0"
             class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
+            fill="currentColour"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -158,26 +135,32 @@
           <svg
             v-else
             class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
+            fill="currentColour"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
           </svg>
           <div class="flex-1">
-            <p class="text-body font-medium text-gray-900">Liabilities</p>
+            <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Liabilities</p>
             <p v-if="summary.liabilities > 0" class="text-body-sm text-gray-600">
-              {{ summary.liabilities }} {{ summary.liabilities === 1 ? 'liability' : 'liabilities' }} added (Total balance: £{{ summary.liabilityValue.toLocaleString() }})
+              {{ summary.liabilities }} {{ summary.liabilities === 1 ? 'liability' : 'liabilities' }} added (Total: {{ formatCurrency(summary.liabilityValue) }})
             </p>
             <p v-else class="text-body-sm text-gray-500">Skipped - you can add liabilities later</p>
           </div>
-        </div>
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colours" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
 
         <!-- Family Members -->
-        <div class="flex items-start">
+        <button
+          @click="goToStep('family_info')"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colours group"
+        >
           <svg
             v-if="summary.familyMembers > 0"
             class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
+            fill="currentColour"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -185,19 +168,22 @@
           <svg
             v-else
             class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColor"
+            fill="currentColour"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
           </svg>
           <div class="flex-1">
-            <p class="text-body font-medium text-gray-900">Family Members</p>
+            <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Family Members</p>
             <p v-if="summary.familyMembers > 0" class="text-body-sm text-gray-600">
               {{ summary.familyMembers}} {{ summary.familyMembers === 1 ? 'family member' : 'family members' }} added
             </p>
             <p v-else class="text-body-sm text-gray-500">Skipped - you can add family members later</p>
           </div>
-        </div>
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colours" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -208,7 +194,7 @@
       </h3>
       <ul class="space-y-3">
         <li class="flex items-start">
-          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span class="text-body text-gray-700">
@@ -216,7 +202,7 @@
           </span>
         </li>
         <li class="flex items-start">
-          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span class="text-body text-gray-700">
@@ -224,15 +210,15 @@
           </span>
         </li>
         <li class="flex items-start">
-          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span class="text-body text-gray-700">
-            You'll receive personalized recommendations to optimize your finances
+            You'll receive personalized recommendations to optimise your finances
           </span>
         </li>
         <li class="flex items-start">
-          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span class="text-body text-gray-700">
@@ -319,31 +305,33 @@ export default {
         // Calculate property summary
         const properties = propertyResponse.data || [];
         summary.value.properties = properties.length;
-        summary.value.propertyValue = properties.reduce((sum, p) => sum + (p.current_value || 0), 0);
+        summary.value.propertyValue = properties.reduce((sum, p) => sum + (parseFloat(p.current_value) || 0), 0);
 
         // Calculate investment summary
         const investments = investmentResponse.data?.accounts || [];
         summary.value.investments = investments.length;
-        summary.value.investmentValue = investments.reduce((sum, i) => sum + (i.current_value || 0), 0);
+        summary.value.investmentValue = investments.reduce((sum, i) => sum + (parseFloat(i.current_value) || 0), 0);
 
         // Calculate savings summary
         const savings = savingsResponse.data?.accounts || [];
         summary.value.savings = savings.length;
-        summary.value.savingsValue = savings.reduce((sum, s) => sum + (s.current_balance || 0), 0);
+        summary.value.savingsValue = savings.reduce((sum, s) => sum + (parseFloat(s.current_balance) || 0), 0);
 
         // Calculate liabilities summary
         const liabilities = estateResponse.data?.liabilities || [];
         summary.value.liabilities = liabilities.length;
-        summary.value.liabilityValue = liabilities.reduce((sum, l) => sum + (l.current_balance || 0), 0);
+        summary.value.liabilityValue = liabilities.reduce((sum, l) => sum + (parseFloat(l.current_balance) || 0), 0);
 
         // Calculate protection policy summary
+        // API returns snake_case keys: life_insurance, critical_illness, etc.
         const protectionData = protectionResponse.data || {};
+        const policies = protectionData.policies || {};
         summary.value.policies =
-          (protectionData.life_policies?.length || 0) +
-          (protectionData.critical_illness_policies?.length || 0) +
-          (protectionData.income_protection_policies?.length || 0) +
-          (protectionData.disability_policies?.length || 0) +
-          (protectionData.sickness_illness_policies?.length || 0);
+          (policies.life_insurance?.length || 0) +
+          (policies.critical_illness?.length || 0) +
+          (policies.income_protection?.length || 0) +
+          (policies.disability?.length || 0) +
+          (policies.sickness_illness?.length || 0);
 
         // Family members summary
         summary.value.familyMembers = profileResponse.data?.family_members?.length || 0;
@@ -371,12 +359,39 @@ export default {
       }
     };
 
+    const goToStep = async (stepName) => {
+      try {
+        // Find the step index by name
+        const steps = store.state.onboarding.steps;
+        const stepIndex = steps.findIndex(step => step.name === stepName);
+
+        if (stepIndex !== -1) {
+          // Navigate to that step
+          await store.dispatch('onboarding/goToStep', stepIndex);
+        }
+      } catch (err) {
+        console.error('Failed to navigate to step:', err);
+      }
+    };
+
+    const formatCurrency = (value) => {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    };
+
     return {
       loading,
       completionLoading,
       error,
       summary,
       handleComplete,
+      goToStep,
+      formatCurrency,
     };
   },
 };

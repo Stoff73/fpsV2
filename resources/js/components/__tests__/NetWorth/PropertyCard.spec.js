@@ -173,7 +173,7 @@ describe('PropertyCard.vue', () => {
     expect(style).toBeTruthy();
   });
 
-  it('shows property type specific badge colors', async () => {
+  it('shows property type specific badge colours', async () => {
     // Main residence - blue
     expect(wrapper.find('.type-main_residence').exists()).toBe(true);
 

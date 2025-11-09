@@ -22,14 +22,21 @@
         <div>
           <dt class="text-body-sm font-medium text-gray-500">Health Status</dt>
           <dd class="mt-1 text-body-base text-gray-900">
-            {{ displayData.good_health ? 'Good Health' : 'Pre-existing Conditions' }}
+            {{ formatHealthStatus(displayData.health_status) }}
           </dd>
         </div>
 
         <div>
-          <dt class="text-body-sm font-medium text-gray-500">Smoker Status</dt>
+          <dt class="text-body-sm font-medium text-gray-500">Smoking Status</dt>
           <dd class="mt-1 text-body-base text-gray-900">
-            {{ displayData.smoker ? 'Smoker' : 'Non-Smoker' }}
+            {{ formatSmokingStatus(displayData.smoking_status) }}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-body-sm font-medium text-gray-500">Education Level</dt>
+          <dd class="mt-1 text-body-base text-gray-900">
+            {{ formatEducationLevel(displayData.education_level) }}
           </dd>
         </div>
       </div>
@@ -46,43 +53,71 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Good Health -->
+          <!-- Health Status -->
           <div>
-            <label for="good_health" class="label">
+            <label for="health_status" class="label">
               Are you in good health? <span class="text-red-500">*</span>
             </label>
             <select
-              id="good_health"
-              v-model="formData.good_health"
+              id="health_status"
+              v-model="formData.health_status"
               class="input-field"
               required
             >
               <option value="">Select...</option>
-              <option :value="true">Yes</option>
-              <option :value="false">No (pre-existing conditions)</option>
+              <option value="yes">Yes</option>
+              <option value="yes_previous">Yes, previous health conditions</option>
+              <option value="no_previous">No, previous health conditions</option>
+              <option value="no_existing">No, existing health conditions</option>
+              <option value="no_both">No, previous and existing health conditions</option>
             </select>
             <p class="mt-1 text-body-sm text-gray-500">
               Affects protection insurance premiums
             </p>
           </div>
 
-          <!-- Smoker Status -->
+          <!-- Smoking Status -->
           <div>
-            <label for="smoker" class="label">
+            <label for="smoking_status" class="label">
               Do you smoke? <span class="text-red-500">*</span>
             </label>
             <select
-              id="smoker"
-              v-model="formData.smoker"
+              id="smoking_status"
+              v-model="formData.smoking_status"
               class="input-field"
               required
             >
               <option value="">Select...</option>
-              <option :value="false">No</option>
-              <option :value="true">Yes</option>
+              <option value="never">Never smoked</option>
+              <option value="quit_recent">No, gave up 12 months or sooner</option>
+              <option value="quit_long_ago">No, gave up more than 12 months ago</option>
+              <option value="yes">Yes</option>
             </select>
             <p class="mt-1 text-body-sm text-gray-500">
               Significantly impacts insurance premiums
+            </p>
+          </div>
+
+          <!-- Education Level -->
+          <div>
+            <label for="education_level" class="label">
+              Highest Education Level
+            </label>
+            <select
+              id="education_level"
+              v-model="formData.education_level"
+              class="input-field"
+            >
+              <option value="">Select...</option>
+              <option value="secondary">Secondary (GCSE/O-Levels)</option>
+              <option value="a_level">A-Levels/Vocational</option>
+              <option value="undergraduate">Undergraduate Degree</option>
+              <option value="postgraduate">Postgraduate Degree</option>
+              <option value="professional">Professional Qualification</option>
+              <option value="other">Other</option>
+            </select>
+            <p class="mt-1 text-body-sm text-gray-500">
+              Optional - helps with occupation profiling
             </p>
           </div>
         </div>
@@ -128,29 +163,66 @@ export default {
     const user = computed(() => store.getters['auth/currentUser']);
 
     const displayData = computed(() => ({
-      good_health: user.value?.good_health ?? true,
-      smoker: user.value?.smoker ?? false,
+      health_status: user.value?.health_status || '',
+      smoking_status: user.value?.smoking_status || '',
+      education_level: user.value?.education_level || '',
     }));
 
     const formData = ref({
-      good_health: true,
-      smoker: false,
+      health_status: '',
+      smoking_status: '',
+      education_level: '',
     });
 
     // Watch for user changes and update form data
     watch(user, (newUser) => {
       if (newUser) {
         formData.value = {
-          good_health: newUser.good_health ?? true,
-          smoker: newUser.smoker ?? false,
+          health_status: newUser.health_status || '',
+          smoking_status: newUser.smoking_status || '',
+          education_level: newUser.education_level || '',
         };
       }
     }, { immediate: true });
 
+    const formatHealthStatus = (status) => {
+      const statusMap = {
+        'yes': 'Yes, good health',
+        'yes_previous': 'Yes, previous health conditions',
+        'no_previous': 'No, previous health conditions',
+        'no_existing': 'No, existing health conditions',
+        'no_both': 'No, previous and existing health conditions',
+      };
+      return statusMap[status] || 'Not specified';
+    };
+
+    const formatSmokingStatus = (status) => {
+      const statusMap = {
+        'never': 'Never smoked',
+        'quit_recent': 'No, gave up 12 months or sooner',
+        'quit_long_ago': 'No, gave up more than 12 months ago',
+        'yes': 'Yes',
+      };
+      return statusMap[status] || 'Not specified';
+    };
+
+    const formatEducationLevel = (level) => {
+      const levelMap = {
+        'secondary': 'Secondary (GCSE/O-Levels)',
+        'a_level': 'A-Levels/Vocational',
+        'undergraduate': 'Undergraduate Degree',
+        'postgraduate': 'Postgraduate Degree',
+        'professional': 'Professional Qualification',
+        'other': 'Other',
+      };
+      return levelMap[level] || 'Not specified';
+    };
+
     const startEditing = () => {
       formData.value = {
-        good_health: displayData.value.good_health,
-        smoker: displayData.value.smoker,
+        health_status: displayData.value.health_status,
+        smoking_status: displayData.value.smoking_status,
+        education_level: displayData.value.education_level,
       };
       error.value = null;
       isEditing.value = true;
@@ -186,6 +258,9 @@ export default {
       error,
       displayData,
       formData,
+      formatHealthStatus,
+      formatSmokingStatus,
+      formatEducationLevel,
       startEditing,
       cancelEditing,
       saveChanges,

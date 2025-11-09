@@ -4,7 +4,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Breadcrumb (only show when not embedded) -->
       <nav v-if="!isEmbedded" class="mb-6" aria-label="Breadcrumb">
-        <ol class="flex items-center space-x-2 text-sm">
+        <ol class="flex items-centre space-x-2 text-sm">
           <li>
             <router-link to="/dashboard" class="text-gray-500 hover:text-gray-700">
               Home
@@ -13,7 +13,7 @@
           <li>
             <svg
               class="w-4 h-4 text-gray-400"
-              fill="currentColor"
+              fill="currentColour"
               viewBox="0 0 20 20"
             >
               <path
@@ -33,12 +33,12 @@
       <div v-if="!isEmbedded" class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Investment Portfolio</h1>
         <p class="text-gray-600">
-          Monitor your portfolio performance, analyze holdings, and optimize your investment strategy
+          Monitor your portfolio performance, analyse holdings, and optimise your investment strategy
         </p>
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center items-center py-12">
+      <div v-if="loading" class="flex justify-centre items-centre py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
 
@@ -53,7 +53,7 @@
               class="h-5 w-5 text-red-400"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
-              fill="currentColor"
+              fill="currentColour"
             >
               <path
                 fill-rule="evenodd"
@@ -81,7 +81,7 @@
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                'whitespace-nowrap py-2 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
+                'whitespace-nowrap py-2 px-2 border-b-2 font-medium text-sm transition-colours duration-200',
               ]"
             >
               {{ tab.label }}
@@ -249,12 +249,12 @@ export default {
   },
 
   methods: {
-    ...mapActions('investment', ['fetchInvestmentData', 'analyzeInvestment']),
+    ...mapActions('investment', ['fetchInvestmentData', 'analyseInvestment']),
 
     async loadInvestmentData() {
       try {
         await this.fetchInvestmentData();
-        await this.analyzeInvestment();
+        await this.analyseInvestment();
       } catch (error) {
         console.error('Failed to load investment data:', error);
       }

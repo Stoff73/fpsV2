@@ -4,8 +4,8 @@ const holisticService = {
     /**
      * Perform holistic analysis across all modules
      */
-    async analyzeHolistic() {
-        const response = await api.post('/api/holistic/analyze');
+    async analyseHolistic() {
+        const response = await api.post('/api/holistic/analyse');
         return response.data;
     },
 

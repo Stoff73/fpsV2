@@ -1,14 +1,14 @@
 <template>
-  <div class="asset-location-optimizer">
+  <div class="asset-location-optimiser">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-12">
+    <div v-if="loading" class="flex justify-centre items-centre py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-center">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <div class="flex items-centre">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -22,7 +22,7 @@
         <!-- Optimization Score Card -->
         <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg shadow-md p-6">
           <h3 class="text-lg font-semibold text-gray-800 mb-4">Asset Location Score</h3>
-          <div class="flex items-center justify-center mb-4">
+          <div class="flex items-centre justify-centre mb-4">
             <apexchart
               v-if="analysis"
               type="radialBar"
@@ -31,8 +31,8 @@
               height="200"
             />
           </div>
-          <div class="text-center">
-            <p class="text-2xl font-bold mb-1" :class="getScoreColor(analysis?.optimization_score?.score)">
+          <div class="text-centre">
+            <p class="text-2xl font-bold mb-1" :class="getScoreColour(analysis?.optimization_score?.score)">
               {{ analysis?.optimization_score?.score || 0 }}/100
             </p>
             <p class="text-sm text-gray-600">{{ analysis?.optimization_score?.grade || 'N/A' }}</p>
@@ -75,7 +75,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- ISA Allocation -->
           <div class="border border-gray-200 rounded-lg p-4">
-            <div class="flex items-center justify-between mb-3">
+            <div class="flex items-centre justify-between mb-3">
               <h4 class="text-md font-semibold text-gray-800">ISA (Tax-Free)</h4>
               <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">OPTIMAL</span>
             </div>
@@ -100,7 +100,7 @@
 
           <!-- GIA Allocation -->
           <div class="border border-gray-200 rounded-lg p-4">
-            <div class="flex items-center justify-between mb-3">
+            <div class="flex items-centre justify-between mb-3">
               <h4 class="text-md font-semibold text-gray-800">GIA (Taxable)</h4>
               <span v-if="analysis?.current_allocation?.gia_tax_drag > 1" class="px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded">HIGH TAX</span>
               <span v-else class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">MODERATE</span>
@@ -126,7 +126,7 @@
 
           <!-- Pension Allocation -->
           <div class="border border-gray-200 rounded-lg p-4">
-            <div class="flex items-center justify-between mb-3">
+            <div class="flex items-centre justify-between mb-3">
               <h4 class="text-md font-semibold text-gray-800">Pension (Tax-Deferred)</h4>
               <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">LONG-TERM</span>
             </div>
@@ -155,7 +155,7 @@
           <div v-for="(rec, index) in recommendations" :key="index" class="border-l-4 p-4 rounded-r-lg" :class="getRecommendationClass(rec.priority)">
             <div class="flex items-start justify-between mb-2">
               <h4 class="font-semibold text-gray-800">{{ rec.title }}</h4>
-              <div class="flex items-center space-x-2">
+              <div class="flex items-centre space-x-2">
                 <span class="px-2 py-1 text-xs font-semibold rounded uppercase" :class="getPriorityBadgeClass(rec.priority)">
                   {{ rec.priority }}
                 </span>
@@ -170,7 +170,7 @@
               <p class="font-medium text-gray-700">Recommended Action:</p>
               <ul class="space-y-1">
                 <li v-for="(action, idx) in rec.action_details" :key="idx" class="flex items-start">
-                  <svg class="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                   </svg>
                   <span class="text-gray-700">{{ action }}</span>
@@ -190,69 +190,69 @@
             <thead>
               <tr class="border-b border-gray-200">
                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Asset Type</th>
-                <th class="text-center py-3 px-4 font-semibold text-green-700">ISA (Tax-Free)</th>
-                <th class="text-center py-3 px-4 font-semibold text-gray-700">GIA (Taxable)</th>
-                <th class="text-center py-3 px-4 font-semibold text-blue-700">Pension (Deferred)</th>
+                <th class="text-centre py-3 px-4 font-semibold text-green-700">ISA (Tax-Free)</th>
+                <th class="text-centre py-3 px-4 font-semibold text-gray-700">GIA (Taxable)</th>
+                <th class="text-centre py-3 px-4 font-semibold text-blue-700">Pension (Deferred)</th>
               </tr>
             </thead>
             <tbody>
               <tr class="border-b border-gray-100">
                 <td class="py-3 px-4 font-medium">Dividend-Paying Stocks</td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">BEST</span>
                 </td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-red-100 text-red-800 rounded font-semibold">POOR</span>
                 </td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">GOOD</span>
                 </td>
               </tr>
               <tr class="border-b border-gray-100">
                 <td class="py-3 px-4 font-medium">Growth Stocks</td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">GOOD</span>
                 </td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-semibold">OK</span>
                 </td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">BEST</span>
                 </td>
               </tr>
               <tr class="border-b border-gray-100">
                 <td class="py-3 px-4 font-medium">Corporate Bonds</td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">BEST</span>
                 </td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-red-100 text-red-800 rounded font-semibold">POOR</span>
                 </td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">GOOD</span>
                 </td>
               </tr>
               <tr class="border-b border-gray-100">
                 <td class="py-3 px-4 font-medium">Index Funds (Low Turnover)</td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">GOOD</span>
                 </td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">GOOD</span>
                 </td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">GOOD</span>
                 </td>
               </tr>
               <tr>
                 <td class="py-3 px-4 font-medium">REITs (Real Estate)</td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-green-100 text-green-800 rounded font-semibold">BEST</span>
                 </td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-red-100 text-red-800 rounded font-semibold">POOR</span>
                 </td>
-                <td class="text-center py-3 px-4">
+                <td class="text-centre py-3 px-4">
                   <span class="inline-block w-full px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-semibold">OK</span>
                 </td>
               </tr>
@@ -264,19 +264,19 @@
           <h4 class="text-sm font-semibold text-gray-800 mb-2">Key Principles:</h4>
           <ul class="space-y-1 text-sm text-gray-700">
             <li class="flex items-start">
-              <svg class="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
               Prioritize high-income assets (bonds, dividend stocks, REITs) in tax-advantaged accounts
             </li>
             <li class="flex items-start">
-              <svg class="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
               Growth stocks can be tax-efficient in GIAs (CGT allowance, lower rates than income tax)
             </li>
             <li class="flex items-start">
-              <svg class="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
               Pensions are ideal for long-term growth with highest expected returns
@@ -291,7 +291,7 @@
 
         <div class="space-y-3">
           <div v-for="(step, index) in analysis.action_plan" :key="index" class="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold mr-4">
+            <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-centre justify-centre font-semibold mr-4">
               {{ index + 1 }}
             </div>
             <div class="flex-1">
@@ -312,7 +312,7 @@
 import api from '@/services/api';
 
 export default {
-  name: 'AssetLocationOptimizer',
+  name: 'AssetLocationOptimiser',
 
   data() {
     return {
@@ -364,14 +364,14 @@ export default {
             shade: 'dark',
             type: 'horizontal',
             shadeIntensity: 0.5,
-            gradientToColors: ['#10B981'],
-            inverseColors: false,
+            gradientToColours: ['#10B981'],
+            inverseColours: false,
             opacityFrom: 1,
             opacityTo: 1,
             stops: [0, 100],
           },
         },
-        colors: ['#8B5CF6'],
+        colours: ['#8B5CF6'],
       };
     },
   },
@@ -387,7 +387,7 @@ export default {
 
       try {
         // Fetch asset location analysis
-        const analysisResponse = await api.get('/investment/asset-location/analyze');
+        const analysisResponse = await api.get('/investment/asset-location/analyse');
         this.analysis = analysisResponse.data.data;
 
         // Fetch recommendations
@@ -406,7 +406,7 @@ export default {
       return Math.round(value).toLocaleString('en-GB');
     },
 
-    getScoreColor(score) {
+    getScoreColour(score) {
       if (score >= 80) return 'text-green-600';
       if (score >= 60) return 'text-blue-600';
       if (score >= 40) return 'text-yellow-600';

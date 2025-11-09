@@ -1,14 +1,14 @@
 <template>
   <div class="contribution-planner">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-12">
+    <div v-if="loading" class="flex justify-centre items-centre py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-center">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <div class="flex items-centre">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -21,7 +21,7 @@
       <div class="bg-white rounded-lg shadow-md p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-6">Contribution Planning Inputs</h2>
 
-        <form @submit.prevent="optimizeContributions" class="space-y-6">
+        <form @submit.prevent="optimiseContributions" class="space-y-6">
           <!-- Monthly Investable Income -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -118,11 +118,11 @@
           <div class="flex justify-end">
             <button
               type="submit"
-              :disabled="optimizing"
-              class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :disabled="optimising"
+              class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colours"
             >
-              <span v-if="optimizing">Optimizing...</span>
-              <span v-else>Optimize My Contributions</span>
+              <span v-if="optimising">Optimising...</span>
+              <span v-else>Optimise My Contributions</span>
             </button>
           </div>
         </form>
@@ -133,7 +133,7 @@
         <!-- Tax Efficiency Score -->
         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md p-6">
           <h3 class="text-lg font-semibold text-gray-800 mb-4">Tax Efficiency Score</h3>
-          <div class="flex items-center justify-center mb-4">
+          <div class="flex items-centre justify-centre mb-4">
             <div class="relative">
               <apexchart
                 type="radialBar"
@@ -143,7 +143,7 @@
               />
             </div>
           </div>
-          <p class="text-center text-sm text-gray-600">
+          <p class="text-centre text-sm text-gray-600">
             {{ getEfficiencyDescription(optimizationResult.tax_efficiency_score) }}
           </p>
         </div>
@@ -186,7 +186,7 @@
             <h4 class="text-sm font-semibold text-gray-800 mb-2">Rationale:</h4>
             <ul class="space-y-1">
               <li v-for="(reason, index) in optimizationResult.wrapper_allocation.rationale" :key="index" class="text-sm text-gray-700 flex items-start">
-                <svg class="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 {{ reason }}
@@ -239,7 +239,7 @@
           <h3 class="text-lg font-semibold text-gray-800 mb-4">Lump Sum vs Dollar-Cost Averaging</h3>
 
           <div class="mb-6">
-            <div class="flex items-center justify-between mb-2">
+            <div class="flex items-centre justify-between mb-2">
               <span class="text-sm font-medium text-gray-700">Recommendation:</span>
               <span class="px-3 py-1 rounded-full text-sm font-semibold" :class="optimizationResult.lump_sum_analysis.recommendation === 'lump_sum' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'">
                 {{ optimizationResult.lump_sum_analysis.recommendation === 'lump_sum' ? 'Lump Sum' : 'Dollar-Cost Averaging' }}
@@ -316,19 +316,19 @@
           <h3 class="text-lg font-semibold text-gray-800 mb-4">Projected Outcomes ({{ optimizationResult.projections.years }} years)</h3>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="text-center p-4 bg-red-50 rounded-lg border border-red-200">
+            <div class="text-centre p-4 bg-red-50 rounded-lg border border-red-200">
               <p class="text-sm text-gray-600 mb-1">Conservative Scenario (5th percentile)</p>
               <p class="text-2xl font-bold text-red-600">
                 £{{ formatNumber(optimizationResult.projections.conservative_value) }}
               </p>
             </div>
-            <div class="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div class="text-centre p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p class="text-sm text-gray-600 mb-1">Expected Value (Median)</p>
               <p class="text-3xl font-bold text-blue-600">
                 £{{ formatNumber(optimizationResult.projections.expected_value) }}
               </p>
             </div>
-            <div class="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+            <div class="text-centre p-4 bg-green-50 rounded-lg border border-green-200">
               <p class="text-sm text-gray-600 mb-1">Optimistic Scenario (95th percentile)</p>
               <p class="text-2xl font-bold text-green-600">
                 £{{ formatNumber(optimizationResult.projections.optimistic_value) }}
@@ -413,7 +413,7 @@ export default {
   data() {
     return {
       loading: false,
-      optimizing: false,
+      optimising: false,
       error: null,
       formData: {
         monthly_investable_income: 500,
@@ -467,31 +467,31 @@ export default {
             shade: 'dark',
             type: 'horizontal',
             shadeIntensity: 0.5,
-            gradientToColors: ['#10B981'],
-            inverseColors: false,
+            gradientToColours: ['#10B981'],
+            inverseColours: false,
             opacityFrom: 1,
             opacityTo: 1,
             stops: [0, 100],
           },
         },
-        colors: ['#3B82F6'],
+        colours: ['#3B82F6'],
       };
     },
   },
 
   methods: {
-    async optimizeContributions() {
-      this.optimizing = true;
+    async optimiseContributions() {
+      this.optimising = true;
       this.error = null;
 
       try {
-        const response = await api.post('/investment/contribution/optimize', this.formData);
+        const response = await api.post('/investment/contribution/optimise', this.formData);
         this.optimizationResult = response.data;
       } catch (err) {
-        console.error('Error optimizing contributions:', err);
-        this.error = err.response?.data?.message || 'Failed to optimize contributions. Please try again.';
+        console.error('Error optimising contributions:', err);
+        this.error = err.response?.data?.message || 'Failed to optimise contributions. Please try again.';
       } finally {
-        this.optimizing = false;
+        this.optimising = false;
       }
     },
 
@@ -501,7 +501,7 @@ export default {
     },
 
     getEfficiencyDescription(score) {
-      if (score >= 80) return 'Excellent tax efficiency - well optimized wrapper allocation';
+      if (score >= 80) return 'Excellent tax efficiency - well optimised wrapper allocation';
       if (score >= 60) return 'Good tax efficiency - some optimization opportunities';
       if (score >= 40) return 'Moderate tax efficiency - significant optimization potential';
       return 'Low tax efficiency - review wrapper allocation';

@@ -1,7 +1,7 @@
 <template>
   <div class="recommendations">
     <!-- Filter Controls -->
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-centre sm:justify-between gap-4">
       <div>
         <h3 class="text-lg font-semibold text-gray-900">Prioritized Recommendations</h3>
         <p class="text-sm text-gray-600 mt-1">
@@ -15,7 +15,7 @@
           :key="priority.value"
           @click="selectedPriority = priority.value"
           :class="[
-            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+            'px-4 py-2 rounded-lg text-sm font-medium transition-colours',
             selectedPriority === priority.value
               ? priority.activeClass
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
@@ -37,12 +37,12 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-center py-12">
+    <div v-else class="text-centre py-12">
       <svg
         class="mx-auto h-12 w-12 text-gray-400"
         fill="none"
         viewBox="0 0 24 24"
-        stroke="currentColor"
+        stroke="currentColour"
       >
         <path
           stroke-linecap="round"

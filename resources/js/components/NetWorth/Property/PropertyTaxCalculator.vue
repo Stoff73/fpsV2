@@ -14,7 +14,7 @@
           v-for="tab in calculatorTabs"
           :key="tab.id"
           @click="activeCalculator = tab.id"
-          class="px-6 py-3 border-b-2 font-medium text-sm transition-colors"
+          class="px-6 py-3 border-b-2 font-medium text-sm transition-colours"
           :class="
             activeCalculator === tab.id
               ? 'border-blue-600 text-blue-600'
@@ -64,7 +64,7 @@
         </div>
 
         <div>
-          <label class="flex items-center">
+          <label class="flex items-centre">
             <input
               type="checkbox"
               v-model="sdltForm.is_first_home"
@@ -81,7 +81,7 @@
         <button
           type="submit"
           :disabled="calculatingSDLT"
-          class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+          class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colours disabled:opacity-50"
         >
           {{ calculatingSDLT ? 'Calculating...' : 'Calculate SDLT' }}
         </button>
@@ -186,7 +186,7 @@
         <button
           type="submit"
           :disabled="calculatingCGT"
-          class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+          class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colours disabled:opacity-50"
         >
           {{ calculatingCGT ? 'Calculating...' : 'Calculate CGT' }}
         </button>
@@ -249,7 +249,7 @@
       <button
         @click="calculateRentalTax"
         :disabled="calculatingRental"
-        class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+        class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colours disabled:opacity-50"
       >
         {{ calculatingRental ? 'Calculating...' : 'Calculate Rental Income Tax' }}
       </button>

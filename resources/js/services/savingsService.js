@@ -15,12 +15,12 @@ const savingsService = {
     },
 
     /**
-     * Analyze savings and emergency fund adequacy
+     * Analyse savings and emergency fund adequacy
      * @param {Object} data - Analysis parameters
      * @returns {Promise} Analysis results with recommendations
      */
-    async analyzeSavings(data) {
-        const response = await api.post('/savings/analyze', data);
+    async analyseSavings(data) {
+        const response = await api.post('/savings/analyse', data);
         return response.data;
     },
 

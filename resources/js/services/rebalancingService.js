@@ -12,7 +12,7 @@ const rebalancingService = {
    * @param {Array<number>} data.target_weights - Target allocation weights (must sum to 1.0)
    * @param {Array<number>} data.account_ids - Optional account IDs to filter
    * @param {number} data.min_trade_size - Minimum trade size in £ (default: 100)
-   * @param {boolean} data.optimize_for_cgt - Enable CGT optimization (default: false)
+   * @param {boolean} data.optimise_for_cgt - Enable CGT optimization (default: false)
    * @param {number} data.cgt_allowance - Annual CGT allowance (default: 12300)
    * @param {number} data.tax_rate - CGT tax rate (default: 0.20)
    * @param {number} data.loss_carryforward - Losses carried forward from previous years
@@ -30,7 +30,7 @@ const rebalancingService = {
    * @param {Array<number>} data.weights - Optimal portfolio weights from optimization
    * @param {Array<string>} data.labels - Security labels
    * @param {Array<number>} data.account_ids - Optional account IDs
-   * @param {boolean} data.optimize_for_cgt - Enable CGT optimization
+   * @param {boolean} data.optimise_for_cgt - Enable CGT optimization
    * @param {number} data.cgt_allowance - Annual CGT allowance
    * @param {number} data.tax_rate - CGT tax rate
    * @returns {Promise<Object>} Rebalancing result

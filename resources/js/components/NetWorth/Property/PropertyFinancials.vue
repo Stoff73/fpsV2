@@ -4,11 +4,11 @@
 
     <!-- Annual Costs Breakdown -->
     <div class="bg-white border border-gray-200 rounded-lg p-6">
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex justify-between items-centre mb-4">
         <h4 class="text-md font-semibold text-gray-700">Annual Costs Breakdown</h4>
         <button
           @click="showEditCostsModal = true"
-          class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colours"
         >
           Edit Costs
         </button>
@@ -57,13 +57,13 @@
           <div
             v-for="cost in costBreakdown"
             :key="cost.label"
-            class="flex items-center"
+            class="flex items-centre"
           >
             <div class="w-32 text-sm text-gray-600">{{ cost.label }}:</div>
             <div class="flex-1">
               <div class="bg-gray-200 rounded-full h-6 overflow-hidden">
                 <div
-                  class="bg-blue-600 h-full flex items-center justify-end pr-2"
+                  class="bg-blue-600 h-full flex items-centre justify-end pr-2"
                   :style="{ width: cost.percentage + '%' }"
                 >
                   <span v-if="cost.percentage > 15" class="text-xs font-medium text-white">
@@ -153,7 +153,7 @@
     <!-- SDLT Paid -->
     <div v-if="property.sdlt_paid" class="bg-white border border-gray-200 rounded-lg p-6">
       <h4 class="text-md font-semibold text-gray-700 mb-4">Stamp Duty Land Tax</h4>
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-centre">
         <span class="text-sm text-gray-600">SDLT Paid at Purchase:</span>
         <span class="text-lg font-bold text-gray-900">{{ formatCurrency(property.sdlt_paid) }}</span>
       </div>
@@ -194,17 +194,17 @@
     </div>
 
     <!-- Edit Costs Modal -->
-    <div v-if="showEditCostsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div v-if="showEditCostsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-centre justify-centre">
       <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <!-- Modal Header -->
         <div class="bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
-          <div class="flex items-center justify-between">
+          <div class="flex items-centre justify-between">
             <h3 class="text-2xl font-semibold text-gray-900">Edit Annual Costs</h3>
             <button
               @click="closeEditCostsModal"
-              class="text-gray-400 hover:text-gray-600 transition-colors"
+              class="text-gray-400 hover:text-gray-600 transition-colours"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6" fill="none" stroke="currentColour" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -309,14 +309,14 @@
             <button
               type="button"
               @click="closeEditCostsModal"
-              class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+              class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colours"
             >
               Cancel
             </button>
             <button
               type="submit"
               :disabled="submitting"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colours disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ submitting ? 'Saving...' : 'Save Costs' }}
             </button>

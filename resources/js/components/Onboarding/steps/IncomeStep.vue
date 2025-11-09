@@ -80,6 +80,59 @@
               <option value="other">Other</option>
             </select>
           </div>
+
+          <!-- Retirement Age (for non-retired) -->
+          <div v-if="formData.employment_status && formData.employment_status !== 'retired'">
+            <label for="target_retirement_age" class="label">
+              What age do you want to retire? <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="target_retirement_age"
+              v-model.number="formData.target_retirement_age"
+              type="number"
+              min="55"
+              max="75"
+              class="input-field"
+              placeholder="65"
+              required
+            >
+            <p class="mt-1 text-body-sm text-gray-500">
+              Your planned retirement age (minimum 55)
+            </p>
+          </div>
+
+          <!-- Retirement Date (for retired users) -->
+          <div v-if="formData.employment_status === 'retired'">
+            <label for="retirement_date" class="label">
+              When did you retire? <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="retirement_date"
+              v-model="formData.retirement_date"
+              type="date"
+              :max="today"
+              class="input-field"
+              required
+            >
+            <p class="mt-1 text-body-sm text-gray-500">
+              The date you retired from work
+            </p>
+          </div>
+        </div>
+
+        <!-- Early Retirement Warning -->
+        <div
+          v-if="showEarlyRetirementWarning"
+          class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4"
+        >
+          <div class="flex">
+            <svg class="h-5 w-5 text-amber-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            <p class="text-body-sm text-amber-800">
+              <strong>Early Retirement:</strong> In most circumstances you are only able to access retirement benefits from the age of 55. You retired at age {{ retirementAge }}.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -220,6 +273,8 @@ export default {
       employer: '',
       industry: '',
       employment_status: '',
+      target_retirement_age: null,
+      retirement_date: '',
       annual_employment_income: 0,
       annual_self_employment_income: 0,
       annual_dividend_income: 0,
@@ -228,6 +283,10 @@ export default {
 
     const loading = ref(false);
     const error = ref(null);
+
+    const today = computed(() => {
+      return new Date().toISOString().split('T')[0];
+    });
 
     const totalIncome = computed(() => {
       return (
@@ -238,10 +297,55 @@ export default {
       );
     });
 
+    const retirementAge = computed(() => {
+      if (!formData.value.retirement_date) return null;
+
+      const currentUser = store.getters['auth/currentUser'];
+      if (!currentUser?.date_of_birth) return null;
+
+      const birthDate = new Date(currentUser.date_of_birth);
+      const retireDate = new Date(formData.value.retirement_date);
+
+      let age = retireDate.getFullYear() - birthDate.getFullYear();
+      const monthDiff = retireDate.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && retireDate.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      return age;
+    });
+
+    const showEarlyRetirementWarning = computed(() => {
+      return formData.value.employment_status === 'retired' &&
+             retirementAge.value !== null &&
+             retirementAge.value < 55;
+    });
+
     const validateForm = () => {
       if (!formData.value.employment_status) {
         error.value = 'Please select your employment status';
         return false;
+      }
+
+      // Validate retirement age for non-retired users
+      if (formData.value.employment_status !== 'retired') {
+        if (!formData.value.target_retirement_age) {
+          error.value = 'Please enter your target retirement age';
+          return false;
+        }
+        if (formData.value.target_retirement_age < 55) {
+          error.value = 'Retirement age must be at least 55';
+          return false;
+        }
+      }
+
+      // Validate retirement date for retired users
+      if (formData.value.employment_status === 'retired') {
+        if (!formData.value.retirement_date) {
+          error.value = 'Please enter when you retired';
+          return false;
+        }
       }
 
       return true;
@@ -282,6 +386,8 @@ export default {
           employer: currentUser.employer || '',
           industry: currentUser.industry || '',
           employment_status: currentUser.employment_status || '',
+          target_retirement_age: null,
+          retirement_date: '',
           annual_employment_income: currentUser.annual_employment_income || 0,
           annual_self_employment_income: currentUser.annual_self_employment_income || 0,
           annual_dividend_income: currentUser.annual_dividend_income || 0,
@@ -304,7 +410,10 @@ export default {
       formData,
       loading,
       error,
+      today,
       totalIncome,
+      retirementAge,
+      showEarlyRetirementWarning,
       handleNext,
       handleBack,
     };

@@ -15,7 +15,7 @@
         <button
           @click="selectScenario('property_change')"
           :class="[
-            'p-4 border-2 rounded-lg text-left transition-colors',
+            'p-4 border-2 rounded-lg text-left transition-colours',
             selectedScenario === 'property_change'
               ? 'border-blue-500 bg-blue-50'
               : 'border-gray-200 hover:border-blue-300',
@@ -28,7 +28,7 @@
         <button
           @click="selectScenario('gifting')"
           :class="[
-            'p-4 border-2 rounded-lg text-left transition-colors',
+            'p-4 border-2 rounded-lg text-left transition-colours',
             selectedScenario === 'gifting'
               ? 'border-blue-500 bg-blue-50'
               : 'border-gray-200 hover:border-blue-300',
@@ -41,7 +41,7 @@
         <button
           @click="selectScenario('charitable')"
           :class="[
-            'p-4 border-2 rounded-lg text-left transition-colors',
+            'p-4 border-2 rounded-lg text-left transition-colours',
             selectedScenario === 'charitable'
               ? 'border-blue-500 bg-blue-50'
               : 'border-gray-200 hover:border-blue-300',
@@ -54,7 +54,7 @@
         <button
           @click="selectScenario('spouse_death')"
           :class="[
-            'p-4 border-2 rounded-lg text-left transition-colors',
+            'p-4 border-2 rounded-lg text-left transition-colours',
             selectedScenario === 'spouse_death'
               ? 'border-blue-500 bg-blue-50'
               : 'border-gray-200 hover:border-blue-300',
@@ -150,7 +150,7 @@
       <button
         @click="runScenario"
         :disabled="loading"
-        class="mt-4 w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400"
+        class="mt-4 w-full inline-flex justify-centre items-centre px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400"
       >
         <span v-if="loading">Running Scenario...</span>
         <span v-else>Run Scenario</span>
@@ -191,7 +191,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {{ formatCurrency(scenarioResults.scenario.estate_value) }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm" :class="getDifferenceColor(scenarioResults.scenario.estate_value - scenarioResults.current.estate_value)">
+              <td class="px-6 py-4 whitespace-nowrap text-sm" :class="getDifferenceColour(scenarioResults.scenario.estate_value - scenarioResults.current.estate_value)">
                 {{ formatDifference(scenarioResults.scenario.estate_value - scenarioResults.current.estate_value) }}
               </td>
             </tr>
@@ -205,7 +205,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {{ formatCurrency(scenarioResults.scenario.iht_liability) }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold" :class="getIHTDifferenceColor(scenarioResults.scenario.iht_liability - scenarioResults.current.iht_liability)">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold" :class="getIHTDifferenceColour(scenarioResults.scenario.iht_liability - scenarioResults.current.iht_liability)">
                 {{ formatDifference(scenarioResults.scenario.iht_liability - scenarioResults.current.iht_liability) }}
               </td>
             </tr>
@@ -221,7 +221,7 @@
               class="h-5 w-5 text-blue-400"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
-              fill="currentColor"
+              fill="currentColour"
             >
               <path
                 fill-rule="evenodd"
@@ -341,11 +341,11 @@ export default {
       return value >= 0 ? `+${formatted}` : `-${formatted}`;
     },
 
-    getDifferenceColor(value) {
+    getDifferenceColour(value) {
       return value >= 0 ? 'text-green-600' : 'text-red-600';
     },
 
-    getIHTDifferenceColor(value) {
+    getIHTDifferenceColour(value) {
       // For IHT, reduction is good (green), increase is bad (red)
       return value <= 0 ? 'text-green-600' : 'text-red-600';
     },

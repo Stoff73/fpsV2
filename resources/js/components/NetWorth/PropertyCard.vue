@@ -114,13 +114,13 @@ export default {
 .property-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-color: #3b82f6;
+  border-colour: #3b82f6;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: centre;
   margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 8px;
@@ -135,17 +135,17 @@ export default {
 
 .type-main_residence {
   background: #dbeafe;
-  color: #1e40af;
+  colour: #1e40af;
 }
 
 .type-secondary_residence {
   background: #fef3c7;
-  color: #92400e;
+  colour: #92400e;
 }
 
 .type-buy_to_let {
   background: #d1fae5;
-  color: #065f46;
+  colour: #065f46;
 }
 
 .ownership-badge {
@@ -154,7 +154,7 @@ export default {
   font-size: 12px;
   font-weight: 600;
   background: #f3e8ff;
-  color: #6b21a8;
+  colour: #6b21a8;
 }
 
 .card-content {
@@ -166,19 +166,19 @@ export default {
 .property-address {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  colour: #111827;
   margin: 0;
 }
 
 .property-address-2 {
   font-size: 14px;
-  color: #6b7280;
+  colour: #6b7280;
   margin: 0;
 }
 
 .property-location {
   font-size: 14px;
-  color: #6b7280;
+  colour: #6b7280;
   margin: 0;
 }
 
@@ -193,7 +193,7 @@ export default {
 .detail-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: centre;
   font-size: 14px;
 }
 
@@ -204,16 +204,16 @@ export default {
 }
 
 .detail-label {
-  color: #6b7280;
+  colour: #6b7280;
 }
 
 .detail-value {
-  color: #111827;
+  colour: #111827;
   font-weight: 600;
 }
 
 .detail-value.mortgage {
-  color: #ef4444;
+  colour: #ef4444;
 }
 
 @media (max-width: 768px) {

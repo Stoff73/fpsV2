@@ -41,7 +41,7 @@ export default {
       return [this.score];
     },
 
-    gaugeColor() {
+    gaugeColour() {
       if (this.score >= 90) return '#10b981'; // green
       if (this.score >= 70) return '#f59e0b'; // amber
       if (this.score >= 50) return '#f97316'; // orange
@@ -76,7 +76,7 @@ export default {
                 enabled: true,
                 top: 2,
                 left: 0,
-                color: '#999',
+                colour: '#999',
                 opacity: 1,
                 blur: 2,
               },
@@ -87,7 +87,7 @@ export default {
                 fontSize: '16px',
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 600,
-                color: '#6b7280',
+                colour: '#6b7280',
                 offsetY: 75,
               },
               value: {
@@ -95,7 +95,7 @@ export default {
                 fontSize: '48px',
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 700,
-                color: this.gaugeColor,
+                colour: this.gaugeColour,
                 formatter: (val) => {
                   return Math.round(val);
                 },
@@ -109,14 +109,14 @@ export default {
             shade: 'light',
             type: 'horizontal',
             shadeIntensity: 0.5,
-            gradientToColors: [this.gaugeColor],
-            inverseColors: false,
+            gradientToColours: [this.gaugeColour],
+            inverseColours: false,
             opacityFrom: 1,
             opacityTo: 1,
             stops: [0, 100],
           },
         },
-        colors: [this.gaugeColor],
+        colours: [this.gaugeColour],
         labels: [this.statusLabel],
         stroke: {
           lineCap: 'round',
@@ -130,7 +130,7 @@ export default {
 <style scoped>
 .readiness-gauge {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: centre;
+  align-items: centre;
 }
 </style>

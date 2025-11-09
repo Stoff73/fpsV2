@@ -12,7 +12,7 @@
   >
     <div class="space-y-6">
       <p class="text-body-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-        Protection policies provide financial security for you and your family. Adding your existing coverage helps us analyze any gaps in your protection.
+        Protection policies provide financial security for you and your family. Adding your existing coverage helps us analyse any gaps in your protection.
       </p>
 
       <!-- I have no policies checkbox -->
@@ -48,7 +48,7 @@
         >
           <div class="flex justify-between items-start">
             <div class="flex-1">
-              <div class="flex items-center gap-2 mb-2">
+              <div class="flex items-centre gap-2 mb-2">
                 <h5 class="text-body font-medium text-gray-900">
                   {{ getPolicyTypeLabel(policy.policyType || policy.policy_type) }}
                 </h5>
@@ -176,25 +176,26 @@ export default {
 
         console.log('Policy data:', policyData);
 
-        if (policyData?.life && Array.isArray(policyData.life)) {
-          console.log('Adding life policies:', policyData.life.length);
-          allPolicies.push(...policyData.life.map(p => ({ ...p, policyType: 'life', policy_type: 'life' })));
+        // API returns snake_case keys: life_insurance, critical_illness, etc.
+        if (policyData?.life_insurance && Array.isArray(policyData.life_insurance)) {
+          console.log('Adding life policies:', policyData.life_insurance.length);
+          allPolicies.push(...policyData.life_insurance.map(p => ({ ...p, policyType: 'life', policy_type: 'life' })));
         }
-        if (policyData?.criticalIllness && Array.isArray(policyData.criticalIllness)) {
-          console.log('Adding CI policies:', policyData.criticalIllness.length);
-          allPolicies.push(...policyData.criticalIllness.map(p => ({ ...p, policyType: 'criticalIllness', policy_type: 'criticalIllness' })));
+        if (policyData?.critical_illness && Array.isArray(policyData.critical_illness)) {
+          console.log('Adding CI policies:', policyData.critical_illness.length);
+          allPolicies.push(...policyData.critical_illness.map(p => ({ ...p, policyType: 'criticalIllness', policy_type: 'criticalIllness' })));
         }
-        if (policyData?.incomeProtection && Array.isArray(policyData.incomeProtection)) {
-          console.log('Adding IP policies:', policyData.incomeProtection.length);
-          allPolicies.push(...policyData.incomeProtection.map(p => ({ ...p, policyType: 'incomeProtection', policy_type: 'incomeProtection' })));
+        if (policyData?.income_protection && Array.isArray(policyData.income_protection)) {
+          console.log('Adding IP policies:', policyData.income_protection.length);
+          allPolicies.push(...policyData.income_protection.map(p => ({ ...p, policyType: 'incomeProtection', policy_type: 'incomeProtection' })));
         }
         if (policyData?.disability && Array.isArray(policyData.disability)) {
           console.log('Adding disability policies:', policyData.disability.length);
           allPolicies.push(...policyData.disability.map(p => ({ ...p, policyType: 'disability', policy_type: 'disability' })));
         }
-        if (policyData?.sicknessIllness && Array.isArray(policyData.sicknessIllness)) {
-          console.log('Adding sickness policies:', policyData.sicknessIllness.length);
-          allPolicies.push(...policyData.sicknessIllness.map(p => ({ ...p, policyType: 'sicknessIllness', policy_type: 'sicknessIllness' })));
+        if (policyData?.sickness_illness && Array.isArray(policyData.sickness_illness)) {
+          console.log('Adding sickness policies:', policyData.sickness_illness.length);
+          allPolicies.push(...policyData.sickness_illness.map(p => ({ ...p, policyType: 'sicknessIllness', policy_type: 'sicknessIllness' })));
         }
 
         policies.value = allPolicies;
@@ -275,7 +276,6 @@ export default {
     async function handlePolicySaved(policyData) {
       try {
         console.log('handlePolicySaved called with:', policyData);
-        loading.value = true;
         error.value = null;
 
         const { policyType, ...actualPolicyData } = policyData;
@@ -322,6 +322,13 @@ export default {
         }
 
         console.log('Policy saved successfully, closing form and reloading...');
+
+        // If user adds a policy, automatically uncheck "has_no_policies"
+        if (!editingPolicy.value && hasNoPolicies.value) {
+          hasNoPolicies.value = false;
+          await protectionService.updateHasNoPolicies(false);
+        }
+
         closeForm();
         await loadPolicies();
         console.log('Policies reloaded, should now be visible');
@@ -331,8 +338,6 @@ export default {
         console.error('Validation errors:', err.response?.data?.errors);
         console.error('Full error:', err.response?.data);
         console.error('Sent data:', policyData);
-      } finally {
-        loading.value = false;
       }
     }
 

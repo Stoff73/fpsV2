@@ -51,24 +51,24 @@
 
         <!-- CGT Optimization -->
         <div class="md:col-span-2">
-          <div class="flex items-center">
+          <div class="flex items-centre">
             <input
-              v-model="optimizeForCGT"
+              v-model="optimiseForCGT"
               type="checkbox"
-              id="optimizeCGT"
+              id="optimiseCGT"
               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <label for="optimizeCGT" class="ml-2 block text-sm font-medium text-gray-700">
-              Optimize for Capital Gains Tax
+            <label for="optimiseCGT" class="ml-2 block text-sm font-medium text-gray-700">
+              Optimise for Capital Gains Tax
             </label>
           </div>
           <p class="mt-1 ml-6 text-xs text-gray-500">
-            Minimize CGT liability by optimizing the order of buy/sell actions
+            Minimize CGT liability by optimising the order of buy/sell actions
           </p>
         </div>
 
         <!-- CGT Settings (shown if optimization enabled) -->
-        <template v-if="optimizeForCGT">
+        <template v-if="optimiseForCGT">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               CGT Annual Allowance (£)
@@ -123,10 +123,10 @@
           :disabled="loading || !canCalculate"
           class="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
-          <span v-if="loading" class="flex items-center justify-center">
+          <span v-if="loading" class="flex items-centre justify-centre">
             <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColour" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColour" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             Calculating...
           </span>
@@ -142,7 +142,7 @@
     >
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="h-5 w-5 text-red-400" fill="currentColour" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
           </svg>
         </div>
@@ -168,7 +168,7 @@
         :cgt-analysis="result.cgt_analysis"
         :cgt-summary="result.cgt_summary"
         :tax-loss-opportunities="result.tax_loss_opportunities"
-        :show-c-g-t="optimizeForCGT"
+        :show-c-g-t="optimiseForCGT"
         @save-actions="saveActions"
         @remove-action="removeAction"
       />
@@ -193,12 +193,12 @@
     <!-- Empty State -->
     <div
       v-else-if="!loading"
-      class="bg-white rounded-lg shadow p-12 text-center"
+      class="bg-white rounded-lg shadow p-12 text-centre"
     >
       <svg
         class="mx-auto h-16 w-16 text-gray-400"
         fill="none"
-        stroke="currentColor"
+        stroke="currentColour"
         viewBox="0 0 24 24"
       >
         <path
@@ -236,7 +236,7 @@ export default {
     return {
       source: 'optimization',
       minTradeSize: 100,
-      optimizeForCGT: true,
+      optimiseForCGT: true,
       cgtAllowance: 12300,
       taxRate: 0.20,
       lossCarryforward: 0,
@@ -281,7 +281,7 @@ export default {
             weights: this.optimizationResult.weights,
             labels: this.optimizationResult.labels,
             min_trade_size: this.minTradeSize,
-            optimize_for_cgt: this.optimizeForCGT,
+            optimise_for_cgt: this.optimiseForCGT,
             cgt_allowance: this.cgtAllowance,
             tax_rate: this.taxRate,
             loss_carryforward: this.lossCarryforward,
@@ -354,7 +354,7 @@ export default {
         'Rationale',
       ];
 
-      if (this.optimizeForCGT) {
+      if (this.optimiseForCGT) {
         headers.push('CGT Cost Basis', 'CGT Gain/Loss', 'CGT Liability');
       }
 
@@ -371,7 +371,7 @@ export default {
           action.rationale || '',
         ];
 
-        if (this.optimizeForCGT) {
+        if (this.optimiseForCGT) {
           row.push(
             (action.cgt_cost_basis || 0).toFixed(2),
             (action.cgt_gain_or_loss || 0).toFixed(2),

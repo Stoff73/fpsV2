@@ -27,7 +27,7 @@
     </div>
 
     <div v-else-if="filteredBusinesses.length === 0" class="empty-state">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="empty-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColour" class="empty-icon">
         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
       </svg>
       <p>No business interests found</p>
@@ -102,7 +102,7 @@ export default {
 .list-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: centre;
   margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 16px;
@@ -111,7 +111,7 @@ export default {
 .list-title {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  colour: #111827;
   margin: 0;
 }
 
@@ -126,7 +126,7 @@ export default {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
-  color: #374151;
+  colour: #374151;
   background: white;
   cursor: pointer;
 }
@@ -134,7 +134,7 @@ export default {
 .filter-select:focus,
 .sort-select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-colour: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -147,19 +147,19 @@ export default {
 .loading-state,
 .error-state,
 .empty-state {
-  text-align: center;
+  text-align: centre;
   padding: 60px 20px;
 }
 
 .loading-state p,
 .error-state p {
-  color: #6b7280;
+  colour: #6b7280;
   font-size: 16px;
   margin: 0;
 }
 
 .error-state p {
-  color: #ef4444;
+  colour: #ef4444;
 }
 
 .empty-state {
@@ -172,19 +172,19 @@ export default {
 .empty-icon {
   width: 64px;
   height: 64px;
-  color: #9ca3af;
+  colour: #9ca3af;
   margin: 0 auto 16px;
 }
 
 .empty-state p {
-  color: #6b7280;
+  colour: #6b7280;
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 8px 0;
 }
 
 .empty-subtitle {
-  color: #9ca3af;
+  colour: #9ca3af;
   font-size: 14px;
   font-weight: 400;
 }

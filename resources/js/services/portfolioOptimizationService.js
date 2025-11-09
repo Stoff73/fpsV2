@@ -28,39 +28,39 @@ const portfolioOptimizationService = {
     },
 
     /**
-     * Optimize portfolio for minimum variance
+     * Optimise portfolio for minimum variance
      * @param {Object} constraints - Optional constraints
      * @param {Number} constraints.min_weight - Minimum weight per asset (0-1)
      * @param {Number} constraints.max_weight - Maximum weight per asset (0-1)
      * @returns {Promise} Minimum variance portfolio allocation
      */
-    async optimizeMinimumVariance(constraints = {}) {
+    async optimiseMinimumVariance(constraints = {}) {
         const response = await api.post('/investment/optimization/minimize-variance', constraints);
         return response.data;
     },
 
     /**
-     * Optimize portfolio for maximum Sharpe ratio (tangency portfolio)
+     * Optimise portfolio for maximum Sharpe ratio (tangency portfolio)
      * @param {Object} params - Optimization parameters
      * @param {Number} params.risk_free_rate - Risk-free rate (default: 0.045)
      * @param {Number} params.min_weight - Minimum weight per asset
      * @param {Number} params.max_weight - Maximum weight per asset
      * @returns {Promise} Tangency portfolio allocation
      */
-    async optimizeMaximumSharpe(params = {}) {
+    async optimiseMaximumSharpe(params = {}) {
         const response = await api.post('/investment/optimization/maximize-sharpe', params);
         return response.data;
     },
 
     /**
-     * Optimize portfolio for a target return
+     * Optimise portfolio for a target return
      * @param {Object} params - Optimization parameters
      * @param {Number} params.target_return - Desired return (e.g., 0.08 for 8%)
      * @param {Number} params.min_weight - Minimum weight per asset
      * @param {Number} params.max_weight - Maximum weight per asset
      * @returns {Promise} Target return portfolio with minimum risk
      */
-    async optimizeTargetReturn(params) {
+    async optimiseTargetReturn(params) {
         if (!params.target_return) {
             throw new Error('target_return is required');
         }
@@ -73,7 +73,7 @@ const portfolioOptimizationService = {
      * Equal risk contribution from each asset
      * @returns {Promise} Risk parity portfolio allocation
      */
-    async optimizeRiskParity() {
+    async optimiseRiskParity() {
         const response = await api.post('/investment/optimization/risk-parity');
         return response.data;
     },
@@ -88,29 +88,29 @@ const portfolioOptimizationService = {
      * @param {Number} params.constraints.min_weight - Minimum weight per asset
      * @param {Number} params.constraints.max_weight - Maximum weight per asset
      * @param {Array} params.constraints.sector_limits - Sector allocation limits
-     * @returns {Promise} Optimized portfolio
+     * @returns {Promise} Optimised portfolio
      */
-    async optimize(params) {
+    async optimise(params) {
         const { optimization_type } = params;
 
         switch (optimization_type) {
             case 'min_variance':
-                return this.optimizeMinimumVariance(params.constraints || {});
+                return this.optimiseMinimumVariance(params.constraints || {});
 
             case 'max_sharpe':
-                return this.optimizeMaximumSharpe({
+                return this.optimiseMaximumSharpe({
                     risk_free_rate: params.risk_free_rate,
                     ...params.constraints
                 });
 
             case 'target_return':
-                return this.optimizeTargetReturn({
+                return this.optimiseTargetReturn({
                     target_return: params.target_return,
                     ...params.constraints
                 });
 
             case 'risk_parity':
-                return this.optimizeRiskParity();
+                return this.optimiseRiskParity();
 
             default:
                 throw new Error(`Invalid optimization_type: ${optimization_type}`);

@@ -3,7 +3,7 @@
     <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumbs -->
     <nav class="text-sm mb-6">
-      <ol class="flex items-center space-x-2">
+      <ol class="flex items-centre space-x-2">
         <li><router-link to="/dashboard" class="text-blue-600 hover:underline">Dashboard</router-link></li>
         <li><span class="text-gray-400">/</span></li>
         <li><router-link to="/net-worth" class="text-blue-600 hover:underline">Net Worth</router-link></li>
@@ -13,17 +13,17 @@
     </nav>
 
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-12">
+    <div v-if="loading" class="text-centre py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <p class="mt-4 text-gray-600">Loading property details...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6 text-centre">
       <p class="text-red-600">{{ error }}</p>
       <button
         @click="loadProperty"
-        class="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+        class="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colours"
       >
         Retry
       </button>
@@ -41,13 +41,13 @@
           <div class="flex space-x-2">
             <button
               @click="showEditModal = true"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colours"
             >
               Edit
             </button>
             <button
               @click="confirmDelete"
-              class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colours"
             >
               Delete
             </button>
@@ -83,7 +83,7 @@
               v-for="tab in tabs"
               :key="tab.id"
               @click="activeTab = tab.id"
-              class="px-6 py-3 border-b-2 font-medium text-sm transition-colors"
+              class="px-6 py-3 border-b-2 font-medium text-sm transition-colours"
               :class="
                 activeTab === tab.id
                   ? 'border-blue-600 text-blue-600'
@@ -185,17 +185,17 @@
 
           <!-- Mortgage Tab -->
           <div v-show="activeTab === 'mortgage'" class="space-y-4">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-centre">
               <h3 class="text-lg font-semibold text-gray-800">Mortgages</h3>
               <button
                 @click="showMortgageModal = true"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colours"
               >
                 Add Mortgage
               </button>
             </div>
 
-            <div v-if="mortgages.length === 0" class="text-center py-8 text-gray-500">
+            <div v-if="mortgages.length === 0" class="text-centre py-8 text-gray-500">
               <p>No mortgages found for this property.</p>
             </div>
 

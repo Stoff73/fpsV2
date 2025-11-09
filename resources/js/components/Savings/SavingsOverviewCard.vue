@@ -11,7 +11,7 @@
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColor"
+          stroke="currentColour"
         >
           <path
             stroke-linecap="round"
@@ -28,7 +28,7 @@
       <div class="flex items-baseline mb-2">
         <span
           class="text-4xl font-bold"
-          :class="runwayColor"
+          :class="runwayColour"
         >
           {{ emergencyFundRunway.toFixed(1) }}
         </span>
@@ -37,7 +37,7 @@
       <div class="w-full bg-gray-200 rounded-full h-2">
         <div
           class="h-2 rounded-full transition-all duration-300"
-          :class="runwayBarColor"
+          :class="runwayBarColour"
           :style="{ width: Math.min(runwayPercentage, 100) + '%' }"
         ></div>
       </div>
@@ -62,7 +62,7 @@
 
     <!-- Goals Status -->
     <div
-      class="flex items-center p-3 rounded-md"
+      class="flex items-centre p-3 rounded-md"
       :class="goalsStatusClass"
     >
       <svg
@@ -70,7 +70,7 @@
         class="h-5 w-5 mr-2"
         :class="goalsIconClass"
         viewBox="0 0 20 20"
-        fill="currentColor"
+        fill="currentColour"
       >
         <path
           fill-rule="evenodd"
@@ -118,7 +118,7 @@ export default {
       return (this.emergencyFundRunway / 6) * 100; // 6 months is target
     },
 
-    runwayColor() {
+    runwayColour() {
       if (this.emergencyFundRunway >= 6) {
         return 'text-green-600';
       } else if (this.emergencyFundRunway >= 3) {
@@ -128,7 +128,7 @@ export default {
       }
     },
 
-    runwayBarColor() {
+    runwayBarColour() {
       if (this.emergencyFundRunway >= 6) {
         return 'bg-green-600';
       } else if (this.emergencyFundRunway >= 3) {

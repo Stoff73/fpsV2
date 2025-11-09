@@ -5,7 +5,7 @@
     <!-- Explanation Banner -->
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
       <div class="flex items-start">
-        <svg class="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
         </svg>
         <div class="flex-1">
@@ -19,8 +19,8 @@
     </div>
 
     <!-- No Data State -->
-    <div v-if="!opportunities || opportunities.opportunities.length === 0" class="text-center py-12 text-gray-500">
-      <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div v-if="!opportunities || opportunities.opportunities.length === 0" class="text-centre py-12 text-gray-500">
+      <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColour">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <p>No Bed and ISA opportunities found</p>
@@ -137,7 +137,7 @@
             class="flex items-start p-3 bg-gray-50 rounded-md border border-gray-200"
           >
             <div class="flex-shrink-0 mr-3">
-              <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-600 text-white text-sm font-bold">
+              <span class="inline-flex items-centre justify-centre h-8 w-8 rounded-full bg-blue-600 text-white text-sm font-bold">
                 {{ index + 1 }}
               </span>
             </div>
@@ -176,8 +176,8 @@
                 <p class="text-xs text-gray-500">{{ opp.ticker }}</p>
               </td>
               <td class="px-4 py-3 text-sm text-gray-800">£{{ formatNumber(opp.current_value) }}</td>
-              <td class="px-4 py-3 text-sm" :class="opp.unrealized_gain >= 0 ? 'text-green-600' : 'text-red-600'">
-                £{{ formatNumber(Math.abs(opp.unrealized_gain)) }}
+              <td class="px-4 py-3 text-sm" :class="opp.unrealised_gain >= 0 ? 'text-green-600' : 'text-red-600'">
+                £{{ formatNumber(Math.abs(opp.unrealised_gain)) }}
               </td>
               <td class="px-4 py-3 text-sm text-amber-600">£{{ formatNumber(opp.cgt_on_full_transfer) }}</td>
               <td class="px-4 py-3 text-sm font-semibold text-green-600">£{{ formatNumber(opp.annual_saving) }}</td>
@@ -210,7 +210,7 @@
       <div class="mt-6 flex justify-end">
         <button
           @click="$emit('refresh')"
-          class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors duration-200"
+          class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colours duration-200"
         >
           Refresh Analysis
         </button>

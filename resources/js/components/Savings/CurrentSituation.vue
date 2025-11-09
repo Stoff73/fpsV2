@@ -11,7 +11,7 @@
 
       <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
         <h3 class="text-sm font-medium text-gray-600 mb-2">Emergency Fund Runway</h3>
-        <p class="text-3xl font-bold" :class="runwayColor">
+        <p class="text-3xl font-bold" :class="runwayColour">
           {{ emergencyFundRunway.toFixed(1) }} months
         </p>
       </div>
@@ -36,7 +36,7 @@
         <div
           v-for="account in accounts"
           :key="account.id"
-          class="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
+          class="flex justify-between items-centre p-4 bg-gray-50 rounded-lg"
         >
           <div>
             <h4 class="font-semibold text-gray-900">{{ account.institution }}</h4>
@@ -56,7 +56,7 @@
           </div>
         </div>
       </div>
-      <div v-else class="text-center py-8 text-gray-500">
+      <div v-else class="text-centre py-8 text-gray-500">
         <p>No savings accounts added yet.</p>
         <button
           @click="$router.push({ path: '/savings', query: { tab: 'details' } })"
@@ -84,7 +84,7 @@ export default {
     ...mapState('savings', ['accounts']),
     ...mapGetters('savings', ['totalSavings', 'emergencyFundRunway']),
 
-    runwayColor() {
+    runwayColour() {
       if (this.emergencyFundRunway >= 6) return 'text-green-600';
       if (this.emergencyFundRunway >= 3) return 'text-amber-600';
       return 'text-red-600';

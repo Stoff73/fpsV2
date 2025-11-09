@@ -321,11 +321,22 @@ class IHTController extends Controller
                 ], 400);
             }
 
-            // Check if user has spouse linked
+            // Check if user has spouse linked AND spouse has required data for second death calculation
             $hasSpouse = $user->spouse_id !== null;
 
-            // If no spouse linked, calculate their IHT with spouse exemption + provide basic strategies
-            if (! $hasSpouse) {
+            $spouse = null;
+            $spouseHasRequiredData = false;
+
+            if ($hasSpouse) {
+                $spouse = User::find($user->spouse_id);
+                if ($spouse) {
+                    // Check if spouse has date_of_birth and gender required for actuarial calculation
+                    $spouseHasRequiredData = $spouse->date_of_birth && $spouse->gender;
+                }
+            }
+
+            // If no spouse linked OR spouse missing required data, calculate their IHT with spouse exemption + provide basic strategies
+            if (! $hasSpouse || ! $spouseHasRequiredData) {
                 // Calculate standard IHT for this user (will include spouse exemption if applicable)
                 $userAssets = $this->assetAggregator->gatherUserAssets($user);
                 $userLiabilities = $this->assetAggregator->calculateUserLiabilities($user);
@@ -446,12 +457,33 @@ class IHTController extends Controller
                     ];
                 }
 
+                // Determine appropriate message and missing data
+                $requiresSpouseLink = ! $hasSpouse;
+                $missingData = [];
+                $message = '';
+
+                if ($requiresSpouseLink) {
+                    $message = 'Transfers to spouse are exempt from IHT with no limit. Link your spouse account to unlock full second death planning features.';
+                    $missingData = ['spouse_account'];
+                } else {
+                    // Spouse linked but missing required data
+                    $message = 'Transfers to spouse are exempt from IHT with no limit. To enable full second death IHT planning, please ensure your spouse\'s profile includes date of birth and gender.';
+                    $missingSpouseFields = [];
+                    if (! $spouse->date_of_birth) {
+                        $missingSpouseFields[] = 'date_of_birth';
+                    }
+                    if (! $spouse->gender) {
+                        $missingSpouseFields[] = 'gender';
+                    }
+                    $missingData = ['spouse_data' => $missingSpouseFields];
+                }
+
                 return response()->json([
                     'success' => true,
                     'show_spouse_exemption_notice' => true,
-                    'spouse_exemption_message' => 'Transfers to spouse are exempt from IHT with no limit. Link your spouse account to unlock full second death planning features.',
-                    'requires_spouse_link' => true,
-                    'missing_data' => ['spouse_account'],
+                    'spouse_exemption_message' => $message,
+                    'requires_spouse_link' => $requiresSpouseLink,
+                    'missing_data' => $missingData,
                     'user_iht_calculation' => $ihtCalculation,
                     'effective_iht_liability' => $effectiveIHTLiability,
                     'potential_taxable_estate' => $potentialTaxableEstate,
@@ -460,14 +492,7 @@ class IHTController extends Controller
                 ]);
             }
 
-            $spouse = \App\Models\User::find($user->spouse_id);
-            if (! $spouse) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Spouse account not found.',
-                ], 404);
-            }
-
+            // At this point, $spouse is already loaded and has required data (date_of_birth and gender)
             // Check for data sharing permission
             $dataSharingEnabled = $user->hasAcceptedSpousePermission();
 

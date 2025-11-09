@@ -163,7 +163,7 @@ const actions = {
 
             // Also fetch analysis data to get human capital and total debt
             try {
-                const analysisResponse = await protectionService.analyzeProtection({});
+                const analysisResponse = await protectionService.analyseProtection({});
                 // Backend returns: {success: true, message: '...', data: {...}}
                 // We want the 'data' object which contains profile, needs, gaps, etc.
                 const analysisData = analysisResponse.data || analysisResponse;
@@ -185,13 +185,13 @@ const actions = {
         }
     },
 
-    // Analyze protection coverage
-    async analyzeProtection({ commit }, data) {
+    // Analyse protection coverage
+    async analyseProtection({ commit }, data) {
         commit('setLoading', true);
         commit('setError', null);
 
         try {
-            const response = await protectionService.analyzeProtection(data);
+            const response = await protectionService.analyseProtection(data);
             // Backend returns: {success: true, message: '...', data: {...}}
             // analysisData should be the full response so components can access response.data.needs
             const analysisData = response.data || response;
@@ -291,8 +291,8 @@ const actions = {
             const policy = response.data || response;
             commit('addPolicy', { type: 'life', policy });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -313,8 +313,8 @@ const actions = {
             const policy = response.data || response;
             commit('updatePolicy', { type: 'life', policy });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -334,8 +334,8 @@ const actions = {
             const response = await protectionService.deleteLifePolicy(id);
             commit('removePolicy', { type: 'life', id });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -357,8 +357,8 @@ const actions = {
             const policy = response.data || response;
             commit('addPolicy', { type: 'criticalIllness', policy });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -379,8 +379,8 @@ const actions = {
             const policy = response.data || response;
             commit('updatePolicy', { type: 'criticalIllness', policy });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -400,8 +400,8 @@ const actions = {
             const response = await protectionService.deleteCriticalIllnessPolicy(id);
             commit('removePolicy', { type: 'criticalIllness', id });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -423,8 +423,8 @@ const actions = {
             const policy = response.data || response;
             commit('addPolicy', { type: 'incomeProtection', policy });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -445,8 +445,8 @@ const actions = {
             const policy = response.data || response;
             commit('updatePolicy', { type: 'incomeProtection', policy });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -466,8 +466,8 @@ const actions = {
             const response = await protectionService.deleteIncomeProtectionPolicy(id);
             commit('removePolicy', { type: 'incomeProtection', id });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -489,8 +489,8 @@ const actions = {
             const policy = response.data || response;
             commit('addPolicy', { type: 'disability', policy });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -511,8 +511,8 @@ const actions = {
             const policy = response.data || response;
             commit('updatePolicy', { type: 'disability', policy });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -532,8 +532,8 @@ const actions = {
             const response = await protectionService.deleteDisabilityPolicy(id);
             commit('removePolicy', { type: 'disability', id });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -555,8 +555,8 @@ const actions = {
             const policy = response.data || response;
             commit('addPolicy', { type: 'sicknessIllness', policy });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -577,8 +577,8 @@ const actions = {
             const policy = response.data || response;
             commit('updatePolicy', { type: 'sicknessIllness', policy });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {
@@ -598,8 +598,8 @@ const actions = {
             const response = await protectionService.deleteSicknessIllnessPolicy(id);
             commit('removePolicy', { type: 'sicknessIllness', id });
 
-            // Re-analyze protection to update gaps
-            await dispatch('analyzeProtection', {});
+            // Re-analyse protection to update gaps
+            await dispatch('analyseProtection', {});
 
             return response;
         } catch (error) {

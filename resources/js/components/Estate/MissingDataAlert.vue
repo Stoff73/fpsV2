@@ -6,7 +6,7 @@
           class="h-5 w-5 text-amber-400"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
-          fill="currentColor"
+          fill="currentColour"
         >
           <path
             fill-rule="evenodd"

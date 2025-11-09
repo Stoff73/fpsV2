@@ -380,11 +380,42 @@ class OnboardingService
             'employer' => $data['employer'] ?? null,
             'industry' => $data['industry'] ?? null,
             'employment_status' => $data['employment_status'] ?? null,
+            'target_retirement_age' => $data['target_retirement_age'] ?? null,
+            'retirement_date' => $data['retirement_date'] ?? null,
             'annual_employment_income' => $data['annual_employment_income'] ?? 0,
             'annual_self_employment_income' => $data['annual_self_employment_income'] ?? 0,
             'annual_dividend_income' => $data['annual_dividend_income'] ?? 0,
             'annual_other_income' => $data['annual_other_income'] ?? 0,
         ]);
+
+        // Update or create retirement profile if retirement age is provided
+        if (isset($data['target_retirement_age'])) {
+            $currentAge = $user->date_of_birth ? \Carbon\Carbon::parse($user->date_of_birth)->age : 30;
+
+            \App\Models\RetirementProfile::updateOrCreate(
+                ['user_id' => $userId],
+                [
+                    'current_age' => $currentAge,
+                    'target_retirement_age' => $data['target_retirement_age'],
+                ]
+            );
+        }
+
+        // If user is retired, calculate their retirement age from retirement date
+        if ($data['employment_status'] === 'retired' && isset($data['retirement_date']) && $user->date_of_birth) {
+            $birthDate = \Carbon\Carbon::parse($user->date_of_birth);
+            $retirementDate = \Carbon\Carbon::parse($data['retirement_date']);
+            $retirementAge = $retirementDate->diffInYears($birthDate);
+            $currentAge = \Carbon\Carbon::now()->diffInYears($birthDate);
+
+            \App\Models\RetirementProfile::updateOrCreate(
+                ['user_id' => $userId],
+                [
+                    'current_age' => $currentAge,
+                    'target_retirement_age' => $retirementAge,
+                ]
+            );
+        }
     }
 
     /**

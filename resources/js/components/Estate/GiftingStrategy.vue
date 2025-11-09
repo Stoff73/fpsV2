@@ -2,14 +2,14 @@
   <div class="gifting-strategy-tab">
     <!-- Personalized Asset-Based Gifting Strategy Section -->
     <div v-if="personalizedStrategy" class="mb-8 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg p-6 border border-emerald-200">
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-centre justify-between mb-4">
         <h2 class="text-2xl font-bold text-gray-900">Your Personalized Gifting Strategy</h2>
         <button
           @click="refreshPersonalizedStrategy"
-          class="text-sm text-emerald-600 hover:text-emerald-800 flex items-center"
+          class="text-sm text-emerald-600 hover:text-emerald-800 flex items-centre"
           :disabled="loadingPersonalizedStrategy"
         >
-          <svg v-if="!loadingPersonalizedStrategy" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg v-if="!loadingPersonalizedStrategy" class="w-4 h-4 mr-1" fill="none" stroke="currentColour" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           <div v-else class="animate-spin h-4 w-4 mr-1 border-2 border-emerald-600 border-t-transparent rounded-full"></div>
@@ -56,7 +56,7 @@
           <!-- Strategy Header -->
           <div class="flex items-start justify-between mb-3">
             <div class="flex-1">
-              <div class="flex items-center gap-2 mb-1">
+              <div class="flex items-centre gap-2 mb-1">
                 <span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
                   Priority {{ strategy.priority }}
                 </span>
@@ -153,7 +153,7 @@
                 :key="stepIdx"
                 class="flex items-start text-sm text-gray-700"
               >
-                <svg class="w-4 h-4 mr-2 mt-0.5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 mr-2 mt-0.5 text-green-600 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span>{{ step }}</span>
@@ -170,7 +170,7 @@
                 :key="altIdx"
                 class="flex items-start text-sm text-gray-700"
               >
-                <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                 </svg>
                 <span>{{ alt }}</span>
@@ -182,14 +182,14 @@
           <div v-if="strategy.asset_details && strategy.asset_details.length > 0" class="border-t border-gray-200 pt-3 mt-3">
             <button
               @click="toggleAssetDetails(index)"
-              class="w-full flex items-center justify-between text-sm font-medium text-gray-900 hover:text-gray-700"
+              class="w-full flex items-centre justify-between text-sm font-medium text-gray-900 hover:text-gray-700"
             >
               <span>View Asset Details ({{ strategy.asset_details.length }} assets)</span>
               <svg
                 class="w-5 h-5 transition-transform"
                 :class="{ 'rotate-180': expandedAssetDetails[index] }"
                 fill="none"
-                stroke="currentColor"
+                stroke="currentColour"
                 viewBox="0 0 24 24"
               >
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -202,7 +202,7 @@
                 :key="assetIdx"
                 class="p-3 bg-gray-50 rounded border border-gray-200"
               >
-                <div class="flex items-center justify-between mb-2">
+                <div class="flex items-centre justify-between mb-2">
                   <p class="font-medium text-gray-900">{{ asset.name }}</p>
                   <p class="text-sm font-bold text-gray-900">{{ formatCurrency(asset.value) }}</p>
                 </div>
@@ -248,7 +248,7 @@
     <!-- Error/Info Messages for Personalized Strategy -->
     <div v-if="personalizedStrategyError && !personalizedStrategy" class="mb-6 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg">
       <div class="flex items-start">
-        <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
         </svg>
         <div>
@@ -298,7 +298,7 @@
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
       <div class="flex items-start">
         <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <svg class="h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColour">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
           </svg>
         </div>
@@ -326,13 +326,13 @@
     <div class="mb-6">
       <button
         @click="openCreateGiftForm"
-        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        class="inline-flex items-centre px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       >
         <svg
           class="-ml-1 mr-2 h-5 w-5"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
-          fill="currentColor"
+          fill="currentColour"
         >
           <path
             fill-rule="evenodd"
@@ -349,7 +349,7 @@
       <div class="px-6 py-4 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">Gifts Made</h3>
       </div>
-      <div v-if="gifts.length === 0" class="px-6 py-8 text-center text-gray-500">
+      <div v-if="gifts.length === 0" class="px-6 py-8 text-centre text-gray-500">
         No gifts recorded yet
       </div>
       <div v-else class="divide-y divide-gray-200">
@@ -358,20 +358,20 @@
           :key="gift.id"
           class="px-6 py-4 hover:bg-gray-50"
         >
-          <div class="flex items-center justify-between">
+          <div class="flex items-centre justify-between">
             <div class="flex-1">
-              <div class="flex items-center">
+              <div class="flex items-centre">
                 <p class="text-sm font-medium text-gray-900">{{ gift.recipient }}</p>
                 <span
                   :class="[
                     'ml-3 px-2 py-1 text-xs font-medium rounded-full',
-                    getGiftStatusColor(gift),
+                    getGiftStatusColour(gift),
                   ]"
                 >
                   {{ getGiftStatus(gift) }}
                 </span>
               </div>
-              <div class="mt-1 flex items-center text-sm text-gray-500">
+              <div class="mt-1 flex items-centre text-sm text-gray-500">
                 <span>{{ formatDate(gift.gift_date) }}</span>
                 <span class="mx-2">•</span>
                 <span>{{ formatCurrency(gift.gift_value) }}</span>
@@ -381,7 +381,7 @@
 
               <!-- Taper Relief Timeline (only for PETs within 7 years) -->
               <div v-if="shouldShowTaperRelief(gift)" class="mt-3">
-                <div class="flex items-center justify-between text-xs text-gray-600 mb-1">
+                <div class="flex items-centre justify-between text-xs text-gray-600 mb-1">
                   <span>Taper Relief Timeline</span>
                   <span class="font-medium">{{ getTaperReliefPercentage(gift) }}% IHT if death occurs now</span>
                 </div>
@@ -389,12 +389,12 @@
                   <!-- Progress bar showing years elapsed -->
                   <div
                     class="absolute inset-y-0 left-0 transition-all duration-300"
-                    :style="{ width: getTimelineProgress(gift) + '%', backgroundColor: getTimelineColor(gift) }"
+                    :style="{ width: getTimelineProgress(gift) + '%', backgroundColour: getTimelineColour(gift) }"
                   ></div>
 
                   <!-- Taper relief markers -->
                   <div class="absolute inset-0 flex">
-                    <div v-for="year in 7" :key="year" class="flex-1 border-r border-gray-300 last:border-r-0 flex items-center justify-center">
+                    <div v-for="year in 7" :key="year" class="flex-1 border-r border-gray-300 last:border-r-0 flex items-centre justify-centre">
                       <span class="text-xs font-medium" :class="getYearLabelClass(gift, year)">
                         {{ getTaperReliefAtYear(year) }}%
                       </span>
@@ -427,7 +427,7 @@
     </div>
 
     <!-- Gift Form Modal -->
-    <div v-if="showGiftForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
+    <div v-if="showGiftForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-centre justify-centre z-50 p-4">
       <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <GiftForm
           :gift="currentGift"
@@ -675,7 +675,7 @@ export default {
       return `${yearsRemaining} ${yearsRemaining === 1 ? 'year' : 'years'} remaining`;
     },
 
-    getGiftStatusColor(gift) {
+    getGiftStatusColour(gift) {
       const giftDate = new Date(gift.gift_date);
       const sevenYearsLater = new Date(giftDate);
       sevenYearsLater.setFullYear(sevenYearsLater.getFullYear() + 7);
@@ -749,7 +749,7 @@ export default {
       return Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
     },
 
-    getTimelineColor(gift) {
+    getTimelineColour(gift) {
       const percentage = this.getTaperReliefPercentage(gift);
 
       if (percentage >= 32) return '#f59e0b'; // Amber (high IHT rate)

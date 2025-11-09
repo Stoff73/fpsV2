@@ -7,7 +7,7 @@
       :series="series"
       height="300"
     />
-    <div v-if="!hasData" class="flex items-center justify-center h-64 text-gray-400">
+    <div v-if="!hasData" class="flex items-centre justify-centre h-64 text-gray-400">
       <p>No premium data available</p>
     </div>
   </div>
@@ -80,7 +80,7 @@ export default {
           'Disability',
           'Sickness/Illness',
         ],
-        colors: ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'],
+        colours: ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'],
         dataLabels: {
           enabled: true,
           formatter: (val, opts) => {
@@ -98,7 +98,7 @@ export default {
         },
         legend: {
           position: 'bottom',
-          horizontalAlign: 'center',
+          horizontalAlign: 'centre',
           fontSize: '14px',
           markers: {
             width: 12,

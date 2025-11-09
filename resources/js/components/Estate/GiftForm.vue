@@ -345,13 +345,13 @@ export default {
 .form-header h3 {
   font-size: 20px;
   font-weight: 600;
-  color: #1f2937;
+  colour: #1f2937;
   margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #6b7280;
+  colour: #6b7280;
   margin: 0;
 }
 
@@ -363,13 +363,13 @@ label {
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  colour: #374151;
   margin-bottom: 6px;
 }
 
 label.required::after {
   content: ' *';
-  color: #ef4444;
+  colour: #ef4444;
 }
 
 .form-control {
@@ -378,17 +378,17 @@ label.required::after {
   font-size: 14px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  transition: border-color 0.2s;
+  transition: border-colour 0.2s;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-colour: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .form-control.is-invalid {
-  border-color: #ef4444;
+  border-colour: #ef4444;
 }
 
 .form-control.is-invalid:focus {
@@ -404,7 +404,7 @@ label.required::after {
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6b7280;
+  colour: #6b7280;
   font-weight: 500;
   pointer-events: none;
 }
@@ -417,14 +417,14 @@ label.required::after {
   display: block;
   margin-top: 6px;
   font-size: 13px;
-  color: #ef4444;
+  colour: #ef4444;
 }
 
 .form-text {
   display: block;
   margin-top: 6px;
   font-size: 12px;
-  color: #6b7280;
+  colour: #6b7280;
   line-height: 1.4;
 }
 
@@ -440,17 +440,17 @@ textarea.form-control {
 .exemption-info {
   margin: 20px 0;
   padding: 16px;
-  background-color: #eff6ff;
+  background-colour: #eff6ff;
   border-left: 4px solid #3b82f6;
   border-radius: 4px;
 }
 
 .info-header {
   display: flex;
-  align-items: center;
+  align-items: centre;
   gap: 8px;
   font-weight: 600;
-  color: #1e40af;
+  colour: #1e40af;
   margin-bottom: 12px;
   font-size: 14px;
 }
@@ -463,7 +463,7 @@ textarea.form-control {
 
 .exemption-info li {
   font-size: 13px;
-  color: #1e3a8a;
+  colour: #1e3a8a;
   margin-bottom: 8px;
   line-height: 1.5;
   padding-left: 4px;
@@ -491,7 +491,7 @@ textarea.form-control {
   cursor: pointer;
   transition: all 0.2s;
   display: inline-flex;
-  align-items: center;
+  align-items: centre;
   gap: 8px;
 }
 
@@ -506,20 +506,20 @@ textarea.form-control {
 }
 
 .btn-primary {
-  background-color: #3b82f6;
-  color: white;
+  background-colour: #3b82f6;
+  colour: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-colour: #2563eb;
 }
 
 .btn-secondary {
-  background-color: #e5e7eb;
-  color: #374151;
+  background-colour: #e5e7eb;
+  colour: #374151;
 }
 
 .btn-secondary:hover {
-  background-color: #d1d5db;
+  background-colour: #d1d5db;
 }
 </style>

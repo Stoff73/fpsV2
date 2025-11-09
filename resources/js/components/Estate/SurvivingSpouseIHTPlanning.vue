@@ -3,7 +3,7 @@
     <!-- Info Banner -->
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
       <div class="flex items-start">
-        <svg class="h-5 w-5 text-blue-400 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="h-5 w-5 text-blue-400 mt-0.5 mr-3" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
         </svg>
         <div>
@@ -18,7 +18,7 @@
     <!-- Error Message -->
     <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
       <div class="flex items-start">
-        <svg class="h-5 w-5 text-red-400 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="h-5 w-5 text-red-400 mt-0.5 mr-3" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <p class="text-sm text-red-700">{{ error }}</p>
@@ -26,7 +26,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-12">
+    <div v-if="loading" class="text-centre py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <p class="mt-4 text-gray-600">Calculating surviving spouse IHT projection...</p>
     </div>
@@ -93,13 +93,13 @@
       <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Nil Rate Band (NRB) Transfer</h3>
         <div class="space-y-4">
-          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+          <div class="flex justify-between items-centre pb-3 border-b border-gray-200">
             <span class="text-sm text-gray-600">Your Own NRB</span>
             <span class="text-sm font-semibold text-gray-900">
               {{ formatCurrency(analysis.nrb_transfer_details.survivor_own_nrb) }}
             </span>
           </div>
-          <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+          <div class="flex justify-between items-centre pb-3 border-b border-gray-200">
             <span class="text-sm text-gray-600">
               Transferred from {{ analysis.deceased_spouse_name }}
               <span class="text-xs text-gray-500">({{ analysis.nrb_transfer_details.transferred_percentage.toFixed(0) }}% of spouse's NRB)</span>
@@ -108,7 +108,7 @@
               +{{ formatCurrency(analysis.nrb_transfer_details.transferred_nrb_from_deceased) }}
             </span>
           </div>
-          <div class="flex justify-between items-center pt-2">
+          <div class="flex justify-between items-centre pt-2">
             <span class="text-base font-medium text-gray-900">Total NRB Available</span>
             <span class="text-lg font-bold text-blue-600">
               {{ formatCurrency(analysis.nrb_transfer_details.survivor_total_nrb) }}
@@ -161,7 +161,7 @@
               <tr v-for="(asset, index) in analysis.asset_projections" :key="index">
                 <td class="px-4 py-3 text-sm text-gray-900">{{ asset.asset_name }}</td>
                 <td class="px-4 py-3 text-sm text-gray-600">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  <span class="inline-flex items-centre px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                     {{ asset.asset_type }}
                   </span>
                 </td>
@@ -179,39 +179,39 @@
       <div class="bg-white rounded-lg border border-gray-200 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">IHT Calculation Breakdown</h3>
         <div class="space-y-3">
-          <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+          <div class="flex justify-between items-centre pb-2 border-b border-gray-200">
             <span class="text-sm text-gray-600">Projected Gross Estate</span>
             <span class="text-sm font-semibold">{{ formatCurrency(analysis.iht_calculation.gross_estate_value) }}</span>
           </div>
-          <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+          <div class="flex justify-between items-centre pb-2 border-b border-gray-200">
             <span class="text-sm text-gray-600">Less: Liabilities</span>
             <span class="text-sm font-semibold text-red-600">-{{ formatCurrency(analysis.iht_calculation.liabilities) }}</span>
           </div>
-          <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+          <div class="flex justify-between items-centre pb-2 border-b border-gray-200">
             <span class="text-sm font-medium text-gray-900">Net Estate Value</span>
             <span class="text-sm font-bold">{{ formatCurrency(analysis.iht_calculation.net_estate_value) }}</span>
           </div>
-          <div v-if="analysis.iht_calculation.spouse_exemption_applies" class="flex justify-between items-center pb-2 border-b border-gray-200">
+          <div v-if="analysis.iht_calculation.spouse_exemption_applies" class="flex justify-between items-centre pb-2 border-b border-gray-200">
             <span class="text-sm text-gray-600">Less: Spouse Exemption</span>
             <span class="text-sm font-semibold text-green-600">-{{ formatCurrency(analysis.iht_calculation.spouse_exemption) }}</span>
           </div>
-          <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+          <div class="flex justify-between items-centre pb-2 border-b border-gray-200">
             <span class="text-sm text-gray-600">Nil Rate Band (NRB)</span>
             <span class="text-sm font-semibold text-green-600">-{{ formatCurrency(analysis.iht_calculation.nrb_available_for_estate) }}</span>
           </div>
-          <div v-if="analysis.iht_calculation.rnrb_eligible" class="flex justify-between items-center pb-2 border-b border-gray-200">
+          <div v-if="analysis.iht_calculation.rnrb_eligible" class="flex justify-between items-centre pb-2 border-b border-gray-200">
             <span class="text-sm text-gray-600">Residence NRB (RNRB)</span>
             <span class="text-sm font-semibold text-green-600">-{{ formatCurrency(analysis.iht_calculation.rnrb) }}</span>
           </div>
-          <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+          <div class="flex justify-between items-centre pb-2 border-b border-gray-200">
             <span class="text-sm font-medium text-gray-900">Taxable Estate</span>
             <span class="text-sm font-bold">{{ formatCurrency(analysis.iht_calculation.taxable_estate) }}</span>
           </div>
-          <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+          <div class="flex justify-between items-centre pb-2 border-b border-gray-200">
             <span class="text-sm text-gray-600">IHT Rate</span>
             <span class="text-sm font-semibold">{{ (analysis.iht_calculation.iht_rate * 100).toFixed(0) }}%</span>
           </div>
-          <div class="flex justify-between items-center pt-2">
+          <div class="flex justify-between items-centre pt-2">
             <span class="text-base font-bold text-gray-900">Total IHT Liability</span>
             <span class="text-xl font-bold text-red-600">{{ formatCurrency(analysis.iht_calculation.iht_liability) }}</span>
           </div>
@@ -230,8 +230,8 @@
     </div>
 
     <!-- No Spouse Message -->
-    <div v-else-if="!loading && !analysis" class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-      <svg class="mx-auto h-12 w-12 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div v-else-if="!loading && !analysis" class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-centre">
+      <svg class="mx-auto h-12 w-12 text-yellow-400" fill="none" stroke="currentColour" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
       <h3 class="mt-2 text-sm font-medium text-yellow-800">Surviving Spouse IHT Planning Not Available</h3>

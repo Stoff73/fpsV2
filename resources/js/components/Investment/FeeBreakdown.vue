@@ -1,14 +1,14 @@
 <template>
   <div class="fee-breakdown">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-12">
+    <div v-if="loading" class="flex justify-centre items-centre py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-center">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <div class="flex items-centre">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -78,7 +78,7 @@
           <!-- Fee Type Details -->
           <div class="space-y-3">
             <div class="border border-gray-200 rounded-lg p-4">
-              <div class="flex justify-between items-center mb-2">
+              <div class="flex justify-between items-centre mb-2">
                 <span class="text-sm font-medium text-gray-700">Fund OCF (Ongoing Charges)</span>
                 <span class="text-xl font-bold text-gray-800">
                   £{{ formatNumber(feeData.breakdown.fund_ocf || 0) }}
@@ -96,7 +96,7 @@
             </div>
 
             <div class="border border-gray-200 rounded-lg p-4">
-              <div class="flex justify-between items-center mb-2">
+              <div class="flex justify-between items-centre mb-2">
                 <span class="text-sm font-medium text-gray-700">Platform Fees</span>
                 <span class="text-xl font-bold text-gray-800">
                   £{{ formatNumber(feeData.breakdown.platform_fees || 0) }}
@@ -114,7 +114,7 @@
             </div>
 
             <div class="border border-gray-200 rounded-lg p-4">
-              <div class="flex justify-between items-center mb-2">
+              <div class="flex justify-between items-centre mb-2">
                 <span class="text-sm font-medium text-gray-700">Trading Costs</span>
                 <span class="text-xl font-bold text-gray-800">
                   £{{ formatNumber(feeData.breakdown.trading_costs || 0) }}
@@ -132,7 +132,7 @@
             </div>
 
             <div class="border border-gray-200 rounded-lg p-4">
-              <div class="flex justify-between items-center mb-2">
+              <div class="flex justify-between items-centre mb-2">
                 <span class="text-sm font-medium text-gray-700">Other Fees</span>
                 <span class="text-xl font-bold text-gray-800">
                   £{{ formatNumber(feeData.breakdown.other_fees || 0) }}
@@ -210,19 +210,19 @@
         />
 
         <div class="mt-6 grid grid-cols-3 gap-4">
-          <div class="text-center p-4 bg-red-50 rounded-lg border border-red-200">
+          <div class="text-centre p-4 bg-red-50 rounded-lg border border-red-200">
             <p class="text-xs text-gray-600 mb-1">10-Year Fee Impact</p>
             <p class="text-2xl font-bold text-red-600">
               £{{ formatNumber(feeData.long_term_impact?.ten_years || 0) }}
             </p>
           </div>
-          <div class="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
+          <div class="text-centre p-4 bg-orange-50 rounded-lg border border-orange-200">
             <p class="text-xs text-gray-600 mb-1">20-Year Fee Impact</p>
             <p class="text-2xl font-bold text-orange-600">
               £{{ formatNumber(feeData.long_term_impact?.twenty_years || 0) }}
             </p>
           </div>
-          <div class="text-center p-4 bg-red-50 rounded-lg border border-red-300">
+          <div class="text-centre p-4 bg-red-50 rounded-lg border border-red-300">
             <p class="text-xs text-gray-600 mb-1">30-Year Fee Impact</p>
             <p class="text-2xl font-bold text-red-700">
               £{{ formatNumber(feeData.long_term_impact?.thirty_years || 0) }}
@@ -289,7 +289,7 @@ export default {
           type: 'donut',
         },
         labels: ['Fund OCF', 'Platform Fees', 'Trading Costs', 'Other Fees'],
-        colors: ['#EF4444', '#F97316', '#FBBF24', '#9CA3AF'],
+        colours: ['#EF4444', '#F97316', '#FBBF24', '#9CA3AF'],
         legend: {
           position: 'bottom',
         },
@@ -342,7 +342,7 @@ export default {
             formatter: (val) => '£' + this.formatNumber(val),
           },
         },
-        colors: ['#10B981', '#EF4444'],
+        colours: ['#10B981', '#EF4444'],
         fill: {
           type: 'gradient',
           gradient: {
@@ -383,7 +383,7 @@ export default {
       this.error = null;
 
       try {
-        const response = await api.get('/investment/fee-impact/analyze');
+        const response = await api.get('/investment/fee-impact/analyse');
         this.feeData = response.data.data;
       } catch (err) {
         console.error('Error loading fee data:', err);

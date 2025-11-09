@@ -139,7 +139,7 @@ export default {
           width: [3, 2],
           dashArray: [0, 5],
         },
-        colors: ['#3b82f6', '#9ca3af'], // Blue for growth, Gray for contributions only
+        colours: ['#3b82f6', '#9ca3af'], // Blue for growth, Gray for contributions only
         xaxis: {
           categories: this.ages,
           title: {
@@ -185,7 +185,7 @@ export default {
         },
         legend: {
           position: 'top',
-          horizontalAlign: 'center',
+          horizontalAlign: 'centre',
           fontFamily: 'Inter, sans-serif',
           fontSize: '14px',
           markers: {
@@ -195,13 +195,13 @@ export default {
           },
         },
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
           strokeDashArray: 4,
         },
         markers: {
           size: [4, 0],
-          colors: ['#3b82f6'],
-          strokeColors: '#fff',
+          colours: ['#3b82f6'],
+          strokeColours: '#fff',
           strokeWidth: 2,
           hover: {
             size: 6,

@@ -4,7 +4,7 @@
     <div v-if="error && !ihtData" class="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
       <div class="flex items-start">
         <div class="flex-shrink-0">
-          <svg class="h-6 w-6 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-6 w-6 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColour">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
@@ -17,7 +17,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-8">
+    <div v-if="loading" class="text-centre py-8">
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       <p class="mt-2 text-gray-600">Calculating IHT liability...</p>
     </div>
@@ -43,7 +43,7 @@
     <div v-if="ihtData?.spouse_exemption_applies && ihtData?.spouse_exemption > 0 && !isMarried" class="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColour">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
           </svg>
         </div>
@@ -282,27 +282,27 @@
       <div v-else class="space-y-3 mb-6">
         <h4 class="text-sm font-semibold text-gray-700 mb-3">Estate Calculation</h4>
 
-        <div class="flex justify-between items-center py-2 border-b border-gray-200">
+        <div class="flex justify-between items-centre py-2 border-b border-gray-200">
           <span class="text-sm text-gray-600">Total Estate Value</span>
           <span class="text-sm font-medium text-gray-900">{{ formatCurrency(ihtData?.gross_estate_value || 0) }}</span>
         </div>
 
-        <div v-if="ihtData?.liabilities > 0" class="flex justify-between items-center py-2 border-b border-gray-200">
+        <div v-if="ihtData?.liabilities > 0" class="flex justify-between items-centre py-2 border-b border-gray-200">
           <span class="text-sm text-gray-600">Less: Liabilities</span>
           <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData?.liabilities || 0) }}</span>
         </div>
 
-        <div class="flex justify-between items-center py-2 border-b border-gray-200 bg-purple-50">
+        <div class="flex justify-between items-centre py-2 border-b border-gray-200 bg-purple-50">
           <span class="text-sm font-semibold text-purple-800">Gross Estate</span>
           <span class="text-sm font-bold text-purple-800">{{ formatCurrency(ihtData?.net_estate_value || 0) }}</span>
         </div>
 
-        <div class="flex justify-between items-center py-2 border-b border-gray-200">
+        <div class="flex justify-between items-centre py-2 border-b border-gray-200">
           <span class="text-sm text-gray-600">Less: NRB (Individual)</span>
           <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData?.nrb || 325000) }}</span>
         </div>
 
-        <div v-if="ihtData?.nrb_from_spouse > 0" class="flex justify-between items-center py-2 border-b border-gray-200">
+        <div v-if="ihtData?.nrb_from_spouse > 0" class="flex justify-between items-centre py-2 border-b border-gray-200">
           <span class="text-sm text-gray-600">
             Less: NRB from Spouse
             <span v-if="!hasSpouseLinked" class="ml-2 text-xs text-amber-600">(Default - verify by linking spouse)</span>
@@ -310,12 +310,12 @@
           <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData.nrb_from_spouse) }}</span>
         </div>
 
-        <div v-if="ihtData?.rnrb_eligible && ihtData?.rnrb_individual > 0" class="flex justify-between items-center py-2 border-b border-gray-200">
+        <div v-if="ihtData?.rnrb_eligible && ihtData?.rnrb_individual > 0" class="flex justify-between items-centre py-2 border-b border-gray-200">
           <span class="text-sm text-gray-600">Less: RNRB (Individual)</span>
           <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData?.rnrb_individual || 0) }}</span>
         </div>
 
-        <div v-if="ihtData?.rnrb_eligible && ihtData?.rnrb_from_spouse > 0" class="flex justify-between items-center py-2 border-b border-gray-200">
+        <div v-if="ihtData?.rnrb_eligible && ihtData?.rnrb_from_spouse > 0" class="flex justify-between items-centre py-2 border-b border-gray-200">
           <span class="text-sm text-gray-600">
             Less: RNRB from Spouse
             <span v-if="!hasSpouseLinked" class="ml-2 text-xs text-amber-600">(Default - verify by linking spouse)</span>
@@ -323,12 +323,12 @@
           <span class="text-sm font-medium text-gray-900">-{{ formatCurrency(ihtData?.rnrb_from_spouse || 0) }}</span>
         </div>
 
-        <div class="flex justify-between items-center py-3 bg-gray-50 rounded">
+        <div class="flex justify-between items-centre py-3 bg-gray-50 rounded">
           <span class="text-base font-semibold text-gray-900">Taxable Estate</span>
           <span class="text-base font-bold text-gray-900">{{ formatCurrency(ihtData?.taxable_estate || 0) }}</span>
         </div>
 
-        <div class="flex justify-between items-center py-3 bg-red-50 rounded">
+        <div class="flex justify-between items-centre py-3 bg-red-50 rounded">
           <span class="text-base font-semibold text-red-800">IHT Liability ({{ formatPercent(ihtData?.iht_rate || 0.4) }})</span>
           <span class="text-base font-bold text-red-800">{{ formatCurrency(ihtData?.estate_iht_liability || 0) }}</span>
         </div>
@@ -342,7 +342,7 @@
         <div v-if="hasPETGifts" class="mb-4">
           <p class="text-xs font-medium text-gray-600 mb-2">Potentially Exempt Transfers (PETs)</p>
           <div v-for="gift in petGifts" :key="gift.gift_id" class="mb-3 pl-4 py-2 border-l-2 border-amber-400 bg-amber-50">
-            <div class="flex justify-between items-center mb-1">
+            <div class="flex justify-between items-centre mb-1">
               <div class="flex-1">
                 <span class="text-sm font-medium text-gray-800">{{ gift.recipient }}</span>
                 <span class="ml-2 text-xs text-gray-500">({{ formatDate(gift.gift_date) }})</span>
@@ -373,7 +373,7 @@
         <!-- CLT Gifts -->
         <div v-if="hasCLTGifts" class="mb-4">
           <p class="text-xs font-medium text-gray-600 mb-2">Chargeable Lifetime Transfers (CLTs)</p>
-          <div v-for="clt in cltGifts" :key="clt.gift_id" class="flex justify-between items-center py-2 pl-4 border-l-2 border-blue-400">
+          <div v-for="clt in cltGifts" :key="clt.gift_id" class="flex justify-between items-centre py-2 pl-4 border-l-2 border-blue-400">
             <div class="flex-1">
               <span class="text-sm text-gray-700">{{ clt.recipient }} ({{ formatDate(clt.gift_date) }})</span>
               <span class="ml-2 text-xs text-gray-500">{{ clt.years_ago }} years ago</span>
@@ -382,7 +382,7 @@
           </div>
         </div>
 
-        <div class="flex justify-between items-center py-3 bg-amber-50 rounded">
+        <div class="flex justify-between items-centre py-3 bg-amber-50 rounded">
           <span class="text-base font-semibold text-amber-800">Total Gift IHT Liability</span>
           <span class="text-base font-bold text-amber-800">{{ formatCurrency(ihtData?.gift_iht_liability || 0) }}</span>
         </div>
@@ -414,7 +414,7 @@
             class="h-5 w-5 text-red-400"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColor"
+            fill="currentColour"
           >
             <path
               fill-rule="evenodd"
@@ -448,7 +448,7 @@
             class="h-5 w-5 text-green-400"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColor"
+            fill="currentColour"
           >
             <path
               fill-rule="evenodd"
@@ -664,7 +664,7 @@ export default {
 
       try {
         if (this.isMarried) {
-          // Call second death endpoint for married users
+          // Married users: Call second death endpoint (backend handles missing spouse data gracefully)
           const response = await this.calculateSecondDeathIHTPlanning();
 
           if (response.success) {
@@ -676,19 +676,16 @@ export default {
               this.projection = response.projection;
             }
 
-            // Handle cases where spouse not linked - use returned calculation data
-            if (response.requires_spouse_link && response.user_iht_calculation) {
+            // Handle cases where spouse not linked or missing data - use returned calculation data
+            if (response.user_iht_calculation) {
               this.ihtData = response.user_iht_calculation;
-              this.error = null; // Clear any errors
             }
-          } else {
-            console.error('❌ Response success = false', response);
           }
         } else {
-          // Standard IHT calculation for non-married users
+          // Non-married users: Standard IHT calculation
           const response = await this.calculateIHT();
           this.ihtData = response.data;
-          this.projection = response.projection; // Set projection data
+          this.projection = response.projection;
         }
       } catch (error) {
         console.error('❌ Failed to load IHT calculation:', error);

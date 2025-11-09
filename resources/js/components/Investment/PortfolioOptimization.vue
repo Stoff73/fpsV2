@@ -4,7 +4,7 @@
     <div class="mb-6">
       <h2 class="text-2xl font-bold text-gray-900 mb-2">Portfolio Optimization</h2>
       <p class="text-gray-600">
-        Optimize your portfolio using Modern Portfolio Theory. Analyze efficient frontier, find optimal allocations, and understand asset correlations.
+        Optimise your portfolio using Modern Portfolio Theory. Analyse efficient frontier, find optimal allocations, and understand asset correlations.
       </p>
     </div>
 
@@ -19,7 +19,7 @@
             activeSection === section.id
               ? 'border-blue-500 text-blue-600'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-            'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors duration-200',
+            'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colours duration-200',
           ]"
         >
           {{ section.label }}
@@ -32,13 +32,13 @@
       <!-- Efficient Frontier Section -->
       <div v-if="activeSection === 'frontier'">
         <EfficientFrontier
-          @view-optimizer="activeSection = 'optimizer'"
+          @view-optimiser="activeSection = 'optimiser'"
           @view-correlation="activeSection = 'correlation'"
         />
       </div>
 
-      <!-- Portfolio Optimizer Section -->
-      <div v-else-if="activeSection === 'optimizer'">
+      <!-- Portfolio Optimiser Section -->
+      <div v-else-if="activeSection === 'optimiser'">
         <PortfolioOptimizer
           @view-frontier="activeSection = 'frontier'"
           @apply-allocation="handleApplyAllocation"
@@ -54,20 +54,20 @@
     <!-- Apply Allocation Confirmation Modal -->
     <div
       v-if="showApplyModal"
-      class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50"
+      class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-centre justify-centre p-4 z-50"
       @click.self="closeApplyModal"
     >
       <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
         <div class="mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">Apply Optimized Allocation</h3>
+          <h3 class="text-lg font-semibold text-gray-900">Apply Optimised Allocation</h3>
           <p class="text-sm text-gray-600 mt-2">
-            This will create a rebalancing plan based on the optimized portfolio allocation.
+            This will create a rebalancing plan based on the optimised portfolio allocation.
           </p>
         </div>
 
         <!-- Allocation Summary -->
         <div v-if="pendingAllocation" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-          <h4 class="text-sm font-semibold text-blue-900 mb-3">Optimized Portfolio</h4>
+          <h4 class="text-sm font-semibold text-blue-900 mb-3">Optimised Portfolio</h4>
           <div class="grid grid-cols-2 gap-3 text-sm">
             <div>
               <span class="text-blue-700">Expected Return:</span>
@@ -99,7 +99,7 @@
         <!-- Warning -->
         <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
           <div class="flex">
-            <svg class="h-5 w-5 text-amber-600 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="h-5 w-5 text-amber-600 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColour">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <div class="text-sm">
@@ -135,9 +135,9 @@
     <!-- Success Notification -->
     <div
       v-if="showSuccessNotification"
-      class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 z-50"
+      class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-centre space-x-3 z-50"
     >
-      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColour">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
       </svg>
       <span class="text-sm font-medium">Rebalancing plan created successfully!</span>
@@ -168,7 +168,7 @@ export default {
 
       sections: [
         { id: 'frontier', label: 'Efficient Frontier' },
-        { id: 'optimizer', label: 'Portfolio Optimizer' },
+        { id: 'optimiser', label: 'Portfolio Optimiser' },
         { id: 'correlation', label: 'Correlation Analysis' },
       ],
     };

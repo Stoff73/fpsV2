@@ -1,14 +1,14 @@
 <template>
   <div class="bg-white shadow-lg rounded-lg p-6 cursor-pointer hover:shadow-xl transition-shadow duration-300" @click="navigateToDashboard">
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-centre justify-between mb-4">
       <h2 class="text-xl font-semibold text-gray-800">Retirement Planning</h2>
-      <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
     </div>
 
     <!-- Total Pension Value (Primary Metric) -->
-    <div class="text-center mb-6 py-4 bg-indigo-50 rounded-lg">
+    <div class="text-centre mb-6 py-4 bg-indigo-50 rounded-lg">
       <div class="text-sm text-gray-600 mb-1">Total Pension Value</div>
       <div class="text-3xl font-bold text-indigo-600">£{{ totalPensionValue.toLocaleString() }}</div>
     </div>
@@ -16,13 +16,13 @@
     <!-- Key Metrics -->
     <div class="space-y-3">
       <!-- Years to Retirement -->
-      <div class="flex items-center justify-between">
+      <div class="flex items-centre justify-between">
         <span class="text-sm text-gray-600">Years to Retirement</span>
         <span class="text-sm font-semibold text-gray-900">{{ yearsToRetirement }} years</span>
       </div>
 
       <!-- Projected Income -->
-      <div class="flex items-center justify-between">
+      <div class="flex items-centre justify-between">
         <span class="text-sm text-gray-600">Projected Income</span>
         <span class="text-sm font-semibold text-gray-900">£{{ projectedIncome.toLocaleString() }}/year</span>
       </div>
@@ -30,9 +30,9 @@
 
     <!-- View Details Link -->
     <div class="mt-6 pt-4 border-t border-gray-200">
-      <span class="text-sm text-indigo-600 font-medium flex items-center">
+      <span class="text-sm text-indigo-600 font-medium flex items-centre">
         View Full Analysis
-        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColour" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>
       </span>

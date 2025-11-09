@@ -23,7 +23,7 @@ export default {
   },
 
   computed: {
-    scoreColor() {
+    scoreColour() {
       if (this.score >= 80) return '#10B981'; // green
       if (this.score >= 60) return '#F59E0B'; // amber
       return '#EF4444'; // red
@@ -62,14 +62,14 @@ export default {
               name: {
                 offsetY: -10,
                 show: true,
-                color: '#6B7280',
+                colour: '#6B7280',
                 fontSize: '14px',
               },
               value: {
                 formatter: (val) => {
                   return parseInt(val) + '%';
                 },
-                color: '#111827',
+                colour: '#111827',
                 fontSize: '36px',
                 fontWeight: 700,
                 show: true,
@@ -80,7 +80,7 @@ export default {
         },
         fill: {
           type: 'solid',
-          colors: [this.scoreColor],
+          colours: [this.scoreColour],
         },
         stroke: {
           lineCap: 'round',

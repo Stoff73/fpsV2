@@ -1,15 +1,15 @@
 <template>
-  <div class="portfolio-optimizer">
-    <div class="flex justify-between items-center mb-6">
+  <div class="portfolio-optimiser">
+    <div class="flex justify-between items-centre mb-6">
       <div>
-        <h3 class="text-lg font-semibold text-gray-900">Portfolio Optimizer</h3>
+        <h3 class="text-lg font-semibold text-gray-900">Portfolio Optimiser</h3>
         <p class="text-sm text-gray-600 mt-1">
           Find optimal asset allocation based on your preferences
         </p>
       </div>
       <button
         v-if="optimizationResult"
-        @click="resetOptimizer"
+        @click="resetOptimiser"
         class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
       >
         New Optimization
@@ -38,7 +38,7 @@
             <div class="flex items-start">
               <div class="flex-shrink-0">
                 <div :class="[
-                  'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                  'w-5 h-5 rounded-full border-2 flex items-centre justify-centre',
                   selectedStrategy === strategy.value
                     ? 'border-blue-600 bg-blue-600'
                     : 'border-gray-300'
@@ -60,7 +60,7 @@
         <label class="block text-sm font-medium text-gray-900 mb-2">
           Target Return
         </label>
-        <div class="flex items-center gap-4">
+        <div class="flex items-centre gap-4">
           <input
             v-model.number="targetReturn"
             type="number"
@@ -89,7 +89,7 @@
             <label class="block text-xs font-medium text-gray-700 mb-2">
               Minimum Weight per Asset
             </label>
-            <div class="flex items-center gap-2">
+            <div class="flex items-centre gap-2">
               <input
                 v-model.number="constraints.minWeight"
                 type="number"
@@ -110,7 +110,7 @@
             <label class="block text-xs font-medium text-gray-700 mb-2">
               Maximum Weight per Asset
             </label>
-            <div class="flex items-center gap-2">
+            <div class="flex items-centre gap-2">
               <input
                 v-model.number="constraints.maxWeight"
                 type="number"
@@ -132,21 +132,21 @@
         </p>
       </div>
 
-      <!-- Optimize Button -->
+      <!-- Optimise Button -->
       <div class="flex justify-end">
         <button
           @click="runOptimization"
           :disabled="loading || !isFormValid"
           class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {{ loading ? 'Optimizing...' : 'Run Optimization' }}
+          {{ loading ? 'Optimising...' : 'Run Optimization' }}
         </button>
       </div>
 
       <!-- Error Display -->
       <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4">
         <div class="flex">
-          <svg class="h-5 w-5 text-red-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-5 w-5 text-red-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColour">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
@@ -247,7 +247,7 @@
       </div>
 
       <!-- Actions -->
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-centre">
         <button
           @click="$emit('view-frontier')"
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
@@ -270,7 +270,7 @@ import VueApexCharts from 'vue3-apexcharts';
 import portfolioOptimizationService from '@/services/portfolioOptimizationService';
 
 export default {
-  name: 'PortfolioOptimizer',
+  name: 'PortfolioOptimiser',
 
   components: {
     apexchart: VueApexCharts,
@@ -339,7 +339,7 @@ export default {
           type: 'donut',
         },
         labels: labels,
-        colors: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6B7280', '#14B8A6'],
+        colours: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6B7280', '#14B8A6'],
         legend: {
           position: 'bottom',
         },
@@ -389,7 +389,7 @@ export default {
           params.target_return = this.targetReturn;
         }
 
-        const response = await portfolioOptimizationService.optimize(params);
+        const response = await portfolioOptimizationService.optimise(params);
 
         if (response.success) {
           this.optimizationResult = response.data;
@@ -407,7 +407,7 @@ export default {
       }
     },
 
-    resetOptimizer() {
+    resetOptimiser() {
       this.optimizationResult = null;
       this.allocationChartReady = false;
       this.error = null;

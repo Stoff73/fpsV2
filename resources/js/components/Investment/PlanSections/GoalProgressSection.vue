@@ -2,7 +2,7 @@
   <div class="goal-progress-section">
     <h4 class="text-md font-semibold text-gray-800 mb-4">Investment Goal Progress</h4>
 
-    <div v-if="!data || !data.goals || data.goals.length === 0" class="text-center py-8 text-gray-500">
+    <div v-if="!data || !data.goals || data.goals.length === 0" class="text-centre py-8 text-gray-500">
       <p>No investment goals configured</p>
     </div>
 
@@ -37,7 +37,7 @@
               :style="{ width: Math.min(goal.progress_percentage, 100) + '%' }"
             ></div>
           </div>
-          <div class="flex justify-between items-center mt-2">
+          <div class="flex justify-between items-centre mt-2">
             <span class="text-xs text-gray-600">
               {{ formatPercentage(goal.progress_percentage) }}% complete
             </span>
