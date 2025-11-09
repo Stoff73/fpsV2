@@ -40,15 +40,68 @@
             </svg>
             Admin
           </router-link>
-          <router-link
-            to="/profile"
-            class="inline-flex items-centre px-3 py-2 border border-transparent text-body-sm font-medium rounded-button text-gray-700 bg-gray-100 hover:bg-gray-200"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            {{ userName }}
-          </router-link>
+
+          <!-- User Dropdown Menu -->
+          <div class="relative" @mouseenter="userDropdownOpen = true" @mouseleave="userDropdownOpen = false">
+            <button
+              type="button"
+              class="inline-flex items-centre px-3 py-2 border border-transparent text-body-sm font-medium rounded-button text-gray-700 bg-gray-100 hover:bg-gray-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              {{ userName }}
+              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="transform opacity-0 scale-95"
+              enter-to-class="transform opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="transform opacity-100 scale-100"
+              leave-to-class="transform opacity-0 scale-95"
+            >
+              <div
+                v-if="userDropdownOpen"
+                class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+              >
+                <div class="py-1">
+                  <router-link
+                    to="/profile"
+                    class="flex items-centre px-4 py-2 text-body-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    User Profile
+                  </router-link>
+                  <router-link
+                    to="/settings"
+                    class="flex items-centre px-4 py-2 text-body-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Settings
+                  </router-link>
+                  <button
+                    @click="handleLogout"
+                    class="flex items-centre w-full text-left px-4 py-2 text-body-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </transition>
+          </div>
         </div>
 
         <div class="flex items-centre sm:hidden">
@@ -100,19 +153,34 @@
         >
           Admin Panel
         </router-link>
-        <router-link
-          to="/settings"
-          class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-          :class="isActive('/settings') ? 'bg-primary-50 border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'"
-        >
-          Settings
-        </router-link>
       </div>
       <div class="pt-4 pb-3 border-t border-gray-200">
-        <div class="flex items-centre px-4">
+        <div class="flex items-centre px-4 mb-3">
           <div class="flex-shrink-0">
-            <span class="text-body text-gray-900">{{ userName }}</span>
+            <span class="text-body font-medium text-gray-900">{{ userName }}</span>
           </div>
+        </div>
+        <div class="space-y-1">
+          <router-link
+            to="/profile"
+            class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            :class="isActive('/profile') ? 'bg-primary-50 border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'"
+          >
+            User Profile
+          </router-link>
+          <router-link
+            to="/settings"
+            class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+            :class="isActive('/settings') ? 'bg-primary-50 border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'"
+          >
+            Settings
+          </router-link>
+          <button
+            @click="handleLogout"
+            class="w-full text-left block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </div>
@@ -122,7 +190,7 @@
 <script>
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 export default {
   name: 'Navbar',
@@ -130,8 +198,10 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
+    const router = useRouter();
 
     const mobileMenuOpen = ref(false);
+    const userDropdownOpen = ref(false);
 
     const userName = computed(() => {
       const user = store.getters['auth/currentUser'];
@@ -151,12 +221,23 @@ export default {
       return route.path === path;
     };
 
+    const handleLogout = async () => {
+      try {
+        await store.dispatch('auth/logout');
+        router.push('/login');
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    };
+
     return {
       mobileMenuOpen,
+      userDropdownOpen,
       userName,
       isAdmin,
       onboardingCompleted,
       isActive,
+      handleLogout,
     };
   },
 };
