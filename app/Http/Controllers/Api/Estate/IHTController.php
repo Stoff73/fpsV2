@@ -478,20 +478,54 @@ class IHTController extends Controller
                     $missingData = ['spouse_data' => $missingSpouseFields];
                 }
 
-                // Create basic second_death_analysis structure for compatibility with LifePolicyController
+                // Create complete second_death_analysis structure for compatibility with LifePolicyController
                 // Uses user's own data since spouse data not available
-                $lifeExpectancy = $user->date_of_birth ? $this->fvCalculator->getLifeExpectancy($user) : ['years_remaining' => 25];
+                $lifeExpectancy = $user->date_of_birth ? $this->fvCalculator->getLifeExpectancy($user) : ['years_remaining' => 25, 'death_age' => 80];
                 $yearsUntilDeath = (int) $lifeExpectancy['years_remaining'];
+                $estimatedAgeAtDeath = $lifeExpectancy['death_age'] ?? 80;
+
+                // Get current values from projection if available
+                $currentAssets = $projection ? $projection['current']['assets'] : $userAssets->sum('current_value');
+                $currentLiabilities = $projection ? ($projection['current']['mortgages'] + $projection['current']['liabilities']) : $userLiabilities;
+                $currentNetEstate = $projection ? $projection['current']['net_estate'] : ($currentAssets - $currentLiabilities);
+                $projectedNetEstate = $projection ? $projection['at_death']['net_estate'] : $currentNetEstate;
 
                 $secondDeathAnalysis = [
                     'success' => true,
                     'second_death' => [
                         'years_until_death' => $yearsUntilDeath,
+                        'estimated_age_at_death' => $estimatedAgeAtDeath,
                         'is_user' => true, // User dies second (no spouse data available)
+                        'name' => $user->first_name . ' ' . $user->last_name,
+                        'projected_combined_estate_at_second_death' => $projectedNetEstate,
+                    ],
+                    'first_death' => [
+                        'name' => 'Spouse', // Generic since spouse not linked
+                    ],
+                    'current_combined_totals' => [
+                        'gross_assets' => $currentAssets,
+                        'total_liabilities' => $currentLiabilities,
+                        'net_estate' => $currentNetEstate,
+                    ],
+                    'current_iht_calculation' => [
+                        'gross_estate_value' => $currentAssets,
+                        'liabilities' => $currentLiabilities,
+                        'net_estate_value' => $currentNetEstate,
+                        'total_nrb' => $ihtCalculation['total_nrb'] ?? $ihtConfig['nil_rate_band'],
+                        'rnrb' => $ihtCalculation['rnrb'] ?? 0,
+                        'rnrb_eligible' => $ihtCalculation['rnrb_eligible'] ?? false,
+                        'taxable_estate' => $ihtCalculation['taxable_estate'] ?? 0,
+                        'iht_liability' => $ihtCalculation['iht_liability'] ?? 0,
                     ],
                     'iht_calculation' => [
-                        'iht_liability' => $effectiveIHTLiability,
+                        'gross_estate_value' => $projection ? $projection['at_death']['assets'] : $currentAssets,
+                        'liabilities' => $projection ? ($projection['at_death']['mortgages'] + $projection['at_death']['liabilities']) : $currentLiabilities,
+                        'net_estate_value' => $projectedNetEstate,
+                        'total_nrb' => $ihtCalculation['total_nrb'] ?? $ihtConfig['nil_rate_band'],
+                        'rnrb' => $ihtCalculation['rnrb'] ?? 0,
+                        'rnrb_eligible' => $ihtCalculation['rnrb_eligible'] ?? false,
                         'taxable_estate' => $potentialTaxableEstate,
+                        'iht_liability' => $effectiveIHTLiability,
                     ],
                 ];
 
