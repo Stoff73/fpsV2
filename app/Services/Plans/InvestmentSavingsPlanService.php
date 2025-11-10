@@ -33,11 +33,13 @@ class InvestmentSavingsPlanService
         $savingsAnalysis = $this->savingsAgent->analyze($userId);
 
         // Get raw data
-        $investmentAccounts = InvestmentAccount::where('user_id', $userId)->get();
+        $investmentAccounts = InvestmentAccount::where('user_id', $userId)->with('holdings')->get();
 
-        // Get holdings through investment accounts (holdings don't have user_id)
+        // Get all holdings from investment accounts (using polymorphic relationship)
         $accountIds = $investmentAccounts->pluck('id');
-        $holdings = Holding::whereIn('investment_account_id', $accountIds)->get();
+        $holdings = Holding::where('holdable_type', InvestmentAccount::class)
+            ->whereIn('holdable_id', $accountIds)
+            ->get();
 
         $savingsAccounts = SavingsAccount::where('user_id', $userId)->get();
 
@@ -140,7 +142,8 @@ class InvestmentSavingsPlanService
     private function buildHoldingsOverview($holdings, $accounts): array
     {
         $accountsWithHoldings = $accounts->map(function ($account) use ($holdings) {
-            $accountHoldings = $holdings->where('investment_account_id', $account->id);
+            $accountHoldings = $holdings->where('holdable_type', InvestmentAccount::class)
+                ->where('holdable_id', $account->id);
 
             return [
                 'account_id' => $account->id,

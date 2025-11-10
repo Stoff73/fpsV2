@@ -60,4 +60,15 @@ class Holding extends Model
         return $this->belongsTo(InvestmentAccount::class, 'holdable_id')
             ->where('holdable_type', InvestmentAccount::class);
     }
+
+    /**
+     * Get investment account ID accessor (for backward compatibility)
+     * Returns holdable_id when holdable is an InvestmentAccount
+     */
+    public function getInvestmentAccountIdAttribute(): ?int
+    {
+        return $this->holdable_type === InvestmentAccount::class
+            ? $this->holdable_id
+            : null;
+    }
 }

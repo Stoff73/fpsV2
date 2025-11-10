@@ -411,7 +411,8 @@ class InvestmentController extends Controller
     private function adjustCashHolding(InvestmentAccount $account): void
     {
         // Find the cash holding for this account
-        $cashHolding = Holding::where('investment_account_id', $account->id)
+        $cashHolding = Holding::where('holdable_type', InvestmentAccount::class)
+            ->where('holdable_id', $account->id)
             ->where('asset_type', 'cash')
             ->first();
 
@@ -420,7 +421,8 @@ class InvestmentController extends Controller
         }
 
         // Calculate total allocation of non-cash holdings
-        $nonCashAllocation = Holding::where('investment_account_id', $account->id)
+        $nonCashAllocation = Holding::where('holdable_type', InvestmentAccount::class)
+            ->where('holdable_id', $account->id)
             ->where('asset_type', '!=', 'cash')
             ->sum('allocation_percent');
 
