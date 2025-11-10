@@ -145,7 +145,7 @@ export default {
         { id: 'current', label: 'Current Situation' },
         { id: 'emergency', label: 'Emergency Fund' },
         { id: 'goals', label: 'Savings Goals' },
-        { id: 'recommendations', label: 'Recommendations' },
+        { id: 'recommendations', label: 'Strategy' },
         { id: 'scenarios', label: 'What-If Scenarios' },
         { id: 'details', label: 'Account Details' },
       ],

@@ -157,9 +157,6 @@
 
           <!-- Recommendations Tab -->
           <Recommendations v-else-if="activeTab === 'recommendations'" />
-
-          <!-- What-If Scenarios Tab -->
-          <WhatIfScenarios v-else-if="activeTab === 'scenarios'" />
         </div>
       </div>
       </div>
@@ -176,7 +173,6 @@ import Holdings from '@/components/Investment/Holdings.vue';
 import Performance from '@/components/Investment/Performance.vue';
 import Goals from '@/components/Investment/Goals.vue';
 import Recommendations from '@/components/Investment/Recommendations.vue';
-import WhatIfScenarios from '@/components/Investment/WhatIfScenarios.vue';
 import TaxFees from '@/components/Investment/TaxFees.vue';
 import PortfolioOptimization from '@/components/Investment/PortfolioOptimization.vue';
 import RebalancingCalculator from '@/components/Investment/RebalancingCalculator.vue';
@@ -200,7 +196,6 @@ export default {
     Performance,
     Goals,
     Recommendations,
-    WhatIfScenarios,
     TaxFees,
     PortfolioOptimization,
     RebalancingCalculator,
@@ -230,7 +225,6 @@ export default {
         { id: 'taxefficiency', label: 'Tax Efficiency' },
         { id: 'fees', label: 'Fees' },
         { id: 'recommendations', label: 'Strategy' },
-        { id: 'scenarios', label: 'What-If Scenarios' },
       ],
     };
   },

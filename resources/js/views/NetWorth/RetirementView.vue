@@ -92,7 +92,7 @@ export default {
         },
         {
           id: 'recommendations',
-          name: 'Recommendations',
+          name: 'Strategies',
         },
       ],
     };
@@ -116,7 +116,7 @@ export default {
     async refreshData() {
       try {
         await this.$store.dispatch('retirement/fetchRetirementData');
-        await this.$store.dispatch('retirement/analyseRetirement');
+        await this.$store.dispatch('retirement/analyzeRetirement');
       } catch (error) {
         console.error('Failed to load retirement data:', error);
       }
@@ -127,7 +127,7 @@ export default {
     // Load retirement data if not already loaded
     try {
       await this.$store.dispatch('retirement/fetchRetirementData');
-      await this.$store.dispatch('retirement/analyseRetirement');
+      await this.$store.dispatch('retirement/analyzeRetirement');
     } catch (error) {
       console.error('Failed to load retirement data:', error);
     }
