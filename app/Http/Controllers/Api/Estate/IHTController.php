@@ -371,28 +371,34 @@ class IHTController extends Controller
                     $user
                 );
 
-                // Calculate effective IHT liability for display (potential second death liability)
+                // Calculate effective IHT liability for second death scenario (no spouse exemption)
                 $ihtConfig = $this->taxConfig->getInheritanceTax();
-                $totalNRB = $ihtCalculation['total_nrb'] ?? $ihtConfig['nil_rate_band'];
-                $rnrb = $ihtCalculation['rnrb'] ?? 0;
-                $totalAllowance = $totalNRB + $rnrb;
-                $taxableNetEstate = $ihtCalculation['taxable_net_estate'] ?? 0;
-                $potentialTaxableEstate = max(0, $taxableNetEstate - $totalAllowance);
-                $effectiveIHTLiability = $potentialTaxableEstate * 0.40;
 
-                // Generate basic mitigation strategies for married user without linked spouse
-                // Create default gifting strategy recommendations
-                $defaultGiftingStrategy = $this->strategyGenerator->generateDefaultGiftingStrategy($effectiveIHTLiability, $user);
+                // For married couples, assume full NRB transferability (£325k × 2 = £650k)
+                $totalNRB = $ihtConfig['nil_rate_band'] * 2; // £650,000 total NRB for married couple
 
-                $mitigationStrategies = $this->strategyGenerator->generateIHTMitigationStrategies(
-                    ['iht_calculation' => $ihtCalculation],
-                    $defaultGiftingStrategy, // Basic gifting recommendations
-                    null, // No life cover calculations yet (need spouse for actuarial data)
-                    $userProfile
-                );
+                // RNRB calculation (if home owned and left to descendants)
+                $rnrb = 0;
+                $rnrbEligible = false;
+                if ($ihtCalculation['rnrb_eligible'] ?? false) {
+                    // Full RNRB transferability (£175k × 2 = £350k)
+                    $rnrb = ($ihtConfig['rnrb'] ?? 175000) * 2;
+                    $rnrbEligible = true;
+                }
 
                 // Calculate estate projection (now vs death)
                 $projection = null;
+                $currentAssets = 0;
+                $currentMortgages = 0;
+                $currentLiabilities = 0;
+                $currentNetEstate = 0;
+                $currentTotalLiabilities = 0;
+                $currentTaxableEstate = 0;
+                $currentIHTLiability = 0;
+                $projectedNetEstate = 0;
+                $projectedTaxableEstate = 0;
+                $projectedIHTLiability = 0;
+
                 if ($user->date_of_birth) {
                     $lifeExpectancy = $this->fvCalculator->getLifeExpectancy($user);
                     $yearsToProject = (int) $lifeExpectancy['years_remaining'];
@@ -403,6 +409,14 @@ class IHTController extends Controller
                     $mortgages = Mortgage::where('user_id', $user->id)->get();
                     $currentMortgages = $mortgages->sum('outstanding_balance');
                     $currentLiabilities = $userLiabilities;
+                    $currentTotalLiabilities = $currentMortgages + $currentLiabilities;
+
+                    // Net estates
+                    $currentNetEstate = $currentAssets - $currentTotalLiabilities;
+
+                    // Current IHT calculation (second death scenario - no spouse exemption)
+                    $currentTaxableEstate = max(0, $currentNetEstate - $totalNRB - $rnrb);
+                    $currentIHTLiability = $currentTaxableEstate * 0.40;
 
                     // Project future values
                     $projectedAssets = $this->fvCalculator->calculateFutureValue($currentAssets, $growthRate, $yearsToProject);
@@ -422,19 +436,14 @@ class IHTController extends Controller
 
                     // Other liabilities stay constant
                     $projectedLiabilities = $currentLiabilities;
+                    $projectedTotalLiabilities = $projectedMortgages + $projectedLiabilities;
 
-                    // Net estates
-                    $currentNetEstate = $currentAssets - $currentMortgages - $currentLiabilities;
-                    $projectedNetEstate = $projectedAssets - $projectedMortgages - $projectedLiabilities;
+                    // Projected net estate
+                    $projectedNetEstate = $projectedAssets - $projectedTotalLiabilities;
 
-                    // IHT calculations
-                    $currentIHT = $ihtCalculation['iht_liability'] ?? 0;
-
-                    // Calculate projected IHT based on projected net estate
-                    $totalNRB = $ihtCalculation['total_nrb'] ?? $ihtConfig['nil_rate_band'];
-                    $rnrb = $ihtCalculation['rnrb'] ?? 0;
+                    // Projected IHT calculation (second death scenario - no spouse exemption)
                     $projectedTaxableEstate = max(0, $projectedNetEstate - $totalNRB - $rnrb);
-                    $projectedIHT = $projectedTaxableEstate * 0.40;
+                    $projectedIHTLiability = $projectedTaxableEstate * 0.40;
 
                     $projection = [
                         'life_expectancy' => $lifeExpectancy,
@@ -444,17 +453,30 @@ class IHTController extends Controller
                             'mortgages' => $currentMortgages,
                             'liabilities' => $currentLiabilities,
                             'net_estate' => $currentNetEstate,
-                            'iht_liability' => $currentIHT,
+                            'iht_liability' => $currentIHTLiability,
                         ],
                         'at_death' => [
                             'assets' => $projectedAssets,
                             'mortgages' => $projectedMortgages,
                             'liabilities' => $projectedLiabilities,
                             'net_estate' => $projectedNetEstate,
-                            'iht_liability' => $projectedIHT,
+                            'iht_liability' => $projectedIHTLiability,
                             'years_from_now' => $yearsToProject,
                         ],
                     ];
+                } else {
+                    // No DOB - use current values only
+                    $currentAssets = $userAssets->sum('current_value');
+                    $mortgages = Mortgage::where('user_id', $user->id)->get();
+                    $currentMortgages = $mortgages->sum('outstanding_balance');
+                    $currentLiabilities = $userLiabilities;
+                    $currentTotalLiabilities = $currentMortgages + $currentLiabilities;
+                    $currentNetEstate = $currentAssets - $currentTotalLiabilities;
+                    $currentTaxableEstate = max(0, $currentNetEstate - $totalNRB - $rnrb);
+                    $currentIHTLiability = $currentTaxableEstate * 0.40;
+                    $projectedNetEstate = $currentNetEstate;
+                    $projectedTaxableEstate = $currentTaxableEstate;
+                    $projectedIHTLiability = $currentIHTLiability;
                 }
 
                 // Determine appropriate message and missing data
@@ -478,17 +500,15 @@ class IHTController extends Controller
                     $missingData = ['spouse_data' => $missingSpouseFields];
                 }
 
-                // Create complete second_death_analysis structure for compatibility with LifePolicyController
-                // Uses user's own data since spouse data not available
+                // Create complete second_death_analysis structure for second death scenario
+                // Uses combined NRB/RNRB and NO spouse exemption (both deceased)
                 $lifeExpectancy = $user->date_of_birth ? $this->fvCalculator->getLifeExpectancy($user) : ['years_remaining' => 25, 'death_age' => 80];
                 $yearsUntilDeath = (int) $lifeExpectancy['years_remaining'];
                 $estimatedAgeAtDeath = $lifeExpectancy['death_age'] ?? 80;
 
-                // Get current values from projection if available
-                $currentAssets = $projection ? $projection['current']['assets'] : $userAssets->sum('current_value');
-                $currentLiabilities = $projection ? ($projection['current']['mortgages'] + $projection['current']['liabilities']) : $userLiabilities;
-                $currentNetEstate = $projection ? $projection['current']['net_estate'] : ($currentAssets - $currentLiabilities);
-                $projectedNetEstate = $projection ? $projection['at_death']['net_estate'] : $currentNetEstate;
+                // Get projected assets/liabilities
+                $projectedAssets = $projection ? $projection['at_death']['assets'] : $currentAssets;
+                $projectedLiabilitiesTotal = $projection ? ($projection['at_death']['mortgages'] + $projection['at_death']['liabilities']) : $currentTotalLiabilities;
 
                 $secondDeathAnalysis = [
                     'success' => true,
@@ -504,30 +524,39 @@ class IHTController extends Controller
                     ],
                     'current_combined_totals' => [
                         'gross_assets' => $currentAssets,
-                        'total_liabilities' => $currentLiabilities,
+                        'total_liabilities' => $currentTotalLiabilities,
                         'net_estate' => $currentNetEstate,
                     ],
                     'current_iht_calculation' => [
                         'gross_estate_value' => $currentAssets,
-                        'liabilities' => $currentLiabilities,
+                        'liabilities' => $currentTotalLiabilities,
                         'net_estate_value' => $currentNetEstate,
-                        'total_nrb' => $ihtCalculation['total_nrb'] ?? $ihtConfig['nil_rate_band'],
-                        'rnrb' => $ihtCalculation['rnrb'] ?? 0,
-                        'rnrb_eligible' => $ihtCalculation['rnrb_eligible'] ?? false,
-                        'taxable_estate' => $ihtCalculation['taxable_estate'] ?? 0,
-                        'iht_liability' => $ihtCalculation['iht_liability'] ?? 0,
+                        'total_nrb' => $totalNRB,
+                        'rnrb' => $rnrb,
+                        'rnrb_eligible' => $rnrbEligible,
+                        'taxable_estate' => $currentTaxableEstate,
+                        'iht_liability' => $currentIHTLiability,
                     ],
                     'iht_calculation' => [
-                        'gross_estate_value' => $projection ? $projection['at_death']['assets'] : $currentAssets,
-                        'liabilities' => $projection ? ($projection['at_death']['mortgages'] + $projection['at_death']['liabilities']) : $currentLiabilities,
+                        'gross_estate_value' => $projectedAssets,
+                        'liabilities' => $projectedLiabilitiesTotal,
                         'net_estate_value' => $projectedNetEstate,
-                        'total_nrb' => $ihtCalculation['total_nrb'] ?? $ihtConfig['nil_rate_band'],
-                        'rnrb' => $ihtCalculation['rnrb'] ?? 0,
-                        'rnrb_eligible' => $ihtCalculation['rnrb_eligible'] ?? false,
-                        'taxable_estate' => $potentialTaxableEstate,
-                        'iht_liability' => $effectiveIHTLiability,
+                        'total_nrb' => $totalNRB,
+                        'rnrb' => $rnrb,
+                        'rnrb_eligible' => $rnrbEligible,
+                        'taxable_estate' => $projectedTaxableEstate,
+                        'iht_liability' => $projectedIHTLiability,
                     ],
                 ];
+
+                // Generate basic mitigation strategies for married user without linked spouse
+                $defaultGiftingStrategy = $this->strategyGenerator->generateDefaultGiftingStrategy($projectedIHTLiability, $user);
+                $mitigationStrategies = $this->strategyGenerator->generateIHTMitigationStrategies(
+                    ['iht_calculation' => $ihtCalculation],
+                    $defaultGiftingStrategy,
+                    null, // No life cover calculations yet (need spouse for actuarial data)
+                    $userProfile
+                );
 
                 return response()->json([
                     'success' => true,
@@ -536,8 +565,8 @@ class IHTController extends Controller
                     'requires_spouse_link' => $requiresSpouseLink,
                     'missing_data' => $missingData,
                     'user_iht_calculation' => $ihtCalculation,
-                    'effective_iht_liability' => $effectiveIHTLiability,
-                    'potential_taxable_estate' => $potentialTaxableEstate,
+                    'effective_iht_liability' => $projectedIHTLiability,
+                    'potential_taxable_estate' => $projectedTaxableEstate,
                     'second_death_analysis' => $secondDeathAnalysis,
                     'mitigation_strategies' => $mitigationStrategies,
                     'projection' => $projection,
