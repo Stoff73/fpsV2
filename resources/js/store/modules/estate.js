@@ -44,9 +44,9 @@ const getters = {
 
     // IHT liability from analysis
     ihtLiability: (state) => {
-        // For married users with linked spouse, use second death IHT liability
-        if (state.secondDeathPlanning?.second_death_analysis?.iht_calculation?.iht_liability !== undefined) {
-            return state.secondDeathPlanning.second_death_analysis.iht_calculation.iht_liability;
+        // For married users with second death analysis, use CURRENT (now) IHT liability
+        if (state.secondDeathPlanning?.second_death_analysis?.current_iht_calculation?.iht_liability !== undefined) {
+            return state.secondDeathPlanning.second_death_analysis.current_iht_calculation.iht_liability;
         }
         // For married users without linked spouse, use user_iht_calculation
         if (state.secondDeathPlanning?.user_iht_calculation?.iht_liability !== undefined) {
@@ -134,9 +134,9 @@ const getters = {
     // Taxable estate value (AFTER allowances - NRB/RNRB)
     // This is what's actually subject to IHT at 40%
     taxableEstate: (state, getters) => {
-        // For married users with linked spouse, use second death taxable estate
-        if (state.secondDeathPlanning?.second_death_analysis?.iht_calculation?.taxable_estate !== undefined) {
-            return state.secondDeathPlanning.second_death_analysis.iht_calculation.taxable_estate;
+        // For married users with second death analysis, use CURRENT (now) taxable estate
+        if (state.secondDeathPlanning?.second_death_analysis?.current_iht_calculation?.taxable_estate !== undefined) {
+            return state.secondDeathPlanning.second_death_analysis.current_iht_calculation.taxable_estate;
         }
         // For married users without linked spouse, use user_iht_calculation
         if (state.secondDeathPlanning?.user_iht_calculation?.taxable_estate !== undefined) {
@@ -449,10 +449,6 @@ const actions = {
 
         try {
             const response = await estateService.calculateSecondDeathIHTPlanning();
-            console.log('📊 Second Death IHT Response:', response);
-            console.log('📊 second_death_analysis:', response?.second_death_analysis);
-            console.log('📊 IHT Liability:', response?.second_death_analysis?.iht_calculation?.iht_liability);
-
             commit('setSecondDeathPlanning', response);
 
             // If spouse is not linked, the backend returns user_iht_calculation
@@ -463,7 +459,6 @@ const actions = {
 
             return response;
         } catch (error) {
-            console.error('❌ Second Death IHT Error:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Failed to calculate second death IHT planning';
             commit('setError', errorMessage);
             throw error;
