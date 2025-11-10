@@ -41,7 +41,7 @@ const protectionService = {
      * @param {Object} data - Analysis parameters
      * @returns {Promise} Analysis results with gaps and recommendations
      */
-    async analyseProtection(data) {
+    async analyzeProtection(data) {
         const response = await api.post('/protection/analyze', data);
         return response.data;
     },

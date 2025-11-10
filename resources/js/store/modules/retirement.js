@@ -107,7 +107,7 @@ const actions = {
         commit('SET_LOADING', true);
         commit('SET_ERROR', null);
         try {
-            const response = await retirementService.analyseRetirement(data);
+            const response = await retirementService.analyzeRetirement(data);
             commit('SET_ANALYSIS', response.data);
             return response.data;
         } catch (error) {

@@ -205,7 +205,7 @@ export default {
 
         // Refresh data and analysis
         await this.fetchInvestmentData();
-        await this.analyseInvestment();
+        await this.analyzeInvestment();
 
         // Auto-hide success message after 5 seconds
         setTimeout(() => {
@@ -237,7 +237,7 @@ export default {
 
         // Refresh data and analysis
         await this.fetchInvestmentData();
-        await this.analyseInvestment();
+        await this.analyzeInvestment();
 
         // Auto-hide success message after 5 seconds
         setTimeout(() => {

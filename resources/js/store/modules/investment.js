@@ -274,7 +274,7 @@ const actions = {
         commit('setError', null);
 
         try {
-            const response = await investmentService.analyseInvestment();
+            const response = await investmentService.analyzeInvestment();
             commit('setAnalysis', response.data.analysis);
             commit('setRecommendations', response.data.recommendations);
             return response;
@@ -1037,7 +1037,7 @@ const actions = {
         commit('setError', null);
 
         try {
-            const response = await investmentService.analyseLumpSumVsDCA(inputs);
+            const response = await investmentService.analyzeLumpSumVsDCA(inputs);
             return response;
         } catch (error) {
             const errorMessage = error.message || 'Failed to analyse lump sum vs DCA';
@@ -1054,7 +1054,7 @@ const actions = {
         commit('setError', null);
 
         try {
-            const response = await investmentService.analyseAssetLocation();
+            const response = await investmentService.analyzeAssetLocation();
             if (response.success && response.data) {
                 commit('setAssetLocationAnalysis', response.data);
             }
@@ -1074,7 +1074,7 @@ const actions = {
         commit('setError', null);
 
         try {
-            const response = await investmentService.analysePerformanceAttribution(params);
+            const response = await investmentService.analyzePerformanceAttribution(params);
             if (response.success && response.data) {
                 commit('setPerformanceAttribution', response.data);
             }
@@ -1133,7 +1133,7 @@ const actions = {
         commit('setError', null);
 
         try {
-            const response = await investmentService.analyseFees();
+            const response = await investmentService.analyzeFees();
             if (response.success && response.data) {
                 commit('setFeeAnalysis', response.data);
             }

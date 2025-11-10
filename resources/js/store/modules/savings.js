@@ -145,7 +145,7 @@ const actions = {
         commit('setError', null);
 
         try {
-            const response = await savingsService.analyseSavings(data);
+            const response = await savingsService.analyzeSavings(data);
             commit('setAnalysis', response.data.analysis);
             return response;
         } catch (error) {

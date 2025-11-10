@@ -254,7 +254,7 @@ export default {
     async loadInvestmentData() {
       try {
         await this.fetchInvestmentData();
-        await this.analyseInvestment();
+        await this.analyzeInvestment();
       } catch (error) {
         console.error('Failed to load investment data:', error);
       }

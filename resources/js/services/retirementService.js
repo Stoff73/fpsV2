@@ -14,7 +14,7 @@ export default {
     /**
      * Run retirement analysis
      */
-    async analyseRetirement(data = {}) {
+    async analyzeRetirement(data = {}) {
         const response = await api.post(`${API_BASE}/analyze`, data);
         return response.data;
     },

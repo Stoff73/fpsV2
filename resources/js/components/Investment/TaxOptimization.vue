@@ -277,7 +277,7 @@ export default {
 
     async loadTaxAnalysis() {
       try {
-        const response = await investmentService.analyseTaxPosition({
+        const response = await investmentService.analyzeTaxPosition({
           tax_year: this.taxYear,
         });
         this.taxAnalysis = response.data;

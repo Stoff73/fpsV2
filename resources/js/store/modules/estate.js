@@ -198,7 +198,7 @@ const actions = {
         commit('setError', null);
 
         try {
-            const response = await estateService.analyseEstate(data);
+            const response = await estateService.analyzeEstate(data);
             // Extract the actual analysis data from the response
             commit('setAnalysis', response.data?.data || response.data);
             return response;

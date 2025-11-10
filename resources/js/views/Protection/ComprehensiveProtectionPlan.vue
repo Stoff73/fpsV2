@@ -482,20 +482,20 @@
             <h3 class="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">Optimised Protection Strategy</h3>
 
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6 border border-blue-200">
-              <h4 class="text-lg font-bold text-gray-900 mb-4">{{ plan.optimised_strategy.strategy_name }}</h4>
+              <h4 class="text-lg font-bold text-gray-900 mb-4">{{ plan.optimized_strategy.strategy_name }}</h4>
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-white rounded-lg p-4">
                   <p class="text-xs text-gray-600 mb-1">Total Coverage Increase</p>
-                  <p class="text-xl font-bold text-blue-600">{{ formatCurrency(plan.optimised_strategy.summary.total_coverage_increase) }}</p>
+                  <p class="text-xl font-bold text-blue-600">{{ formatCurrency(plan.optimized_strategy.summary.total_coverage_increase) }}</p>
                 </div>
                 <div class="bg-white rounded-lg p-4">
                   <p class="text-xs text-gray-600 mb-1">Est. Monthly Cost</p>
-                  <p class="text-xl font-bold text-amber-600">{{ formatCurrency(plan.optimised_strategy.summary.total_estimated_monthly_cost) }}</p>
+                  <p class="text-xl font-bold text-amber-600">{{ formatCurrency(plan.optimized_strategy.summary.total_estimated_monthly_cost) }}</p>
                 </div>
                 <div class="bg-white rounded-lg p-4">
                   <p class="text-xs text-gray-600 mb-1">Est. Annual Cost</p>
-                  <p class="text-xl font-bold text-purple-600">{{ formatCurrency(plan.optimised_strategy.summary.total_estimated_annual_cost) }}</p>
+                  <p class="text-xl font-bold text-purple-600">{{ formatCurrency(plan.optimized_strategy.summary.total_estimated_annual_cost) }}</p>
                 </div>
               </div>
             </div>
@@ -503,7 +503,7 @@
             <!-- Strategy Recommendations -->
             <div class="space-y-4">
               <div
-                v-for="(rec, index) in plan.optimised_strategy.recommendations"
+                v-for="(rec, index) in plan.optimized_strategy.recommendations"
                 :key="index"
                 class="border rounded-lg overflow-hidden"
                 :class="getPriorityBorderClass(rec.priority)"

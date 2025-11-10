@@ -147,7 +147,7 @@ const actions = {
         commit('CLEAR_ERROR');
 
         try {
-            const response = await holisticService.analyseHolistic();
+            const response = await holisticService.analyzeHolistic();
             commit('SET_ANALYSIS', response.data);
             return response.data;
         } catch (error) {

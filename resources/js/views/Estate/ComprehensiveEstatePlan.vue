@@ -496,24 +496,24 @@
             <h3 class="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-primary-600">Optimised Combined Strategy</h3>
 
             <div class="bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg p-6 mb-6 border border-emerald-200">
-              <h4 class="text-lg font-bold text-gray-900 mb-4">{{ plan.optimised_recommendation.strategy_name }}</h4>
+              <h4 class="text-lg font-bold text-gray-900 mb-4">{{ plan.optimized_recommendation.strategy_name }}</h4>
 
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white rounded-lg p-4">
                   <p class="text-xs text-gray-600 mb-1">Total IHT Saving</p>
-                  <p class="text-xl font-bold text-green-600">{{ formatCurrency(plan.optimised_recommendation.summary.total_iht_saving) }}</p>
+                  <p class="text-xl font-bold text-green-600">{{ formatCurrency(plan.optimized_recommendation.summary.total_iht_saving) }}</p>
                 </div>
                 <div class="bg-white rounded-lg p-4">
                   <p class="text-xs text-gray-600 mb-1">Remaining Liability</p>
-                  <p class="text-xl font-bold text-amber-600">{{ formatCurrency(plan.optimised_recommendation.summary.remaining_liability) }}</p>
+                  <p class="text-xl font-bold text-amber-600">{{ formatCurrency(plan.optimized_recommendation.summary.remaining_liability) }}</p>
                 </div>
                 <div class="bg-white rounded-lg p-4">
                   <p class="text-xs text-gray-600 mb-1">Annual Costs</p>
-                  <p class="text-xl font-bold text-blue-600">{{ formatCurrency(plan.optimised_recommendation.summary.annual_costs) }}</p>
+                  <p class="text-xl font-bold text-blue-600">{{ formatCurrency(plan.optimized_recommendation.summary.annual_costs) }}</p>
                 </div>
                 <div class="bg-white rounded-lg p-4">
                   <p class="text-xs text-gray-600 mb-1">Effectiveness</p>
-                  <p class="text-xl font-bold text-emerald-600">{{ plan.optimised_recommendation.summary.effectiveness_percentage.toFixed(0) }}%</p>
+                  <p class="text-xl font-bold text-emerald-600">{{ plan.optimized_recommendation.summary.effectiveness_percentage.toFixed(0) }}%</p>
                 </div>
               </div>
             </div>
@@ -521,7 +521,7 @@
             <!-- Priority Recommendations -->
             <div class="space-y-6">
               <div
-                v-for="(rec, index) in plan.optimised_recommendation.recommendations"
+                v-for="(rec, index) in plan.optimized_recommendation.recommendations"
                 :key="index"
                 class="border rounded-lg overflow-hidden"
                 :class="getPriorityBorderClass(rec.priority)"

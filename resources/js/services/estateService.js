@@ -19,7 +19,7 @@ const estateService = {
      * @param {Object} data - Analysis parameters
      * @returns {Promise} Analysis results with IHT calculation and recommendations
      */
-    async analyseEstate(data = {}) {
+    async analyzeEstate(data = {}) {
         const response = await api.post('/estate/analyze', data);
         return response.data;
     },
@@ -299,7 +299,7 @@ const estateService = {
      * @param {Number} id - Trust ID
      * @returns {Promise} Trust analysis and efficiency metrics
      */
-    async analyseTrust(id) {
+    async analyzeTrust(id) {
         const response = await api.get(`/estate/trusts/${id}/analyze`);
         return response.data;
     },

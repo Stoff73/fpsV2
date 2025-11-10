@@ -163,7 +163,7 @@ const actions = {
 
             // Also fetch analysis data to get human capital and total debt
             try {
-                const analysisResponse = await protectionService.analyseProtection({});
+                const analysisResponse = await protectionService.analyzeProtection({});
                 // Backend returns: {success: true, message: '...', data: {...}}
                 // We want the 'data' object which contains profile, needs, gaps, etc.
                 const analysisData = analysisResponse.data || analysisResponse;
@@ -191,7 +191,7 @@ const actions = {
         commit('setError', null);
 
         try {
-            const response = await protectionService.analyseProtection(data);
+            const response = await protectionService.analyzeProtection(data);
             // Backend returns: {success: true, message: '...', data: {...}}
             // analysisData should be the full response so components can access response.data.needs
             const analysisData = response.data || response;

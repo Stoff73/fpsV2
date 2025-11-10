@@ -85,13 +85,13 @@ export default {
     },
 
     finalOptimisedValue() {
-      const projections = this.projectionData.optimised_projections || [];
+      const projections = this.projectionData.optimized_projections || [];
       return projections.length > 0 ? projections[projections.length - 1].value : 0;
     },
 
     chartSeries() {
       const baseline = this.projectionData.baseline_projections || [];
-      const optimised = this.projectionData.optimised_projections || [];
+      const optimised = this.projectionData.optimized_projections || [];
 
       return [
         {
