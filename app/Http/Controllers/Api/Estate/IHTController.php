@@ -478,6 +478,23 @@ class IHTController extends Controller
                     $missingData = ['spouse_data' => $missingSpouseFields];
                 }
 
+                // Create basic second_death_analysis structure for compatibility with LifePolicyController
+                // Uses user's own data since spouse data not available
+                $lifeExpectancy = $user->date_of_birth ? $this->fvCalculator->getLifeExpectancy($user) : ['years_remaining' => 25];
+                $yearsUntilDeath = (int) $lifeExpectancy['years_remaining'];
+
+                $secondDeathAnalysis = [
+                    'success' => true,
+                    'second_death' => [
+                        'years_until_death' => $yearsUntilDeath,
+                        'is_user' => true, // User dies second (no spouse data available)
+                    ],
+                    'iht_calculation' => [
+                        'iht_liability' => $effectiveIHTLiability,
+                        'taxable_estate' => $potentialTaxableEstate,
+                    ],
+                ];
+
                 return response()->json([
                     'success' => true,
                     'show_spouse_exemption_notice' => true,
@@ -487,6 +504,7 @@ class IHTController extends Controller
                     'user_iht_calculation' => $ihtCalculation,
                     'effective_iht_liability' => $effectiveIHTLiability,
                     'potential_taxable_estate' => $potentialTaxableEstate,
+                    'second_death_analysis' => $secondDeathAnalysis,
                     'mitigation_strategies' => $mitigationStrategies,
                     'projection' => $projection,
                 ]);
