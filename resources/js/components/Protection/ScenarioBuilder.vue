@@ -146,7 +146,7 @@ export default {
   computed: {
     scenarioDescription() {
       const descriptions = {
-        death: 'Analyze the impact of increasing your life insurance coverage to better protect your family in the event of your death.',
+        death: 'Analyse the impact of increasing your life insurance coverage to better protect your family in the event of your death.',
         critical_illness: 'Assess how additional critical illness coverage would help you maintain financial stability if diagnosed with a serious illness.',
         disability: 'Evaluate the benefit of enhanced disability income protection to replace lost earnings if you cannot work.',
         custom: 'Create a custom scenario by adjusting coverage amounts and terms to match your specific needs.',

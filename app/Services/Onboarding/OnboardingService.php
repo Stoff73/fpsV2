@@ -127,6 +127,10 @@ class OnboardingService
                 $this->processIncomeInfo($userId, $data);
                 break;
 
+            case 'expenditure':
+                $this->processExpenditureInfo($userId, $data);
+                break;
+
             case 'domicile_info':
                 $this->processDomicileInfo($userId, $data);
                 break;
@@ -376,11 +380,68 @@ class OnboardingService
             'employer' => $data['employer'] ?? null,
             'industry' => $data['industry'] ?? null,
             'employment_status' => $data['employment_status'] ?? null,
+            'target_retirement_age' => $data['target_retirement_age'] ?? null,
+            'retirement_date' => $data['retirement_date'] ?? null,
             'annual_employment_income' => $data['annual_employment_income'] ?? 0,
             'annual_self_employment_income' => $data['annual_self_employment_income'] ?? 0,
-            'annual_rental_income' => $data['annual_rental_income'] ?? 0,
             'annual_dividend_income' => $data['annual_dividend_income'] ?? 0,
             'annual_other_income' => $data['annual_other_income'] ?? 0,
+        ]);
+
+        // Update or create retirement profile if retirement age is provided
+        if (isset($data['target_retirement_age'])) {
+            $currentAge = $user->date_of_birth ? \Carbon\Carbon::parse($user->date_of_birth)->age : 30;
+
+            \App\Models\RetirementProfile::updateOrCreate(
+                ['user_id' => $userId],
+                [
+                    'current_age' => $currentAge,
+                    'target_retirement_age' => $data['target_retirement_age'],
+                ]
+            );
+        }
+
+        // If user is retired, calculate their retirement age from retirement date
+        if ($data['employment_status'] === 'retired' && isset($data['retirement_date']) && $user->date_of_birth) {
+            $birthDate = \Carbon\Carbon::parse($user->date_of_birth);
+            $retirementDate = \Carbon\Carbon::parse($data['retirement_date']);
+            $retirementAge = $retirementDate->diffInYears($birthDate);
+            $currentAge = \Carbon\Carbon::now()->diffInYears($birthDate);
+
+            \App\Models\RetirementProfile::updateOrCreate(
+                ['user_id' => $userId],
+                [
+                    'current_age' => $currentAge,
+                    'target_retirement_age' => $retirementAge,
+                ]
+            );
+        }
+    }
+
+    /**
+     * Process expenditure information and update user record
+     */
+    protected function processExpenditureInfo(int $userId, array $data): void
+    {
+        $user = User::findOrFail($userId);
+
+        // Update user expenditure fields
+        $user->update([
+            'food_groceries' => $data['food_groceries'] ?? 0,
+            'transport_fuel' => $data['transport_fuel'] ?? 0,
+            'healthcare_medical' => $data['healthcare_medical'] ?? 0,
+            'insurance' => $data['insurance'] ?? 0,
+            'mobile_phones' => $data['mobile_phones'] ?? 0,
+            'internet_tv' => $data['internet_tv'] ?? 0,
+            'subscriptions' => $data['subscriptions'] ?? 0,
+            'clothing_personal_care' => $data['clothing_personal_care'] ?? 0,
+            'entertainment_dining' => $data['entertainment_dining'] ?? 0,
+            'holidays_travel' => $data['holidays_travel'] ?? 0,
+            'pets' => $data['pets'] ?? 0,
+            'childcare' => $data['childcare'] ?? 0,
+            'school_fees' => $data['school_fees'] ?? 0,
+            'children_activities' => $data['children_activities'] ?? 0,
+            'other_expenditure' => $data['other_expenditure'] ?? 0,
             'monthly_expenditure' => $data['monthly_expenditure'] ?? 0,
             'annual_expenditure' => $data['annual_expenditure'] ?? 0,
         ]);

@@ -18,6 +18,7 @@ const Settings = () => import('@/views/Settings.vue');
 const UserProfile = () => import('@/views/UserProfile.vue');
 const NetWorthDashboard = () => import('@/views/NetWorth/NetWorthDashboard.vue');
 const NetWorthOverview = () => import('@/components/NetWorth/NetWorthOverview.vue');
+const RetirementView = () => import('@/views/NetWorth/RetirementView.vue');
 const PropertyList = () => import('@/components/NetWorth/PropertyList.vue');
 const PropertyDetail = () => import('@/components/NetWorth/Property/PropertyDetail.vue');
 const BusinessInterestsList = () => import('@/components/NetWorth/BusinessInterestsList.vue');
@@ -119,6 +120,11 @@ const routes = [
         path: 'overview',
         name: 'NetWorthOverview',
         component: NetWorthOverview,
+      },
+      {
+        path: 'retirement',
+        name: 'NetWorthRetirement',
+        component: RetirementView,
       },
       {
         path: 'property',
@@ -277,6 +283,31 @@ const routes = [
       breadcrumb: [
         { label: 'Home', path: '/dashboard' },
         { label: 'Holistic Plan', path: '/holistic-plan' },
+      ],
+    },
+  },
+  {
+    path: '/plans',
+    name: 'Plans',
+    component: () => import('@/views/Plans/PlansDashboard.vue'),
+    meta: {
+      requiresAuth: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Plans', path: '/plans' },
+      ],
+    },
+  },
+  {
+    path: '/plans/investment-savings',
+    name: 'InvestmentSavingsPlan',
+    component: () => import('@/views/Plans/InvestmentSavingsPlan.vue'),
+    meta: {
+      requiresAuth: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Plans', path: '/plans' },
+        { label: 'Investment & Savings Plan', path: '/plans/investment-savings' },
       ],
     },
   },

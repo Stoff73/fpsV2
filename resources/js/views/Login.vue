@@ -24,7 +24,7 @@
       </div>
 
       <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
-        <div v-if="errorMessage" class="rounded-button bg-error-50 p-4">
+        <div v-if="errorMessage" class="rounded bg-error-50 p-4">
           <p class="text-body-sm text-error-700">{{ errorMessage }}</p>
         </div>
 

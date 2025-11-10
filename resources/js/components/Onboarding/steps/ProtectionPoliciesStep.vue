@@ -12,185 +12,27 @@
   >
     <div class="space-y-6">
       <p class="text-body-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-        Protection policies provide financial security for you and your family. Adding your existing coverage helps us analyze any gaps in your protection.
+        Protection policies provide financial security for you and your family. Adding your existing coverage helps us analyse any gaps in your protection.
       </p>
 
-      <!-- Policy Form -->
-      <div v-if="showForm" class="border border-gray-200 rounded-lg p-4 bg-white">
-        <h4 class="text-body font-medium text-gray-900 mb-4">
-          {{ editingIndex !== null ? 'Edit Policy' : 'Add Protection Policy' }}
-        </h4>
-
-        <div class="grid grid-cols-1 gap-4">
+      <!-- I have no policies checkbox -->
+      <div class="border border-gray-200 rounded-lg p-4 bg-blue-50">
+        <label class="flex items-start gap-3 cursor-pointer">
+          <input
+            v-model="hasNoPolicies"
+            type="checkbox"
+            class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            @change="handleNoPoliciesChange"
+          >
           <div>
-            <label for="policy_type" class="label">
-              Policy Type <span class="text-red-500">*</span>
-            </label>
-            <select
-              id="policy_type"
-              v-model="currentPolicy.policyType"
-              class="input-field"
-              required
-            >
-              <option value="">Select policy type</option>
-              <option value="life">Life Insurance</option>
-              <option value="criticalIllness">Critical Illness</option>
-              <option value="incomeProtection">Income Protection</option>
-              <option value="disability">Disability</option>
-              <option value="sicknessIllness">Sickness/Illness</option>
-            </select>
+            <span class="text-body font-medium text-gray-900">
+              I have no protection policies in place
+            </span>
+            <p class="text-body-sm text-gray-600 mt-1">
+              Check this if you don't currently have any life insurance, critical illness, income protection, or other protection policies. We'll help you understand what coverage you might need in the Protection module.
+            </p>
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="provider" class="label">
-                Provider <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="provider"
-                v-model="currentPolicy.provider"
-                type="text"
-                class="input-field"
-                placeholder="e.g., Aviva, Legal & General"
-                required
-              >
-            </div>
-
-            <div>
-              <label for="policy_number" class="label">
-                Policy Number
-              </label>
-              <input
-                id="policy_number"
-                v-model="currentPolicy.policy_number"
-                type="text"
-                class="input-field"
-                placeholder="Policy reference"
-              >
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="coverage_amount" class="label">
-                Sum Assured / Cover Amount <span class="text-red-500">*</span>
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input
-                  id="coverage_amount"
-                  v-model.number="currentPolicy.coverage_amount"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  class="input-field pl-8"
-                  placeholder="0"
-                  required
-                >
-              </div>
-            </div>
-
-            <div>
-              <label for="premium_amount" class="label">
-                Premium Amount <span class="text-red-500">*</span>
-              </label>
-              <div class="flex gap-2">
-                <div class="relative flex-1">
-                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                  <input
-                    id="premium_amount"
-                    v-model.number="currentPolicy.premium_amount"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    class="input-field pl-8"
-                    placeholder="0.00"
-                    required
-                  >
-                </div>
-                <select
-                  v-model="currentPolicy.premium_frequency"
-                  class="input-field"
-                  style="max-width: 120px"
-                >
-                  <option value="monthly">Monthly</option>
-                  <option value="annual">Annual</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="start_date" class="label">
-                Start Date
-              </label>
-              <input
-                id="start_date"
-                v-model="currentPolicy.start_date"
-                type="date"
-                class="input-field"
-              >
-            </div>
-
-            <div>
-              <label for="end_date" class="label">
-                End Date / Expiry
-              </label>
-              <input
-                id="end_date"
-                v-model="currentPolicy.end_date"
-                type="date"
-                class="input-field"
-              >
-            </div>
-          </div>
-
-          <div v-if="currentPolicy.policyType === 'incomeProtection' || currentPolicy.policyType === 'disability'">
-            <label for="waiting_period" class="label">
-              Waiting Period (weeks)
-            </label>
-            <input
-              id="waiting_period"
-              v-model.number="currentPolicy.waiting_period_weeks"
-              type="number"
-              min="0"
-              class="input-field"
-              placeholder="e.g., 4, 13, 26"
-            >
-          </div>
-
-          <div v-if="currentPolicy.policyType === 'incomeProtection'">
-            <label for="benefit_period" class="label">
-              Benefit Period (months)
-            </label>
-            <input
-              id="benefit_period"
-              v-model.number="currentPolicy.benefit_period_months"
-              type="number"
-              min="0"
-              class="input-field"
-              placeholder="e.g., 12, 24, until retirement"
-            >
-          </div>
-        </div>
-
-        <div class="flex gap-3 mt-4">
-          <button
-            type="button"
-            class="btn-primary"
-            @click="savePolicy"
-          >
-            {{ editingIndex !== null ? 'Update Policy' : 'Add Policy' }}
-          </button>
-          <button
-            type="button"
-            class="btn-secondary"
-            @click="cancelForm"
-          >
-            Cancel
-          </button>
-        </div>
+        </label>
       </div>
 
       <!-- Added Policies List -->
@@ -200,15 +42,15 @@
         </h4>
 
         <div
-          v-for="(policy, index) in policies"
-          :key="index"
+          v-for="policy in policies"
+          :key="policy.id"
           class="border border-gray-200 rounded-lg p-4 bg-gray-50"
         >
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-2">
                 <h5 class="text-body font-medium text-gray-900">
-                  {{ getPolicyTypeLabel(policy.policyType) }}
+                  {{ getPolicyTypeLabel(policy.policyType || policy.policy_type) }}
                 </h5>
                 <span class="text-body-sm px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
                   {{ policy.provider }}
@@ -217,12 +59,12 @@
               <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
                 <div>
                   <p class="text-body-sm text-gray-500">Sum Assured</p>
-                  <p class="text-body font-medium text-gray-900">£{{ policy.coverage_amount.toLocaleString() }}</p>
+                  <p class="text-body font-medium text-gray-900">£{{ policy.coverage_amount?.toLocaleString() || policy.sum_assured?.toLocaleString() }}</p>
                 </div>
                 <div>
                   <p class="text-body-sm text-gray-500">Premium</p>
                   <p class="text-body font-medium text-gray-900">
-                    £{{ policy.premium_amount.toLocaleString() }} {{ policy.premium_frequency === 'monthly' ? 'pm' : 'pa' }}
+                    £{{ policy.premium_amount?.toLocaleString() }} {{ policy.premium_frequency === 'monthly' ? 'pm' : 'pa' }}
                   </p>
                 </div>
                 <div v-if="policy.policy_number">
@@ -235,14 +77,14 @@
               <button
                 type="button"
                 class="text-primary-600 hover:text-primary-700 text-body-sm"
-                @click="editPolicy(index)"
+                @click="editPolicy(policy)"
               >
                 Edit
               </button>
               <button
                 type="button"
                 class="text-red-600 hover:text-red-700 text-body-sm"
-                @click="removePolicy(index)"
+                @click="deletePolicy(policy)"
               >
                 Remove
               </button>
@@ -252,58 +94,58 @@
       </div>
 
       <!-- Add Policy Button -->
-      <div v-if="!showForm">
-        <button
-          type="button"
-          class="btn-secondary w-full md:w-auto"
-          @click="showAddForm"
-        >
-          + Add Protection Policy
-        </button>
-      </div>
+      <button
+        v-if="!hasNoPolicies"
+        type="button"
+        class="btn-secondary w-full md:w-auto"
+        @click="showForm = true"
+      >
+        + Add Protection Policy
+      </button>
 
-      <p v-if="policies.length === 0" class="text-body-sm text-gray-500 italic">
+      <p v-if="policies.length === 0 && !hasNoPolicies" class="text-body-sm text-gray-500 italic">
         You can skip this step and add protection policies later from your dashboard.
       </p>
+
+      <p v-if="hasNoPolicies" class="text-body-sm text-green-700 bg-green-50 p-3 rounded-lg">
+        You've indicated you have no protection policies. The Protection module will help you understand your protection needs and recommend suitable coverage.
+      </p>
     </div>
+
+    <!-- Policy Form Modal -->
+    <PolicyFormModal
+      v-if="showForm"
+      :policy="editingPolicy"
+      :is-editing="!!editingPolicy"
+      @close="closeForm"
+      @save="handlePolicySaved"
+    />
   </OnboardingStep>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
 import OnboardingStep from '../OnboardingStep.vue';
+import PolicyFormModal from '@/components/Protection/PolicyFormModal.vue';
+import protectionService from '@/services/protectionService';
 
 export default {
   name: 'ProtectionPoliciesStep',
 
   components: {
     OnboardingStep,
+    PolicyFormModal,
   },
 
   emits: ['next', 'back', 'skip'],
 
   setup(props, { emit }) {
-    const store = useStore();
-
     const policies = ref([]);
     const showForm = ref(false);
-    const editingIndex = ref(null);
-    const currentPolicy = ref({
-      policyType: '',
-      provider: '',
-      policy_number: '',
-      coverage_amount: 0,
-      premium_amount: 0,
-      premium_frequency: 'monthly',
-      start_date: '',
-      end_date: '',
-      waiting_period_weeks: null,
-      benefit_period_months: null,
-    });
-
+    const editingPolicy = ref(null);
     const loading = ref(false);
     const error = ref(null);
+    const hasNoPolicies = ref(false);
 
     const getPolicyTypeLabel = (type) => {
       const labels = {
@@ -316,90 +158,191 @@ export default {
       return labels[type] || type;
     };
 
-    const showAddForm = () => {
-      showForm.value = true;
-      editingIndex.value = null;
-      resetCurrentPolicy();
-    };
+    onMounted(async () => {
+      await loadPolicies();
+    });
 
-    const resetCurrentPolicy = () => {
-      currentPolicy.value = {
-        policyType: '',
-        provider: '',
-        policy_number: '',
-        coverage_amount: 0,
-        premium_amount: 0,
-        premium_frequency: 'monthly',
-        start_date: '',
-        end_date: '',
-        waiting_period_weeks: null,
-        benefit_period_months: null,
-      };
-    };
-
-    const savePolicy = () => {
-      // Validation
-      if (
-        !currentPolicy.value.policyType ||
-        !currentPolicy.value.provider ||
-        !currentPolicy.value.coverage_amount ||
-        !currentPolicy.value.premium_amount
-      ) {
-        error.value = 'Please fill in all required fields';
-        return;
-      }
-
-      error.value = null;
-
-      if (editingIndex.value !== null) {
-        // Update existing policy
-        policies.value[editingIndex.value] = { ...currentPolicy.value };
-      } else {
-        // Add new policy
-        policies.value.push({ ...currentPolicy.value });
-      }
-
-      showForm.value = false;
-      resetCurrentPolicy();
-    };
-
-    const editPolicy = (index) => {
-      editingIndex.value = index;
-      currentPolicy.value = { ...policies.value[index] };
-      showForm.value = true;
-    };
-
-    const removePolicy = (index) => {
-      if (confirm('Are you sure you want to remove this policy?')) {
-        policies.value.splice(index, 1);
-      }
-    };
-
-    const cancelForm = () => {
-      showForm.value = false;
-      editingIndex.value = null;
-      resetCurrentPolicy();
-      error.value = null;
-    };
-
-    const handleNext = async () => {
-      loading.value = true;
-      error.value = null;
-
+    async function loadPolicies() {
       try {
-        await store.dispatch('onboarding/saveStepData', {
-          stepName: 'protection_policies',
-          data: {
-            policies: policies.value,
-          },
-        });
+        const response = await protectionService.getProtectionData();
+        console.log('Protection data response:', response);
 
-        emit('next');
+        // Combine all policy types into single array
+        const allPolicies = [];
+
+        // Response structure: response.data.policies contains the policies
+        const data = response.data || response;
+        const policyData = data.policies || {};
+
+        console.log('Policy data:', policyData);
+
+        // API returns snake_case keys: life_insurance, critical_illness, etc.
+        if (policyData?.life_insurance && Array.isArray(policyData.life_insurance)) {
+          console.log('Adding life policies:', policyData.life_insurance.length);
+          allPolicies.push(...policyData.life_insurance.map(p => ({ ...p, policyType: 'life', policy_type: 'life' })));
+        }
+        if (policyData?.critical_illness && Array.isArray(policyData.critical_illness)) {
+          console.log('Adding CI policies:', policyData.critical_illness.length);
+          allPolicies.push(...policyData.critical_illness.map(p => ({ ...p, policyType: 'criticalIllness', policy_type: 'criticalIllness' })));
+        }
+        if (policyData?.income_protection && Array.isArray(policyData.income_protection)) {
+          console.log('Adding IP policies:', policyData.income_protection.length);
+          allPolicies.push(...policyData.income_protection.map(p => ({ ...p, policyType: 'incomeProtection', policy_type: 'incomeProtection' })));
+        }
+        if (policyData?.disability && Array.isArray(policyData.disability)) {
+          console.log('Adding disability policies:', policyData.disability.length);
+          allPolicies.push(...policyData.disability.map(p => ({ ...p, policyType: 'disability', policy_type: 'disability' })));
+        }
+        if (policyData?.sickness_illness && Array.isArray(policyData.sickness_illness)) {
+          console.log('Adding sickness policies:', policyData.sickness_illness.length);
+          allPolicies.push(...policyData.sickness_illness.map(p => ({ ...p, policyType: 'sicknessIllness', policy_type: 'sicknessIllness' })));
+        }
+
+        policies.value = allPolicies;
+        console.log('Loaded policies:', policies.value);
+        console.log('Total policies loaded:', allPolicies.length);
+
+        // Load has_no_policies flag from protection profile
+        if (data?.profile) {
+          hasNoPolicies.value = data.profile.has_no_policies || false;
+        }
       } catch (err) {
-        error.value = err.message || 'Failed to save. Please try again.';
+        console.error('Failed to load policies', err);
+        error.value = 'Failed to load policies';
+      }
+    }
+
+    async function handleNoPoliciesChange() {
+      try {
+        loading.value = true;
+        await protectionService.updateHasNoPolicies(hasNoPolicies.value);
+
+        // If user checks "no policies", disable adding policies
+        if (hasNoPolicies.value) {
+          showForm.value = false;
+        }
+      } catch (err) {
+        error.value = 'Failed to update protection preferences';
+        console.error('Failed to update has_no_policies:', err);
+        // Revert checkbox on error
+        hasNoPolicies.value = !hasNoPolicies.value;
       } finally {
         loading.value = false;
       }
+    }
+
+    function editPolicy(policy) {
+      editingPolicy.value = policy;
+      showForm.value = true;
+    }
+
+    async function deletePolicy(policy) {
+      if (!confirm('Are you sure you want to remove this policy?')) {
+        return;
+      }
+
+      try {
+        const policyType = policy.policyType || policy.policy_type;
+
+        switch (policyType) {
+          case 'life':
+            await protectionService.deleteLifePolicy(policy.id);
+            break;
+          case 'criticalIllness':
+            await protectionService.deleteCriticalIllnessPolicy(policy.id);
+            break;
+          case 'incomeProtection':
+            await protectionService.deleteIncomeProtectionPolicy(policy.id);
+            break;
+          case 'disability':
+            await protectionService.deleteDisabilityPolicy(policy.id);
+            break;
+          case 'sicknessIllness':
+            await protectionService.deleteSicknessIllnessPolicy(policy.id);
+            break;
+        }
+
+        await loadPolicies();
+      } catch (err) {
+        error.value = 'Failed to delete policy';
+      }
+    }
+
+    function closeForm() {
+      showForm.value = false;
+      editingPolicy.value = null;
+    }
+
+    async function handlePolicySaved(policyData) {
+      try {
+        console.log('handlePolicySaved called with:', policyData);
+        error.value = null;
+
+        const { policyType, ...actualPolicyData } = policyData;
+        console.log('Policy type:', policyType);
+        console.log('Actual policy data:', actualPolicyData);
+
+        // Call the appropriate API endpoint based on policy type
+        switch (policyType) {
+          case 'life':
+            if (editingPolicy.value) {
+              await protectionService.updateLifePolicy(editingPolicy.value.id, actualPolicyData);
+            } else {
+              await protectionService.createLifePolicy(actualPolicyData);
+            }
+            break;
+          case 'criticalIllness':
+            if (editingPolicy.value) {
+              await protectionService.updateCriticalIllnessPolicy(editingPolicy.value.id, actualPolicyData);
+            } else {
+              await protectionService.createCriticalIllnessPolicy(actualPolicyData);
+            }
+            break;
+          case 'incomeProtection':
+            if (editingPolicy.value) {
+              await protectionService.updateIncomeProtectionPolicy(editingPolicy.value.id, actualPolicyData);
+            } else {
+              await protectionService.createIncomeProtectionPolicy(actualPolicyData);
+            }
+            break;
+          case 'disability':
+            if (editingPolicy.value) {
+              await protectionService.updateDisabilityPolicy(editingPolicy.value.id, actualPolicyData);
+            } else {
+              await protectionService.createDisabilityPolicy(actualPolicyData);
+            }
+            break;
+          case 'sicknessIllness':
+            if (editingPolicy.value) {
+              await protectionService.updateSicknessIllnessPolicy(editingPolicy.value.id, actualPolicyData);
+            } else {
+              await protectionService.createSicknessIllnessPolicy(actualPolicyData);
+            }
+            break;
+        }
+
+        console.log('Policy saved successfully, closing form and reloading...');
+
+        // If user adds a policy, automatically uncheck "has_no_policies"
+        if (!editingPolicy.value && hasNoPolicies.value) {
+          hasNoPolicies.value = false;
+          await protectionService.updateHasNoPolicies(false);
+        }
+
+        closeForm();
+        await loadPolicies();
+        console.log('Policies reloaded, should now be visible');
+      } catch (err) {
+        error.value = 'Failed to save policy';
+        console.error('Failed to save policy:', err);
+        console.error('Validation errors:', err.response?.data?.errors);
+        console.error('Full error:', err.response?.data);
+        console.error('Sent data:', policyData);
+      }
+    }
+
+    const handleNext = () => {
+      emit('next');
     };
 
     const handleBack = () => {
@@ -410,26 +353,19 @@ export default {
       emit('skip', 'protection_policies');
     };
 
-    onMounted(async () => {
-      const existingData = await store.dispatch('onboarding/fetchStepData', 'protection_policies');
-      if (existingData && existingData.policies && Array.isArray(existingData.policies)) {
-        policies.value = existingData.policies;
-      }
-    });
-
     return {
       policies,
       showForm,
-      editingIndex,
-      currentPolicy,
+      editingPolicy,
       loading,
       error,
+      hasNoPolicies,
       getPolicyTypeLabel,
-      showAddForm,
-      savePolicy,
       editPolicy,
-      removePolicy,
-      cancelForm,
+      deletePolicy,
+      closeForm,
+      handlePolicySaved,
+      handleNoPoliciesChange,
       handleNext,
       handleBack,
       handleSkip,

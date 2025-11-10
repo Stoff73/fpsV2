@@ -44,9 +44,9 @@ const getters = {
 
     // IHT liability from analysis
     ihtLiability: (state) => {
-        // For married users with linked spouse, use second death IHT liability
-        if (state.secondDeathPlanning?.second_death_analysis?.iht_calculation?.iht_liability !== undefined) {
-            return state.secondDeathPlanning.second_death_analysis.iht_calculation.iht_liability;
+        // For married users with second death analysis, use CURRENT (now) IHT liability
+        if (state.secondDeathPlanning?.second_death_analysis?.current_iht_calculation?.iht_liability !== undefined) {
+            return state.secondDeathPlanning.second_death_analysis.current_iht_calculation.iht_liability;
         }
         // For married users without linked spouse, use user_iht_calculation
         if (state.secondDeathPlanning?.user_iht_calculation?.iht_liability !== undefined) {
@@ -134,9 +134,9 @@ const getters = {
     // Taxable estate value (AFTER allowances - NRB/RNRB)
     // This is what's actually subject to IHT at 40%
     taxableEstate: (state, getters) => {
-        // For married users with linked spouse, use second death taxable estate
-        if (state.secondDeathPlanning?.second_death_analysis?.iht_calculation?.taxable_estate !== undefined) {
-            return state.secondDeathPlanning.second_death_analysis.iht_calculation.taxable_estate;
+        // For married users with second death analysis, use CURRENT (now) taxable estate
+        if (state.secondDeathPlanning?.second_death_analysis?.current_iht_calculation?.taxable_estate !== undefined) {
+            return state.secondDeathPlanning.second_death_analysis.current_iht_calculation.taxable_estate;
         }
         // For married users without linked spouse, use user_iht_calculation
         if (state.secondDeathPlanning?.user_iht_calculation?.taxable_estate !== undefined) {
@@ -192,8 +192,8 @@ const actions = {
         }
     },
 
-    // Analyze estate
-    async analyzeEstate({ commit }, data) {
+    // Analyse estate
+    async analyseEstate({ commit }, data) {
         commit('setLoading', true);
         commit('setError', null);
 
@@ -449,12 +449,12 @@ const actions = {
 
         try {
             const response = await estateService.calculateSecondDeathIHTPlanning();
-            commit('setSecondDeathPlanning', response.data);
+            commit('setSecondDeathPlanning', response);
 
             // If spouse is not linked, the backend returns user_iht_calculation
             // Store this in analysis state so the dashboard getters can access it
-            if (response.data?.requires_spouse_link && response.data?.user_iht_calculation) {
-                commit('setAnalysis', response.data.user_iht_calculation);
+            if (response?.requires_spouse_link && response?.user_iht_calculation) {
+                commit('setAnalysis', response.user_iht_calculation);
             }
 
             return response;

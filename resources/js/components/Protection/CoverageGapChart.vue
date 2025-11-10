@@ -61,13 +61,13 @@ export default {
         dataLabels: {
           enabled: false,
         },
-        colors: ['#EF4444'],
+        colours: ['#EF4444'],
         plotOptions: {
           heatmap: {
             shadeIntensity: 0.5,
             radius: 4,
-            useFillColorAsStroke: false,
-            colorScale: {
+            useFillColourAsStroke: false,
+            colourScale: {
               ranges: [
                 {
                   from: 0,
@@ -129,7 +129,7 @@ export default {
         legend: {
           show: true,
           position: 'bottom',
-          horizontalAlign: 'center',
+          horizontalAlign: 'centre',
           fontSize: '12px',
           markers: {
             width: 20,

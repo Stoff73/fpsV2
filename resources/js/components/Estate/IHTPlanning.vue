@@ -664,7 +664,7 @@ export default {
 
       try {
         if (this.isMarried) {
-          // Call second death endpoint for married users
+          // Married users: Call second death endpoint (backend handles missing spouse data gracefully)
           const response = await this.calculateSecondDeathIHTPlanning();
 
           if (response.success) {
@@ -676,19 +676,16 @@ export default {
               this.projection = response.projection;
             }
 
-            // Handle cases where spouse not linked - use returned calculation data
-            if (response.requires_spouse_link && response.user_iht_calculation) {
+            // Handle cases where spouse not linked or missing data - use returned calculation data
+            if (response.user_iht_calculation) {
               this.ihtData = response.user_iht_calculation;
-              this.error = null; // Clear any errors
             }
-          } else {
-            console.error('❌ Response success = false', response);
           }
         } else {
-          // Standard IHT calculation for non-married users
+          // Non-married users: Standard IHT calculation
           const response = await this.calculateIHT();
           this.ihtData = response.data;
-          this.projection = response.projection; // Set projection data
+          this.projection = response.projection;
         }
       } catch (error) {
         console.error('❌ Failed to load IHT calculation:', error);

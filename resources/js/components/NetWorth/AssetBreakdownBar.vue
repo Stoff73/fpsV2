@@ -66,7 +66,7 @@ export default {
             },
           },
         },
-        colors: ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'],
+        colours: ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'],
         dataLabels: {
           enabled: true,
           formatter: (val) => {
@@ -76,7 +76,7 @@ export default {
           style: {
             fontSize: '12px',
             fontWeight: 600,
-            colors: ['#111827'],
+            colours: ['#111827'],
           },
         },
         xaxis: {
@@ -87,7 +87,7 @@ export default {
             },
             style: {
               fontSize: '12px',
-              colors: '#6b7280',
+              colours: '#6b7280',
             },
           },
         },
@@ -96,7 +96,7 @@ export default {
             style: {
               fontSize: '14px',
               fontWeight: 600,
-              colors: '#111827',
+              colours: '#111827',
             },
           },
         },
@@ -108,7 +108,7 @@ export default {
           },
         },
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
           strokeDashArray: 4,
         },
         legend: {

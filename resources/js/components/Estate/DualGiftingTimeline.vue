@@ -156,7 +156,7 @@ export default {
         xaxis: {
           type: 'datetime',
         },
-        colors: ['#3B82F6'], // Blue for user
+        colours: ['#3B82F6'], // Blue for user
         dataLabels: {
           enabled: true,
           formatter: (val) => {
@@ -194,7 +194,7 @@ export default {
     getSpouseChartOptions() {
       return {
         ...this.getUserChartOptions(),
-        colors: ['#8B5CF6'], // Purple for spouse
+        colours: ['#8B5CF6'], // Purple for spouse
       };
     },
 

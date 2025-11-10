@@ -15,186 +15,81 @@
         This information helps us understand your family structure for estate planning and protection needs analysis.
       </p>
 
-      <!-- Family Member Form -->
-      <div v-if="showForm" class="border border-gray-200 rounded-lg p-4 bg-white">
-        <h4 class="text-body font-medium text-gray-900 mb-4">
-          {{ editingIndex !== null ? 'Edit Family Member' : 'Add Family Member' }}
-        </h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="member_name" class="label">
-              Full Name <span class="text-red-500">*</span>
-            </label>
-            <input
-              id="member_name"
-              v-model="currentMember.name"
-              type="text"
-              class="input-field"
-              placeholder="Enter full name"
-              required
-            >
+      <!-- Success Message -->
+      <div v-if="successMessage" class="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
           </div>
-
-          <div>
-            <label for="member_relationship" class="label">
-              Relationship <span class="text-red-500">*</span>
-            </label>
-            <select
-              id="member_relationship"
-              v-model="currentMember.relationship"
-              class="input-field"
-              required
-            >
-              <option value="">Select relationship</option>
-              <option value="spouse">Spouse</option>
-              <option value="child">Child</option>
-              <option value="parent">Parent</option>
-              <option value="sibling">Sibling</option>
-              <option value="grandchild">Grandchild</option>
-              <option value="other">Other</option>
-            </select>
+          <div class="ml-3">
+            <p class="text-sm text-green-700">{{ successMessage }}</p>
           </div>
-
-          <div>
-            <label for="member_dob" class="label">
-              Date of Birth <span class="text-red-500">*</span>
-            </label>
-            <input
-              id="member_dob"
-              v-model="currentMember.date_of_birth"
-              type="date"
-              class="input-field"
-              :max="today"
-              required
-            >
-            <p v-if="currentMemberAge !== null" class="mt-1 text-body-sm text-gray-500">
-              Age: {{ currentMemberAge }} years
-            </p>
-          </div>
-
-          <!-- Email field for spouse -->
-          <div v-if="currentMember.relationship === 'spouse'" class="md:col-span-2">
-            <label for="member_email" class="label">
-              Email Address (Optional)
-            </label>
-            <input
-              id="member_email"
-              v-model="currentMember.email"
-              type="email"
-              class="input-field"
-              placeholder="spouse@example.com"
-            >
-            <p class="mt-1 text-body-sm text-gray-500">
-              If your spouse has an account, entering their email will link your accounts and share family information.
-            </p>
-          </div>
-
-          <div>
-            <label class="label">
-              Is this person financially dependent on you?
-            </label>
-            <div class="mt-2 space-x-4">
-              <label class="inline-flex items-center">
-                <input
-                  v-model="currentMember.is_dependent"
-                  type="radio"
-                  :value="true"
-                  class="form-radio text-primary-600"
-                >
-                <span class="ml-2 text-body text-gray-700">Yes</span>
-              </label>
-              <label class="inline-flex items-center">
-                <input
-                  v-model="currentMember.is_dependent"
-                  type="radio"
-                  :value="false"
-                  class="form-radio text-primary-600"
-                >
-                <span class="ml-2 text-body text-gray-700">No</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex gap-3 mt-4">
-          <button
-            type="button"
-            class="btn-primary"
-            @click="saveMember"
-          >
-            {{ editingIndex !== null ? 'Update Member' : 'Add Member' }}
-          </button>
-          <button
-            type="button"
-            class="btn-secondary"
-            @click="cancelForm"
-          >
-            Cancel
-          </button>
         </div>
       </div>
 
-      <!-- Added Family Members List -->
+      <!-- Family Members List -->
       <div v-if="familyMembers.length > 0" class="space-y-3">
         <h4 class="text-body font-medium text-gray-900">
           Family Members ({{ familyMembers.length }})
         </h4>
 
         <div
-          v-for="(member, index) in familyMembers"
-          :key="index"
+          v-for="member in familyMembers"
+          :key="member.id"
           class="border border-gray-200 rounded-lg p-4 bg-gray-50"
         >
           <div class="flex justify-between items-start">
-            <div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div>
-                <p class="text-body-sm text-gray-600">Name</p>
-                <p class="text-body font-medium text-gray-900">{{ member.name }}</p>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h5 class="text-body font-medium text-gray-900">{{ member.name }}</h5>
+                <span class="text-body-sm px-2 py-0.5 bg-blue-100 text-blue-700 rounded capitalize">
+                  {{ formatRelationship(member.relationship) }}
+                </span>
+                <!-- Linked Account Indicator for Spouse -->
+                <span v-if="member.relationship === 'spouse' && member.email" class="inline-flex items-center gap-1 text-body-sm px-2 py-0.5 bg-green-100 text-green-700 rounded" title="Account Linked">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  Linked
+                </span>
               </div>
-              <div>
-                <p class="text-body-sm text-gray-600">Relationship</p>
-                <p class="text-body text-gray-900 capitalize">{{ member.relationship }}</p>
-              </div>
-              <div>
-                <p class="text-body-sm text-gray-600">Age</p>
-                <p class="text-body text-gray-900">{{ calculateAge(member.date_of_birth) }} years</p>
-              </div>
-              <div>
-                <p class="text-body-sm text-gray-600">Dependent</p>
-                <p class="text-body text-gray-900">{{ member.is_dependent ? 'Yes' : 'No' }}</p>
-              </div>
+              <p v-if="member.date_of_birth" class="text-body-sm text-gray-600">
+                Age: {{ calculateAge(member.date_of_birth) }} years
+              </p>
+              <p v-if="member.is_dependent" class="text-body-sm text-gray-600">
+                <span class="text-orange-600">● Financially dependent</span>
+              </p>
             </div>
             <div class="flex gap-2 ml-4">
               <button
                 type="button"
                 class="text-primary-600 hover:text-primary-700 text-body-sm"
-                @click="editMember(index)"
+                @click="editMember(member)"
               >
                 Edit
               </button>
               <button
                 type="button"
                 class="text-red-600 hover:text-red-700 text-body-sm"
-                @click="removeMember(index)"
+                @click="deleteMember(member.id)"
               >
-                Remove
+                Delete
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Add Member Button -->
-      <div v-if="!showForm">
-        <button
-          type="button"
-          class="btn-secondary w-full md:w-auto"
-          @click="showAddForm"
-        >
-          + Add Family Member
-        </button>
-      </div>
+      <!-- Add Family Member Button -->
+      <button
+        type="button"
+        class="btn-secondary w-full md:w-auto"
+        @click="showAddModal"
+      >
+        + Add Family Member
+      </button>
 
       <!-- Charitable Bequest -->
       <div class="border-t pt-6">
@@ -226,6 +121,23 @@
         </p>
       </div>
     </div>
+
+    <!-- Family Member Form Modal -->
+    <FamilyMemberFormModal
+      v-if="showModal"
+      :member="selectedMember"
+      @save="handleSave"
+      @close="closeModal"
+    />
+
+    <!-- Spouse Success Modal -->
+    <SpouseSuccessModal
+      :show="showSpouseSuccess"
+      :is-created="spouseCreated"
+      :spouse-email="spouseEmail"
+      :temporary-password="temporaryPassword"
+      @close="closeSpouseSuccess"
+    />
   </OnboardingStep>
 </template>
 
@@ -233,12 +145,17 @@
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import OnboardingStep from '../OnboardingStep.vue';
+import FamilyMemberFormModal from '@/components/UserProfile/FamilyMemberFormModal.vue';
+import SpouseSuccessModal from '@/components/Shared/SpouseSuccessModal.vue';
+import familyMembersService from '@/services/familyMembersService';
 
 export default {
   name: 'FamilyInfoStep',
 
   components: {
     OnboardingStep,
+    FamilyMemberFormModal,
+    SpouseSuccessModal,
   },
 
   emits: ['next', 'back', 'skip'],
@@ -248,27 +165,16 @@ export default {
 
     const familyMembers = ref([]);
     const charitableBequest = ref(null);
-    const showForm = ref(false);
-    const editingIndex = ref(null);
-    const currentMember = ref({
-      name: '',
-      relationship: '',
-      date_of_birth: '',
-      is_dependent: false,
-      email: '',
-    });
+    const showModal = ref(false);
+    const selectedMember = ref(null);
+    const successMessage = ref('');
+    const showSpouseSuccess = ref(false);
+    const spouseCreated = ref(false);
+    const spouseEmail = ref(null);
+    const temporaryPassword = ref(null);
 
     const loading = ref(false);
     const error = ref(null);
-
-    const today = computed(() => {
-      return new Date().toISOString().split('T')[0];
-    });
-
-    const currentMemberAge = computed(() => {
-      if (!currentMember.value.date_of_birth) return null;
-      return calculateAge(currentMember.value.date_of_birth);
-    });
 
     const calculateAge = (dateOfBirth) => {
       if (!dateOfBirth) return 0;
@@ -282,60 +188,113 @@ export default {
       return age;
     };
 
-    const showAddForm = () => {
-      showForm.value = true;
-      editingIndex.value = null;
-      resetCurrentMember();
-    };
-
-    const resetCurrentMember = () => {
-      currentMember.value = {
-        name: '',
-        relationship: '',
-        date_of_birth: '',
-        is_dependent: false,
-        email: '',
+    const formatRelationship = (relationship) => {
+      const map = {
+        'spouse': 'Spouse',
+        'child': 'Child',
+        'step_child': 'Step Child',
+        'parent': 'Parent',
+        'other_dependent': 'Other Dependent',
       };
+      return map[relationship] || relationship;
     };
 
-    const saveMember = () => {
-      // Validation
-      if (!currentMember.value.name || !currentMember.value.relationship || !currentMember.value.date_of_birth) {
-        error.value = 'Please fill in all required fields';
-        return;
-      }
-
-      error.value = null;
-
-      if (editingIndex.value !== null) {
-        // Update existing member
-        familyMembers.value[editingIndex.value] = { ...currentMember.value };
-      } else {
-        // Add new member
-        familyMembers.value.push({ ...currentMember.value });
-      }
-
-      showForm.value = false;
-      resetCurrentMember();
-    };
-
-    const editMember = (index) => {
-      editingIndex.value = index;
-      currentMember.value = { ...familyMembers.value[index] };
-      showForm.value = true;
-    };
-
-    const removeMember = (index) => {
-      if (confirm('Are you sure you want to remove this family member?')) {
-        familyMembers.value.splice(index, 1);
+    const loadFamilyMembers = async () => {
+      try {
+        const response = await familyMembersService.getFamilyMembers();
+        familyMembers.value = response.data?.family_members || [];
+      } catch (err) {
+        console.error('Failed to load family members:', err);
       }
     };
 
-    const cancelForm = () => {
-      showForm.value = false;
-      editingIndex.value = null;
-      resetCurrentMember();
-      error.value = null;
+    const showAddModal = () => {
+      selectedMember.value = null;
+      showModal.value = true;
+    };
+
+    const editMember = (member) => {
+      selectedMember.value = member;
+      showModal.value = true;
+    };
+
+    const closeModal = () => {
+      showModal.value = false;
+      selectedMember.value = null;
+    };
+
+    const handleSave = async (formData) => {
+      try {
+        if (selectedMember.value) {
+          // Update existing member
+          await familyMembersService.updateFamilyMember(selectedMember.value.id, formData);
+          successMessage.value = 'Family member updated successfully!';
+        } else {
+          // Add new member
+          const response = await familyMembersService.createFamilyMember(formData);
+
+          // Check if spouse account was created or linked
+          if (formData.relationship === 'spouse' && response.data) {
+            if (response.data.created) {
+              // Show spouse success modal with credentials
+              spouseCreated.value = true;
+              spouseEmail.value = response.data.spouse_email;
+              temporaryPassword.value = response.data.temporary_password;
+              showSpouseSuccess.value = true;
+              // Refresh user data to reflect spouse linkage
+              await store.dispatch('auth/fetchUser');
+            } else if (response.data.linked) {
+              // Show spouse success modal for linking
+              spouseCreated.value = false;
+              spouseEmail.value = formData.email;
+              temporaryPassword.value = null;
+              showSpouseSuccess.value = true;
+              // Refresh user data to reflect spouse linkage
+              await store.dispatch('auth/fetchUser');
+            } else {
+              successMessage.value = 'Family member added successfully!';
+            }
+          } else {
+            successMessage.value = 'Family member added successfully!';
+          }
+        }
+
+        closeModal();
+        await loadFamilyMembers();
+
+        // Clear success message after 5 seconds
+        if (successMessage.value) {
+          setTimeout(() => {
+            successMessage.value = '';
+          }, 5000);
+        }
+      } catch (err) {
+        console.error('Failed to save family member:', err);
+        error.value = 'Failed to save family member. Please try again.';
+      }
+    };
+
+    const closeSpouseSuccess = () => {
+      showSpouseSuccess.value = false;
+      spouseCreated.value = false;
+      spouseEmail.value = null;
+      temporaryPassword.value = null;
+    };
+
+    const deleteMember = async (id) => {
+      if (confirm('Are you sure you want to delete this family member?')) {
+        try {
+          await familyMembersService.deleteFamilyMember(id);
+          await loadFamilyMembers();
+          successMessage.value = 'Family member deleted successfully!';
+          setTimeout(() => {
+            successMessage.value = '';
+          }, 3000);
+        } catch (err) {
+          console.error('Failed to delete family member:', err);
+          error.value = 'Failed to delete family member.';
+        }
+      }
     };
 
     const handleNext = async () => {
@@ -343,17 +302,17 @@ export default {
       error.value = null;
 
       try {
+        // Save charitable bequest preference
         await store.dispatch('onboarding/saveStepData', {
           stepName: 'family_info',
           data: {
-            family_members: familyMembers.value,
             charitable_bequest: charitableBequest.value,
           },
         });
 
         emit('next');
       } catch (err) {
-        error.value = err.message || 'Failed to save. Please try again.';
+        error.value = 'Failed to save family information. Please try again.';
       } finally {
         loading.value = false;
       }
@@ -364,37 +323,33 @@ export default {
     };
 
     const handleSkip = () => {
-      emit('skip', 'family_info');
+      emit('skip');
     };
 
     onMounted(async () => {
-      const existingData = await store.dispatch('onboarding/fetchStepData', 'family_info');
-      if (existingData) {
-        if (existingData.family_members && Array.isArray(existingData.family_members)) {
-          familyMembers.value = existingData.family_members;
-        }
-        if (existingData.charitable_bequest !== undefined) {
-          charitableBequest.value = existingData.charitable_bequest;
-        }
-      }
+      await loadFamilyMembers();
     });
 
     return {
       familyMembers,
       charitableBequest,
-      showForm,
-      editingIndex,
-      currentMember,
+      showModal,
+      selectedMember,
+      successMessage,
+      showSpouseSuccess,
+      spouseCreated,
+      spouseEmail,
+      temporaryPassword,
       loading,
       error,
-      today,
-      currentMemberAge,
       calculateAge,
-      showAddForm,
-      saveMember,
+      formatRelationship,
+      showAddModal,
       editMember,
-      removeMember,
-      cancelForm,
+      closeModal,
+      handleSave,
+      closeSpouseSuccess,
+      deleteMember,
       handleNext,
       handleBack,
       handleSkip,

@@ -151,7 +151,7 @@ export default {
             columnWidth: '50%',
           },
         },
-        colors: ['#3B82F6'],
+        colours: ['#3B82F6'],
         xaxis: {
           categories: ['Current', 'With Scenario'],
         },
@@ -195,7 +195,7 @@ export default {
             columnWidth: '50%',
           },
         },
-        colors: ['#10B981'],
+        colours: ['#10B981'],
         xaxis: {
           categories: ['Current', 'With Scenario'],
         },
@@ -245,7 +245,7 @@ export default {
           fontFamily: 'Inter, sans-serif',
           toolbar: { show: false },
         },
-        colors: ['#F59E0B', '#10B981'],
+        colours: ['#F59E0B', '#10B981'],
         fill: {
           type: 'gradient',
           gradient: {

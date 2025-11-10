@@ -148,7 +148,7 @@ export default {
             stops: [0, 90, 100],
           },
         },
-        colors: ['#3b82f6', '#8b5cf6', '#10b981'], // Blue, Purple, Green
+        colours: ['#3b82f6', '#8b5cf6', '#10b981'], // Blue, Purple, Green
         xaxis: {
           categories: this.ages,
           title: {
@@ -194,7 +194,7 @@ export default {
         },
         legend: {
           position: 'top',
-          horizontalAlign: 'center',
+          horizontalAlign: 'centre',
           fontFamily: 'Inter, sans-serif',
           fontSize: '14px',
           markers: {
@@ -204,17 +204,17 @@ export default {
           },
         },
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
           strokeDashArray: 4,
         },
         annotations: {
           yaxis: [
             {
               y: this.targetIncome,
-              borderColor: '#f59e0b',
+              borderColour: '#f59e0b',
               strokeDashArray: 5,
               label: {
-                borderColor: '#f59e0b',
+                borderColour: '#f59e0b',
                 style: {
                   color: '#fff',
                   background: '#f59e0b',

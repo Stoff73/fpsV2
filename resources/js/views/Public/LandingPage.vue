@@ -108,7 +108,7 @@
           </div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">Retirement Planning</h3>
           <p class="text-gray-600 mb-4">
-            Pension projections, contribution optimization, and retirement readiness scoring with £60k annual allowance tracking.
+            Pension projections, contribution optimisation, and retirement readiness scoring with £60k annual allowance tracking.
           </p>
           <ul class="text-sm text-gray-500 space-y-1">
             <li>• Pension projections</li>

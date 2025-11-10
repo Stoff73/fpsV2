@@ -53,7 +53,7 @@ export default {
     propertyTypeLabel() {
       const labels = {
         main_residence: 'Main Residence',
-        secondary_residence: 'Secondary',
+        secondary_residence: 'Secondary Residence',
         buy_to_let: 'Buy to Let',
       };
       return labels[this.property.property_type] || this.property.property_type;

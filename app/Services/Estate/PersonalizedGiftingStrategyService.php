@@ -6,6 +6,7 @@ namespace App\Services\Estate;
 
 use App\Models\Estate\IHTProfile;
 use App\Models\User;
+use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
 
 /**
@@ -17,7 +18,8 @@ use Illuminate\Support\Collection;
 class PersonalizedGiftingStrategyService
 {
     public function __construct(
-        private AssetLiquidityAnalyzer $liquidityAnalyzer
+        private AssetLiquidityAnalyzer $liquidityAnalyzer,
+        private TaxConfigService $taxConfig
     ) {}
 
     /**
@@ -41,9 +43,10 @@ class PersonalizedGiftingStrategyService
         $liquidityAnalysis = $this->liquidityAnalyzer->analyzeAssetLiquidity($assets);
         $giftableAmounts = $this->liquidityAnalyzer->calculateMaximumGiftableAmount($assets);
 
-        $config = config('uk_tax_config');
-        $ihtRate = $config['inheritance_tax']['standard_rate']; // 0.40
-        $annualExemption = $config['gifting_exemptions']['annual_exemption']; // £3,000
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        $giftingConfig = $this->taxConfig->getGiftingExemptions();
+        $ihtRate = $ihtConfig['standard_rate']; // 0.40
+        $annualExemption = $giftingConfig['annual_exemption']; // £3,000
 
         $strategies = [];
         $remainingIHTLiability = $currentIHTLiability;

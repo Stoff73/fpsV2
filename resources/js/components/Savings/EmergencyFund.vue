@@ -77,7 +77,7 @@
             <div class="w-full bg-gray-200 rounded-full h-2">
               <div
                 class="h-2 rounded-full transition-all"
-                :class="currentAmountBarColor"
+                :class="currentAmountBarColour"
                 :style="{ width: currentAmountPercentage + '%' }"
               ></div>
             </div>
@@ -196,7 +196,7 @@ export default {
       return Math.min((this.currentAmount / this.targetAmount) * 100, 100);
     },
 
-    currentAmountBarColor() {
+    currentAmountBarColour() {
       if (this.currentAmountPercentage >= 100) return 'bg-green-600';
       if (this.currentAmountPercentage >= 50) return 'bg-amber-600';
       return 'bg-red-600';

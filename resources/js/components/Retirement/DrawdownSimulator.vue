@@ -215,7 +215,7 @@ export default {
           curve: 'smooth',
           width: 3,
         },
-        colors: [this.simulationResults?.depletes ? '#ef4444' : '#10b981'],
+        colours: [this.simulationResults?.depletes ? '#ef4444' : '#10b981'],
         xaxis: {
           categories: this.simulationResults?.ages || [],
           title: {
@@ -250,7 +250,7 @@ export default {
           },
         },
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
         },
       };
     },

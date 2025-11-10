@@ -10,7 +10,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
-        <p class="text-3xl font-bold" :class="scoreColor">{{ readinessScore }}</p>
+        <p class="text-3xl font-bold" :class="scoreColour">{{ readinessScore }}</p>
         <p class="text-sm text-gray-500 mt-1">{{ statusText }}</p>
       </div>
 
@@ -70,7 +70,7 @@
               <div class="flex-1 bg-gray-200 rounded-full h-2 mr-4">
                 <div
                   class="h-2 rounded-full transition-all duration-500"
-                  :style="{ width: factor.score + '%', backgroundColor: getFactorColor(factor.score) }"
+                  :style="{ width: factor.score + '%', backgroundColour: getFactorColour(factor.score) }"
                 ></div>
               </div>
             </div>
@@ -138,7 +138,7 @@ export default {
       return this.retirementReadinessScore;
     },
 
-    scoreColor() {
+    scoreColour() {
       if (this.readinessScore >= 90) return 'text-green-600';
       if (this.readinessScore >= 70) return 'text-amber-600';
       if (this.readinessScore >= 50) return 'text-orange-600';
@@ -198,7 +198,7 @@ export default {
   },
 
   methods: {
-    getFactorColor(score) {
+    getFactorColour(score) {
       if (score >= 80) return '#10b981'; // green
       if (score >= 60) return '#f59e0b'; // amber
       if (score >= 40) return '#f97316'; // orange

@@ -7,7 +7,7 @@
       <div class="flex items-center justify-between">
         <div class="flex-1">
           <p class="text-sm text-gray-600 font-medium mb-2">Overall Risk Level</p>
-          <p class="text-3xl font-bold" :class="getRiskLevelColor(riskData.risk_level)">
+          <p class="text-3xl font-bold" :class="getRiskLevelColour(riskData.risk_level)">
             {{ riskData.risk_level }}
           </p>
           <p class="text-sm text-gray-500 mt-1">Risk Score: {{ riskData.overall_risk_score }}/100</p>
@@ -161,17 +161,17 @@ export default {
             shade: 'dark',
             type: 'horizontal',
             shadeIntensity: 0.5,
-            gradientToColors: this.getGaugeColor(this.riskData.overall_risk_score),
+            gradientToColours: this.getGaugeColour(this.riskData.overall_risk_score),
             stops: [0, 100],
           },
         },
-        colors: this.getGaugeColor(this.riskData.overall_risk_score),
+        colours: this.getGaugeColour(this.riskData.overall_risk_score),
       };
     },
   },
 
   methods: {
-    getRiskLevelColor(level) {
+    getRiskLevelColour(level) {
       const levelLower = level?.toLowerCase();
       if (levelLower?.includes('high') || levelLower?.includes('critical')) {
         return 'text-red-600';
@@ -185,7 +185,7 @@ export default {
       return 'text-green-600';
     },
 
-    getGaugeColor(score) {
+    getGaugeColour(score) {
       if (score >= 70) return ['#DC2626']; // red
       if (score >= 50) return ['#F59E0B']; // orange
       if (score >= 30) return ['#EAB308']; // yellow

@@ -149,7 +149,7 @@ export default {
             columnWidth: '55%',
           },
         },
-        colors: ['#10B981', '#EF4444'],
+        colours: ['#10B981', '#EF4444'],
         dataLabels: {
           enabled: false,
         },

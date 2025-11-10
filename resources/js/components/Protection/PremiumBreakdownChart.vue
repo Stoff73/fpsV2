@@ -80,7 +80,7 @@ export default {
           'Disability',
           'Sickness/Illness',
         ],
-        colors: ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'],
+        colours: ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444'],
         dataLabels: {
           enabled: true,
           formatter: (val, opts) => {
@@ -98,7 +98,7 @@ export default {
         },
         legend: {
           position: 'bottom',
-          horizontalAlign: 'center',
+          horizontalAlign: 'centre',
           fontSize: '14px',
           markers: {
             width: 12,

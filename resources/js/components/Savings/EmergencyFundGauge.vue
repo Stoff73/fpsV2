@@ -30,7 +30,7 @@ export default {
       return Math.min((this.runwayMonths / this.targetMonths) * 100, 100);
     },
 
-    runwayColor() {
+    runwayColour() {
       if (this.runwayMonths >= 6) return '#10B981'; // green
       if (this.runwayMonths >= 3) return '#F59E0B'; // amber
       return '#EF4444'; // red
@@ -87,7 +87,7 @@ export default {
         },
         fill: {
           type: 'solid',
-          colors: [this.runwayColor],
+          colours: [this.runwayColour],
         },
         stroke: {
           lineCap: 'round',

@@ -35,25 +35,29 @@
       </div>
 
       <div class="asset-breakdown">
-        <div class="breakdown-item" v-if="hasProperty">
+        <div class="breakdown-item">
+          <span class="breakdown-label">Pensions</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.pensions || 0) }}</span>
+        </div>
+        <div class="breakdown-item">
           <span class="breakdown-label">Property</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.property) }}</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.property || 0) }}</span>
         </div>
-        <div class="breakdown-item" v-if="hasInvestments">
+        <div class="breakdown-item">
           <span class="breakdown-label">Investments</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.investments) }}</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.investments || 0) }}</span>
         </div>
-        <div class="breakdown-item" v-if="hasCash">
+        <div class="breakdown-item">
           <span class="breakdown-label">Cash</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.cash) }}</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.cash || 0) }}</span>
         </div>
-        <div class="breakdown-item" v-if="hasBusiness">
+        <div class="breakdown-item">
           <span class="breakdown-label">Business</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.business) }}</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.business || 0) }}</span>
         </div>
-        <div class="breakdown-item" v-if="hasChattels">
+        <div class="breakdown-item">
           <span class="breakdown-label">Chattels</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.chattels) }}</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.chattels || 0) }}</span>
         </div>
       </div>
 
@@ -76,26 +80,6 @@ export default {
 
     breakdown() {
       return this.overview.breakdown || {};
-    },
-
-    hasProperty() {
-      return this.breakdown.property > 0;
-    },
-
-    hasInvestments() {
-      return this.breakdown.investments > 0;
-    },
-
-    hasCash() {
-      return this.breakdown.cash > 0;
-    },
-
-    hasBusiness() {
-      return this.breakdown.business > 0;
-    },
-
-    hasChattels() {
-      return this.breakdown.chattels > 0;
     },
 
     netWorthClass() {

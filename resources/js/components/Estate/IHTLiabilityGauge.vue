@@ -22,7 +22,7 @@
       </div>
       <div class="detail-row">
         <span class="label">IHT Liability:</span>
-        <span class="value liability-value" :class="liabilityColorClass">
+        <span class="value liability-value" :class="liabilityColourClass">
           {{ formatCurrency(ihtLiability) }}
         </span>
       </div>
@@ -88,13 +88,13 @@ export default {
       return [Math.min(this.ihtPercentage, 100)];
     },
 
-    gaugeColor() {
+    gaugeColour() {
       if (this.ihtPercentage >= 20) return '#EF4444'; // Red
       if (this.ihtPercentage >= 10) return '#F59E0B'; // Amber
       return '#10B981'; // Green
     },
 
-    liabilityColorClass() {
+    liabilityColourClass() {
       if (this.ihtPercentage >= 20) return 'text-red-600';
       if (this.ihtPercentage >= 10) return 'text-amber-600';
       return 'text-green-600';
@@ -166,7 +166,7 @@ export default {
                 formatter: (val) => {
                   return this.formatCurrency(this.ihtLiability);
                 },
-                color: this.gaugeColor,
+                color: this.gaugeColour,
                 fontSize: '28px',
                 fontWeight: 'bold',
                 show: true,
@@ -181,14 +181,14 @@ export default {
             shade: 'dark',
             type: 'horizontal',
             shadeIntensity: 0.5,
-            gradientToColors: [this.gaugeColor],
-            inverseColors: true,
+            gradientToColours: [this.gaugeColour],
+            inverseColours: true,
             opacityFrom: 1,
             opacityTo: 1,
             stops: [0, 100],
           },
         },
-        colors: [this.gaugeColor],
+        colours: [this.gaugeColour],
         stroke: {
           lineCap: 'round',
         },

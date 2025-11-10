@@ -4,7 +4,7 @@
       <!-- Background overlay -->
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
 
-      <!-- Center modal -->
+      <!-- Centre modal -->
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
       <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
@@ -30,6 +30,7 @@
                 <option value="">Select relationship</option>
                 <option value="spouse">Spouse</option>
                 <option value="child">Child</option>
+                <option value="step_child">Step Child</option>
                 <option value="parent">Parent</option>
                 <option value="other_dependent">Other Dependent</option>
               </select>
@@ -173,11 +174,11 @@
               >
                 <option value="">Select status</option>
                 <option value="nursery">Nursery</option>
-                <option value="primary_school">Primary School</option>
-                <option value="secondary_school">Secondary School</option>
+                <option value="primary">Primary</option>
+                <option value="secondary">Secondary</option>
                 <option value="sixth_form">Sixth Form</option>
                 <option value="university">University</option>
-                <option value="postgraduate">Postgraduate</option>
+                <option value="graduated">Graduated</option>
                 <option value="not_in_education">Not in Education</option>
               </select>
             </div>
@@ -268,21 +269,29 @@ export default {
       notes: '',
     });
 
+    // Helper function to format date to yyyy-MM-dd
+    const formatDateForInput = (dateString) => {
+      if (!dateString) return '';
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '';
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return '';
+      }
+    };
+
     // Initialize form when member prop changes
     watch(() => props.member, (member) => {
       if (member) {
-        // Format date_of_birth to yyyy-MM-dd if it exists
-        let formattedDateOfBirth = '';
-        if (member.date_of_birth) {
-          const date = new Date(member.date_of_birth);
-          formattedDateOfBirth = date.toISOString().split('T')[0];
-        }
-
         form.value = {
           relationship: member.relationship || '',
           email: member.email || '',
           name: member.name || '',
-          date_of_birth: formattedDateOfBirth,
+          date_of_birth: formatDateForInput(member.date_of_birth),
           gender: member.gender || '',
           national_insurance_number: member.national_insurance_number || '',
           annual_income: member.annual_income || null,

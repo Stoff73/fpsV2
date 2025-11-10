@@ -50,7 +50,7 @@
           </svg>
           <h3 class="mt-4 text-lg font-medium text-gray-900">No investment accounts yet</h3>
           <p class="mt-2 text-sm text-gray-600 max-w-md mx-auto">
-            Get started by adding your first investment account. Track your portfolio performance, analyze holdings, and monitor your investment strategy.
+            Get started by adding your first investment account. Track your portfolio performance, analyse holdings, and monitor your investment strategy.
           </p>
           <div class="mt-6">
             <button
@@ -92,7 +92,7 @@
             </div>
             <div class="text-right">
               <p class="text-lg font-semibold text-gray-900">{{ formatCurrency(account.current_value) }}</p>
-              <p class="text-sm" :class="getReturnColorClass(account.ytd_return)">
+              <p class="text-sm" :class="getReturnColourClass(account.ytd_return)">
                 {{ formatReturn(account.ytd_return) }} YTD
               </p>
             </div>
@@ -138,8 +138,8 @@
             <span class="text-sm font-medium text-gray-900">{{ taxEfficiencyScore }}/100</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-sm text-gray-600">Unrealized Gains:</span>
-            <span class="text-sm font-medium text-gray-900">{{ formatCurrency(unrealizedGains) }}</span>
+            <span class="text-sm text-gray-600">Unrealised Gains:</span>
+            <span class="text-sm font-medium text-gray-900">{{ formatCurrency(unrealisedGains) }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-600">ISA Allowance Used:</span>
@@ -173,7 +173,7 @@ export default {
       'diversificationScore',
       'holdingsCount',
       'accountsCount',
-      'unrealizedGains',
+      'unrealisedGains',
       'taxEfficiencyScore',
       'isaAllowancePercentage',
       'accounts',
@@ -259,7 +259,7 @@ export default {
       return types[type] || type;
     },
 
-    getReturnColorClass(value) {
+    getReturnColourClass(value) {
       if (!value && value !== 0) return 'text-gray-600';
       return value >= 0 ? 'text-green-600' : 'text-red-600';
     },

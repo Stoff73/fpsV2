@@ -31,35 +31,10 @@
       </div>
 
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <!-- Card 1: Net Worth (Phase 3) -->
+        <!-- Card 1: Net Worth -->
         <NetWorthOverviewCard />
 
-        <!-- Card 2: Retirement Planning -->
-        <div v-if="loading.retirement" class="card animate-pulse">
-          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-          <div class="h-3 bg-gray-200 rounded w-full"></div>
-        </div>
-        <div v-else-if="errors.retirement" class="card border-2 border-red-300 bg-red-50">
-          <h3 class="text-h4 text-red-900 mb-2">Retirement Module</h3>
-          <p class="text-body text-red-700 mb-4">
-            Failed to load retirement data. {{ errors.retirement }}
-          </p>
-          <button
-            @click="retryLoadModule('retirement')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-        <RetirementOverviewCard
-          v-else
-          :total-pension-value="retirementData.totalPensionValue"
-          :projected-income="retirementData.projectedIncome"
-          :years-to-retirement="retirementData.yearsToRetirement"
-        />
-
-        <!-- Card 3: Estate Planning -->
+        <!-- Card 2: Estate Planning -->
         <div v-if="loading.estate" class="card animate-pulse">
           <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
           <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
@@ -110,11 +85,13 @@
           :critical-gaps="protectionData.criticalGaps"
         />
 
-        <!-- Card 5: Actions & Recommendations (Phase 5) -->
-        <QuickActions />
-
-        <!-- Card 6: Trusts (Phase 6) -->
+        <!-- Card 5: Trusts -->
         <TrustsOverviewCard />
+
+        <!-- Card 6: Plans (spans 2 columns) -->
+        <div class="sm:col-span-2">
+          <QuickActions />
+        </div>
 
         <!-- Card 7: UK Taxes & Allowances (Admin Only) -->
         <UKTaxesOverviewCard v-if="isAdmin" />
@@ -128,7 +105,6 @@ import { mapGetters } from 'vuex';
 import AppLayout from '@/layouts/AppLayout.vue';
 import NetWorthOverviewCard from '@/components/Dashboard/NetWorthOverviewCard.vue';
 import ProtectionOverviewCard from '@/components/Protection/ProtectionOverviewCard.vue';
-import RetirementOverviewCard from '@/components/Retirement/RetirementOverviewCard.vue';
 import EstateOverviewCard from '@/components/Estate/EstateOverviewCard.vue';
 import QuickActions from '@/components/Dashboard/QuickActions.vue';
 import TrustsOverviewCard from '@/components/Trusts/TrustsOverviewCard.vue';
@@ -141,7 +117,6 @@ export default {
     AppLayout,
     NetWorthOverviewCard,
     ProtectionOverviewCard,
-    RetirementOverviewCard,
     EstateOverviewCard,
     QuickActions,
     TrustsOverviewCard,
@@ -152,12 +127,10 @@ export default {
     return {
       loading: {
         protection: false,
-        retirement: false,
         estate: false,
       },
       errors: {
         protection: null,
-        retirement: null,
         estate: null,
       },
       refreshing: false,
@@ -176,11 +149,6 @@ export default {
       protectionTotalCoverage: 'totalCoverage',
       protectionTotalPremium: 'totalPremium',
       protectionCoverageGaps: 'coverageGaps',
-    }),
-    ...mapGetters('retirement', {
-      retirementTotalPensionValue: 'totalPensionWealth',
-      retirementProjectedIncome: 'projectedIncome',
-      retirementYearsToRetirement: 'yearsToRetirement',
     }),
     ...mapGetters('estate', {
       estateIHTLiability: 'ihtLiability',
@@ -201,7 +169,7 @@ export default {
       const gaps = this.protectionCoverageGaps?.gaps_by_category || {};
       const criticalGaps = Object.values(gaps).filter(gap => gap > 10000).length || 0;
 
-      // protectionAdequacyScore is an object with {score, category, color, insights}
+      // protectionAdequacyScore is an object with {score, category, colour, insights}
       const adequacyScore = typeof this.protectionAdequacyScore === 'object'
         ? (this.protectionAdequacyScore?.score ?? 0)
         : (this.protectionAdequacyScore || 0);
@@ -211,14 +179,6 @@ export default {
         totalCoverage: this.protectionTotalCoverage || 0,
         premiumTotal: this.protectionTotalPremium || 0,
         criticalGaps: criticalGaps,
-      };
-    },
-
-    retirementData() {
-      return {
-        totalPensionValue: this.retirementTotalPensionValue || 0,
-        projectedIncome: this.retirementProjectedIncome || 0,
-        yearsToRetirement: this.retirementYearsToRetirement || 0,
       };
     },
 
@@ -233,18 +193,19 @@ export default {
 
   methods: {
     async loadAllData() {
-      // Load all module data in parallel with Promise.allSettled
-      // Check if user is married to determine which IHT calculation to use
-      const user = this.$store.state.auth?.user;
-      const isMarried = user?.marital_status === 'married';
+      // Determine which estate calculation to use based on marital status
+      const user = this.$store.state.auth.user;
+      const isMarried = user && user.marital_status === 'married';
+      const estateCalculationAction = isMarried
+        ? 'estate/calculateSecondDeathIHTPlanning'
+        : 'estate/calculateIHT';
 
+      // Load all module data in parallel with Promise.allSettled
       const moduleLoaders = [
         { name: 'netWorth', action: 'netWorth/fetchOverview' },
         { name: 'protection', action: 'protection/fetchProtectionData' },
-        { name: 'retirement', action: 'retirement/fetchRetirementData' },
-        { name: 'retirement', action: 'retirement/analyzeRetirement' },
         { name: 'estate', action: 'estate/fetchEstateData' },
-        { name: 'estate', action: isMarried ? 'estate/calculateSecondDeathIHTPlanning' : 'estate/calculateIHT', payload: {} },
+        { name: 'estate', action: estateCalculationAction, payload: {} },
       ];
 
       // Set all modules to loading
@@ -288,10 +249,16 @@ export default {
       this.loading[moduleName] = true;
       this.errors[moduleName] = null;
 
+      // Determine which estate calculation to use based on marital status
+      const user = this.$store.state.auth.user;
+      const isMarried = user && user.marital_status === 'married';
+      const estateCalculationAction = isMarried
+        ? 'estate/calculateSecondDeathIHTPlanning'
+        : 'estate/calculateIHT';
+
       const actions = {
         protection: ['protection/fetchProtectionData'],
-        retirement: ['retirement/fetchRetirementData', 'retirement/analyzeRetirement'],
-        estate: ['estate/fetchEstateData', 'estate/calculateIHT'],
+        estate: ['estate/fetchEstateData', estateCalculationAction],
       };
 
       try {
@@ -310,6 +277,13 @@ export default {
       this.refreshing = true;
       // Use refreshNetWorth to bypass cache, then load other modules
       try {
+        // Determine which estate calculation to use based on marital status
+        const user = this.$store.state.auth.user;
+        const isMarried = user && user.marital_status === 'married';
+        const estateCalculationAction = isMarried
+          ? 'estate/calculateSecondDeathIHTPlanning'
+          : 'estate/calculateIHT';
+
         await this.$store.dispatch('netWorth/refreshNetWorth');
         // Load other module data
         await Promise.allSettled([
@@ -317,6 +291,7 @@ export default {
           this.$store.dispatch('savings/fetchSavingsData'),
           this.$store.dispatch('investment/fetchInvestmentData'),
           this.$store.dispatch('estate/fetchEstateData'),
+          this.$store.dispatch(estateCalculationAction),
         ]);
       } catch (error) {
         console.error('Error refreshing dashboard:', error);

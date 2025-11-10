@@ -7,10 +7,23 @@ namespace App\Services\Savings;
 use App\Models\Investment\InvestmentAccount;
 use App\Models\ISAAllowanceTracking;
 use App\Models\SavingsAccount;
+use App\Services\TaxConfigService;
 use Carbon\Carbon;
 
 class ISATracker
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Get current UK tax year (April 6 - April 5)
      */
@@ -150,8 +163,9 @@ class ISATracker
      */
     public function getTotalAllowance(string $taxYear): float
     {
-        // Get from config (£20,000 for 2024/25)
-        return (float) config('uk_tax_config.isa.annual_allowance', 20000);
+        $isaConfig = $this->taxConfig->getISAAllowances();
+
+        return (float) $isaConfig['annual_allowance'];
     }
 
     /**
@@ -159,7 +173,8 @@ class ISATracker
      */
     public function getLISAAllowance(): float
     {
-        // Get from config (£4,000 for 2024/25 - counts toward total)
-        return (float) config('uk_tax_config.isa.lifetime_isa.annual_allowance', 4000);
+        $isaConfig = $this->taxConfig->getISAAllowances();
+
+        return (float) $isaConfig['lifetime_isa']['annual_allowance'];
     }
 }

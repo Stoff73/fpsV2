@@ -1,0 +1,333 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services\Investment\AssetLocation;
+
+use App\Models\Investment\Holding;
+use App\Models\Investment\InvestmentAccount;
+use App\Services\UKTaxCalculator;
+
+/**
+ * Tax Drag Calculator
+ * Calculates the annual tax impact of holding assets in different account types
+ *
+ * Tax drag is the reduction in returns due to taxation.
+ * Different account types have different tax treatments:
+ * - ISA: No tax on income, dividends, or capital gains (0% tax drag)
+ * - GIA: Income tax on interest/dividends, CGT on gains (high tax drag)
+ * - Pension: Tax-deferred growth, but taxed on withdrawal (medium tax drag)
+ */
+class TaxDragCalculator
+{
+    public function __construct(
+        private UKTaxCalculator $taxCalculator
+    ) {}
+
+    /**
+     * Calculate tax drag for a holding in its current account type
+     *
+     * @param  Holding  $holding  Holding to analyze
+     * @param  array  $userTaxProfile  User's tax information (income, tax_rate, etc.)
+     * @return array Tax drag analysis
+     */
+    public function calculateCurrentTaxDrag(Holding $holding, array $userTaxProfile): array
+    {
+        $account = $holding->investmentAccount;
+
+        return $this->calculateTaxDragByAccountType(
+            $holding,
+            $account->account_type,
+            $userTaxProfile
+        );
+    }
+
+    /**
+     * Calculate tax drag if holding was in a different account type
+     *
+     * @param  Holding  $holding  Holding to analyze
+     * @param  string  $accountType  Account type (isa, gia, sipp, personal_pension)
+     * @param  array  $userTaxProfile  User's tax information
+     * @return array Tax drag analysis
+     */
+    public function calculateTaxDragByAccountType(
+        Holding $holding,
+        string $accountType,
+        array $userTaxProfile
+    ): array {
+        $value = $holding->current_value;
+        $expectedReturn = $userTaxProfile['expected_return'] ?? 0.06;
+        $dividendYield = $this->estimateDividendYield($holding);
+        $interestRate = $this->estimateInterestRate($holding);
+
+        // Calculate annual returns
+        $annualCapitalGain = $value * ($expectedReturn - $dividendYield - $interestRate);
+        $annualDividend = $value * $dividendYield;
+        $annualInterest = $value * $interestRate;
+
+        // Calculate tax based on account type
+        $taxAmount = match ($accountType) {
+            'isa', 'stocks_shares_isa', 'cash_isa', 'lifetime_isa' => 0, // Tax-free
+            'sipp', 'personal_pension' => $this->calculatePensionTaxDrag(
+                $annualCapitalGain,
+                $annualDividend,
+                $annualInterest,
+                $userTaxProfile
+            ),
+            'gia', 'general_investment_account' => $this->calculateGIATaxDrag(
+                $annualCapitalGain,
+                $annualDividend,
+                $annualInterest,
+                $userTaxProfile
+            ),
+            default => $this->calculateGIATaxDrag(
+                $annualCapitalGain,
+                $annualDividend,
+                $annualInterest,
+                $userTaxProfile
+            ),
+        };
+
+        $annualReturn = $annualCapitalGain + $annualDividend + $annualInterest;
+        $taxDragPercent = $annualReturn > 0 ? ($taxAmount / $annualReturn) * 100 : 0;
+
+        return [
+            'account_type' => $accountType,
+            'holding_value' => $value,
+            'annual_return' => $annualReturn,
+            'breakdown' => [
+                'capital_gain' => $annualCapitalGain,
+                'dividend_income' => $annualDividend,
+                'interest_income' => $annualInterest,
+            ],
+            'tax_amount' => $taxAmount,
+            'tax_drag_percent' => $taxDragPercent,
+            'after_tax_return' => $annualReturn - $taxAmount,
+            'after_tax_return_percent' => (($annualReturn - $taxAmount) / $value) * 100,
+        ];
+    }
+
+    /**
+     * Calculate tax drag for GIA (General Investment Account)
+     *
+     * @param  float  $capitalGain  Annual capital gain
+     * @param  float  $dividend  Annual dividend income
+     * @param  float  $interest  Annual interest income
+     * @param  array  $userTaxProfile  User tax information
+     * @return float Total tax amount
+     */
+    private function calculateGIATaxDrag(
+        float $capitalGain,
+        float $dividend,
+        float $interest,
+        array $userTaxProfile
+    ): float {
+        $incomeTaxRate = $userTaxProfile['income_tax_rate'] ?? 0.20;
+        $cgtRate = $userTaxProfile['cgt_rate'] ?? 0.20;
+
+        // CGT allowance (£12,300 for 2024/25)
+        $cgtAllowance = 12300;
+        $cgtAllowanceUsed = $userTaxProfile['cgt_allowance_used'] ?? 0;
+        $remainingCGTAllowance = max(0, $cgtAllowance - $cgtAllowanceUsed);
+
+        // Dividend allowance (£500 for 2024/25)
+        $dividendAllowance = 500;
+        $dividendAllowanceUsed = $userTaxProfile['dividend_allowance_used'] ?? 0;
+        $remainingDividendAllowance = max(0, $dividendAllowance - $dividendAllowanceUsed);
+
+        // Personal savings allowance (£1,000 for basic rate, £500 for higher rate)
+        $personalSavingsAllowance = $incomeTaxRate <= 0.20 ? 1000 : 500;
+        if ($incomeTaxRate >= 0.45) {
+            $personalSavingsAllowance = 0; // No PSA for additional rate
+        }
+        $psaUsed = $userTaxProfile['psa_used'] ?? 0;
+        $remainingPSA = max(0, $personalSavingsAllowance - $psaUsed);
+
+        // Calculate taxable amounts
+        $taxableCapitalGain = max(0, $capitalGain - $remainingCGTAllowance);
+        $taxableDividend = max(0, $dividend - $remainingDividendAllowance);
+        $taxableInterest = max(0, $interest - $remainingPSA);
+
+        // Calculate tax
+        $cgtTax = $taxableCapitalGain * $cgtRate;
+
+        // Dividend tax rates
+        $dividendTaxRate = match (true) {
+            $incomeTaxRate <= 0.20 => 0.0875, // Basic rate: 8.75%
+            $incomeTaxRate <= 0.40 => 0.3375, // Higher rate: 33.75%
+            default => 0.3935, // Additional rate: 39.35%
+        };
+        $dividendTax = $taxableDividend * $dividendTaxRate;
+
+        $interestTax = $taxableInterest * $incomeTaxRate;
+
+        return $cgtTax + $dividendTax + $interestTax;
+    }
+
+    /**
+     * Calculate tax drag for pension accounts
+     * Pensions are tax-deferred, but withdrawals are taxed
+     * We calculate the present value of future tax liability
+     *
+     * @param  float  $capitalGain  Annual capital gain
+     * @param  float  $dividend  Annual dividend income
+     * @param  float  $interest  Annual interest income
+     * @param  array  $userTaxProfile  User tax information
+     * @return float Present value of future tax
+     */
+    private function calculatePensionTaxDrag(
+        float $capitalGain,
+        float $dividend,
+        float $interest,
+        array $userTaxProfile
+    ): float {
+        // No tax during accumulation
+        // But we need to account for future tax on withdrawal
+
+        $yearsToRetirement = $userTaxProfile['years_to_retirement'] ?? 20;
+        $expectedWithdrawalTaxRate = $userTaxProfile['expected_withdrawal_tax_rate'] ?? 0.20;
+
+        // 25% tax-free lump sum
+        $taxablePortionOnWithdrawal = 0.75;
+
+        // Discount future tax to present value (using expected return as discount rate)
+        $discountRate = $userTaxProfile['expected_return'] ?? 0.06;
+        $discountFactor = 1 / pow(1 + $discountRate, $yearsToRetirement);
+
+        $totalReturn = $capitalGain + $dividend + $interest;
+        $futureTax = $totalReturn * $taxablePortionOnWithdrawal * $expectedWithdrawalTaxRate;
+        $presentValueOfTax = $futureTax * $discountFactor;
+
+        return $presentValueOfTax;
+    }
+
+    /**
+     * Compare tax drag across all account types for a holding
+     *
+     * @param  Holding  $holding  Holding to analyze
+     * @param  array  $userTaxProfile  User tax information
+     * @return array Comparison across account types
+     */
+    public function compareAccountTypes(Holding $holding, array $userTaxProfile): array
+    {
+        $accountTypes = ['isa', 'gia', 'sipp'];
+        $comparison = [];
+
+        foreach ($accountTypes as $accountType) {
+            $comparison[$accountType] = $this->calculateTaxDragByAccountType(
+                $holding,
+                $accountType,
+                $userTaxProfile
+            );
+        }
+
+        // Calculate potential savings
+        $currentAccountType = $holding->investmentAccount->account_type;
+        $currentTax = $comparison[$currentAccountType]['tax_amount'] ?? $comparison['gia']['tax_amount'];
+
+        // Find best account type (lowest tax)
+        $bestAccountType = 'isa'; // ISA is always best (0% tax)
+        $bestTax = $comparison['isa']['tax_amount'];
+
+        $potentialSaving = $currentTax - $bestTax;
+
+        return [
+            'current_account_type' => $currentAccountType,
+            'current_tax_drag' => $currentTax,
+            'comparison' => $comparison,
+            'best_account_type' => $bestAccountType,
+            'best_tax_drag' => $bestTax,
+            'potential_annual_saving' => $potentialSaving,
+            'potential_10_year_saving' => $potentialSaving * 10 * 1.15, // With compounding
+        ];
+    }
+
+    /**
+     * Estimate dividend yield for a holding based on asset type
+     *
+     * @param  Holding  $holding  Holding
+     * @return float Estimated dividend yield (0-1)
+     */
+    private function estimateDividendYield(Holding $holding): float
+    {
+        // Use holding's dividend yield if available
+        if (isset($holding->dividend_yield) && $holding->dividend_yield > 0) {
+            return $holding->dividend_yield;
+        }
+
+        // Estimate based on asset type
+        return match ($holding->asset_type) {
+            'equity', 'stock' => 0.02, // 2% average for equities
+            'bond', 'fixed_income' => 0.04, // 4% for bonds (mostly interest, not dividends)
+            'reit' => 0.04, // 4% for REITs
+            'preferred_stock' => 0.05, // 5% for preferred
+            default => 0.015, // 1.5% default
+        };
+    }
+
+    /**
+     * Estimate interest rate for a holding based on asset type
+     *
+     * @param  Holding  $holding  Holding
+     * @return float Estimated interest rate (0-1)
+     */
+    private function estimateInterestRate(Holding $holding): float
+    {
+        return match ($holding->asset_type) {
+            'bond', 'fixed_income' => 0.04, // 4% for bonds
+            'cash', 'money_market' => 0.045, // 4.5% for cash (2024/25 rates)
+            default => 0.0, // No interest for equities
+        };
+    }
+
+    /**
+     * Calculate portfolio-wide tax drag
+     *
+     * @param  int  $userId  User ID
+     * @param  array  $userTaxProfile  User tax information
+     * @return array Portfolio tax drag analysis
+     */
+    public function calculatePortfolioTaxDrag(int $userId, array $userTaxProfile): array
+    {
+        $accounts = InvestmentAccount::where('user_id', $userId)
+            ->with('holdings')
+            ->get();
+
+        $totalValue = 0;
+        $totalTaxDrag = 0;
+        $accountBreakdown = [];
+
+        foreach ($accounts as $account) {
+            $accountTaxDrag = 0;
+            $accountValue = 0;
+
+            foreach ($account->holdings as $holding) {
+                if (! $holding->current_value) {
+                    continue;
+                }
+
+                $taxDrag = $this->calculateCurrentTaxDrag($holding, $userTaxProfile);
+                $accountTaxDrag += $taxDrag['tax_amount'];
+                $accountValue += $holding->current_value;
+            }
+
+            $totalValue += $accountValue;
+            $totalTaxDrag += $accountTaxDrag;
+
+            $accountBreakdown[] = [
+                'account_id' => $account->id,
+                'account_type' => $account->account_type,
+                'account_value' => $accountValue,
+                'tax_drag' => $accountTaxDrag,
+                'tax_drag_percent' => $accountValue > 0 ? ($accountTaxDrag / $accountValue) * 100 : 0,
+            ];
+        }
+
+        return [
+            'total_portfolio_value' => $totalValue,
+            'total_annual_tax_drag' => $totalTaxDrag,
+            'average_tax_drag_percent' => $totalValue > 0 ? ($totalTaxDrag / $totalValue) * 100 : 0,
+            'accounts' => $accountBreakdown,
+        ];
+    }
+}

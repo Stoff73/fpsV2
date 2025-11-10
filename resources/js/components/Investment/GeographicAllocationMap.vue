@@ -119,7 +119,7 @@ export default {
             },
           },
         },
-        colors: [
+        colours: [
           '#3b82f6', // UK - blue
           '#8b5cf6', // US - violet
           '#ec4899', // Europe - pink
@@ -134,7 +134,7 @@ export default {
           style: {
             fontSize: '12px',
             fontWeight: 600,
-            colors: ['#374151'],
+            colours: ['#374151'],
           },
         },
         xaxis: {
@@ -142,7 +142,7 @@ export default {
           labels: {
             formatter: (val) => `${val}%`,
             style: {
-              colors: '#6b7280',
+              colours: '#6b7280',
               fontSize: '12px',
             },
           },
@@ -151,7 +151,7 @@ export default {
         yaxis: {
           labels: {
             style: {
-              colors: '#374151',
+              colours: '#374151',
               fontSize: '13px',
               fontWeight: 500,
             },
@@ -170,7 +170,7 @@ export default {
           show: false,
         },
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
           strokeDashArray: 3,
           xaxis: {
             lines: {

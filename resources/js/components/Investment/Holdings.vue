@@ -177,7 +177,7 @@ export default {
       'updateHolding',
       'deleteHolding',
       'fetchInvestmentData',
-      'analyzeInvestment',
+      'analyseInvestment',
     ]),
 
     openAddModal() {
@@ -212,7 +212,7 @@ export default {
         }
 
         // Refresh data to get latest from server
-        // Note: analyzeInvestment() is already called by the store actions above
+        // Note: analyseInvestment() is already called by the store actions above
         await this.fetchInvestmentData();
 
         // Auto-hide success message after 5 seconds

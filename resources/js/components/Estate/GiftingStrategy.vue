@@ -365,7 +365,7 @@
                 <span
                   :class="[
                     'ml-3 px-2 py-1 text-xs font-medium rounded-full',
-                    getGiftStatusColor(gift),
+                    getGiftStatusColour(gift),
                   ]"
                 >
                   {{ getGiftStatus(gift) }}
@@ -389,7 +389,7 @@
                   <!-- Progress bar showing years elapsed -->
                   <div
                     class="absolute inset-y-0 left-0 transition-all duration-300"
-                    :style="{ width: getTimelineProgress(gift) + '%', backgroundColor: getTimelineColor(gift) }"
+                    :style="{ width: getTimelineProgress(gift) + '%', backgroundColour: getTimelineColour(gift) }"
                   ></div>
 
                   <!-- Taper relief markers -->
@@ -675,7 +675,7 @@ export default {
       return `${yearsRemaining} ${yearsRemaining === 1 ? 'year' : 'years'} remaining`;
     },
 
-    getGiftStatusColor(gift) {
+    getGiftStatusColour(gift) {
       const giftDate = new Date(gift.gift_date);
       const sevenYearsLater = new Date(giftDate);
       sevenYearsLater.setFullYear(sevenYearsLater.getFullYear() + 7);
@@ -749,7 +749,7 @@ export default {
       return Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
     },
 
-    getTimelineColor(gift) {
+    getTimelineColour(gift) {
       const percentage = this.getTaperReliefPercentage(gift);
 
       if (percentage >= 32) return '#f59e0b'; // Amber (high IHT rate)

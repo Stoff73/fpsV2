@@ -1,10 +1,20 @@
 <template>
   <div>
-    <div class="mb-6">
-      <h2 class="text-h4 font-semibold text-gray-900">Personal Information</h2>
-      <p class="mt-1 text-body-sm text-gray-600">
-        Update your personal details and contact information
-      </p>
+    <div class="mb-6 flex justify-between items-start">
+      <div>
+        <h2 class="text-h4 font-semibold text-gray-900">Personal Information</h2>
+        <p class="mt-1 text-body-sm text-gray-600">
+          Update your personal details and contact information
+        </p>
+      </div>
+      <button
+        v-if="!isEditing"
+        type="button"
+        @click="isEditing = true"
+        class="btn-primary"
+      >
+        Edit Information
+      </button>
     </div>
 
     <!-- Success Message -->
@@ -91,7 +101,6 @@
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
-            <option value="prefer_not_to_say">Prefer not to say</option>
           </select>
         </div>
 
@@ -245,16 +254,7 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-        <button
-          v-if="!isEditing"
-          type="button"
-          @click="isEditing = true"
-          class="btn-primary"
-        >
-          Edit Information
-        </button>
-        <template v-else>
+      <div v-if="isEditing" class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
           <button
             type="button"
             @click="handleCancel"
@@ -271,7 +271,6 @@
             <span v-if="!submitting">Save Changes</span>
             <span v-else>Saving...</span>
           </button>
-        </template>
       </div>
     </form>
   </div>
@@ -310,13 +309,33 @@ export default {
       postcode: '',
     });
 
+    // Format date for HTML5 date input (yyyy-MM-dd)
+    const formatDateForInput = (date) => {
+      if (!date) return '';
+      try {
+        // If it's already in YYYY-MM-DD format, return it
+        if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          return date;
+        }
+        // Parse and format the date
+        const dateObj = new Date(date);
+        if (isNaN(dateObj.getTime())) return '';
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return '';
+      }
+    };
+
     // Initialize form from personalInfo
     const initializeForm = () => {
       if (personalInfo.value) {
         form.value = {
           name: personalInfo.value.name || '',
           email: personalInfo.value.email || '',
-          date_of_birth: personalInfo.value.date_of_birth || '',
+          date_of_birth: formatDateForInput(personalInfo.value.date_of_birth),
           gender: personalInfo.value.gender || '',
           marital_status: personalInfo.value.marital_status || '',
           national_insurance_number: personalInfo.value.national_insurance_number || '',

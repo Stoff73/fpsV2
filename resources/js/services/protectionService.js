@@ -37,7 +37,7 @@ const protectionService = {
     },
 
     /**
-     * Analyze protection coverage and gaps
+     * Analyse protection coverage and gaps
      * @param {Object} data - Analysis parameters
      * @returns {Promise} Analysis results with gaps and recommendations
      */
@@ -233,7 +233,7 @@ const protectionService = {
      * - Protection needs analysis
      * - Coverage gaps and recommendations
      * - Scenario analysis
-     * - Optimized protection strategy
+     * - Optimised protection strategy
      * @returns {Promise} Comprehensive protection plan document
      */
     async getComprehensiveProtectionPlan() {

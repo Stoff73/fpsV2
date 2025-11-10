@@ -6,6 +6,7 @@ namespace App\Services\Estate;
 
 use App\Models\Estate\IHTProfile;
 use App\Models\User;
+use App\Services\TaxConfigService;
 
 /**
  * Service for generating IHT mitigation strategies
@@ -14,6 +15,18 @@ use App\Models\User;
  */
 class IHTStrategyGeneratorService
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Generate default gifting strategy for users without linked spouse
      */
@@ -133,8 +146,8 @@ class IHTStrategyGeneratorService
         if ($ihtLiability === 0 && $taxableNetEstate > 0) {
             // Married user with spouse exemption - calculate potential IHT on taxable net estate
             // This is the estate that will be subject to IHT on second death
-            $config = config('uk_tax_config.inheritance_tax');
-            $totalNRB = $secondDeathAnalysis['iht_calculation']['total_nrb'] ?? $config['nil_rate_band'];
+            $ihtConfig = $this->taxConfig->getInheritanceTax();
+            $totalNRB = $secondDeathAnalysis['iht_calculation']['total_nrb'] ?? $ihtConfig['nil_rate_band'];
             $totalAllowance = $totalNRB + $rnrb;
             $potentialTaxableEstate = max(0, $taxableNetEstate - $totalAllowance);
             $effectiveIHTLiability = $potentialTaxableEstate * 0.40; // 40% IHT rate
@@ -217,13 +230,16 @@ class IHTStrategyGeneratorService
 
         // 3. RNRB Strategy (only if not already claimed and estate qualifies)
         if (! $rnrbEligible && $estateValue <= 2000000) {
+            $ihtConfig = $this->taxConfig->getInheritanceTax();
+            $rnrbAmount = $ihtConfig['residence_nil_rate_band'];
+
             $strategies[] = [
                 'priority' => 3,
                 'strategy_name' => 'Claim Residence Nil Rate Band (RNRB)',
                 'effectiveness' => 'Medium',
-                'iht_saved' => config('uk_tax_config.inheritance_tax.residence_nil_rate_band') * 0.40, // RNRB * IHT rate
+                'iht_saved' => $rnrbAmount * 0.40, // RNRB * IHT rate
                 'implementation_complexity' => 'Low',
-                'description' => 'Ensure main residence passes to direct descendants to claim £'.number_format(config('uk_tax_config.inheritance_tax.residence_nil_rate_band'), 0).' RNRB',
+                'description' => 'Ensure main residence passes to direct descendants to claim £'.number_format($rnrbAmount, 0).' RNRB',
                 'specific_actions' => [
                     'Update will to leave main residence to children/grandchildren',
                     'Ensure estate value stays below £2m (RNRB taper threshold)',

@@ -181,6 +181,24 @@
               </p>
             </div>
 
+            <!-- In Trust (for Life Insurance) -->
+            <div v-if="formData.policyType === 'life'">
+              <div class="flex items-center">
+                <input
+                  id="in_trust"
+                  v-model="formData.in_trust"
+                  type="checkbox"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label for="in_trust" class="ml-2 block text-sm font-medium text-gray-700">
+                  Is this policy in Trust?
+                </label>
+              </div>
+              <p class="text-xs text-gray-500 mt-1 ml-6">
+                Policies held in trust can help reduce inheritance tax liability
+              </p>
+            </div>
+
             <!-- Benefit Frequency (for Income-based policies) -->
             <div v-if="showBenefitFrequency">
               <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -302,6 +320,7 @@ export default {
         premium_frequency: 'monthly',
         start_date: '',
         term_years: null,
+        in_trust: false,
         benefit_frequency: 'monthly',
         deferred_period_weeks: null,
         benefit_period_months: null,
@@ -378,6 +397,25 @@ export default {
   },
 
   methods: {
+    formatDateForInput(date) {
+      if (!date) return '';
+      try {
+        // If it's already in YYYY-MM-DD format, return it
+        if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          return date;
+        }
+        // Parse and format the date
+        const dateObj = new Date(date);
+        if (isNaN(dateObj.getTime())) return '';
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return '';
+      }
+    },
+
     loadPolicyData() {
       this.formData = {
         policyType: this.policy.policy_type,
@@ -386,8 +424,9 @@ export default {
         coverage_amount: this.policy.sum_assured || this.policy.benefit_amount || 0,
         premium_amount: this.policy.premium_amount || 0,
         premium_frequency: this.policy.premium_frequency || 'monthly',
-        start_date: this.policy.start_date || '',
+        start_date: this.formatDateForInput(this.policy.start_date),
         term_years: this.policy.term_years || null,
+        in_trust: this.policy.in_trust || false,
         benefit_frequency: this.policy.benefit_frequency || 'monthly',
         deferred_period_weeks: this.policy.deferred_period_weeks || null,
         benefit_period_months: this.policy.benefit_period_months || null,
@@ -425,7 +464,7 @@ export default {
         data.sum_assured = this.formData.coverage_amount;
         data.policy_term_years = this.formData.term_years || 20; // Default to 20 years if not provided
         data.policy_start_date = this.formData.start_date || new Date().toISOString().split('T')[0];
-        data.in_trust = false; // Default to false
+        data.in_trust = this.formData.in_trust || false;
         data.beneficiaries = this.formData.notes || null;
       } else if (type === 'criticalIllness') {
         data.policy_type = 'standalone'; // Default to standalone critical illness

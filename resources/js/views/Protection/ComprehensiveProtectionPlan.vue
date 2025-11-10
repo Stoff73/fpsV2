@@ -85,21 +85,21 @@
           >
             <div class="flex items-start">
               <div class="flex-shrink-0">
-                <svg class="h-6 w-6" :class="getWarningIconColor(plan.completeness_warning.severity)" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="h-6 w-6" :class="getWarningIconColour(plan.completeness_warning.severity)" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                 </svg>
               </div>
               <div class="ml-4 flex-1">
-                <h4 class="text-base font-semibold mb-2" :class="getWarningTitleColor(plan.completeness_warning.severity)">
+                <h4 class="text-base font-semibold mb-2" :class="getWarningTitleColour(plan.completeness_warning.severity)">
                   Plan Completeness: {{ plan.completeness_warning.score }}%
                 </h4>
-                <p class="text-sm mb-4" :class="getWarningTextColor(plan.completeness_warning.severity)">
+                <p class="text-sm mb-4" :class="getWarningTextColour(plan.completeness_warning.severity)">
                   {{ plan.completeness_warning.disclaimer }}
                 </p>
 
                 <!-- Missing Fields -->
                 <div v-if="plan.completeness_warning.missing_fields && plan.completeness_warning.missing_fields.length > 0" class="mt-4">
-                  <p class="text-sm font-medium mb-2" :class="getWarningTextColor(plan.completeness_warning.severity)">
+                  <p class="text-sm font-medium mb-2" :class="getWarningTextColour(plan.completeness_warning.severity)">
                     To improve this plan, please complete:
                   </p>
                   <ul class="list-disc list-inside space-y-1">
@@ -107,7 +107,7 @@
                       v-for="field in plan.completeness_warning.missing_fields"
                       :key="field.field"
                       class="text-sm"
-                      :class="getWarningTextColor(plan.completeness_warning.severity)"
+                      :class="getWarningTextColour(plan.completeness_warning.severity)"
                     >
                       {{ field.message }}
                     </li>
@@ -136,11 +136,11 @@
                 <p class="text-sm text-blue-600 font-medium mb-3">Overall Protection Adequacy</p>
                 <div class="flex items-center justify-center mb-4">
                   <div class="text-center">
-                    <p class="text-5xl font-bold" :class="getScoreColorClass(plan.executive_summary.adequacy_score.overall)">
+                    <p class="text-5xl font-bold" :class="getScoreColourClass(plan.executive_summary.adequacy_score.overall)">
                       {{ plan.executive_summary.adequacy_score.overall }}
                     </p>
                     <p class="text-sm text-gray-600 mt-1">out of 100</p>
-                    <p class="text-lg font-semibold mt-2" :class="getScoreColorClass(plan.executive_summary.adequacy_score.overall)">
+                    <p class="text-lg font-semibold mt-2" :class="getScoreColourClass(plan.executive_summary.adequacy_score.overall)">
                       {{ plan.executive_summary.adequacy_score.rating }}
                     </p>
                   </div>
@@ -149,19 +149,19 @@
                 <div class="grid grid-cols-3 gap-2 text-xs">
                   <div class="text-center p-2 bg-white rounded">
                     <p class="text-gray-600">Life</p>
-                    <p class="font-bold" :class="getScoreColorClass(plan.executive_summary.adequacy_score.life)">
+                    <p class="font-bold" :class="getScoreColourClass(plan.executive_summary.adequacy_score.life)">
                       {{ plan.executive_summary.adequacy_score.life }}
                     </p>
                   </div>
                   <div class="text-center p-2 bg-white rounded">
                     <p class="text-gray-600">CI</p>
-                    <p class="font-bold" :class="getScoreColorClass(plan.executive_summary.adequacy_score.critical_illness)">
+                    <p class="font-bold" :class="getScoreColourClass(plan.executive_summary.adequacy_score.critical_illness)">
                       {{ plan.executive_summary.adequacy_score.critical_illness }}
                     </p>
                   </div>
                   <div class="text-center p-2 bg-white rounded">
                     <p class="text-gray-600">IP</p>
-                    <p class="font-bold" :class="getScoreColorClass(plan.executive_summary.adequacy_score.income_protection)">
+                    <p class="font-bold" :class="getScoreColourClass(plan.executive_summary.adequacy_score.income_protection)">
                       {{ plan.executive_summary.adequacy_score.income_protection }}
                     </p>
                   </div>
@@ -477,9 +477,9 @@
             </div>
           </section>
 
-          <!-- Optimized Strategy -->
+          <!-- Optimised Strategy -->
           <section class="mb-12">
-            <h3 class="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">Optimized Protection Strategy</h3>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">Optimised Protection Strategy</h3>
 
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6 border border-blue-200">
               <h4 class="text-lg font-bold text-gray-900 mb-4">{{ plan.optimized_strategy.strategy_name }}</h4>
@@ -674,7 +674,7 @@ export default {
       }).format(value || 0);
     },
 
-    getScoreColorClass(score) {
+    getScoreColourClass(score) {
       if (score >= 80) return 'text-green-600';
       if (score >= 60) return 'text-blue-600';
       if (score >= 40) return 'text-amber-600';
@@ -710,31 +710,31 @@ export default {
       return classes[severity] || classes.warning;
     },
 
-    getWarningIconColor(severity) {
-      const colors = {
+    getWarningIconColour(severity) {
+      const colours = {
         critical: 'text-red-600',
         warning: 'text-amber-600',
         success: 'text-green-600',
       };
-      return colors[severity] || colors.warning;
+      return colours[severity] || colours.warning;
     },
 
-    getWarningTitleColor(severity) {
-      const colors = {
+    getWarningTitleColour(severity) {
+      const colours = {
         critical: 'text-red-900',
         warning: 'text-amber-900',
         success: 'text-green-900',
       };
-      return colors[severity] || colors.warning;
+      return colours[severity] || colours.warning;
     },
 
-    getWarningTextColor(severity) {
-      const colors = {
+    getWarningTextColour(severity) {
+      const colours = {
         critical: 'text-red-700',
         warning: 'text-amber-700',
         success: 'text-green-700',
       };
-      return colors[severity] || colors.warning;
+      return colours[severity] || colours.warning;
     },
 
     getCompleteProfileButtonClass(severity) {

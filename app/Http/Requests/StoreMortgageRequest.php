@@ -23,27 +23,32 @@ class StoreMortgageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'lender_name' => ['required', 'string', 'max:255'],
+            'lender_name' => ['nullable', 'string', 'max:255'],
             'mortgage_account_number' => ['nullable', 'string', 'max:50'],
-            'mortgage_type' => ['required', Rule::in(['repayment', 'interest_only'])],
+            'mortgage_type' => ['nullable', Rule::in(['repayment', 'interest_only'])],
             'country' => ['nullable', 'string', 'max:255'],
 
-            // Loan details
-            'original_loan_amount' => ['required', 'numeric', 'min:0'],
+            // Loan details - only outstanding_balance and monthly_payment are truly required
+            'original_loan_amount' => ['nullable', 'numeric', 'min:0'],
             'outstanding_balance' => ['required', 'numeric', 'min:0'],
 
-            // Interest
-            'interest_rate' => ['required', 'numeric', 'min:0', 'max:100'],
-            'rate_type' => ['required', Rule::in(['fixed', 'variable', 'tracker', 'discount'])],
+            // Interest - optional, default to 0 if not provided
+            'interest_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'rate_type' => ['nullable', Rule::in(['fixed', 'variable', 'tracker', 'discount'])],
             'rate_fix_end_date' => ['nullable', 'date'],
 
             // Payment
             'monthly_payment' => ['required', 'numeric', 'min:0'],
 
             // Dates
-            'start_date' => ['required', 'date'],
-            'maturity_date' => ['required', 'date', 'after:start_date'],
+            'start_date' => ['nullable', 'date'],
+            'maturity_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'remaining_term_months' => ['nullable', 'integer', 'min:0'],
+
+            // Ownership
+            'ownership_type' => ['nullable', Rule::in(['individual', 'joint'])],
+            'joint_owner_id' => ['nullable', 'exists:users,id'],
+            'joint_owner_name' => ['nullable', 'string', 'max:255'],
 
             // Notes
             'notes' => ['nullable', 'string', 'max:1000'],

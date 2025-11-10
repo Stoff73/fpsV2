@@ -11,10 +11,183 @@
         Setup Complete!
       </h2>
       <p class="text-body text-gray-600 mb-2">
-        Thank you for providing your information. We now have enough to start analyzing your estate planning needs.
+        Thank you for providing your information. Here's what we captured during onboarding:
       </p>
     </div>
 
+    <!-- Onboarding Summary -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8 text-left">
+      <h3 class="text-h4 font-display text-gray-900 mb-4">
+        Your Setup Summary
+      </h3>
+
+      <div v-if="loading" class="text-center py-8">
+        <p class="text-gray-500">Loading your information...</p>
+      </div>
+
+      <div v-else class="space-y-2">
+        <!-- Personal Information -->
+        <button
+          @click="goToStep('personal_info')"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+        >
+          <svg class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <div class="flex-1">
+            <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Personal Information</p>
+            <p class="text-body-sm text-gray-600">Profile setup complete</p>
+          </div>
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <!-- Protection Policies -->
+        <button
+          @click="goToStep('protection_policies')"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+        >
+          <svg
+            v-if="summary.policies > 0"
+            class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <svg
+            v-else
+            class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
+          </svg>
+          <div class="flex-1">
+            <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Protection Policies</p>
+            <p v-if="summary.policies > 0" class="text-body-sm text-gray-600">
+              {{ summary.policies }} {{ summary.policies === 1 ? 'policy' : 'policies' }} added
+            </p>
+            <p v-else class="text-body-sm text-gray-500">Skipped - you can add policies later</p>
+          </div>
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <!-- Assets & Wealth (Properties, Investments, Savings) -->
+        <button
+          @click="goToStep('assets')"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+        >
+          <svg
+            v-if="summary.properties > 0 || summary.investments > 0 || summary.savings > 0"
+            class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <svg
+            v-else
+            class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
+          </svg>
+          <div class="flex-1">
+            <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Assets & Wealth</p>
+            <div class="text-body-sm text-gray-600 space-y-0.5">
+              <p v-if="summary.properties > 0">
+                {{ summary.properties }} {{ summary.properties === 1 ? 'property' : 'properties' }} ({{ formatCurrency(summary.propertyValue) }})
+              </p>
+              <p v-if="summary.investments > 0">
+                {{ summary.investments }} investment {{ summary.investments === 1 ? 'account' : 'accounts' }} ({{ formatCurrency(summary.investmentValue) }})
+              </p>
+              <p v-if="summary.savings > 0">
+                {{ summary.savings }} savings {{ summary.savings === 1 ? 'account' : 'accounts' }} ({{ formatCurrency(summary.savingsValue) }})
+              </p>
+              <p v-if="summary.properties === 0 && summary.investments === 0 && summary.savings === 0" class="text-gray-500">
+                Skipped - you can add assets later
+              </p>
+            </div>
+          </div>
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <!-- Liabilities -->
+        <button
+          @click="goToStep('liabilities')"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+        >
+          <svg
+            v-if="summary.liabilities > 0"
+            class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <svg
+            v-else
+            class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
+          </svg>
+          <div class="flex-1">
+            <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Liabilities</p>
+            <p v-if="summary.liabilities > 0" class="text-body-sm text-gray-600">
+              {{ summary.liabilities }} {{ summary.liabilities === 1 ? 'liability' : 'liabilities' }} added (Total: {{ formatCurrency(summary.liabilityValue) }})
+            </p>
+            <p v-else class="text-body-sm text-gray-500">Skipped - you can add liabilities later</p>
+          </div>
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <!-- Family Members -->
+        <button
+          @click="goToStep('family_info')"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+        >
+          <svg
+            v-if="summary.familyMembers > 0"
+            class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <svg
+            v-else
+            class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
+          </svg>
+          <div class="flex-1">
+            <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Family Members</p>
+            <p v-if="summary.familyMembers > 0" class="text-body-sm text-gray-600">
+              {{ summary.familyMembers}} {{ summary.familyMembers === 1 ? 'family member' : 'family members' }} added
+            </p>
+            <p v-else class="text-body-sm text-gray-500">Skipped - you can add family members later</p>
+          </div>
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- What Happens Next -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8 text-left">
       <h3 class="text-h4 font-display text-gray-900 mb-4">
         What happens next?
@@ -25,7 +198,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span class="text-body text-gray-700">
-            Your dashboard will show your current estate planning position
+            Your dashboard will show your current financial planning position
           </span>
         </li>
         <li class="flex items-start">
@@ -41,7 +214,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span class="text-body text-gray-700">
-            You'll receive personalized recommendations to minimize tax
+            You'll receive personalized recommendations to optimise your finances
           </span>
         </li>
         <li class="flex items-start">
@@ -61,18 +234,24 @@
 
     <button
       @click="handleComplete"
-      :disabled="loading"
+      :disabled="completionLoading"
       class="btn-primary btn-lg"
     >
-      {{ loading ? 'Completing...' : 'Go to Dashboard' }}
+      {{ completionLoading ? 'Completing...' : 'Go to Dashboard' }}
     </button>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import propertyService from '@/services/propertyService';
+import investmentService from '@/services/investmentService';
+import savingsService from '@/services/savingsService';
+import protectionService from '@/services/protectionService';
+import estateService from '@/services/estateService';
+import userProfileService from '@/services/userProfileService';
 
 export default {
   name: 'CompletionStep',
@@ -81,11 +260,91 @@ export default {
     const store = useStore();
     const router = useRouter();
 
-    const loading = ref(false);
+    const loading = ref(true);
+    const completionLoading = ref(false);
     const error = ref(null);
 
-    const handleComplete = async () => {
+    const summary = ref({
+      properties: 0,
+      propertyValue: 0,
+      investments: 0,
+      investmentValue: 0,
+      savings: 0,
+      savingsValue: 0,
+      liabilities: 0,
+      liabilityValue: 0,
+      policies: 0,
+      familyMembers: 0,
+    });
+
+    onMounted(async () => {
+      await loadSummary();
+    });
+
+    async function loadSummary() {
       loading.value = true;
+
+      try {
+        // Load all data in parallel
+        const [
+          propertyResponse,
+          investmentResponse,
+          savingsResponse,
+          protectionResponse,
+          estateResponse,
+          profileResponse,
+        ] = await Promise.all([
+          propertyService.getProperties().catch(() => ({ data: [] })),
+          investmentService.getInvestmentData().catch(() => ({ data: { accounts: [] } })),
+          savingsService.getSavingsData().catch(() => ({ data: { accounts: [] } })),
+          protectionService.getProtectionData().catch(() => ({ data: {} })),
+          estateService.getEstateData().catch(() => ({ data: { liabilities: [] } })),
+          userProfileService.getProfile().catch(() => ({ data: { family_members: [] } })),
+        ]);
+
+        // Calculate property summary
+        const properties = propertyResponse.data || [];
+        summary.value.properties = properties.length;
+        summary.value.propertyValue = properties.reduce((sum, p) => sum + (parseFloat(p.current_value) || 0), 0);
+
+        // Calculate investment summary
+        const investments = investmentResponse.data?.accounts || [];
+        summary.value.investments = investments.length;
+        summary.value.investmentValue = investments.reduce((sum, i) => sum + (parseFloat(i.current_value) || 0), 0);
+
+        // Calculate savings summary
+        const savings = savingsResponse.data?.accounts || [];
+        summary.value.savings = savings.length;
+        summary.value.savingsValue = savings.reduce((sum, s) => sum + (parseFloat(s.current_balance) || 0), 0);
+
+        // Calculate liabilities summary
+        const liabilities = estateResponse.data?.liabilities || [];
+        summary.value.liabilities = liabilities.length;
+        summary.value.liabilityValue = liabilities.reduce((sum, l) => sum + (parseFloat(l.current_balance) || 0), 0);
+
+        // Calculate protection policy summary
+        // API returns snake_case keys: life_insurance, critical_illness, etc.
+        const protectionData = protectionResponse.data || {};
+        const policies = protectionData.policies || {};
+        summary.value.policies =
+          (policies.life_insurance?.length || 0) +
+          (policies.critical_illness?.length || 0) +
+          (policies.income_protection?.length || 0) +
+          (policies.disability?.length || 0) +
+          (policies.sickness_illness?.length || 0);
+
+        // Family members summary
+        summary.value.familyMembers = profileResponse.data?.family_members?.length || 0;
+
+      } catch (err) {
+        console.error('Failed to load summary', err);
+      } finally {
+        loading.value = false;
+      }
+    }
+
+    const handleComplete = async () => {
+      completionLoading.value = true;
       error.value = null;
 
       try {
@@ -96,14 +355,43 @@ export default {
       } catch (err) {
         error.value = err.message || 'Failed to complete. Please try again.';
       } finally {
-        loading.value = false;
+        completionLoading.value = false;
       }
+    };
+
+    const goToStep = async (stepName) => {
+      try {
+        // Find the step index by name
+        const steps = store.state.onboarding.steps;
+        const stepIndex = steps.findIndex(step => step.name === stepName);
+
+        if (stepIndex !== -1) {
+          // Navigate to that step
+          await store.dispatch('onboarding/goToStep', stepIndex);
+        }
+      } catch (err) {
+        console.error('Failed to navigate to step:', err);
+      }
+    };
+
+    const formatCurrency = (value) => {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     };
 
     return {
       loading,
+      completionLoading,
       error,
+      summary,
       handleComplete,
+      goToStep,
+      formatCurrency,
     };
   },
 };

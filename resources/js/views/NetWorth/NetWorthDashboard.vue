@@ -53,6 +53,7 @@ export default {
     return {
       tabs: [
         { path: 'overview', label: 'Overview' },
+        { path: 'retirement', label: 'Retirement' },
         { path: 'property', label: 'Property' },
         { path: 'investments', label: 'Investments' },
         { path: 'cash', label: 'Cash' },
@@ -111,7 +112,7 @@ export default {
 .breadcrumb-link {
   color: #3b82f6;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: colour 0.2s;
 }
 
 .breadcrumb-link:hover {

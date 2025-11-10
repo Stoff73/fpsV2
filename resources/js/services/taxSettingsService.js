@@ -25,4 +25,12 @@ export default {
   setActive(configId) {
     return api.post(`/tax-settings/${configId}/activate`);
   },
+
+  duplicate(configId, data) {
+    return api.post(`/tax-settings/${configId}/duplicate`, data);
+  },
+
+  delete(configId) {
+    return api.delete(`/tax-settings/${configId}`);
+  },
 };

@@ -15,148 +15,6 @@
         Liabilities reduce your taxable estate. We've already captured mortgages with your properties - here you can add other debts like personal loans, car finance, or credit cards.
       </p>
 
-      <!-- Liability Form -->
-      <div v-if="showForm" class="border border-gray-200 rounded-lg p-4 bg-white">
-        <h4 class="text-body font-medium text-gray-900 mb-4">
-          {{ editingIndex !== null ? 'Edit Liability' : 'Add Liability' }}
-        </h4>
-
-        <div class="grid grid-cols-1 gap-4">
-          <div>
-            <label for="liability_type" class="label">
-              Liability Type <span class="text-red-500">*</span>
-            </label>
-            <select
-              id="liability_type"
-              v-model="currentLiability.type"
-              class="input-field"
-              required
-            >
-              <option value="">Select type</option>
-              <option value="personal_loan">Personal Loan</option>
-              <option value="hire_purchase">Car Finance / Hire Purchase</option>
-              <option value="credit_card">Credit Card</option>
-              <option value="student_loan">Student Loan</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <!-- Country Selector -->
-          <div>
-            <CountrySelector
-              v-model="currentLiability.country"
-              label="Country"
-              :required="true"
-              default-country="United Kingdom"
-            />
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="lender" class="label">
-                Lender / Provider <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="lender"
-                v-model="currentLiability.lender"
-                type="text"
-                class="input-field"
-                placeholder="e.g., Barclays, HSBC"
-                required
-              >
-            </div>
-
-            <div>
-              <label for="outstanding_balance" class="label">
-                Outstanding Balance <span class="text-red-500">*</span>
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input
-                  id="outstanding_balance"
-                  v-model.number="currentLiability.outstanding_balance"
-                  type="number"
-                  min="0"
-                  step="100"
-                  class="input-field pl-8"
-                  placeholder="0"
-                  required
-                >
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="monthly_payment" class="label">
-                Monthly Payment
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input
-                  id="monthly_payment"
-                  v-model.number="currentLiability.monthly_payment"
-                  type="number"
-                  min="0"
-                  step="10"
-                  class="input-field pl-8"
-                  placeholder="0"
-                >
-              </div>
-            </div>
-
-            <div>
-              <label for="interest_rate" class="label">
-                Interest Rate (%)
-              </label>
-              <div class="relative">
-                <input
-                  id="interest_rate"
-                  v-model.number="currentLiability.interest_rate"
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.1"
-                  class="input-field pr-8"
-                  placeholder="0.0"
-                >
-                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label for="purpose" class="label">
-              Purpose / Notes
-            </label>
-            <textarea
-              id="purpose"
-              v-model="currentLiability.purpose"
-              rows="2"
-              class="input-field"
-              placeholder="e.g., Car purchase, home improvements"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="flex gap-3 mt-4">
-          <button
-            type="button"
-            class="btn-primary"
-            @click="saveLiability"
-          >
-            {{ editingIndex !== null ? 'Update Liability' : 'Add Liability' }}
-          </button>
-          <button
-            type="button"
-            class="btn-secondary"
-            @click="cancelForm"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-
       <!-- Added Liabilities List -->
       <div v-if="liabilities.length > 0" class="space-y-3">
         <h4 class="text-body font-medium text-gray-900">
@@ -164,48 +22,37 @@
         </h4>
 
         <div
-          v-for="(liability, index) in liabilities"
-          :key="index"
+          v-for="liability in liabilities"
+          :key="liability.id"
           class="border border-gray-200 rounded-lg p-4 bg-gray-50"
         >
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-2">
                 <h5 class="text-body font-medium text-gray-900 capitalize">
-                  {{ liability.type.replace(/_/g, ' ') }}
+                  {{ liability.liability_type?.replace(/_/g, ' ') }}
                 </h5>
               </div>
-              <p class="text-body-sm text-gray-600">{{ liability.lender }}</p>
-              <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
-                <div>
-                  <p class="text-body-sm text-gray-500">Balance</p>
-                  <p class="text-body font-medium text-gray-900">£{{ liability.outstanding_balance.toLocaleString() }}</p>
-                </div>
-                <div v-if="liability.monthly_payment > 0">
-                  <p class="text-body-sm text-gray-500">Monthly Payment</p>
-                  <p class="text-body font-medium text-gray-900">£{{ liability.monthly_payment.toLocaleString() }}</p>
-                </div>
-                <div v-if="liability.interest_rate > 0">
-                  <p class="text-body-sm text-gray-500">Interest Rate</p>
-                  <p class="text-body font-medium text-gray-900">{{ liability.interest_rate }}%</p>
-                </div>
+              <p class="text-body-sm text-gray-600">{{ liability.liability_name }}</p>
+              <div class="mt-2">
+                <p class="text-body-sm text-gray-500">Balance</p>
+                <p class="text-body font-medium text-gray-900">£{{ liability.current_balance?.toLocaleString() }}</p>
               </div>
-              <p v-if="liability.purpose" class="mt-2 text-body-sm text-gray-600 italic">{{ liability.purpose }}</p>
             </div>
             <div class="flex gap-2 ml-4">
               <button
                 type="button"
                 class="text-primary-600 hover:text-primary-700 text-body-sm"
-                @click="editLiability(index)"
+                @click="editLiability(liability)"
               >
                 Edit
               </button>
               <button
                 type="button"
                 class="text-red-600 hover:text-red-700 text-body-sm"
-                @click="removeLiability(index)"
+                @click="deleteLiability(liability.id)"
               >
-                Remove
+                Delete
               </button>
             </div>
           </div>
@@ -213,7 +60,7 @@
       </div>
 
       <!-- Add Liability Button -->
-      <div v-if="!showForm">
+      <div>
         <button
           type="button"
           class="btn-secondary w-full md:w-auto"
@@ -227,124 +74,103 @@
         You can skip this step if you don't have any loans or credit card debt.
       </p>
     </div>
+
+    <!-- Liability Form Modal -->
+    <div v-if="showForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden">
+        <LiabilityForm
+          :liability="editingLiability"
+          :mode="editingLiability ? 'edit' : 'create'"
+          @save="handleLiabilitySave"
+          @cancel="closeLiabilityForm"
+        />
+      </div>
+    </div>
   </OnboardingStep>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
 import OnboardingStep from '../OnboardingStep.vue';
-import CountrySelector from '@/components/Shared/CountrySelector.vue';
+import LiabilityForm from '@/components/Estate/LiabilityForm.vue';
+import estateService from '@/services/estateService';
 
 export default {
   name: 'LiabilitiesStep',
 
   components: {
     OnboardingStep,
-    CountrySelector,
+    LiabilityForm,
   },
 
   emits: ['next', 'back', 'skip'],
 
   setup(props, { emit }) {
-    const store = useStore();
-
     const liabilities = ref([]);
     const showForm = ref(false);
-    const editingIndex = ref(null);
-    const currentLiability = ref({
-      type: '',
-      lender: '',
-      country: 'United Kingdom',
-      outstanding_balance: 0,
-      monthly_payment: 0,
-      interest_rate: 0,
-      purpose: '',
-    });
-
+    const editingLiability = ref(null);
     const loading = ref(false);
     const error = ref(null);
 
+    onMounted(async () => {
+      await loadLiabilities();
+    });
+
+    async function loadLiabilities() {
+      try {
+        const response = await estateService.getEstateData();
+        liabilities.value = response.data?.liabilities || [];
+      } catch (err) {
+        console.error('Failed to load liabilities', err);
+      }
+    }
+
     const showAddForm = () => {
       showForm.value = true;
-      editingIndex.value = null;
-      resetCurrentLiability();
+      editingLiability.value = null;
     };
 
-    const resetCurrentLiability = () => {
-      currentLiability.value = {
-        type: '',
-        lender: '',
-        country: 'United Kingdom',
-        outstanding_balance: 0,
-        monthly_payment: 0,
-        interest_rate: 0,
-        purpose: '',
-      };
-    };
+    const handleLiabilitySave = async (formData) => {
+      try {
+        if (editingLiability.value) {
+          // Update existing liability
+          await estateService.updateLiability(editingLiability.value.id, formData);
+        } else {
+          // Create new liability
+          await estateService.createLiability(formData);
+        }
 
-    const saveLiability = () => {
-      // Validation
-      if (
-        !currentLiability.value.type ||
-        !currentLiability.value.lender ||
-        !currentLiability.value.outstanding_balance
-      ) {
-        error.value = 'Please fill in all required fields';
-        return;
+        closeLiabilityForm();
+        await loadLiabilities();
+      } catch (err) {
+        error.value = 'Failed to save liability';
+        console.error('Failed to save liability:', err);
       }
-
-      error.value = null;
-
-      if (editingIndex.value !== null) {
-        // Update existing liability
-        liabilities.value[editingIndex.value] = { ...currentLiability.value };
-      } else {
-        // Add new liability
-        liabilities.value.push({ ...currentLiability.value });
-      }
-
-      showForm.value = false;
-      resetCurrentLiability();
     };
 
-    const editLiability = (index) => {
-      editingIndex.value = index;
-      currentLiability.value = { ...liabilities.value[index] };
+    const editLiability = (liability) => {
+      editingLiability.value = liability;
       showForm.value = true;
     };
 
-    const removeLiability = (index) => {
+    const deleteLiability = async (id) => {
       if (confirm('Are you sure you want to remove this liability?')) {
-        liabilities.value.splice(index, 1);
+        try {
+          await estateService.deleteLiability(id);
+          await loadLiabilities();
+        } catch (err) {
+          error.value = 'Failed to delete liability';
+        }
       }
     };
 
-    const cancelForm = () => {
+    const closeLiabilityForm = () => {
       showForm.value = false;
-      editingIndex.value = null;
-      resetCurrentLiability();
-      error.value = null;
+      editingLiability.value = null;
     };
 
-    const handleNext = async () => {
-      loading.value = true;
-      error.value = null;
-
-      try {
-        await store.dispatch('onboarding/saveStepData', {
-          stepName: 'liabilities',
-          data: {
-            liabilities: liabilities.value,
-          },
-        });
-
-        emit('next');
-      } catch (err) {
-        error.value = err.message || 'Failed to save. Please try again.';
-      } finally {
-        loading.value = false;
-      }
+    const handleNext = () => {
+      emit('next');
     };
 
     const handleBack = () => {
@@ -352,28 +178,20 @@ export default {
     };
 
     const handleSkip = () => {
-      emit('skip', 'liabilities');
+      emit('skip');
     };
-
-    onMounted(async () => {
-      const existingData = await store.dispatch('onboarding/fetchStepData', 'liabilities');
-      if (existingData && existingData.liabilities && Array.isArray(existingData.liabilities)) {
-        liabilities.value = existingData.liabilities;
-      }
-    });
 
     return {
       liabilities,
       showForm,
-      editingIndex,
-      currentLiability,
+      editingLiability,
       loading,
       error,
       showAddForm,
-      saveLiability,
+      handleLiabilitySave,
       editLiability,
-      removeLiability,
-      cancelForm,
+      deleteLiability,
+      closeLiabilityForm,
       handleNext,
       handleBack,
       handleSkip,

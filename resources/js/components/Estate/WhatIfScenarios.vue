@@ -191,7 +191,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {{ formatCurrency(scenarioResults.scenario.estate_value) }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm" :class="getDifferenceColor(scenarioResults.scenario.estate_value - scenarioResults.current.estate_value)">
+              <td class="px-6 py-4 whitespace-nowrap text-sm" :class="getDifferenceColour(scenarioResults.scenario.estate_value - scenarioResults.current.estate_value)">
                 {{ formatDifference(scenarioResults.scenario.estate_value - scenarioResults.current.estate_value) }}
               </td>
             </tr>
@@ -205,7 +205,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {{ formatCurrency(scenarioResults.scenario.iht_liability) }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold" :class="getIHTDifferenceColor(scenarioResults.scenario.iht_liability - scenarioResults.current.iht_liability)">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold" :class="getIHTDifferenceColour(scenarioResults.scenario.iht_liability - scenarioResults.current.iht_liability)">
                 {{ formatDifference(scenarioResults.scenario.iht_liability - scenarioResults.current.iht_liability) }}
               </td>
             </tr>
@@ -341,11 +341,11 @@ export default {
       return value >= 0 ? `+${formatted}` : `-${formatted}`;
     },
 
-    getDifferenceColor(value) {
+    getDifferenceColour(value) {
       return value >= 0 ? 'text-green-600' : 'text-red-600';
     },
 
-    getIHTDifferenceColor(value) {
+    getIHTDifferenceColour(value) {
       // For IHT, reduction is good (green), increase is bad (red)
       return value <= 0 ? 'text-green-600' : 'text-red-600';
     },

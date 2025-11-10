@@ -8,7 +8,7 @@
         <div class="flex-shrink-0">
           <svg
             class="h-5 w-5"
-            :class="iconColor"
+            :class="iconColour"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -21,10 +21,10 @@
           </svg>
         </div>
         <div class="ml-3 flex-1">
-          <h3 class="text-sm font-medium" :class="titleColor">
+          <h3 class="text-sm font-medium" :class="titleColour">
             {{ alertTitle }}
           </h3>
-          <div class="mt-2 text-sm" :class="textColor">
+          <div class="mt-2 text-sm" :class="textColour">
             <p>{{ alertMessage }}</p>
 
             <!-- Progress Bar -->
@@ -36,7 +36,7 @@
               <div class="w-full bg-gray-200 rounded-full h-2">
                 <div
                   class="h-2 rounded-full transition-all duration-300"
-                  :class="progressBarColor"
+                  :class="progressBarColour"
                   :style="`width: ${completenessData.completeness_score}%`"
                 ></div>
               </div>
@@ -55,7 +55,7 @@
                   <router-link
                     :to="field.link"
                     class="hover:underline flex-1"
-                    :class="linkColor"
+                    :class="linkColour"
                   >
                     {{ field.message }}
                   </router-link>
@@ -75,7 +75,7 @@
               <button
                 @click="showRecommendations = !showRecommendations"
                 class="text-sm font-medium hover:underline focus:outline-none"
-                :class="linkColor"
+                :class="linkColour"
               >
                 {{ showRecommendations ? 'Hide' : 'Show' }} Recommendations
               </button>
@@ -92,7 +92,7 @@
             v-if="dismissible"
             @click="dismiss"
             class="mt-3 text-sm font-medium hover:underline"
-            :class="linkColor"
+            :class="linkColour"
           >
             Dismiss (will reappear until profile is complete)
           </button>
@@ -163,7 +163,7 @@ export default {
       }
     },
 
-    iconColor() {
+    iconColour() {
       switch (this.severity) {
         case 'critical':
           return 'text-red-400';
@@ -174,7 +174,7 @@ export default {
       }
     },
 
-    titleColor() {
+    titleColour() {
       switch (this.severity) {
         case 'critical':
           return 'text-red-800';
@@ -185,7 +185,7 @@ export default {
       }
     },
 
-    textColor() {
+    textColour() {
       switch (this.severity) {
         case 'critical':
           return 'text-red-700';
@@ -196,7 +196,7 @@ export default {
       }
     },
 
-    linkColor() {
+    linkColour() {
       switch (this.severity) {
         case 'critical':
           return 'text-red-700 hover:text-red-900';
@@ -207,7 +207,7 @@ export default {
       }
     },
 
-    progressBarColor() {
+    progressBarColour() {
       switch (this.severity) {
         case 'critical':
           return 'bg-red-600';

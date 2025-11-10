@@ -166,7 +166,7 @@ export default {
       'updateAccount',
       'deleteAccount',
       'fetchInvestmentData',
-      'analyzeInvestment',
+      'analyseInvestment',
     ]),
 
     openAddModal() {

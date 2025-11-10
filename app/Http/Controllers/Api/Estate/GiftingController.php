@@ -13,6 +13,7 @@ use App\Services\Estate\GiftingStrategyOptimizer;
 use App\Services\Estate\PersonalizedGiftingStrategyService;
 use App\Services\Estate\PersonalizedTrustStrategyService;
 use App\Services\Estate\TrustService;
+use App\Services\TaxConfigService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -25,7 +26,8 @@ class GiftingController extends Controller
         private PersonalizedGiftingStrategyService $personalizedGiftingStrategy,
         private PersonalizedTrustStrategyService $personalizedTrustStrategy,
         private EstateAssetAggregatorService $assetAggregator,
-        private TrustService $trustService
+        private TrustService $trustService,
+        private TaxConfigService $taxConfig
     ) {}
 
     /**
@@ -73,8 +75,8 @@ class GiftingController extends Controller
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
             if (! $ihtProfile) {
                 $isMarried = in_array($user->marital_status, ['married']);
-                $config = config('uk_tax_config.inheritance_tax');
-                $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
+                $ihtConfig = $this->taxConfig->getInheritanceTax();
+                $defaultSpouseNRB = $isMarried ? $ihtConfig['nil_rate_band'] : 0;
 
                 $ihtProfile = new IHTProfile([
                     'user_id' => $user->id,
@@ -92,9 +94,8 @@ class GiftingController extends Controller
             $annualExpenditure = $cashFlow['total_expenses'] ?? 0;
 
             // Calculate total NRB available
-            $taxConfig = config('uk_tax_config');
-            $ihtConfig = $taxConfig['inheritance_tax'];
-            $giftingConfig = $taxConfig['gifting_exemptions'];
+            $ihtConfig = $this->taxConfig->getInheritanceTax();
+            $giftingConfig = $this->taxConfig->getGiftingExemptions();
 
             // CRITICAL: For LIFETIME GIFTING, only the user's own NRB (£325k) applies
             // Spouse NRB transfer ONLY applies on death for IHT calculation, NOT for lifetime gifts
@@ -267,8 +268,8 @@ class GiftingController extends Controller
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
             if (! $ihtProfile) {
                 $isMarried = in_array($user->marital_status, ['married']);
-                $config = config('uk_tax_config.inheritance_tax');
-                $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
+                $ihtConfig = $this->taxConfig->getInheritanceTax();
+                $defaultSpouseNRB = $isMarried ? $ihtConfig['nil_rate_band'] : 0;
 
                 $ihtProfile = new IHTProfile([
                     'user_id' => $user->id,
@@ -356,13 +357,13 @@ class GiftingController extends Controller
             // Get or create IHT profile
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
             if (! $ihtProfile) {
-                $config = config('uk_tax_config.inheritance_tax');
+                $ihtConfig = $this->taxConfig->getInheritanceTax();
                 $ihtProfile = new IHTProfile([
                     'user_id' => $user->id,
                     'marital_status' => $user->marital_status ?? 'single',
                     'own_home' => false,
                     'home_value' => 0,
-                    'available_nrb' => $config['nil_rate_band'], // £325,000
+                    'available_nrb' => $ihtConfig['nil_rate_band'], // £325,000
                     'charitable_giving_percent' => 0,
                 ]);
             }

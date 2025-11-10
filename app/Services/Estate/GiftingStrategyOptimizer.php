@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Services\Estate;
 
 use App\Models\User;
+use App\Services\TaxConfigService;
 
 class GiftingStrategyOptimizer
 {
     public function __construct(
-        private FutureValueCalculator $fvCalculator
+        private FutureValueCalculator $fvCalculator,
+        private TaxConfigService $taxConfig
     ) {}
 
     /**
@@ -35,9 +37,10 @@ class GiftingStrategyOptimizer
         float $rnrbAvailable,
         float $annualExpenditure = 0
     ): array {
-        $config = config('uk_tax_config');
-        $ihtRate = $config['inheritance_tax']['standard_rate']; // 0.40
-        $annualExemption = $config['gifting_exemptions']['annual_exemption']; // £3,000
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
+        $giftingConfig = $this->taxConfig->getGiftingExemptions();
+        $ihtRate = $ihtConfig['standard_rate']; // 0.40
+        $annualExemption = $giftingConfig['annual_exemption']; // £3,000
 
         $strategies = [];
         $remainingIHTLiability = $currentIHTLiability;

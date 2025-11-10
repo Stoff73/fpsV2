@@ -43,7 +43,7 @@ export default {
     },
 
     series() {
-      const policyTypeColors = {
+      const policyTypeColours = {
         life: '#3B82F6',
         criticalIllness: '#8B5CF6',
         incomeProtection: '#10B981',
@@ -73,7 +73,7 @@ export default {
         return {
           x: policyLabel,
           y: [startDate.getTime(), endDate.getTime()],
-          fillColor: policyTypeColors[policyType] || '#6B7280',
+          fillColour: policyTypeColours[policyType] || '#6B7280',
         };
       });
 

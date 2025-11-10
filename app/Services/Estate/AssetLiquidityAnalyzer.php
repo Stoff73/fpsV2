@@ -80,7 +80,9 @@ class AssetLiquidityAnalyzer
             'summary' => [
                 'total_giftable_value' => round($totalLiquid + $totalSemiLiquid, 2),
                 'total_value' => round($totalLiquid + $totalSemiLiquid + $totalIlliquid, 2),
-                'giftable_percentage' => round((($totalLiquid + $totalSemiLiquid) / ($totalLiquid + $totalSemiLiquid + $totalIlliquid)) * 100, 1),
+                'giftable_percentage' => ($totalLiquid + $totalSemiLiquid + $totalIlliquid) > 0
+                    ? round((($totalLiquid + $totalSemiLiquid) / ($totalLiquid + $totalSemiLiquid + $totalIlliquid)) * 100, 1)
+                    : 0,
             ],
         ];
     }

@@ -5,11 +5,24 @@ declare(strict_types=1);
 namespace App\Services\Estate;
 
 use App\Models\User;
+use App\Services\TaxConfigService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class FutureValueCalculator
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Get life expectancy for user based on UK ONS actuarial tables
      *
@@ -276,7 +289,7 @@ class FutureValueCalculator
      */
     public function getDefaultGrowthRates(): array
     {
-        $assumptions = config('uk_tax_config.assumptions');
+        $assumptions = $this->taxConfig->getAssumptions();
 
         return [
             'property' => 0.03, // 3% property appreciation

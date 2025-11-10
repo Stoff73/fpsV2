@@ -15,7 +15,7 @@ const estateService = {
     },
 
     /**
-     * Analyze estate position and calculate IHT liability
+     * Analyse estate position and calculate IHT liability
      * @param {Object} data - Analysis parameters
      * @returns {Promise} Analysis results with IHT calculation and recommendations
      */
@@ -204,7 +204,7 @@ const estateService = {
 
     /**
      * Get personalized asset-based gifting strategy
-     * Analyzes user's actual assets and their liquidity to provide tailored gifting recommendations
+     * Analyses user's actual assets and their liquidity to provide tailored gifting recommendations
      * @returns {Promise} Personalized gifting strategy with asset-specific guidance
      */
     async getPersonalizedGiftingStrategy() {
@@ -214,7 +214,7 @@ const estateService = {
 
     /**
      * Get personalized trust planning strategy with CLT taxation
-     * Analyzes user's assets for trust planning with proper CLT taxation rules:
+     * Analyses user's assets for trust planning with proper CLT taxation rules:
      * - 20% lifetime charge on amounts exceeding £325,000 NRB
      * - Additional charge to 40% if death within 7 years (with taper relief)
      * - 7-year rolling window for cumulative CLTs
@@ -242,7 +242,7 @@ const estateService = {
      * - Gifting strategy
      * - Trust planning strategy
      * - Life policy strategy
-     * - Optimized combined recommendations with priorities
+     * - Optimised combined recommendations with priorities
      * - Implementation timeline
      * - Next steps categorized by timeframe
      * @returns {Promise} Comprehensive estate plan document

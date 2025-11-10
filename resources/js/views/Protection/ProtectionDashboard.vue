@@ -33,7 +33,7 @@
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Protection Planning</h1>
         <p class="text-gray-600">
-          Analyze your protection coverage and identify gaps in your insurance portfolio
+          Analyse your protection coverage and identify gaps in your insurance portfolio
         </p>
       </div>
 

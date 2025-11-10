@@ -71,7 +71,12 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        // Check if user has a current access token before deleting
+        $token = $request->user()->currentAccessToken();
+
+        if ($token && method_exists($token, 'delete')) {
+            $token->delete();
+        }
 
         return response()->json([
             'success' => true,
@@ -84,10 +89,17 @@ class AuthController extends Controller
      */
     public function user(Request $request): JsonResponse
     {
+        $user = $request->user();
+
+        // Load spouse relationship if spouse_id exists
+        if ($user->spouse_id) {
+            $user->load('spouse');
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
         ]);
     }

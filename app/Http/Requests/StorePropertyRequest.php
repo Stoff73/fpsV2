@@ -24,18 +24,27 @@ class StorePropertyRequest extends FormRequest
     {
         return [
             'trust_id' => ['nullable', 'exists:trusts,id'],
-            'property_type' => ['required', Rule::in(['main_residence', 'secondary_residence', 'buy_to_let', 'commercial', 'land'])],
-            'ownership_type' => ['nullable', Rule::in(['individual', 'joint', 'trust'])],
+            'property_type' => ['required', Rule::in(['main_residence', 'secondary_residence', 'buy_to_let'])],
+            'ownership_type' => ['nullable', Rule::in(['individual', 'joint', 'tenants_in_common', 'trust'])],
+            'joint_ownership_type' => ['nullable', Rule::in(['joint_tenancy', 'tenants_in_common'])],
             'country' => ['nullable', 'string', 'max:255'],
             'ownership_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'joint_owner_id' => ['nullable', 'exists:users,id'],
+            'joint_owner_name' => ['nullable', 'string', 'max:255'],
+            'household_id' => ['nullable', 'exists:households,id'],
+            'trust_name' => ['nullable', 'string', 'max:255'],
 
-            // Address - simplified (address is a virtual field, actual column is address_line_1)
-            'address' => ['required', 'string', 'max:500'],
-            'address_line_1' => ['nullable', 'string', 'max:255'],
+            // Tenure
+            'tenure_type' => ['nullable', Rule::in(['freehold', 'leasehold'])],
+            'lease_remaining_years' => ['nullable', 'integer', 'min:0', 'max:999'],
+            'lease_expiry_date' => ['nullable', 'date'],
+
+            // Address - using separate fields (address_line_1 is the primary field)
+            'address_line_1' => ['required', 'string', 'max:255'],
             'address_line_2' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:255'],
+            'city' => ['required', 'string', 'max:255'],
             'county' => ['nullable', 'string', 'max:255'],
-            'postcode' => ['nullable', 'string', 'max:10'],
+            'postcode' => ['required', 'string', 'max:10'],
 
             // Financial
             'purchase_date' => ['nullable', 'date'],
@@ -51,15 +60,20 @@ class StorePropertyRequest extends FormRequest
             'annual_rental_income' => ['nullable', 'numeric', 'min:0'],
             'occupancy_rate_percent' => ['nullable', 'integer', 'min:0', 'max:100'],
             'tenant_name' => ['nullable', 'string', 'max:255'],
+            'tenant_email' => ['nullable', 'email', 'max:255'],
             'lease_start_date' => ['nullable', 'date'],
             'lease_end_date' => ['nullable', 'date', 'after_or_equal:lease_start_date'],
 
-            // Costs
-            'annual_service_charge' => ['nullable', 'numeric', 'min:0'],
-            'annual_ground_rent' => ['nullable', 'numeric', 'min:0'],
-            'annual_insurance' => ['nullable', 'numeric', 'min:0'],
-            'annual_maintenance_reserve' => ['nullable', 'numeric', 'min:0'],
-            'other_annual_costs' => ['nullable', 'numeric', 'min:0'],
+            // Monthly Costs
+            'monthly_council_tax' => ['nullable', 'numeric', 'min:0'],
+            'monthly_gas' => ['nullable', 'numeric', 'min:0'],
+            'monthly_electricity' => ['nullable', 'numeric', 'min:0'],
+            'monthly_water' => ['nullable', 'numeric', 'min:0'],
+            'monthly_building_insurance' => ['nullable', 'numeric', 'min:0'],
+            'monthly_contents_insurance' => ['nullable', 'numeric', 'min:0'],
+            'monthly_service_charge' => ['nullable', 'numeric', 'min:0'],
+            'monthly_maintenance_reserve' => ['nullable', 'numeric', 'min:0'],
+            'other_monthly_costs' => ['nullable', 'numeric', 'min:0'],
 
             // Notes
             'notes' => ['nullable', 'string', 'max:1000'],

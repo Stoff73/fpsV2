@@ -4,10 +4,23 @@ declare(strict_types=1);
 
 namespace App\Services\Investment;
 
+use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
 
 class TaxEfficiencyCalculator
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Calculate unrealized gains across all holdings
      */
@@ -47,8 +60,8 @@ class TaxEfficiencyCalculator
      */
     public function calculateDividendTax(float $dividendIncome, float $totalIncome): float
     {
-        $config = config('uk_tax_config.dividend_tax');
-        $allowance = $config['dividend_allowance'];
+        $dividendConfig = $this->taxConfig->getDividendTax();
+        $allowance = $dividendConfig['allowance'];
 
         // Dividend income above allowance
         $taxableDividends = max(0, $dividendIncome - $allowance);
@@ -58,21 +71,21 @@ class TaxEfficiencyCalculator
         }
 
         // Determine tax band based on total income
-        $incomeTaxConfig = config('uk_tax_config.income_tax.bands');
-        $personalAllowance = $incomeTaxConfig['personal_allowance'];
+        $incomeTaxConfig = $this->taxConfig->getIncomeTax();
+        $personalAllowance = $incomeTaxConfig['bands']['personal_allowance'];
 
         // Simplified calculation - in reality would need to work through bands
         $tax = 0;
 
         if ($totalIncome <= $personalAllowance + 37700) {
             // Basic rate
-            $tax = $taxableDividends * $config['basic_rate'];
+            $tax = $taxableDividends * $dividendConfig['basic_rate'];
         } elseif ($totalIncome <= 125140) {
             // Higher rate
-            $tax = $taxableDividends * $config['higher_rate'];
+            $tax = $taxableDividends * $dividendConfig['higher_rate'];
         } else {
             // Additional rate
-            $tax = $taxableDividends * $config['additional_rate'];
+            $tax = $taxableDividends * $dividendConfig['additional_rate'];
         }
 
         return round($tax, 2);
@@ -83,8 +96,8 @@ class TaxEfficiencyCalculator
      */
     public function calculateCGTLiability(float $realizedGains, float $totalIncome = 0): float
     {
-        $config = config('uk_tax_config.capital_gains_tax');
-        $annualExemption = $config['annual_exempt_amount'];
+        $cgtConfig = $this->taxConfig->getCapitalGainsTax();
+        $annualExemption = $cgtConfig['annual_exempt_amount'];
 
         // Gains above annual exemption
         $taxableGains = max(0, $realizedGains - $annualExemption);
@@ -94,12 +107,12 @@ class TaxEfficiencyCalculator
         }
 
         // Determine rate based on income
-        $incomeTaxConfig = config('uk_tax_config.income_tax.bands');
-        $higherRateThreshold = $incomeTaxConfig['personal_allowance'] + 37700;
+        $incomeTaxConfig = $this->taxConfig->getIncomeTax();
+        $higherRateThreshold = $incomeTaxConfig['bands']['personal_allowance'] + 37700;
 
         $rate = $totalIncome > $higherRateThreshold
-            ? $config['higher_rate']
-            : $config['basic_rate'];
+            ? $cgtConfig['higher_rate']
+            : $cgtConfig['basic_rate'];
 
         $cgtLiability = $taxableGains * $rate;
 

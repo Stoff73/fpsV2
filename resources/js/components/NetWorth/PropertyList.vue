@@ -49,7 +49,7 @@
 
     <!-- Property Form Modal -->
     <PropertyForm
-      :show="showPropertyForm"
+      v-if="showPropertyForm"
       :property="selectedProperty"
       @save="handleSaveProperty"
       @close="closePropertyForm"
@@ -67,7 +67,7 @@
 
 <script>
 import PropertyCard from './PropertyCard.vue';
-import PropertyForm from './PropertyForm.vue';
+import PropertyForm from './Property/PropertyForm.vue';
 import api from '@/services/api';
 
 export default {
@@ -125,23 +125,32 @@ export default {
       this.selectedProperty = null;
     },
 
-    async handleSaveProperty(formData) {
+    async handleSaveProperty(data) {
       this.clearMessages();
 
       try {
-        if (formData.id) {
+        let propertyResponse;
+
+        if (data.property.id) {
           // Update existing property
-          const response = await api.put(`/properties/${formData.id}`, formData);
-          const index = this.properties.findIndex(p => p.id === formData.id);
+          propertyResponse = await api.put(`/properties/${data.property.id}`, data.property);
+          const index = this.properties.findIndex(p => p.id === data.property.id);
           if (index !== -1) {
-            this.properties.splice(index, 1, response.data);
+            this.properties.splice(index, 1, propertyResponse.data);
           }
           this.successMessage = 'Property updated successfully';
         } else {
           // Create new property
-          const response = await api.post('/properties', formData);
-          this.properties.push(response.data);
+          propertyResponse = await api.post('/properties', data.property);
+          this.properties.push(propertyResponse.data);
           this.successMessage = 'Property added successfully';
+
+          // If mortgage data provided, save mortgage
+          if (data.mortgage && propertyResponse.data?.id) {
+            const propertyId = propertyResponse.data.id;
+            await api.post(`/properties/${propertyId}/mortgages`, data.mortgage);
+            this.successMessage = 'Property and mortgage added successfully';
+          }
         }
 
         this.closePropertyForm();

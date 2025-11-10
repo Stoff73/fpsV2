@@ -117,7 +117,7 @@ export default {
           },
         },
         labels: labels,
-        colors: [
+        colours: [
           '#3b82f6', // UK Equities - blue
           '#8b5cf6', // US Equities - violet
           '#ec4899', // International Equities - pink
@@ -168,7 +168,7 @@ export default {
           fontSize: '14px',
           fontWeight: 500,
           labels: {
-            colors: '#374151',
+            colours: '#374151',
           },
           markers: {
             width: 12,

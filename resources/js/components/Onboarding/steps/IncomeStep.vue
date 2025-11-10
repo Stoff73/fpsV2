@@ -80,6 +80,59 @@
               <option value="other">Other</option>
             </select>
           </div>
+
+          <!-- Retirement Age (for non-retired) -->
+          <div v-if="formData.employment_status && formData.employment_status !== 'retired'">
+            <label for="target_retirement_age" class="label">
+              What age do you want to retire? <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="target_retirement_age"
+              v-model.number="formData.target_retirement_age"
+              type="number"
+              min="55"
+              max="75"
+              class="input-field"
+              placeholder="65"
+              required
+            >
+            <p class="mt-1 text-body-sm text-gray-500">
+              Your planned retirement age (minimum 55)
+            </p>
+          </div>
+
+          <!-- Retirement Date (for retired users) -->
+          <div v-if="formData.employment_status === 'retired'">
+            <label for="retirement_date" class="label">
+              When did you retire? <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="retirement_date"
+              v-model="formData.retirement_date"
+              type="date"
+              :max="today"
+              class="input-field"
+              required
+            >
+            <p class="mt-1 text-body-sm text-gray-500">
+              The date you retired from work
+            </p>
+          </div>
+        </div>
+
+        <!-- Early Retirement Warning -->
+        <div
+          v-if="showEarlyRetirementWarning"
+          class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4"
+        >
+          <div class="flex">
+            <svg class="h-5 w-5 text-amber-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            <p class="text-body-sm text-amber-800">
+              <strong>Early Retirement:</strong> In most circumstances you are only able to access retirement benefits from the age of 55. You retired at age {{ retirementAge }}.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -88,6 +141,12 @@
         <h4 class="text-body font-medium text-gray-900 mb-4">
           Income Sources
         </h4>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+          <p class="text-body-sm text-amber-800">
+            <strong>Note:</strong> Rental income is entered through the Property section where you can track property values, rental income, and expenses.
+          </p>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Employment Income -->
@@ -131,28 +190,6 @@
             </div>
             <p class="mt-1 text-body-sm text-gray-500">
               Income from business or freelancing
-            </p>
-          </div>
-
-          <!-- Rental Income -->
-          <div>
-            <label for="annual_rental_income" class="label">
-              Annual Rental Income
-            </label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-              <input
-                id="annual_rental_income"
-                v-model.number="formData.annual_rental_income"
-                type="number"
-                min="0"
-                step="1000"
-                class="input-field pl-8"
-                placeholder="0"
-              >
-            </div>
-            <p class="mt-1 text-body-sm text-gray-500">
-              Gross rental income (before expenses)
             </p>
           </div>
 
@@ -210,69 +247,6 @@
         </div>
       </div>
 
-      <!-- Expenditure Section -->
-      <div class="border-t pt-4">
-        <h4 class="text-body font-medium text-gray-900 mb-4">
-          Expenditure
-        </h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Monthly Expenditure -->
-          <div>
-            <label for="monthly_expenditure" class="label">
-              Monthly Expenditure <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-              <input
-                id="monthly_expenditure"
-                v-model.number="formData.monthly_expenditure"
-                type="number"
-                min="0"
-                step="100"
-                class="input-field pl-8"
-                placeholder="3000"
-                required
-                @input="calculateAnnualExpenditure"
-              >
-            </div>
-            <p class="mt-1 text-body-sm text-gray-500">
-              Average monthly household expenses
-            </p>
-          </div>
-
-          <!-- Annual Expenditure (calculated) -->
-          <div>
-            <label for="annual_expenditure" class="label">
-              Annual Expenditure <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-              <input
-                id="annual_expenditure"
-                v-model.number="formData.annual_expenditure"
-                type="number"
-                min="0"
-                step="1000"
-                class="input-field pl-8"
-                placeholder="36000"
-                required
-                @input="calculateMonthlyExpenditure"
-              >
-            </div>
-            <p class="mt-1 text-body-sm text-gray-500">
-              Total annual expenses (auto-calculated: monthly × 12)
-            </p>
-          </div>
-        </div>
-
-        <div v-if="discretionaryIncome !== null" class="mt-4 bg-blue-50 rounded-lg p-4">
-          <p class="text-body-sm text-blue-800">
-            <strong>Discretionary Income:</strong> £{{ discretionaryIncome.toLocaleString() }} per year
-            <span v-if="discretionaryIncome < 0" class="text-red-600">(Expenses exceed income)</span>
-          </p>
-        </div>
-      </div>
     </div>
   </OnboardingStep>
 </template>
@@ -299,44 +273,54 @@ export default {
       employer: '',
       industry: '',
       employment_status: '',
+      target_retirement_age: null,
+      retirement_date: '',
       annual_employment_income: 0,
       annual_self_employment_income: 0,
-      annual_rental_income: 0,
       annual_dividend_income: 0,
       annual_other_income: 0,
-      monthly_expenditure: 0,
-      annual_expenditure: 0,
     });
 
     const loading = ref(false);
     const error = ref(null);
 
+    const today = computed(() => {
+      return new Date().toISOString().split('T')[0];
+    });
+
     const totalIncome = computed(() => {
       return (
         (formData.value.annual_employment_income || 0) +
         (formData.value.annual_self_employment_income || 0) +
-        (formData.value.annual_rental_income || 0) +
         (formData.value.annual_dividend_income || 0) +
         (formData.value.annual_other_income || 0)
       );
     });
 
-    const discretionaryIncome = computed(() => {
-      if (!formData.value.annual_expenditure) return null;
-      return totalIncome.value - formData.value.annual_expenditure;
+    const retirementAge = computed(() => {
+      if (!formData.value.retirement_date) return null;
+
+      const currentUser = store.getters['auth/currentUser'];
+      if (!currentUser?.date_of_birth) return null;
+
+      const birthDate = new Date(currentUser.date_of_birth);
+      const retireDate = new Date(formData.value.retirement_date);
+
+      let age = retireDate.getFullYear() - birthDate.getFullYear();
+      const monthDiff = retireDate.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && retireDate.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      return age;
     });
 
-    const calculateAnnualExpenditure = () => {
-      if (formData.value.monthly_expenditure) {
-        formData.value.annual_expenditure = Math.round(formData.value.monthly_expenditure * 12);
-      }
-    };
-
-    const calculateMonthlyExpenditure = () => {
-      if (formData.value.annual_expenditure) {
-        formData.value.monthly_expenditure = Math.round(formData.value.annual_expenditure / 12);
-      }
-    };
+    const showEarlyRetirementWarning = computed(() => {
+      return formData.value.employment_status === 'retired' &&
+             retirementAge.value !== null &&
+             retirementAge.value < 55;
+    });
 
     const validateForm = () => {
       if (!formData.value.employment_status) {
@@ -344,14 +328,24 @@ export default {
         return false;
       }
 
-      if (!formData.value.monthly_expenditure || formData.value.monthly_expenditure <= 0) {
-        error.value = 'Please enter your monthly expenditure';
-        return false;
+      // Validate retirement age for non-retired users
+      if (formData.value.employment_status !== 'retired') {
+        if (!formData.value.target_retirement_age) {
+          error.value = 'Please enter your target retirement age';
+          return false;
+        }
+        if (formData.value.target_retirement_age < 55) {
+          error.value = 'Retirement age must be at least 55';
+          return false;
+        }
       }
 
-      if (!formData.value.annual_expenditure || formData.value.annual_expenditure <= 0) {
-        error.value = 'Please enter your annual expenditure';
-        return false;
+      // Validate retirement date for retired users
+      if (formData.value.employment_status === 'retired') {
+        if (!formData.value.retirement_date) {
+          error.value = 'Please enter when you retired';
+          return false;
+        }
       }
 
       return true;
@@ -392,13 +386,12 @@ export default {
           employer: currentUser.employer || '',
           industry: currentUser.industry || '',
           employment_status: currentUser.employment_status || '',
+          target_retirement_age: null,
+          retirement_date: '',
           annual_employment_income: currentUser.annual_employment_income || 0,
           annual_self_employment_income: currentUser.annual_self_employment_income || 0,
-          annual_rental_income: currentUser.annual_rental_income || 0,
           annual_dividend_income: currentUser.annual_dividend_income || 0,
           annual_other_income: currentUser.annual_other_income || 0,
-          monthly_expenditure: currentUser.monthly_expenditure || 0,
-          annual_expenditure: currentUser.annual_expenditure || 0,
         };
       }
 
@@ -417,10 +410,10 @@ export default {
       formData,
       loading,
       error,
+      today,
       totalIncome,
-      discretionaryIncome,
-      calculateAnnualExpenditure,
-      calculateMonthlyExpenditure,
+      retirementAge,
+      showEarlyRetirementWarning,
       handleNext,
       handleBack,
     };

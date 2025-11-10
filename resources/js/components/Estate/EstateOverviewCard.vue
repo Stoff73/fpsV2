@@ -39,14 +39,14 @@
         <p class="text-sm text-gray-600 mb-1">IHT Liability</p>
         <p
           class="text-lg font-semibold"
-          :class="ihtLiabilityColor"
+          :class="ihtLiabilityColour"
         >
           {{ formattedIHTLiability }}
         </p>
       </div>
       <div>
         <p class="text-sm text-gray-600 mb-1">Probate Readiness</p>
-        <p class="text-lg font-semibold" :class="probateReadinessColor">
+        <p class="text-lg font-semibold" :class="probateReadinessColour">
           {{ probateReadiness }}%
         </p>
       </div>
@@ -138,7 +138,7 @@ export default {
       }).format(this.ihtLiability);
     },
 
-    ihtLiabilityColor() {
+    ihtLiabilityColour() {
       if (this.ihtLiability === 0) {
         return 'text-green-600';
       } else if (this.ihtLiability < 100000) {
@@ -148,7 +148,7 @@ export default {
       }
     },
 
-    probateReadinessColor() {
+    probateReadinessColour() {
       if (this.probateReadiness >= 80) {
         return 'text-green-600';
       } else if (this.probateReadiness >= 50) {

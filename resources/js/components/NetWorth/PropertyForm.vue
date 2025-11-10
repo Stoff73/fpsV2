@@ -24,8 +24,6 @@
             <option value="main_residence">Main Residence</option>
             <option value="secondary_residence">Secondary Residence</option>
             <option value="buy_to_let">Buy to Let</option>
-            <option value="commercial">Commercial Property</option>
-            <option value="land">Land</option>
           </select>
           <span v-if="errors.property_type" class="error-message">{{ errors.property_type }}</span>
         </div>

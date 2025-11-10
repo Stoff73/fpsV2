@@ -37,7 +37,7 @@
     <div class="grid grid-cols-2 gap-4 mb-4">
       <div>
         <p class="text-sm text-gray-600 mb-1">YTD Return</p>
-        <p class="text-lg font-semibold" :class="returnColor">
+        <p class="text-lg font-semibold" :class="returnColour">
           {{ formattedYtdReturn }}
         </p>
       </div>
@@ -136,7 +136,7 @@ export default {
       return `${sign}${this.ytdReturn.toFixed(2)}%`;
     },
 
-    returnColor() {
+    returnColour() {
       if (this.ytdReturn >= 5) {
         return 'text-green-600';
       } else if (this.ytdReturn >= 0) {

@@ -33,7 +33,7 @@
       <div v-if="!isEmbedded" class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Investment Portfolio</h1>
         <p class="text-gray-600">
-          Monitor your portfolio performance, analyze holdings, and optimize your investment strategy
+          Monitor your portfolio performance, analyse holdings, and optimise your investment strategy
         </p>
       </div>
 
@@ -81,7 +81,7 @@
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                'whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors duration-200',
+                'whitespace-nowrap py-2 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
               ]"
             >
               {{ tab.label }}
@@ -111,20 +111,52 @@
             @clear-filter="clearAccountFilter"
           />
 
-          <!-- Performance Tab -->
-          <Performance v-else-if="activeTab === 'performance'" />
+          <!-- Performance Tab (Enhanced with Phase 2.7) -->
+          <div v-else-if="activeTab === 'performance'">
+            <Performance @navigate-to-tab="navigateToTab" />
+            <div class="mt-8">
+              <PerformanceAttribution />
+            </div>
+            <div class="mt-8">
+              <BenchmarkComparison />
+            </div>
+          </div>
 
-          <!-- Goals Tab -->
-          <Goals v-else-if="activeTab === 'goals'" />
+          <!-- Contributions Tab (Phase 2.1) -->
+          <ContributionPlanner v-else-if="activeTab === 'contributions'" />
+
+          <!-- Portfolio Optimization Tab -->
+          <PortfolioOptimization v-else-if="activeTab === 'optimization'" />
+
+          <!-- Rebalancing Tab -->
+          <RebalancingCalculator v-else-if="activeTab === 'rebalancing'" />
+
+          <!-- Goals Tab (Enhanced with Phase 2.3) -->
+          <div v-else-if="activeTab === 'goals'">
+            <Goals @view-projection="handleViewProjection" />
+            <div class="mt-8">
+              <GoalProjection />
+            </div>
+          </div>
+
+          <!-- Tax Efficiency Tab (Phase 2.6) -->
+          <div v-else-if="activeTab === 'taxefficiency'">
+            <AssetLocationOptimizer />
+            <div class="mt-8">
+              <WrapperOptimizer />
+            </div>
+          </div>
+
+          <!-- Fees Tab (Phase 2.5) -->
+          <div v-else-if="activeTab === 'fees'">
+            <FeeBreakdown />
+            <div class="mt-8">
+              <FeeSavingsCalculator />
+            </div>
+          </div>
 
           <!-- Recommendations Tab -->
           <Recommendations v-else-if="activeTab === 'recommendations'" />
-
-          <!-- What-If Scenarios Tab -->
-          <WhatIfScenarios v-else-if="activeTab === 'scenarios'" />
-
-          <!-- Tax & Fees Tab -->
-          <TaxFees v-else-if="activeTab === 'taxfees'" />
         </div>
       </div>
       </div>
@@ -141,8 +173,17 @@ import Holdings from '@/components/Investment/Holdings.vue';
 import Performance from '@/components/Investment/Performance.vue';
 import Goals from '@/components/Investment/Goals.vue';
 import Recommendations from '@/components/Investment/Recommendations.vue';
-import WhatIfScenarios from '@/components/Investment/WhatIfScenarios.vue';
 import TaxFees from '@/components/Investment/TaxFees.vue';
+import PortfolioOptimization from '@/components/Investment/PortfolioOptimization.vue';
+import RebalancingCalculator from '@/components/Investment/RebalancingCalculator.vue';
+import ContributionPlanner from '@/components/Investment/ContributionPlanner.vue';
+import AssetLocationOptimizer from '@/components/Investment/AssetLocationOptimizer.vue';
+import WrapperOptimizer from '@/components/Investment/WrapperOptimizer.vue';
+import PerformanceAttribution from '@/components/Investment/PerformanceAttribution.vue';
+import BenchmarkComparison from '@/components/Investment/BenchmarkComparison.vue';
+import GoalProjection from '@/components/Investment/GoalProjection.vue';
+import FeeBreakdown from '@/components/Investment/FeeBreakdown.vue';
+import FeeSavingsCalculator from '@/components/Investment/FeeSavingsCalculator.vue';
 
 export default {
   name: 'InvestmentDashboard',
@@ -155,8 +196,17 @@ export default {
     Performance,
     Goals,
     Recommendations,
-    WhatIfScenarios,
     TaxFees,
+    PortfolioOptimization,
+    RebalancingCalculator,
+    ContributionPlanner,
+    AssetLocationOptimizer,
+    WrapperOptimizer,
+    PerformanceAttribution,
+    BenchmarkComparison,
+    GoalProjection,
+    FeeBreakdown,
+    FeeSavingsCalculator,
   },
 
   data() {
@@ -168,10 +218,13 @@ export default {
         { id: 'accounts', label: 'Accounts' },
         { id: 'holdings', label: 'Holdings' },
         { id: 'performance', label: 'Performance' },
+        { id: 'contributions', label: 'Contributions' },
+        { id: 'optimization', label: 'Portfolio Optimisation' },
+        { id: 'rebalancing', label: 'Rebalancing' },
         { id: 'goals', label: 'Goals' },
-        { id: 'recommendations', label: 'Recommendations' },
-        { id: 'scenarios', label: 'What-If Scenarios' },
-        { id: 'taxfees', label: 'Tax & Fees' },
+        { id: 'taxefficiency', label: 'Tax Efficiency' },
+        { id: 'fees', label: 'Fees' },
+        { id: 'recommendations', label: 'Strategy' },
       ],
     };
   },
@@ -190,7 +243,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('investment', ['fetchInvestmentData', 'analyzeInvestment']),
+    ...mapActions('investment', ['fetchInvestmentData', 'analyseInvestment']),
 
     async loadInvestmentData() {
       try {
@@ -223,17 +276,44 @@ export default {
       // Clear the selected account filter
       this.selectedAccountId = null;
     },
+
+    navigateToTab(tabId) {
+      // Navigate to a specific tab
+      this.activeTab = tabId;
+    },
+
+    handleViewProjection(goal) {
+      // Handle viewing goal projection
+      // Could store the selected goal and scroll to GoalProjection component
+      console.log('Viewing projection for goal:', goal);
+      // Optionally scroll to the GoalProjection component
+      this.$nextTick(() => {
+        const projectionElement = this.$el.querySelector('.goal-projection');
+        if (projectionElement) {
+          projectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    },
   },
 };
 </script>
 
 <style scoped>
+/* Compact tab navigation for better fit */
+.investment-dashboard nav[aria-label="Tabs"] button {
+  padding-left: 0.5rem;  /* 8px */
+  padding-right: 0.5rem; /* 8px */
+  padding-top: 0.5rem;   /* 8px */
+  padding-bottom: 0.5rem; /* 8px */
+  font-size: 0.8125rem;    /* 13px */
+}
+
 /* Mobile optimization for tab navigation */
 @media (max-width: 640px) {
   .investment-dashboard nav[aria-label="Tabs"] button {
-    font-size: 0.875rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    font-size: 0.75rem;  /* Slightly smaller on mobile */
+    padding-left: 0.5rem;  /* 8px */
+    padding-right: 0.5rem; /* 8px */
   }
 }
 

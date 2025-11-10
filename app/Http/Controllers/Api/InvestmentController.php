@@ -233,7 +233,7 @@ class InvestmentController extends Controller
         \Log::info('Investment account creation attempt', ['data' => $request->all()]);
 
         $validated = $request->validate([
-            'account_type' => ['required', Rule::in(['isa', 'gia', 'onshore_bond', 'offshore_bond', 'vct', 'eis'])],
+            'account_type' => ['required', Rule::in(['isa', 'gia', 'nsi', 'onshore_bond', 'offshore_bond', 'vct', 'eis'])],
             'provider' => 'required|string|max:255',
             'account_number' => 'nullable|string|max:255',
             'platform' => 'nullable|string|max:255',
@@ -267,7 +267,8 @@ class InvestmentController extends Controller
         // Automatically create a Cash holding for 100% of the account value
         // This will be reduced as users add other holdings
         Holding::create([
-            'investment_account_id' => $account->id,
+            'holdable_id' => $account->id,
+            'holdable_type' => InvestmentAccount::class,
             'asset_type' => 'cash',
             'security_name' => 'Cash',
             'allocation_percent' => 100.00,
@@ -303,7 +304,7 @@ class InvestmentController extends Controller
         $account = InvestmentAccount::where('user_id', $user->id)->findOrFail($id);
 
         $validated = $request->validate([
-            'account_type' => ['nullable', Rule::in(['isa', 'gia', 'onshore_bond', 'offshore_bond', 'vct', 'eis'])],
+            'account_type' => ['nullable', Rule::in(['isa', 'gia', 'nsi', 'onshore_bond', 'offshore_bond', 'vct', 'eis'])],
             'provider' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255',
             'platform' => 'nullable|string|max:255',
@@ -395,6 +396,9 @@ class InvestmentController extends Controller
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
 
+        // Clear optimization caches (efficient frontier, correlation matrix)
+        PortfolioOptimizationController::clearUserOptimizationCache($user->id);
+
         return response()->json([
             'success' => true,
             'data' => $holding,
@@ -407,7 +411,8 @@ class InvestmentController extends Controller
     private function adjustCashHolding(InvestmentAccount $account): void
     {
         // Find the cash holding for this account
-        $cashHolding = Holding::where('investment_account_id', $account->id)
+        $cashHolding = Holding::where('holdable_type', InvestmentAccount::class)
+            ->where('holdable_id', $account->id)
             ->where('asset_type', 'cash')
             ->first();
 
@@ -416,7 +421,8 @@ class InvestmentController extends Controller
         }
 
         // Calculate total allocation of non-cash holdings
-        $nonCashAllocation = Holding::where('investment_account_id', $account->id)
+        $nonCashAllocation = Holding::where('holdable_type', InvestmentAccount::class)
+            ->where('holdable_id', $account->id)
             ->where('asset_type', '!=', 'cash')
             ->sum('allocation_percent');
 
@@ -475,6 +481,9 @@ class InvestmentController extends Controller
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
 
+        // Clear optimization caches (efficient frontier, correlation matrix)
+        PortfolioOptimizationController::clearUserOptimizationCache($user->id);
+
         return response()->json([
             'success' => true,
             'data' => $holding->fresh(),
@@ -502,6 +511,9 @@ class InvestmentController extends Controller
 
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
+
+        // Clear optimization caches (efficient frontier, correlation matrix)
+        PortfolioOptimizationController::clearUserOptimizationCache($user->id);
 
         return response()->json([
             'success' => true,
@@ -636,7 +648,8 @@ class InvestmentController extends Controller
 
         // Create cash holding for the joint account (mirror of original)
         Holding::create([
-            'investment_account_id' => $jointAccount->id,
+            'holdable_id' => $jointAccount->id,
+            'holdable_type' => InvestmentAccount::class,
             'asset_type' => 'cash',
             'security_name' => 'Cash',
             'allocation_percent' => 100.00,

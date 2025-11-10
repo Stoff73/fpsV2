@@ -8,7 +8,7 @@
 
     <!-- Modal container -->
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-      <!-- Trick to center modal on screen -->
+      <!-- Trick to centre modal on screen -->
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
       <!-- Modal panel -->
@@ -24,7 +24,7 @@
             >
               <svg
                 class="h-6 w-6"
-                :class="iconColorClass"
+                :class="iconColourClass"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -118,7 +118,7 @@ export default {
       return classes[this.variant];
     },
 
-    iconColorClass() {
+    iconColourClass() {
       const classes = {
         warning: 'text-amber-600',
         danger: 'text-red-600',

@@ -15,7 +15,7 @@ const savingsService = {
     },
 
     /**
-     * Analyze savings and emergency fund adequacy
+     * Analyse savings and emergency fund adequacy
      * @param {Object} data - Analysis parameters
      * @returns {Promise} Analysis results with recommendations
      */

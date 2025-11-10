@@ -41,6 +41,7 @@
                 <option value="">Select account type</option>
                 <option value="isa">ISA (Stocks & Shares)</option>
                 <option value="gia">General Investment Account</option>
+                <option value="nsi">NS&I (National Savings & Investments)</option>
                 <option value="onshore_bond">Onshore Bond</option>
                 <option value="offshore_bond">Offshore Bond</option>
                 <option value="vct">Venture Capital Trust (VCT)</option>
@@ -252,7 +253,7 @@
                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select joint owner</option>
-                  <option v-if="spouse" :value="spouse.id">{{ spouse.name }} (Spouse)</option>
+                  <option v-if="spouse" :value="spouse.id">{{ spouse.name }} (Spouse - Linked Account)</option>
                   <option v-if="!spouse" value="" disabled>No spouse linked - add spouse in Family Members</option>
                 </select>
                 <p class="text-sm text-gray-500 mt-1">

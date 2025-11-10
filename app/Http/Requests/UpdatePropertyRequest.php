@@ -24,10 +24,20 @@ class UpdatePropertyRequest extends FormRequest
     {
         return [
             'trust_id' => ['sometimes', 'nullable', 'exists:trusts,id'],
-            'property_type' => ['sometimes', Rule::in(['main_residence', 'second_home', 'buy_to_let', 'commercial', 'land'])],
-            'ownership_type' => ['sometimes', Rule::in(['individual', 'joint', 'trust'])],
+            'property_type' => ['sometimes', Rule::in(['main_residence', 'secondary_residence', 'buy_to_let'])],
+            'ownership_type' => ['sometimes', Rule::in(['individual', 'joint', 'tenants_in_common', 'trust'])],
+            'joint_ownership_type' => ['sometimes', 'nullable', Rule::in(['joint_tenancy', 'tenants_in_common'])],
             'country' => ['sometimes', 'nullable', 'string', 'max:255'],
             'ownership_percentage' => ['sometimes', 'numeric', 'min:0', 'max:100'],
+            'joint_owner_id' => ['sometimes', 'nullable', 'exists:users,id'],
+            'joint_owner_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'household_id' => ['sometimes', 'nullable', 'exists:households,id'],
+            'trust_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+
+            // Tenure
+            'tenure_type' => ['sometimes', 'nullable', Rule::in(['freehold', 'leasehold'])],
+            'lease_remaining_years' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:999'],
+            'lease_expiry_date' => ['sometimes', 'nullable', 'date'],
 
             // Address
             'address_line_1' => ['sometimes', 'string', 'max:255'],
@@ -37,8 +47,8 @@ class UpdatePropertyRequest extends FormRequest
             'postcode' => ['sometimes', 'string', 'regex:/^[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}$/i'],
 
             // Financial
-            'purchase_date' => ['sometimes', 'date'],
-            'purchase_price' => ['sometimes', 'numeric', 'min:0'],
+            'purchase_date' => ['sometimes', 'nullable', 'date'],
+            'purchase_price' => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'current_value' => ['sometimes', 'numeric', 'min:0'],
             'valuation_date' => ['sometimes', 'nullable', 'date'],
             'sdlt_paid' => ['sometimes', 'nullable', 'numeric', 'min:0'],
@@ -48,15 +58,20 @@ class UpdatePropertyRequest extends FormRequest
             'annual_rental_income' => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'occupancy_rate_percent' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:100'],
             'tenant_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'tenant_email' => ['sometimes', 'nullable', 'email', 'max:255'],
             'lease_start_date' => ['sometimes', 'nullable', 'date'],
             'lease_end_date' => ['sometimes', 'nullable', 'date', 'after_or_equal:lease_start_date'],
 
-            // Costs
-            'annual_service_charge' => ['sometimes', 'nullable', 'numeric', 'min:0'],
-            'annual_ground_rent' => ['sometimes', 'nullable', 'numeric', 'min:0'],
-            'annual_insurance' => ['sometimes', 'nullable', 'numeric', 'min:0'],
-            'annual_maintenance_reserve' => ['sometimes', 'nullable', 'numeric', 'min:0'],
-            'other_annual_costs' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            // Monthly Costs
+            'monthly_council_tax' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'monthly_gas' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'monthly_electricity' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'monthly_water' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'monthly_building_insurance' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'monthly_contents_insurance' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'monthly_service_charge' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'monthly_maintenance_reserve' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'other_monthly_costs' => ['sometimes', 'nullable', 'numeric', 'min:0'],
 
             // Notes
             'notes' => ['sometimes', 'nullable', 'string', 'max:1000'],

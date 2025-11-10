@@ -1,10 +1,20 @@
 <template>
   <div>
-    <div class="mb-6">
-      <h2 class="text-h4 font-semibold text-gray-900">Income & Occupation</h2>
-      <p class="mt-1 text-body-sm text-gray-600">
-        Update your employment and income information
-      </p>
+    <div class="mb-6 flex justify-between items-start">
+      <div>
+        <h2 class="text-h4 font-semibold text-gray-900">Income & Occupation</h2>
+        <p class="mt-1 text-body-sm text-gray-600">
+          Update your employment and income information
+        </p>
+      </div>
+      <button
+        v-if="!isEditing"
+        type="button"
+        @click="isEditing = true"
+        class="btn-primary"
+      >
+        Edit Information
+      </button>
     </div>
 
     <!-- Success Message -->
@@ -100,6 +110,55 @@
               <option value="student">Student</option>
               <option value="other">Other</option>
             </select>
+          </div>
+
+          <!-- Target Retirement Age (for non-retired) -->
+          <div v-if="form.employment_status && form.employment_status !== 'retired'">
+            <label for="target_retirement_age" class="block text-body-sm font-medium text-gray-700 mb-1">
+              What age do you want to retire?
+            </label>
+            <input
+              id="target_retirement_age"
+              v-model.number="form.target_retirement_age"
+              type="number"
+              min="55"
+              max="75"
+              class="form-input"
+              :disabled="!isEditing"
+              placeholder="65"
+            />
+            <p class="mt-1 text-body-xs text-gray-500">Your planned retirement age (minimum 55)</p>
+          </div>
+
+          <!-- Retirement Date (for retired users) -->
+          <div v-if="form.employment_status === 'retired'">
+            <label for="retirement_date" class="block text-body-sm font-medium text-gray-700 mb-1">
+              When did you retire?
+            </label>
+            <input
+              id="retirement_date"
+              v-model="form.retirement_date"
+              type="date"
+              :max="today"
+              class="form-input"
+              :disabled="!isEditing"
+            />
+            <p class="mt-1 text-body-xs text-gray-500">The date you retired from work</p>
+          </div>
+        </div>
+
+        <!-- Early Retirement Warning -->
+        <div
+          v-if="showEarlyRetirementWarning"
+          class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4"
+        >
+          <div class="flex">
+            <svg class="h-5 w-5 text-amber-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            <p class="text-body-sm text-amber-800">
+              <strong>Early Retirement:</strong> In most circumstances you are only able to access retirement benefits from the age of 55. You retired at age {{ retirementAge }}.
+            </p>
           </div>
         </div>
       </div>
@@ -303,16 +362,7 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex justify-end space-x-4">
-        <button
-          v-if="!isEditing"
-          type="button"
-          @click="isEditing = true"
-          class="btn-primary"
-        >
-          Edit Information
-        </button>
-        <template v-else>
+      <div v-if="isEditing" class="flex justify-end space-x-4">
           <button
             type="button"
             @click="handleCancel"
@@ -329,7 +379,6 @@
             <span v-if="!submitting">Save Changes</span>
             <span v-else>Saving...</span>
           </button>
-        </template>
       </div>
     </form>
   </div>
@@ -356,11 +405,17 @@ export default {
       employer: '',
       industry: '',
       employment_status: '',
+      target_retirement_age: null,
+      retirement_date: '',
       annual_employment_income: 0,
       annual_self_employment_income: 0,
       annual_rental_income: 0,
       annual_dividend_income: 0,
       annual_other_income: 0,
+    });
+
+    const today = computed(() => {
+      return new Date().toISOString().split('T')[0];
     });
 
     const totalIncome = computed(() => {
@@ -377,6 +432,31 @@ export default {
       }).format(total);
     });
 
+    const retirementAge = computed(() => {
+      if (!form.value.retirement_date) return null;
+
+      const currentUser = store.getters['auth/currentUser'];
+      if (!currentUser?.date_of_birth) return null;
+
+      const birthDate = new Date(currentUser.date_of_birth);
+      const retireDate = new Date(form.value.retirement_date);
+
+      let age = retireDate.getFullYear() - birthDate.getFullYear();
+      const monthDiff = retireDate.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && retireDate.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      return age;
+    });
+
+    const showEarlyRetirementWarning = computed(() => {
+      return form.value.employment_status === 'retired' &&
+             retirementAge.value !== null &&
+             retirementAge.value < 55;
+    });
+
     // Initialize form from incomeOccupation
     const initializeForm = () => {
       if (incomeOccupation.value) {
@@ -385,6 +465,8 @@ export default {
           employer: incomeOccupation.value.employer || '',
           industry: incomeOccupation.value.industry || '',
           employment_status: incomeOccupation.value.employment_status || '',
+          target_retirement_age: incomeOccupation.value.target_retirement_age || null,
+          retirement_date: incomeOccupation.value.retirement_date || '',
           annual_employment_income: Number(incomeOccupation.value.annual_employment_income) || 0,
           annual_self_employment_income: Number(incomeOccupation.value.annual_self_employment_income) || 0,
           annual_rental_income: Number(incomeOccupation.value.annual_rental_income) || 0,
@@ -467,7 +549,10 @@ export default {
       submitting,
       successMessage,
       errorMessage,
+      today,
       totalIncome,
+      retirementAge,
+      showEarlyRetirementWarning,
       incomeOccupation,
       handleSubmit,
       handleCancel,

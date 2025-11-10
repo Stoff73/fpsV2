@@ -33,409 +33,260 @@
         </nav>
       </div>
 
+      <!-- Retirement Tab -->
+      <div v-show="activeTab === 'retirement'" class="space-y-4">
+        <p class="text-body-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+          Pensions are often one of the largest components of retirement planning. Add your DC pensions, DB pensions, and State Pension forecast to get a complete retirement picture.
+        </p>
+
+        <!-- DC Pensions -->
+        <div v-if="pensions.dc.length > 0" class="space-y-3">
+          <h4 class="text-body font-medium text-gray-900">
+            DC Pensions ({{ pensions.dc.length }})
+          </h4>
+          <div
+            v-for="pension in pensions.dc"
+            :key="pension.id"
+            class="border border-gray-200 rounded-lg p-4 bg-gray-50"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <h5 class="text-body font-medium text-gray-900">
+                    {{ pension.provider }}
+                  </h5>
+                  <span class="text-body-sm px-2 py-0.5 bg-orange-100 text-orange-700 rounded">
+                    DC Pension
+                  </span>
+                </div>
+                <div class="mt-2">
+                  <p class="text-body-sm text-gray-500">Current Value</p>
+                  <p class="text-body font-medium text-gray-900">£{{ pension.current_fund_value?.toLocaleString() }}</p>
+                </div>
+              </div>
+              <div class="flex gap-2 ml-4">
+                <button
+                  type="button"
+                  class="text-primary-600 hover:text-primary-700 text-body-sm"
+                  @click="openPensionForm('dc', pension)"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="text-red-600 hover:text-red-700 text-body-sm"
+                  @click="deletePension('dc', pension.id)"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DB Pensions -->
+        <div v-if="pensions.db.length > 0" class="space-y-3">
+          <h4 class="text-body font-medium text-gray-900">
+            DB Pensions ({{ pensions.db.length }})
+          </h4>
+          <div
+            v-for="pension in pensions.db"
+            :key="pension.id"
+            class="border border-gray-200 rounded-lg p-4 bg-gray-50"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <h5 class="text-body font-medium text-gray-900">
+                    {{ pension.scheme_name }}
+                  </h5>
+                  <span class="text-body-sm px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded">
+                    DB Pension
+                  </span>
+                </div>
+                <div class="mt-2">
+                  <p class="text-body-sm text-gray-500">Annual Pension</p>
+                  <p class="text-body font-medium text-gray-900">£{{ pension.accrued_annual_pension?.toLocaleString() }}</p>
+                </div>
+              </div>
+              <div class="flex gap-2 ml-4">
+                <button
+                  type="button"
+                  class="text-primary-600 hover:text-primary-700 text-body-sm"
+                  @click="openPensionForm('db', pension)"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="text-red-600 hover:text-red-700 text-body-sm"
+                  @click="deletePension('db', pension.id)"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- State Pension -->
+        <div v-if="pensions.state" class="space-y-3">
+          <h4 class="text-body font-medium text-gray-900">
+            State Pension
+          </h4>
+          <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <h5 class="text-body font-medium text-gray-900">
+                    UK State Pension
+                  </h5>
+                  <span class="text-body-sm px-2 py-0.5 bg-green-100 text-green-700 rounded">
+                    State Pension
+                  </span>
+                </div>
+                <div class="mt-2">
+                  <p class="text-body-sm text-gray-500">Annual Forecast</p>
+                  <p class="text-body font-medium text-gray-900">£{{ pensions.state.state_pension_forecast_annual?.toLocaleString() }}</p>
+                </div>
+              </div>
+              <div class="flex gap-2 ml-4">
+                <button
+                  type="button"
+                  class="text-primary-600 hover:text-primary-700 text-body-sm"
+                  @click="openPensionForm('state', pensions.state)"
+                >
+                  Edit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Pension Buttons -->
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="openPensionForm('dc')"
+          >
+            + Add DC Pension
+          </button>
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="openPensionForm('db')"
+          >
+            + Add DB Pension
+          </button>
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="openPensionForm('state')"
+          >
+            + Add State Pension
+          </button>
+        </div>
+
+        <p v-if="pensions.dc.length === 0 && pensions.db.length === 0 && !pensions.state" class="text-body-sm text-gray-500 italic">
+          You can skip this step and add pensions later from your dashboard.
+        </p>
+      </div>
+
       <!-- Properties Tab -->
       <div v-show="activeTab === 'properties'" class="space-y-4">
         <p class="text-body-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
           Properties are usually the largest component of an estate. Adding property details helps us calculate your potential Inheritance Tax liability.
         </p>
 
-        <!-- Property Form Modal -->
-      <div v-if="showForm" class="border border-gray-200 rounded-lg p-4 bg-white">
-        <h4 class="text-body font-medium text-gray-900 mb-4">
-          {{ editingIndex !== null ? 'Edit Property' : 'Add Property' }}
-        </h4>
+        <!-- Added Properties List -->
+        <div v-if="properties.length > 0" class="space-y-3">
+          <h4 class="text-body font-medium text-gray-900">
+            Properties ({{ properties.length }})
+          </h4>
 
-        <div class="grid grid-cols-1 gap-4">
-          <div>
-            <label for="property_type" class="label">
-              Property Type <span class="text-red-500">*</span>
-            </label>
-            <select
-              id="property_type"
-              v-model="currentProperty.property_type"
-              class="input-field"
-              required
-            >
-              <option value="">Select property type</option>
-              <option value="main_residence">Main Residence</option>
-              <option value="second_home">Second Home</option>
-              <option value="buy_to_let">Buy to Let</option>
-              <option value="commercial">Commercial</option>
-              <option value="land">Land</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="address_line_1" class="label">
-              Address <span class="text-red-500">*</span>
-            </label>
-            <input
-              id="address_line_1"
-              v-model="currentProperty.address_line_1"
-              type="text"
-              class="input-field"
-              placeholder="Address line 1"
-              required
-            >
-            <input
-              v-model="currentProperty.address_line_2"
-              type="text"
-              class="input-field mt-2"
-              placeholder="Address line 2 (optional)"
-            >
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="city" class="label">
-                City <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="city"
-                v-model="currentProperty.city"
-                type="text"
-                class="input-field"
-                placeholder="City"
-                required
-              >
-            </div>
-
-            <div>
-              <label for="postcode" class="label">
-                Postcode <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="postcode"
-                v-model="currentProperty.postcode"
-                type="text"
-                class="input-field"
-                placeholder="Postcode"
-                required
-              >
-            </div>
-          </div>
-
-          <!-- Country Selector -->
-          <div>
-            <CountrySelector
-              v-model="currentProperty.country"
-              label="Country"
-              :required="true"
-              default-country="United Kingdom"
-            />
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="current_value" class="label">
-                Current Value <span class="text-red-500">*</span>
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input
-                  id="current_value"
-                  v-model.number="currentProperty.current_value"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  class="input-field pl-8"
-                  placeholder="0"
-                  required
-                >
-              </div>
-            </div>
-
-            <div>
-              <label for="outstanding_mortgage" class="label">
-                Outstanding Mortgage (if applicable)
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input
-                  id="outstanding_mortgage"
-                  v-model.number="currentProperty.outstanding_mortgage"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  class="input-field pl-8"
-                  placeholder="0"
-                >
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label for="ownership_type" class="label">
-              Ownership Type <span class="text-red-500">*</span>
-            </label>
-            <select
-              id="ownership_type"
-              v-model="currentProperty.ownership_type"
-              class="input-field"
-              required
-            >
-              <option value="individual">Individual Owner</option>
-              <option value="joint">Joint Owner</option>
-              <option value="trust">Trust</option>
-            </select>
-            <p class="mt-1 text-body-sm text-gray-500">
-              Joint ownership typically means owned with spouse or partner
-            </p>
-          </div>
-
-          <!-- Rental Income (only for buy to let) -->
-          <div v-if="currentProperty.property_type === 'buy_to_let'">
-            <label for="monthly_rental_income" class="label">
-              Monthly Rental Income
-            </label>
-            <div class="relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-              <input
-                id="monthly_rental_income"
-                v-model.number="currentProperty.monthly_rental_income"
-                type="number"
-                min="0"
-                step="100"
-                class="input-field pl-8"
-                placeholder="0"
-              >
-            </div>
-            <p class="mt-1 text-body-sm text-gray-500">
-              This will be included in your annual rental income
-            </p>
-          </div>
-        </div>
-
-        <div class="flex gap-3 mt-4">
-          <button
-            type="button"
-            class="btn-primary"
-            @click="saveProperty"
+          <div
+            v-for="property in properties"
+            :key="property.id"
+            class="border border-gray-200 rounded-lg p-4 bg-gray-50"
           >
-            {{ editingIndex !== null ? 'Update Property' : 'Add Property' }}
-          </button>
-          <button
-            type="button"
-            class="btn-secondary"
-            @click="cancelForm"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-
-      <!-- Added Properties List -->
-      <div v-if="properties.length > 0" class="space-y-3">
-        <h4 class="text-body font-medium text-gray-900">
-          Properties ({{ properties.length }})
-        </h4>
-
-        <div
-          v-for="(property, index) in properties"
-          :key="index"
-          class="border border-gray-200 rounded-lg p-4 bg-gray-50"
-        >
-          <div class="flex justify-between items-start">
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-2">
-                <h5 class="text-body font-medium text-gray-900 capitalize">
-                  {{ property.property_type.replace(/_/g, ' ') }}
-                </h5>
-                <span class="text-body-sm px-2 py-0.5 bg-blue-100 text-blue-700 rounded capitalize">
-                  {{ property.ownership_type }}
-                </span>
-              </div>
-              <p class="text-body-sm text-gray-600">
-                {{ property.address_line_1 }}{{ property.address_line_2 ? ', ' + property.address_line_2 : '' }}
-              </p>
-              <p class="text-body-sm text-gray-600">
-                {{ property.city }}, {{ property.postcode }}
-              </p>
-              <div class="mt-2 grid grid-cols-2 gap-2">
-                <div>
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <h5 class="text-body font-medium text-gray-900 capitalize">
+                    {{ property.property_type?.replace(/_/g, ' ') }}
+                  </h5>
+                  <span class="text-body-sm px-2 py-0.5 bg-blue-100 text-blue-700 rounded capitalize">
+                    {{ property.ownership_type }}
+                  </span>
+                </div>
+                <p class="text-body-sm text-gray-600">
+                  {{ property.address_line_1 }}{{ property.address_line_2 ? ', ' + property.address_line_2 : '' }}
+                </p>
+                <p class="text-body-sm text-gray-600">
+                  {{ property.city }}, {{ property.postcode }}
+                </p>
+                <div class="mt-2">
                   <p class="text-body-sm text-gray-500">Value</p>
-                  <p class="text-body font-medium text-gray-900">£{{ property.current_value.toLocaleString() }}</p>
-                </div>
-                <div v-if="property.outstanding_mortgage > 0">
-                  <p class="text-body-sm text-gray-500">Mortgage</p>
-                  <p class="text-body font-medium text-gray-900">£{{ property.outstanding_mortgage.toLocaleString() }}</p>
-                </div>
-                <div v-if="property.monthly_rental_income > 0">
-                  <p class="text-body-sm text-gray-500">Monthly Rent</p>
-                  <p class="text-body font-medium text-gray-900">£{{ property.monthly_rental_income.toLocaleString() }}</p>
+                  <p class="text-body font-medium text-gray-900">£{{ property.current_value?.toLocaleString() }}</p>
                 </div>
               </div>
-            </div>
-            <div class="flex gap-2 ml-4">
-              <button
-                type="button"
-                class="text-primary-600 hover:text-primary-700 text-body-sm"
-                @click="editProperty(index)"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                class="text-red-600 hover:text-red-700 text-body-sm"
-                @click="removeProperty(index)"
-              >
-                Remove
-              </button>
+              <div class="flex gap-2 ml-4">
+                <button
+                  type="button"
+                  class="text-primary-600 hover:text-primary-700 text-body-sm"
+                  @click="editProperty(property)"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="text-red-600 hover:text-red-700 text-body-sm"
+                  @click="deleteProperty(property.id)"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Add Property Button -->
-      <div v-if="!showForm">
+        <!-- Add Property Button -->
         <button
           type="button"
           class="btn-secondary w-full md:w-auto"
-          @click="showAddForm"
+          @click="showPropertyForm = true"
         >
           + Add Property
         </button>
-      </div>
 
-      <p v-if="properties.length === 0" class="text-body-sm text-gray-500 italic">
-        You can skip this step and add properties later from your dashboard.
-      </p>
+        <p v-if="properties.length === 0" class="text-body-sm text-gray-500 italic">
+          You can skip this step and add properties later from your dashboard.
+        </p>
       </div>
 
       <!-- Investments Tab -->
       <div v-show="activeTab === 'investments'" class="space-y-4">
-        <p class="text-body-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-          Investment accounts include ISAs, General Investment Accounts, and pensions. These form part of your overall wealth.
-        </p>
-
-        <!-- Investment Form -->
-        <div v-if="showInvestmentForm" class="border border-gray-200 rounded-lg p-4 bg-white">
-          <h4 class="text-body font-medium text-gray-900 mb-4">
-            {{ editingInvestmentIndex !== null ? 'Edit Investment Account' : 'Add Investment Account' }}
-          </h4>
-
-          <div class="grid grid-cols-1 gap-4">
+        <!-- Feature Status Notice -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex">
+            <svg class="h-5 w-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
             <div>
-              <label for="investment_institution" class="label">
-                Institution/Provider <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="investment_institution"
-                v-model="currentInvestment.institution"
-                type="text"
-                class="input-field"
-                placeholder="e.g., Vanguard, Hargreaves Lansdown"
-                required
-              >
-            </div>
-
-            <div>
-              <label for="investment_account_type" class="label">
-                Account Type <span class="text-red-500">*</span>
-              </label>
-              <select
-                id="investment_account_type"
-                v-model="currentInvestment.account_type"
-                class="input-field"
-                required
-              >
-                <option value="">Select account type</option>
-                <option value="stocks_shares_isa">Stocks & Shares ISA</option>
-                <option value="gia">General Investment Account</option>
-                <option value="offshore_bond">Offshore Bond</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <!-- Country Selector -->
-            <div>
-              <CountrySelector
-                v-model="currentInvestment.country"
-                label="Country"
-                :required="true"
-                default-country="United Kingdom"
-              />
-            </div>
-
-            <div>
-              <label for="investment_current_value" class="label">
-                Current Value <span class="text-red-500">*</span>
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input
-                  id="investment_current_value"
-                  v-model.number="currentInvestment.current_value"
-                  type="number"
-                  min="0"
-                  step="100"
-                  class="input-field pl-8"
-                  placeholder="0"
-                  required
-                >
-              </div>
-            </div>
-
-            <!-- ISA Allowance Used (only for S&S ISA) -->
-            <div v-if="currentInvestment.account_type === 'stocks_shares_isa'">
-              <label for="investment_isa_allowance_used" class="label">
-                ISA Allowance Used This Tax Year (2025/26)
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input
-                  id="investment_isa_allowance_used"
-                  v-model.number="currentInvestment.isa_allowance_used"
-                  type="number"
-                  min="0"
-                  max="20000"
-                  step="100"
-                  class="input-field pl-8"
-                  placeholder="0"
-                >
-              </div>
-              <p class="mt-1 text-body-sm text-gray-500">
-                How much have you contributed to this ISA in the current tax year? (Annual limit: £20,000)
+              <p class="text-body-sm text-blue-800">
+                <strong>Investment Module - Coming Soon</strong>
+              </p>
+              <p class="text-body-sm text-blue-700 mt-1">
+                While the comprehensive Investment Planning module is currently in development, you can record your investment accounts and holdings here. This information will be used in your Estate Planning calculations and Inheritance Tax liability assessments. Full portfolio analysis, performance tracking, and investment recommendations will be available in upcoming releases.
               </p>
             </div>
-
-            <div>
-              <label for="investment_ownership_type" class="label">
-                Ownership Type <span class="text-red-500">*</span>
-              </label>
-              <select
-                id="investment_ownership_type"
-                v-model="currentInvestment.ownership_type"
-                class="input-field"
-                required
-              >
-                <option value="individual">Individual Owner</option>
-                <option value="joint">Joint Owner</option>
-                <option value="trust">Trust</option>
-              </select>
-              <p class="mt-1 text-body-sm text-gray-500">
-                ISAs must be individually owned
-              </p>
-            </div>
-          </div>
-
-          <div class="flex gap-3 mt-4">
-            <button
-              type="button"
-              class="btn-primary"
-              @click="saveInvestment"
-            >
-              {{ editingInvestmentIndex !== null ? 'Update Investment' : 'Add Investment' }}
-            </button>
-            <button
-              type="button"
-              class="btn-secondary"
-              @click="cancelInvestmentForm"
-            >
-              Cancel
-            </button>
           </div>
         </div>
+
+        <p class="text-body-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+          Investment accounts include ISAs, General Investment Accounts, and bonds. These form part of your overall wealth.
+        </p>
 
         <!-- Added Investments List -->
         <div v-if="investments.length > 0" class="space-y-3">
@@ -444,42 +295,39 @@
           </h4>
 
           <div
-            v-for="(investment, index) in investments"
-            :key="index"
+            v-for="investment in investments"
+            :key="investment.id"
             class="border border-gray-200 rounded-lg p-4 bg-gray-50"
           >
             <div class="flex justify-between items-start">
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-2">
                   <h5 class="text-body font-medium text-gray-900">
-                    {{ investment.institution }}
+                    {{ investment.provider }}
                   </h5>
                   <span class="text-body-sm px-2 py-0.5 bg-green-100 text-green-700 rounded capitalize">
-                    {{ investment.account_type.replace(/_/g, ' ') }}
-                  </span>
-                  <span class="text-body-sm px-2 py-0.5 bg-blue-100 text-blue-700 rounded capitalize">
-                    {{ investment.ownership_type }}
+                    {{ investment.account_type?.replace(/_/g, ' ') }}
                   </span>
                 </div>
                 <div class="mt-2">
                   <p class="text-body-sm text-gray-500">Value</p>
-                  <p class="text-body font-medium text-gray-900">£{{ investment.current_value.toLocaleString() }}</p>
+                  <p class="text-body font-medium text-gray-900">£{{ investment.current_value?.toLocaleString() }}</p>
                 </div>
               </div>
               <div class="flex gap-2 ml-4">
                 <button
                   type="button"
                   class="text-primary-600 hover:text-primary-700 text-body-sm"
-                  @click="editInvestment(index)"
+                  @click="editInvestment(investment)"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   class="text-red-600 hover:text-red-700 text-body-sm"
-                  @click="removeInvestment(index)"
+                  @click="deleteInvestment(investment.id)"
                 >
-                  Remove
+                  Delete
                 </button>
               </div>
             </div>
@@ -487,15 +335,13 @@
         </div>
 
         <!-- Add Investment Button -->
-        <div v-if="!showInvestmentForm">
-          <button
-            type="button"
-            class="btn-secondary w-full md:w-auto"
-            @click="showAddInvestmentForm"
-          >
-            + Add Investment Account
-          </button>
-        </div>
+        <button
+          type="button"
+          class="btn-secondary w-full md:w-auto"
+          @click="showInvestmentForm = true"
+        >
+          + Add Investment Account
+        </button>
 
         <p v-if="investments.length === 0" class="text-body-sm text-gray-500 italic">
           You can skip this step and add investments later from your dashboard.
@@ -508,152 +354,6 @@
           Include all cash and bank accounts, including current accounts, Cash ISAs, easy access savings, and fixed-term deposits.
         </p>
 
-        <!-- Cash Account Form -->
-        <div v-if="showSavingsForm" class="border border-gray-200 rounded-lg p-4 bg-white">
-          <h4 class="text-body font-medium text-gray-900 mb-4">
-            {{ editingSavingsIndex !== null ? 'Edit Account' : 'Add Account' }}
-          </h4>
-
-          <div class="grid grid-cols-1 gap-4">
-            <div>
-              <label for="savings_institution" class="label">
-                Bank/Institution <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="savings_institution"
-                v-model="currentSavings.institution"
-                type="text"
-                class="input-field"
-                placeholder="e.g., HSBC, Nationwide"
-                required
-              >
-            </div>
-
-            <div>
-              <label for="savings_account_type" class="label">
-                Account Type <span class="text-red-500">*</span>
-              </label>
-              <select
-                id="savings_account_type"
-                v-model="currentSavings.account_type"
-                class="input-field"
-                required
-              >
-                <option value="">Select account type</option>
-                <option value="current_account">Current Account</option>
-                <option value="cash_isa">Cash ISA</option>
-                <option value="easy_access">Easy Access Savings</option>
-                <option value="fixed_term">Fixed Term Savings</option>
-                <option value="notice_account">Notice Account</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <!-- Country Selector -->
-            <div>
-              <CountrySelector
-                v-model="currentSavings.country"
-                label="Country"
-                :required="true"
-                default-country="United Kingdom"
-              />
-            </div>
-
-            <div>
-              <label for="savings_current_balance" class="label">
-                Current Balance <span class="text-red-500">*</span>
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input
-                  id="savings_current_balance"
-                  v-model.number="currentSavings.current_balance"
-                  type="number"
-                  min="0"
-                  step="100"
-                  class="input-field pl-8"
-                  placeholder="0"
-                  required
-                >
-              </div>
-            </div>
-
-            <div>
-              <label for="savings_interest_rate" class="label">
-                Interest Rate (%)
-              </label>
-              <input
-                id="savings_interest_rate"
-                v-model.number="currentSavings.interest_rate"
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                class="input-field"
-                placeholder="e.g., 4.5"
-              >
-            </div>
-
-            <!-- ISA Allowance Used (only for Cash ISA) -->
-            <div v-if="currentSavings.account_type === 'cash_isa'">
-              <label for="savings_isa_allowance_used" class="label">
-                ISA Allowance Used This Tax Year (2025/26)
-              </label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
-                <input
-                  id="savings_isa_allowance_used"
-                  v-model.number="currentSavings.isa_allowance_used"
-                  type="number"
-                  min="0"
-                  max="20000"
-                  step="100"
-                  class="input-field pl-8"
-                  placeholder="0"
-                >
-              </div>
-              <p class="mt-1 text-body-sm text-gray-500">
-                How much have you contributed to this Cash ISA in the current tax year? (Annual limit: £20,000)
-              </p>
-            </div>
-
-            <div>
-              <label for="savings_ownership_type" class="label">
-                Ownership Type <span class="text-red-500">*</span>
-              </label>
-              <select
-                id="savings_ownership_type"
-                v-model="currentSavings.ownership_type"
-                class="input-field"
-                required
-              >
-                <option value="individual">Individual Owner</option>
-                <option value="joint">Joint Owner</option>
-              </select>
-              <p class="mt-1 text-body-sm text-gray-500">
-                Cash ISAs must be individually owned
-              </p>
-            </div>
-          </div>
-
-          <div class="flex gap-3 mt-4">
-            <button
-              type="button"
-              class="btn-primary"
-              @click="saveSavings"
-            >
-              {{ editingSavingsIndex !== null ? 'Update Account' : 'Add Account' }}
-            </button>
-            <button
-              type="button"
-              class="btn-secondary"
-              @click="cancelSavingsForm"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-
         <!-- Added Cash Accounts List -->
         <div v-if="savingsAccounts.length > 0" class="space-y-3">
           <h4 class="text-body font-medium text-gray-900">
@@ -661,8 +361,8 @@
           </h4>
 
           <div
-            v-for="(savings, index) in savingsAccounts"
-            :key="index"
+            v-for="savings in savingsAccounts"
+            :key="savings.id"
             class="border border-gray-200 rounded-lg p-4 bg-gray-50"
           >
             <div class="flex justify-between items-start">
@@ -672,37 +372,28 @@
                     {{ savings.institution }}
                   </h5>
                   <span class="text-body-sm px-2 py-0.5 bg-purple-100 text-purple-700 rounded capitalize">
-                    {{ savings.account_type.replace(/_/g, ' ') }}
-                  </span>
-                  <span class="text-body-sm px-2 py-0.5 bg-blue-100 text-blue-700 rounded capitalize">
-                    {{ savings.ownership_type }}
+                    {{ savings.account_type?.replace(/_/g, ' ') }}
                   </span>
                 </div>
-                <div class="mt-2 grid grid-cols-2 gap-2">
-                  <div>
-                    <p class="text-body-sm text-gray-500">Balance</p>
-                    <p class="text-body font-medium text-gray-900">£{{ savings.current_balance.toLocaleString() }}</p>
-                  </div>
-                  <div v-if="savings.interest_rate > 0">
-                    <p class="text-body-sm text-gray-500">Interest Rate</p>
-                    <p class="text-body font-medium text-gray-900">{{ savings.interest_rate }}%</p>
-                  </div>
+                <div class="mt-2">
+                  <p class="text-body-sm text-gray-500">Balance</p>
+                  <p class="text-body font-medium text-gray-900">£{{ savings.current_balance?.toLocaleString() }}</p>
                 </div>
               </div>
               <div class="flex gap-2 ml-4">
                 <button
                   type="button"
                   class="text-primary-600 hover:text-primary-700 text-body-sm"
-                  @click="editSavings(index)"
+                  @click="editSavings(savings)"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   class="text-red-600 hover:text-red-700 text-body-sm"
-                  @click="removeSavings(index)"
+                  @click="deleteSavings(savings.id)"
                 >
-                  Remove
+                  Delete
                 </button>
               </div>
             </div>
@@ -710,378 +401,427 @@
         </div>
 
         <!-- Add Account Button -->
-        <div v-if="!showSavingsForm">
-          <button
-            type="button"
-            class="btn-secondary w-full md:w-auto"
-            @click="showAddSavingsForm"
-          >
-            + Add Account
-          </button>
-        </div>
+        <button
+          type="button"
+          class="btn-secondary w-full md:w-auto"
+          @click="showSavingsForm = true"
+        >
+          + Add Account
+        </button>
 
         <p v-if="savingsAccounts.length === 0" class="text-body-sm text-gray-500 italic">
           You can skip this step and add accounts later from your dashboard.
         </p>
       </div>
     </div>
+
+    <!-- Property Form Modal -->
+    <PropertyForm
+      v-if="showPropertyForm"
+      :property="editingProperty"
+      @close="closePropertyForm"
+      @save="handlePropertySaved"
+    />
+
+    <!-- Investment Account Form Modal -->
+    <AccountForm
+      v-if="showInvestmentForm"
+      :show="showInvestmentForm"
+      :account="editingInvestment"
+      @close="closeInvestmentForm"
+      @save="handleInvestmentSaved"
+    />
+
+    <!-- Savings Account Form Modal -->
+    <SaveAccountModal
+      v-if="showSavingsForm"
+      :account="editingSavings"
+      @close="closeSavingsForm"
+      @save="handleSavingsSaved"
+    />
+
+    <!-- Pension Form Modals -->
+    <DCPensionForm
+      v-if="showPensionForm && pensionFormType === 'dc'"
+      :pension="editingPension"
+      @close="closePensionForm"
+      @save="handlePensionSaved"
+    />
+
+    <DBPensionForm
+      v-if="showPensionForm && pensionFormType === 'db'"
+      :pension="editingPension"
+      @close="closePensionForm"
+      @save="handlePensionSaved"
+    />
+
+    <StatePensionForm
+      v-if="showPensionForm && pensionFormType === 'state'"
+      :pension="editingPension"
+      @close="closePensionForm"
+      @save="handlePensionSaved"
+    />
   </OnboardingStep>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
+import { ref, computed, onMounted } from 'vue';
 import OnboardingStep from '../OnboardingStep.vue';
-import CountrySelector from '@/components/Shared/CountrySelector.vue';
+import PropertyForm from '@/components/NetWorth/Property/PropertyForm.vue';
+import AccountForm from '@/components/Investment/AccountForm.vue';
+import SaveAccountModal from '@/components/Savings/SaveAccountModal.vue';
+import DCPensionForm from '@/components/Retirement/DCPensionForm.vue';
+import DBPensionForm from '@/components/Retirement/DBPensionForm.vue';
+import StatePensionForm from '@/components/Retirement/StatePensionForm.vue';
+import propertyService from '@/services/propertyService';
+import investmentService from '@/services/investmentService';
+import savingsService from '@/services/savingsService';
+import retirementService from '@/services/retirementService';
 
 export default {
   name: 'AssetsStep',
 
   components: {
     OnboardingStep,
-    CountrySelector,
+    PropertyForm,
+    AccountForm,
+    SaveAccountModal,
+    DCPensionForm,
+    DBPensionForm,
+    StatePensionForm,
   },
 
   emits: ['next', 'back', 'skip'],
 
   setup(_props, { emit }) {
-    const store = useStore();
+    const activeTab = ref('retirement');
 
-    const activeTab = ref('properties');
-    const assetTabs = ref([
-      { id: 'properties', name: 'Properties', count: 0 },
-      { id: 'investments', name: 'Investments', count: 0 },
-      { id: 'cash', name: 'Cash', count: 0 },
-    ]);
-
-    // Properties
+    // Properties state
     const properties = ref([]);
-    const showForm = ref(false);
-    const editingIndex = ref(null);
-    const currentProperty = ref({
-      property_type: '',
-      address_line_1: '',
-      address_line_2: '',
-      city: '',
-      postcode: '',
-      country: 'United Kingdom',
-      current_value: 0,
-      outstanding_mortgage: 0,
-      monthly_rental_income: 0,
-      ownership_type: 'individual',
-    });
+    const showPropertyForm = ref(false);
+    const editingProperty = ref(null);
 
-    // Investments
+    // Investments state
     const investments = ref([]);
     const showInvestmentForm = ref(false);
-    const editingInvestmentIndex = ref(null);
-    const currentInvestment = ref({
-      institution: '',
-      account_type: '',
-      country: 'United Kingdom',
-      current_value: 0,
-      isa_allowance_used: 0,
-      ownership_type: 'individual',
-    });
+    const editingInvestment = ref(null);
 
-    // Cash (formerly Savings)
+    // Savings state
     const savingsAccounts = ref([]);
     const showSavingsForm = ref(false);
-    const editingSavingsIndex = ref(null);
-    const currentSavings = ref({
-      institution: '',
-      account_type: '',
-      country: 'United Kingdom',
-      current_balance: 0,
-      interest_rate: 0,
-      isa_allowance_used: 0,
-      ownership_type: 'individual',
-    });
+    const editingSavings = ref(null);
 
     const loading = ref(false);
     const error = ref(null);
 
-    const showAddForm = () => {
-      showForm.value = true;
-      editingIndex.value = null;
-      resetCurrentProperty();
-    };
+    // Pensions state
+    const pensions = ref({ dc: [], db: [], state: null });
+    const showPensionForm = ref(false);
+    const pensionFormType = ref(null); // 'dc', 'db', or 'state'
+    const editingPension = ref(null);
 
-    const resetCurrentProperty = () => {
-      currentProperty.value = {
-        property_type: '',
-        address_line_1: '',
-        address_line_2: '',
-        city: '',
-        postcode: '',
-        country: 'United Kingdom',
-        current_value: 0,
-        outstanding_mortgage: 0,
-        monthly_rental_income: 0,
-        ownership_type: 'individual',
-      };
-    };
+    // Tab counts
+    const assetTabs = computed(() => [
+      { id: 'retirement', name: 'Retirement', count: pensions.value.dc.length + pensions.value.db.length + (pensions.value.state ? 1 : 0) },
+      { id: 'properties', name: 'Properties', count: properties.value.length },
+      { id: 'investments', name: 'Investments', count: investments.value.length },
+      { id: 'cash', name: 'Cash', count: savingsAccounts.value.length },
+    ]);
 
-    const saveProperty = () => {
-      // Validation
-      if (
-        !currentProperty.value.property_type ||
-        !currentProperty.value.address_line_1 ||
-        !currentProperty.value.city ||
-        !currentProperty.value.postcode ||
-        !currentProperty.value.current_value
-      ) {
-        error.value = 'Please fill in all required fields';
-        return;
+    // Load existing data
+    onMounted(async () => {
+      await Promise.all([
+        loadPensions(),
+        loadProperties(),
+        loadInvestments(),
+        loadSavingsAccounts(),
+      ]);
+    });
+
+    // Pensions methods
+    async function loadPensions() {
+      try {
+        const response = await retirementService.getRetirementData();
+        pensions.value = {
+          dc: response.data?.dc_pensions || [],
+          db: response.data?.db_pensions || [],
+          state: response.data?.state_pension || null,
+        };
+      } catch (err) {
+        console.error('Failed to load pensions', err);
       }
+    }
 
-      error.value = null;
+    function openPensionForm(type, pension = null) {
+      pensionFormType.value = type;
+      editingPension.value = pension;
+      showPensionForm.value = true;
+    }
 
-      if (editingIndex.value !== null) {
-        // Update existing property
-        properties.value[editingIndex.value] = { ...currentProperty.value };
-      } else {
-        // Add new property
-        properties.value.push({ ...currentProperty.value });
+    async function deletePension(type, id) {
+      const confirmMessage = `Are you sure you want to delete this ${type === 'dc' ? 'DC' : 'DB'} pension?`;
+      if (confirm(confirmMessage)) {
+        try {
+          if (type === 'dc') {
+            await retirementService.deleteDCPension(id);
+          } else if (type === 'db') {
+            await retirementService.deleteDBPension(id);
+          }
+          await loadPensions();
+        } catch (err) {
+          error.value = 'Failed to delete pension';
+        }
       }
+    }
 
-      showForm.value = false;
-      resetCurrentProperty();
-      updateTabCounts();
-    };
+    function closePensionForm() {
+      showPensionForm.value = false;
+      pensionFormType.value = null;
+      editingPension.value = null;
+    }
 
-    const editProperty = (index) => {
-      editingIndex.value = index;
-      currentProperty.value = { ...properties.value[index] };
-      showForm.value = true;
-    };
+    async function handlePensionSaved(data) {
+      try {
+        if (pensionFormType.value === 'dc') {
+          if (editingPension.value) {
+            await retirementService.updateDCPension(editingPension.value.id, data);
+          } else {
+            await retirementService.createDCPension(data);
+          }
+        } else if (pensionFormType.value === 'db') {
+          if (editingPension.value) {
+            await retirementService.updateDBPension(editingPension.value.id, data);
+          } else {
+            await retirementService.createDBPension(data);
+          }
+        } else if (pensionFormType.value === 'state') {
+          await retirementService.updateStatePension(data);
+        }
 
-    const removeProperty = (index) => {
-      if (confirm('Are you sure you want to remove this property?')) {
-        properties.value.splice(index, 1);
-        updateTabCounts();
+        closePensionForm();
+        await loadPensions();
+      } catch (err) {
+        console.error('Failed to save pension:', err);
+        error.value = 'Failed to save pension. Please try again.';
       }
-    };
+    }
 
-    const cancelForm = () => {
-      showForm.value = false;
-      editingIndex.value = null;
-      resetCurrentProperty();
-      error.value = null;
-    };
+    // Properties methods
+    async function loadProperties() {
+      try {
+        const response = await propertyService.getProperties();
+        // propertyService already returns response.data, so response is the properties array
+        properties.value = Array.isArray(response) ? response : [];
+      } catch (err) {
+        console.error('Failed to load properties', err);
+      }
+    }
 
-    // Investment methods
-    const showAddInvestmentForm = () => {
+    function editProperty(property) {
+      editingProperty.value = property;
+      showPropertyForm.value = true;
+    }
+
+    async function deleteProperty(id) {
+      if (confirm('Are you sure you want to delete this property?')) {
+        try {
+          await propertyService.deleteProperty(id);
+          await loadProperties();
+        } catch (err) {
+          error.value = 'Failed to delete property';
+        }
+      }
+    }
+
+    function closePropertyForm() {
+      showPropertyForm.value = false;
+      editingProperty.value = null;
+    }
+
+    async function handlePropertySaved(data) {
+      try {
+        // Save property first
+        const propertyResponse = editingProperty.value
+          ? await propertyService.updateProperty(editingProperty.value.id, data.property)
+          : await propertyService.createProperty(data.property);
+
+        // Get property ID from response (API returns property directly, not wrapped in data)
+        const propertyId = editingProperty.value?.id || propertyResponse.data?.id || propertyResponse.id;
+
+        // If mortgage data provided and property was saved successfully, save/update mortgage
+        if (data.mortgage && propertyId) {
+          console.log('Mortgage data being sent:', JSON.stringify(data.mortgage, null, 2));
+
+          // Check if property already has a mortgage (when editing)
+          const existingMortgage = editingProperty.value?.mortgages?.[0];
+
+          if (existingMortgage) {
+            // Update existing mortgage
+            await propertyService.updatePropertyMortgage(propertyId, existingMortgage.id, data.mortgage);
+          } else {
+            // Create new mortgage
+            try {
+              await propertyService.createPropertyMortgage(propertyId, data.mortgage);
+            } catch (error) {
+              console.error('Validation errors:', error.response?.data?.errors);
+              throw error;
+            }
+          }
+        }
+
+        closePropertyForm();
+        await loadProperties();
+      } catch (err) {
+        console.error('Failed to save property/mortgage:', err);
+        error.value = 'Failed to save property. Please try again.';
+      }
+    }
+
+    // Investments methods
+    async function loadInvestments() {
+      try {
+        const response = await investmentService.getInvestmentData();
+        investments.value = response.data?.accounts || [];
+      } catch (err) {
+        console.error('Failed to load investments', err);
+      }
+    }
+
+    function editInvestment(investment) {
+      editingInvestment.value = investment;
       showInvestmentForm.value = true;
-      editingInvestmentIndex.value = null;
-      resetCurrentInvestment();
-    };
+    }
 
-    const resetCurrentInvestment = () => {
-      currentInvestment.value = {
-        institution: '',
-        account_type: '',
-        country: 'United Kingdom',
-        current_value: 0,
-        isa_allowance_used: 0,
-        ownership_type: 'individual',
-      };
-    };
-
-    const saveInvestment = () => {
-      if (
-        !currentInvestment.value.institution ||
-        !currentInvestment.value.account_type ||
-        !currentInvestment.value.current_value
-      ) {
-        error.value = 'Please fill in all required investment fields';
-        return;
+    async function deleteInvestment(id) {
+      if (confirm('Are you sure you want to delete this investment account?')) {
+        try {
+          await investmentService.deleteAccount(id);
+          await loadInvestments();
+        } catch (err) {
+          error.value = 'Failed to delete investment account';
+        }
       }
+    }
 
-      error.value = null;
-
-      if (editingInvestmentIndex.value !== null) {
-        investments.value[editingInvestmentIndex.value] = { ...currentInvestment.value };
-      } else {
-        investments.value.push({ ...currentInvestment.value });
-      }
-
+    function closeInvestmentForm() {
       showInvestmentForm.value = false;
-      resetCurrentInvestment();
-      updateTabCounts();
-    };
+      editingInvestment.value = null;
+    }
 
-    const editInvestment = (index) => {
-      editingInvestmentIndex.value = index;
-      currentInvestment.value = { ...investments.value[index] };
-      showInvestmentForm.value = true;
-    };
+    async function handleInvestmentSaved(data) {
+      try {
+        // Save investment account
+        if (editingInvestment.value) {
+          await investmentService.updateAccount(editingInvestment.value.id, data);
+        } else {
+          await investmentService.createAccount(data);
+        }
 
-    const removeInvestment = (index) => {
-      if (confirm('Are you sure you want to remove this investment account?')) {
-        investments.value.splice(index, 1);
-        updateTabCounts();
+        closeInvestmentForm();
+        await loadInvestments();
+      } catch (err) {
+        console.error('Failed to save investment account:', err);
+        error.value = 'Failed to save investment account. Please try again.';
       }
-    };
-
-    const cancelInvestmentForm = () => {
-      showInvestmentForm.value = false;
-      editingInvestmentIndex.value = null;
-      resetCurrentInvestment();
-      error.value = null;
-    };
+    }
 
     // Savings methods
-    const showAddSavingsForm = () => {
-      showSavingsForm.value = true;
-      editingSavingsIndex.value = null;
-      resetCurrentSavings();
-    };
-
-    const resetCurrentSavings = () => {
-      currentSavings.value = {
-        institution: '',
-        account_type: '',
-        country: 'United Kingdom',
-        current_balance: 0,
-        interest_rate: 0,
-        isa_allowance_used: 0,
-        ownership_type: 'individual',
-      };
-    };
-
-    const saveSavings = () => {
-      if (
-        !currentSavings.value.institution ||
-        !currentSavings.value.account_type ||
-        !currentSavings.value.current_balance
-      ) {
-        error.value = 'Please fill in all required savings fields';
-        return;
-      }
-
-      error.value = null;
-
-      if (editingSavingsIndex.value !== null) {
-        savingsAccounts.value[editingSavingsIndex.value] = { ...currentSavings.value };
-      } else {
-        savingsAccounts.value.push({ ...currentSavings.value });
-      }
-
-      showSavingsForm.value = false;
-      resetCurrentSavings();
-      updateTabCounts();
-    };
-
-    const editSavings = (index) => {
-      editingSavingsIndex.value = index;
-      currentSavings.value = { ...savingsAccounts.value[index] };
-      showSavingsForm.value = true;
-    };
-
-    const removeSavings = (index) => {
-      if (confirm('Are you sure you want to remove this savings account?')) {
-        savingsAccounts.value.splice(index, 1);
-        updateTabCounts();
-      }
-    };
-
-    const cancelSavingsForm = () => {
-      showSavingsForm.value = false;
-      editingSavingsIndex.value = null;
-      resetCurrentSavings();
-      error.value = null;
-    };
-
-    // Update tab counts
-    const updateTabCounts = () => {
-      assetTabs.value[0].count = properties.value.length;
-      assetTabs.value[1].count = investments.value.length;
-      assetTabs.value[2].count = savingsAccounts.value.length;
-    };
-
-    const handleNext = async () => {
-      loading.value = true;
-      error.value = null;
-
+    async function loadSavingsAccounts() {
       try {
-        await store.dispatch('onboarding/saveStepData', {
-          stepName: 'assets',
-          data: {
-            properties: properties.value,
-            investments: investments.value,
-            cash: savingsAccounts.value,
-          },
-        });
-
-        emit('next');
+        const response = await savingsService.getSavingsData();
+        savingsAccounts.value = response.data?.accounts || [];
       } catch (err) {
-        error.value = err.message || 'Failed to save. Please try again.';
-      } finally {
-        loading.value = false;
+        console.error('Failed to load savings accounts', err);
       }
-    };
+    }
 
-    const handleBack = () => {
+    function editSavings(savings) {
+      editingSavings.value = savings;
+      showSavingsForm.value = true;
+    }
+
+    async function deleteSavings(id) {
+      if (confirm('Are you sure you want to delete this savings account?')) {
+        try {
+          await savingsService.deleteAccount(id);
+          await loadSavingsAccounts();
+        } catch (err) {
+          error.value = 'Failed to delete savings account';
+        }
+      }
+    }
+
+    function closeSavingsForm() {
+      showSavingsForm.value = false;
+      editingSavings.value = null;
+    }
+
+    async function handleSavingsSaved(data) {
+      try {
+        // Save savings account
+        if (editingSavings.value) {
+          await savingsService.updateAccount(editingSavings.value.id, data);
+        } else {
+          await savingsService.createAccount(data);
+        }
+
+        closeSavingsForm();
+        await loadSavingsAccounts();
+      } catch (err) {
+        console.error('Failed to save savings account:', err);
+        error.value = 'Failed to save savings account. Please try again.';
+      }
+    }
+
+    // Navigation
+    function handleNext() {
+      emit('next');
+    }
+
+    function handleBack() {
       emit('back');
-    };
+    }
 
-    const handleSkip = () => {
+    function handleSkip() {
       emit('skip', 'assets');
-    };
-
-    onMounted(async () => {
-      const existingData = await store.dispatch('onboarding/fetchStepData', 'assets');
-      if (existingData) {
-        if (existingData.properties && Array.isArray(existingData.properties)) {
-          properties.value = existingData.properties;
-        }
-        if (existingData.investments && Array.isArray(existingData.investments)) {
-          investments.value = existingData.investments;
-        }
-        // Support both 'cash' (new) and 'savings' (legacy)
-        if (existingData.cash && Array.isArray(existingData.cash)) {
-          savingsAccounts.value = existingData.cash;
-        } else if (existingData.savings && Array.isArray(existingData.savings)) {
-          savingsAccounts.value = existingData.savings;
-        }
-        updateTabCounts();
-      }
-    });
+    }
 
     return {
       activeTab,
       assetTabs,
+      // Pensions
+      pensions,
+      showPensionForm,
+      pensionFormType,
+      editingPension,
+      openPensionForm,
+      deletePension,
+      closePensionForm,
+      handlePensionSaved,
       // Properties
       properties,
-      showForm,
-      editingIndex,
-      currentProperty,
-      showAddForm,
-      saveProperty,
+      showPropertyForm,
+      editingProperty,
       editProperty,
-      removeProperty,
-      cancelForm,
+      deleteProperty,
+      closePropertyForm,
+      handlePropertySaved,
       // Investments
       investments,
       showInvestmentForm,
-      editingInvestmentIndex,
-      currentInvestment,
-      showAddInvestmentForm,
-      saveInvestment,
+      editingInvestment,
       editInvestment,
-      removeInvestment,
-      cancelInvestmentForm,
+      deleteInvestment,
+      closeInvestmentForm,
+      handleInvestmentSaved,
       // Savings
       savingsAccounts,
       showSavingsForm,
-      editingSavingsIndex,
-      currentSavings,
-      showAddSavingsForm,
-      saveSavings,
+      editingSavings,
       editSavings,
-      removeSavings,
-      cancelSavingsForm,
+      deleteSavings,
+      closeSavingsForm,
+      handleSavingsSaved,
       // Common
       loading,
       error,

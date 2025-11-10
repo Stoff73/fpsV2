@@ -120,7 +120,7 @@
         <div class="text-center">
           <div
             class="text-3xl font-bold mb-1"
-            :class="coverageRatioColor"
+            :class="coverageRatioColour"
           >
             {{ coverageRatio }}%
           </div>
@@ -220,7 +220,7 @@ export default {
       return Math.round((this.totalCoverage / target) * 100);
     },
 
-    coverageRatioColor() {
+    coverageRatioColour() {
       if (this.coverageRatio >= 100) return 'text-green-600';
       if (this.coverageRatio >= 75) return 'text-amber-600';
       return 'text-red-600';

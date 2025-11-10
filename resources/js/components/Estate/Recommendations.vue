@@ -4,7 +4,7 @@
     <div class="mb-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-2">Estate Planning Recommendations</h3>
       <p class="text-sm text-gray-600">
-        Prioritized recommendations to optimize your estate and reduce IHT liability
+        Prioritized recommendations to optimise your estate and reduce IHT liability
       </p>
     </div>
 

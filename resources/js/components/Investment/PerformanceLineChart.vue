@@ -176,7 +176,7 @@ export default {
             },
           },
         },
-        colors: ['#3b82f6', '#10b981', '#8b5cf6'],
+        colours: ['#3b82f6', '#10b981', '#8b5cf6'],
         stroke: {
           width: [3, 2, 2],
           curve: 'smooth',
@@ -186,7 +186,7 @@ export default {
           labels: {
             format: 'MMM yyyy',
             style: {
-              colors: '#6b7280',
+              colours: '#6b7280',
               fontSize: '12px',
             },
           },
@@ -195,7 +195,7 @@ export default {
           labels: {
             formatter: (val) => this.formatCurrency(val),
             style: {
-              colors: '#6b7280',
+              colours: '#6b7280',
               fontSize: '12px',
             },
           },
@@ -217,7 +217,7 @@ export default {
           fontSize: '14px',
           fontWeight: 500,
           labels: {
-            colors: '#374151',
+            colours: '#374151',
           },
           markers: {
             width: 12,
@@ -226,7 +226,7 @@ export default {
           },
         },
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
           strokeDashArray: 3,
           xaxis: {
             lines: {

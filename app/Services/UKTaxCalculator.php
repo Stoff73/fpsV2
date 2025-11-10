@@ -6,10 +6,22 @@ namespace App\Services;
 
 /**
  * UK Tax and National Insurance Calculator
- * Uses 2025/26 tax year rates
+ * Uses active tax year rates from TaxConfigService
  */
 class UKTaxCalculator
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Calculate net income after income tax and National Insurance.
      *
@@ -61,20 +73,39 @@ class UKTaxCalculator
     }
 
     /**
-     * Calculate UK Income Tax (2025/26 rates).
-     * Personal Allowance: £12,570
-     * Basic Rate (20%): £12,571 - £50,270
-     * Higher Rate (40%): £50,271 - £125,140
-     * Additional Rate (45%): £125,141+
-     * Dividend Allowance: £500
-     * Dividend Tax: 8.75% (basic), 33.75% (higher), 39.35% (additional)
+     * Calculate UK Income Tax using active tax year rates from TaxConfigService.
+     * Supports:
+     * - Income tax bands (basic, higher, additional)
+     * - Personal allowance
+     * - Dividend allowance and dividend-specific rates
      */
     private function calculateIncomeTax(float $nonDividendIncome, float $dividendIncome): float
     {
-        $personalAllowance = 12570;
-        $basicRateLimit = 50270;
-        $higherRateLimit = 125140;
-        $dividendAllowance = 500;
+        // Get tax configuration from service
+        $incomeTax = $this->taxConfig->getIncomeTax();
+        $dividendTax = $this->taxConfig->getDividendTax();
+
+        $personalAllowance = $incomeTax['personal_allowance'];
+        $dividendAllowance = $dividendTax['allowance'];
+
+        // Get income tax bands (stored as array in seeder)
+        $bands = $incomeTax['bands'];
+
+        // Calculate absolute thresholds
+        // Basic rate band ends at personal_allowance + band max
+        $basicRateLimit = $personalAllowance + $bands[0]['max']; // £12,570 + £37,700 = £50,270
+        // Higher rate band ends at personal_allowance + band max
+        $higherRateLimit = $personalAllowance + $bands[1]['max']; // £12,570 + £150,000 = £162,570 (for historical)
+
+        // Convert percentage rates to decimals (20% -> 0.20)
+        $basicRate = $bands[0]['rate'] / 100;
+        $higherRate = $bands[1]['rate'] / 100;
+        $additionalRate = $bands[2]['rate'] / 100;
+
+        // Get dividend tax rates (flattened structure, convert percentages to decimals)
+        $basicDividendRate = $dividendTax['basic_rate'] / 100;         // 8.75% -> 0.0875
+        $higherDividendRate = $dividendTax['higher_rate'] / 100;       // 33.75% -> 0.3375
+        $additionalDividendRate = $dividendTax['additional_rate'] / 100; // 39.35% -> 0.3935
 
         $tax = 0;
 
@@ -82,25 +113,25 @@ class UKTaxCalculator
         if ($nonDividendIncome > $personalAllowance) {
             $taxableIncome = $nonDividendIncome - $personalAllowance;
 
-            // Basic rate (20%)
+            // Basic rate
             if ($taxableIncome > 0) {
                 $basicRateTaxable = min($taxableIncome, $basicRateLimit - $personalAllowance);
-                $tax += $basicRateTaxable * 0.20;
+                $tax += $basicRateTaxable * $basicRate;
             }
 
-            // Higher rate (40%)
+            // Higher rate
             if ($taxableIncome > ($basicRateLimit - $personalAllowance)) {
                 $higherRateTaxable = min(
                     $taxableIncome - ($basicRateLimit - $personalAllowance),
                     $higherRateLimit - $basicRateLimit
                 );
-                $tax += $higherRateTaxable * 0.40;
+                $tax += $higherRateTaxable * $higherRate;
             }
 
-            // Additional rate (45%)
+            // Additional rate
             if ($taxableIncome > ($higherRateLimit - $personalAllowance)) {
                 $additionalRateTaxable = $taxableIncome - ($higherRateLimit - $personalAllowance);
-                $tax += $additionalRateTaxable * 0.45;
+                $tax += $additionalRateTaxable * $additionalRate;
             }
         }
 
@@ -111,18 +142,18 @@ class UKTaxCalculator
 
             // Determine dividend tax rate based on total income band
             if ($totalIncome <= $basicRateLimit) {
-                // Basic rate dividend tax (8.75%)
-                $tax += $taxableDividends * 0.0875;
+                // Basic rate dividend tax
+                $tax += $taxableDividends * $basicDividendRate;
             } elseif ($totalIncome <= $higherRateLimit) {
                 // Some in basic, some in higher
                 $basicRateDividends = max(0, $basicRateLimit - $nonDividendIncome);
                 $higherRateDividends = $taxableDividends - $basicRateDividends;
 
-                $tax += $basicRateDividends * 0.0875; // Basic rate
-                $tax += $higherRateDividends * 0.3375; // Higher rate (33.75%)
+                $tax += $basicRateDividends * $basicDividendRate;
+                $tax += $higherRateDividends * $higherDividendRate;
             } else {
-                // Higher/additional rate
-                $tax += $taxableDividends * 0.3935; // Additional rate (39.35%)
+                // Additional rate
+                $tax += $taxableDividends * $additionalDividendRate;
             }
         }
 
@@ -130,60 +161,72 @@ class UKTaxCalculator
     }
 
     /**
-     * Calculate Class 1 National Insurance (Employees - 2025/26).
-     * Primary Threshold: £12,570
-     * Upper Earnings Limit: £50,270
-     * Main Rate: 8% (£12,571 - £50,270)
-     * Additional Rate: 2% (above £50,270)
+     * Calculate Class 1 National Insurance (Employees).
+     * Uses active tax year rates from TaxConfigService.
      */
     private function calculateClass1NI(float $employmentIncome): float
     {
-        if ($employmentIncome <= 12570) {
+        // Get National Insurance configuration
+        $niConfig = $this->taxConfig->getNationalInsurance();
+        $class1Employee = $niConfig['class_1']['employee'];
+
+        $primaryThreshold = $class1Employee['primary_threshold'];
+        $upperEarningsLimit = $class1Employee['upper_earnings_limit'];
+        $mainRate = $class1Employee['main_rate'];
+        $additionalRate = $class1Employee['additional_rate'];
+
+        if ($employmentIncome <= $primaryThreshold) {
             return 0;
         }
 
         $ni = 0;
 
-        // Main rate (8%)
-        if ($employmentIncome > 12570) {
-            $mainRateEarnings = min($employmentIncome - 12570, 50270 - 12570);
-            $ni += $mainRateEarnings * 0.08;
+        // Main rate
+        if ($employmentIncome > $primaryThreshold) {
+            $mainRateEarnings = min($employmentIncome - $primaryThreshold, $upperEarningsLimit - $primaryThreshold);
+            $ni += $mainRateEarnings * $mainRate;
         }
 
-        // Additional rate (2%)
-        if ($employmentIncome > 50270) {
-            $additionalRateEarnings = $employmentIncome - 50270;
-            $ni += $additionalRateEarnings * 0.02;
+        // Additional rate
+        if ($employmentIncome > $upperEarningsLimit) {
+            $additionalRateEarnings = $employmentIncome - $upperEarningsLimit;
+            $ni += $additionalRateEarnings * $additionalRate;
         }
 
         return $ni;
     }
 
     /**
-     * Calculate Class 4 National Insurance (Self-Employed - 2025/26).
-     * Lower Profits Limit: £12,570
-     * Upper Profits Limit: £50,270
-     * Main Rate: 6% (£12,571 - £50,270)
-     * Additional Rate: 2% (above £50,270)
+     * Calculate Class 4 National Insurance (Self-Employed).
+     * Uses active tax year rates from TaxConfigService.
      */
     private function calculateClass4NI(float $selfEmploymentIncome): float
     {
-        if ($selfEmploymentIncome <= 12570) {
+        // Get National Insurance configuration
+        $niConfig = $this->taxConfig->getNationalInsurance();
+        $class4 = $niConfig['class_4'];
+
+        $lowerProfitsLimit = $class4['lower_profits_limit'];
+        $upperProfitsLimit = $class4['upper_profits_limit'];
+        $mainRate = $class4['main_rate'];
+        $additionalRate = $class4['additional_rate'];
+
+        if ($selfEmploymentIncome <= $lowerProfitsLimit) {
             return 0;
         }
 
         $ni = 0;
 
-        // Main rate (6%)
-        if ($selfEmploymentIncome > 12570) {
-            $mainRateEarnings = min($selfEmploymentIncome - 12570, 50270 - 12570);
-            $ni += $mainRateEarnings * 0.06;
+        // Main rate
+        if ($selfEmploymentIncome > $lowerProfitsLimit) {
+            $mainRateEarnings = min($selfEmploymentIncome - $lowerProfitsLimit, $upperProfitsLimit - $lowerProfitsLimit);
+            $ni += $mainRateEarnings * $mainRate;
         }
 
-        // Additional rate (2%)
-        if ($selfEmploymentIncome > 50270) {
-            $additionalRateEarnings = $selfEmploymentIncome - 50270;
-            $ni += $additionalRateEarnings * 0.02;
+        // Additional rate
+        if ($selfEmploymentIncome > $upperProfitsLimit) {
+            $additionalRateEarnings = $selfEmploymentIncome - $upperProfitsLimit;
+            $ni += $additionalRateEarnings * $additionalRate;
         }
 
         return $ni;

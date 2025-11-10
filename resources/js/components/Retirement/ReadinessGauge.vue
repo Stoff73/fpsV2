@@ -41,7 +41,7 @@ export default {
       return [this.score];
     },
 
-    gaugeColor() {
+    gaugeColour() {
       if (this.score >= 90) return '#10b981'; // green
       if (this.score >= 70) return '#f59e0b'; // amber
       if (this.score >= 50) return '#f97316'; // orange
@@ -95,7 +95,7 @@ export default {
                 fontSize: '48px',
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 700,
-                color: this.gaugeColor,
+                color: this.gaugeColour,
                 formatter: (val) => {
                   return Math.round(val);
                 },
@@ -109,14 +109,14 @@ export default {
             shade: 'light',
             type: 'horizontal',
             shadeIntensity: 0.5,
-            gradientToColors: [this.gaugeColor],
-            inverseColors: false,
+            gradientToColours: [this.gaugeColour],
+            inverseColours: false,
             opacityFrom: 1,
             opacityTo: 1,
             stops: [0, 100],
           },
         },
-        colors: [this.gaugeColor],
+        colours: [this.gaugeColour],
         labels: [this.statusLabel],
         stroke: {
           lineCap: 'round',

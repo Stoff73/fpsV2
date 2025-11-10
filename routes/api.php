@@ -11,6 +11,21 @@ use App\Http\Controllers\Api\EstateController;
 use App\Http\Controllers\Api\FamilyMembersController;
 use App\Http\Controllers\Api\HolisticPlanningController;
 use App\Http\Controllers\Api\InvestmentController;
+use App\Http\Controllers\Api\Investment\AssetLocationController;
+use App\Http\Controllers\Api\Investment\ContributionOptimizerController;
+use App\Http\Controllers\Api\Investment\EfficientFrontierController;
+use App\Http\Controllers\Api\Investment\FeeImpactController;
+use App\Http\Controllers\Api\Investment\GoalProgressController;
+use App\Http\Controllers\Api\Investment\InvestmentPlanController;
+use App\Http\Controllers\Api\Investment\InvestmentRecommendationController;
+use App\Http\Controllers\Api\Investment\InvestmentScenarioController;
+use App\Http\Controllers\Api\Investment\PerformanceAttributionController;
+use App\Http\Controllers\Api\Investment\RebalancingController;
+use App\Http\Controllers\Api\Investment\ModelPortfolioController;
+use App\Http\Controllers\Api\Investment\RiskProfileController;
+use App\Http\Controllers\Api\Investment\TaxOptimizationController;
+use App\Http\Controllers\Api\Plans\InvestmentSavingsPlanController;
+use App\Http\Controllers\Api\PortfolioOptimizationController;
 use App\Http\Controllers\Api\LetterToSpouseController;
 use App\Http\Controllers\Api\MortgageController;
 use App\Http\Controllers\Api\NetWorthController;
@@ -21,6 +36,7 @@ use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\ProtectionController;
 use App\Http\Controllers\Api\RecommendationsController;
 use App\Http\Controllers\Api\RetirementController;
+use App\Http\Controllers\Api\Retirement\DCPensionHoldingsController;
 use App\Http\Controllers\Api\SavingsController;
 use App\Http\Controllers\Api\SpousePermissionController;
 use App\Http\Controllers\Api\UKTaxesController;
@@ -269,6 +285,280 @@ Route::middleware('auth:sanctum')->prefix('investment')->group(function () {
 
     // Risk profile
     Route::post('/risk-profile', [InvestmentController::class, 'storeOrUpdateRiskProfile']);
+
+    // Portfolio Optimization & Modern Portfolio Theory
+    Route::prefix('optimization')->group(function () {
+        // Efficient frontier calculation
+        Route::post('/efficient-frontier', [PortfolioOptimizationController::class, 'calculateEfficientFrontier']);
+        Route::get('/current-position', [PortfolioOptimizationController::class, 'getCurrentPosition']);
+
+        // Correlation analysis
+        Route::get('/correlation-matrix', [PortfolioOptimizationController::class, 'getCorrelationMatrix']);
+
+        // Optimization strategies
+        Route::post('/minimize-variance', [PortfolioOptimizationController::class, 'optimizeMinimumVariance']);
+        Route::post('/maximize-sharpe', [PortfolioOptimizationController::class, 'optimizeMaximumSharpe']);
+        Route::post('/target-return', [PortfolioOptimizationController::class, 'optimizeTargetReturn']);
+        Route::post('/risk-parity', [PortfolioOptimizationController::class, 'optimizeRiskParity']);
+
+        // Cache management
+        Route::delete('/clear-cache', [PortfolioOptimizationController::class, 'clearCache']);
+    });
+
+    // Portfolio Rebalancing with CGT Optimization
+    Route::prefix('rebalancing')->group(function () {
+        // Calculate rebalancing actions
+        Route::post('/calculate', [RebalancingController::class, 'calculateRebalancing']);
+        Route::post('/from-optimization', [RebalancingController::class, 'calculateFromOptimization']);
+
+        // CGT-aware rebalancing
+        Route::post('/compare-cgt', [RebalancingController::class, 'compareCGTStrategies']);
+        Route::post('/within-cgt-allowance', [RebalancingController::class, 'rebalanceWithinCGTAllowance']);
+
+        // Drift analysis (Phase 3.4)
+        Route::post('/analyze-drift', [RebalancingController::class, 'analyzeDrift']);
+
+        // Rebalancing strategies (Phase 3.4)
+        Route::post('/evaluate-strategies', [RebalancingController::class, 'evaluateStrategies']);
+        Route::post('/threshold-strategy', [RebalancingController::class, 'evaluateThresholdStrategy']);
+        Route::post('/calendar-strategy', [RebalancingController::class, 'evaluateCalendarStrategy']);
+        Route::post('/opportunistic-strategy', [RebalancingController::class, 'evaluateOpportunisticStrategy']);
+        Route::post('/recommend-frequency', [RebalancingController::class, 'recommendFrequency']);
+
+        // Manage rebalancing actions
+        Route::get('/actions', [RebalancingController::class, 'getRebalancingActions']);
+        Route::post('/save', [RebalancingController::class, 'saveRebalancingActions']);
+        Route::put('/actions/{id}', [RebalancingController::class, 'updateRebalancingAction']);
+        Route::delete('/actions/{id}', [RebalancingController::class, 'deleteRebalancingAction']);
+    });
+
+    // Contribution Planning & Optimization (Phase 2.1)
+    Route::prefix('contribution')->group(function () {
+        // Optimize contribution strategy
+        Route::post('/optimize', [ContributionOptimizerController::class, 'optimize']);
+
+        // Affordability analysis
+        Route::post('/affordability', [ContributionOptimizerController::class, 'affordability']);
+
+        // Lump sum vs DCA comparison
+        Route::post('/lump-sum-vs-dca', [ContributionOptimizerController::class, 'lumpSumVsDCA']);
+    });
+
+    // Tax Optimization Strategies
+    Route::prefix('tax-optimization')->group(function () {
+        // Comprehensive tax analysis
+        Route::get('/analyze', [TaxOptimizationController::class, 'analyzeTaxPosition']);
+
+        // ISA optimization
+        Route::get('/isa-strategy', [TaxOptimizationController::class, 'getISAStrategy']);
+
+        // CGT loss harvesting
+        Route::get('/cgt-harvesting', [TaxOptimizationController::class, 'getCGTHarvestingOpportunities']);
+
+        // Bed and ISA transfers
+        Route::get('/bed-and-isa', [TaxOptimizationController::class, 'getBedAndISAOpportunities']);
+
+        // Tax efficiency scoring
+        Route::get('/efficiency-score', [TaxOptimizationController::class, 'getTaxEfficiencyScore']);
+
+        // Recommendations
+        Route::get('/recommendations', [TaxOptimizationController::class, 'getRecommendations']);
+
+        // Savings calculator
+        Route::post('/calculate-savings', [TaxOptimizationController::class, 'calculatePotentialSavings']);
+
+        // Cache management
+        Route::delete('/clear-cache', [TaxOptimizationController::class, 'clearCache']);
+    });
+
+    // Asset Location Optimization
+    Route::prefix('asset-location')->group(function () {
+        // Comprehensive analysis
+        Route::get('/analyze', [AssetLocationController::class, 'analyzeAssetLocation']);
+
+        // Placement recommendations
+        Route::get('/recommendations', [AssetLocationController::class, 'getRecommendations']);
+
+        // Tax drag calculation
+        Route::get('/tax-drag', [AssetLocationController::class, 'calculateTaxDrag']);
+
+        // Optimization score
+        Route::get('/optimization-score', [AssetLocationController::class, 'getOptimizationScore']);
+
+        // Compare account types
+        Route::post('/compare-accounts', [AssetLocationController::class, 'compareAccountTypes']);
+
+        // Cache management
+        Route::delete('/clear-cache', [AssetLocationController::class, 'clearCache']);
+    });
+
+    // Performance Attribution & Benchmarking
+    Route::prefix('performance')->group(function () {
+        // Performance attribution analysis
+        Route::get('/analyze', [PerformanceAttributionController::class, 'analyzePerformance']);
+
+        // Benchmark comparison
+        Route::get('/benchmark', [PerformanceAttributionController::class, 'compareWithBenchmark']);
+
+        // Multi-benchmark comparison
+        Route::get('/multi-benchmark', [PerformanceAttributionController::class, 'compareWithMultipleBenchmarks']);
+
+        // Risk metrics
+        Route::get('/risk-metrics', [PerformanceAttributionController::class, 'getRiskMetrics']);
+
+        // Cache management
+        Route::delete('/clear-cache', [PerformanceAttributionController::class, 'clearCache']);
+    });
+
+    // Goal Progress & Tracking
+    Route::prefix('goals')->group(function () {
+        // Progress analysis
+        Route::get('/{goalId}/progress', [GoalProgressController::class, 'analyzeGoalProgress']);
+        Route::get('/progress/all', [GoalProgressController::class, 'analyzeAllGoals']);
+
+        // Shortfall analysis
+        Route::get('/{goalId}/shortfall', [GoalProgressController::class, 'analyzeShortfall']);
+
+        // What-if scenarios
+        Route::post('/{goalId}/what-if', [GoalProgressController::class, 'generateWhatIfScenarios']);
+
+        // Probability calculations
+        Route::post('/calculate-probability', [GoalProgressController::class, 'calculateProbability']);
+        Route::post('/required-contribution', [GoalProgressController::class, 'calculateRequiredContribution']);
+
+        // Glide path recommendations
+        Route::get('/glide-path', [GoalProgressController::class, 'getGlidePath']);
+
+        // Cache management
+        Route::delete('/clear-cache', [GoalProgressController::class, 'clearCache']);
+    });
+
+    // Fee Impact Analysis
+    Route::prefix('fees')->group(function () {
+        // Portfolio fee analysis
+        Route::get('/analyze', [FeeImpactController::class, 'analyzePortfolioFees']);
+        Route::get('/holdings', [FeeImpactController::class, 'analyzeHoldingFees']);
+
+        // OCF impact
+        Route::post('/ocf-impact', [FeeImpactController::class, 'calculateOCFImpact']);
+        Route::get('/active-vs-passive', [FeeImpactController::class, 'compareActiveVsPassive']);
+        Route::get('/alternatives/{holdingId}', [FeeImpactController::class, 'findAlternatives']);
+
+        // Platform comparison
+        Route::get('/compare-platforms', [FeeImpactController::class, 'comparePlatforms']);
+        Route::post('/compare-specific', [FeeImpactController::class, 'compareSpecificPlatforms']);
+
+        // Cache management
+        Route::delete('/clear-cache', [FeeImpactController::class, 'clearCache']);
+    });
+
+    // Risk Profiling
+    Route::prefix('risk-profile')->group(function () {
+        // Questionnaire
+        Route::get('/questionnaire', [RiskProfileController::class, 'getQuestionnaire']);
+        Route::post('/calculate-score', [RiskProfileController::class, 'calculateScore']);
+
+        // Profile generation
+        Route::post('/generate', [RiskProfileController::class, 'generateProfile']);
+        Route::get('/', [RiskProfileController::class, 'getProfile']);
+
+        // Capacity for loss
+        Route::post('/capacity', [RiskProfileController::class, 'analyzeCapacity']);
+
+        // Cache management
+        Route::delete('/clear-cache', [RiskProfileController::class, 'clearCache']);
+    });
+
+    // Model Portfolio Builder
+    Route::prefix('model-portfolio')->group(function () {
+        // Model portfolios
+        Route::get('/{riskLevel}', [ModelPortfolioController::class, 'getModelPortfolio']);
+        Route::get('/all', [ModelPortfolioController::class, 'getAllPortfolios']);
+        Route::post('/compare', [ModelPortfolioController::class, 'compareWithModel']);
+
+        // Asset allocation optimization
+        Route::get('/optimize-by-age', [ModelPortfolioController::class, 'optimizeByAge']);
+        Route::post('/optimize-by-horizon', [ModelPortfolioController::class, 'optimizeByTimeHorizon']);
+        Route::get('/glide-path', [ModelPortfolioController::class, 'getGlidePath']);
+
+        // Fund recommendations
+        Route::post('/funds', [ModelPortfolioController::class, 'getFundRecommendations']);
+    });
+
+    // Efficient Frontier / Modern Portfolio Theory (Phase 3.3)
+    Route::prefix('efficient-frontier')->group(function () {
+        // Calculate efficient frontier
+        Route::post('/calculate', [EfficientFrontierController::class, 'calculateEfficientFrontier']);
+        Route::get('/default', [EfficientFrontierController::class, 'calculateWithDefaults']);
+
+        // Find optimal portfolios
+        Route::post('/optimal-by-return', [EfficientFrontierController::class, 'findOptimalByReturn']);
+        Route::post('/optimal-by-risk', [EfficientFrontierController::class, 'findOptimalByRisk']);
+
+        // Portfolio analysis
+        Route::post('/compare', [EfficientFrontierController::class, 'compareWithFrontier']);
+        Route::post('/statistics', [EfficientFrontierController::class, 'calculateStatistics']);
+        Route::get('/analyze-current', [EfficientFrontierController::class, 'analyzeCurrentPortfolio']);
+
+        // Default assumptions
+        Route::get('/default-assumptions', [EfficientFrontierController::class, 'getDefaultAssumptions']);
+    });
+
+    // Investment Plan Generation (Phase 1.1)
+    Route::prefix('plan')->group(function () {
+        // Generate comprehensive plan
+        Route::post('/generate', [InvestmentPlanController::class, 'generatePlan']);
+
+        // Get plans
+        Route::get('/', [InvestmentPlanController::class, 'getLatestPlan']);
+        Route::get('/all', [InvestmentPlanController::class, 'getAllPlans']);
+        Route::get('/{id}', [InvestmentPlanController::class, 'getPlanById']);
+
+        // Delete plan
+        Route::delete('/{id}', [InvestmentPlanController::class, 'deletePlan']);
+
+        // Cache management
+        Route::delete('/clear-cache', [InvestmentPlanController::class, 'clearCache']);
+    });
+
+    // Investment Recommendations (Phase 1.2)
+    Route::prefix('recommendations')->group(function () {
+        // Dashboard/summary
+        Route::get('/dashboard', [InvestmentRecommendationController::class, 'dashboard']);
+
+        // CRUD operations
+        Route::get('/', [InvestmentRecommendationController::class, 'index']);
+        Route::post('/', [InvestmentRecommendationController::class, 'store']);
+        Route::get('/{id}', [InvestmentRecommendationController::class, 'show']);
+        Route::put('/{id}', [InvestmentRecommendationController::class, 'update']);
+        Route::delete('/{id}', [InvestmentRecommendationController::class, 'destroy']);
+
+        // Status management
+        Route::put('/{id}/status', [InvestmentRecommendationController::class, 'updateStatus']);
+        Route::post('/bulk-update-status', [InvestmentRecommendationController::class, 'bulkUpdateStatus']);
+    });
+
+    // Investment Scenarios (Phase 1.3)
+    Route::prefix('scenarios')->group(function () {
+        // Templates
+        Route::get('/templates', [InvestmentScenarioController::class, 'templates']);
+
+        // CRUD operations
+        Route::get('/', [InvestmentScenarioController::class, 'index']);
+        Route::post('/', [InvestmentScenarioController::class, 'store']);
+        Route::get('/{id}', [InvestmentScenarioController::class, 'show']);
+        Route::put('/{id}', [InvestmentScenarioController::class, 'update']);
+        Route::delete('/{id}', [InvestmentScenarioController::class, 'destroy']);
+
+        // Scenario operations
+        Route::post('/{id}/run', [InvestmentScenarioController::class, 'run']);
+        Route::get('/{id}/results', [InvestmentScenarioController::class, 'results']);
+        Route::post('/compare', [InvestmentScenarioController::class, 'compare']);
+
+        // Save/bookmark operations
+        Route::post('/{id}/save', [InvestmentScenarioController::class, 'save']);
+        Route::post('/{id}/unsave', [InvestmentScenarioController::class, 'unsave']);
+    });
 });
 
 // Estate Planning module routes
@@ -355,6 +645,10 @@ Route::middleware('auth:sanctum')->prefix('retirement')->group(function () {
     Route::get('/recommendations', [RetirementController::class, 'recommendations']);
     Route::post('/scenarios', [RetirementController::class, 'scenarios']);
 
+    // DC Pension Portfolio Analysis (advanced analytics)
+    Route::get('/portfolio-analysis', [RetirementController::class, 'analyzeDCPensionPortfolio']);
+    Route::get('/portfolio-analysis/{dcPensionId}', [RetirementController::class, 'analyzeDCPensionPortfolio']);
+
     // Annual allowance checking
     Route::get('/annual-allowance/{taxYear}', [RetirementController::class, 'checkAnnualAllowance']);
 
@@ -363,6 +657,13 @@ Route::middleware('auth:sanctum')->prefix('retirement')->group(function () {
         Route::post('/', [RetirementController::class, 'storeDCPension']);
         Route::put('/{id}', [RetirementController::class, 'updateDCPension']);
         Route::delete('/{id}', [RetirementController::class, 'destroyDCPension']);
+
+        // DC Pension Holdings (for portfolio optimization)
+        Route::get('/{dcPensionId}/holdings', [DCPensionHoldingsController::class, 'index']);
+        Route::post('/{dcPensionId}/holdings', [DCPensionHoldingsController::class, 'store']);
+        Route::put('/{dcPensionId}/holdings/{holdingId}', [DCPensionHoldingsController::class, 'update']);
+        Route::delete('/{dcPensionId}/holdings/{holdingId}', [DCPensionHoldingsController::class, 'destroy']);
+        Route::post('/{dcPensionId}/holdings/bulk-update', [DCPensionHoldingsController::class, 'bulkUpdate']);
     });
 
     // DB pensions
@@ -374,6 +675,13 @@ Route::middleware('auth:sanctum')->prefix('retirement')->group(function () {
 
     // State pension
     Route::post('/state-pension', [RetirementController::class, 'updateStatePension']);
+});
+
+// Plans routes (comprehensive cross-module plans)
+Route::middleware('auth:sanctum')->prefix('plans')->group(function () {
+    // Investment & Savings Plan
+    Route::get('/investment-savings', [InvestmentSavingsPlanController::class, 'generate']);
+    Route::delete('/investment-savings/clear-cache', [InvestmentSavingsPlanController::class, 'clearCache']);
 });
 
 // Holistic Planning routes (coordinating agent)
@@ -438,4 +746,6 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('tax-settings')->group(func
     Route::post('/create', [\App\Http\Controllers\Api\TaxSettingsController::class, 'create']);
     Route::put('/{id}', [\App\Http\Controllers\Api\TaxSettingsController::class, 'update']);
     Route::post('/{id}/activate', [\App\Http\Controllers\Api\TaxSettingsController::class, 'setActive']);
+    Route::post('/{id}/duplicate', [\App\Http\Controllers\Api\TaxSettingsController::class, 'duplicate']);
+    Route::delete('/{id}', [\App\Http\Controllers\Api\TaxSettingsController::class, 'delete']);
 });

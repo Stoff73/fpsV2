@@ -49,7 +49,7 @@ export default {
           fontFamily: 'Inter, system-ui, sans-serif',
         },
         labels: ['Property', 'Investments', 'Cash', 'Business', 'Chattels'],
-        colors: ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'],
+        colours: ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'],
         legend: {
           position: 'bottom',
           fontSize: '14px',

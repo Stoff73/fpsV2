@@ -13,6 +13,7 @@ use App\Services\Estate\CashFlowProjector;
 use App\Services\Estate\GiftingStrategy;
 use App\Services\Estate\IHTCalculator;
 use App\Services\Estate\NetWorthAnalyzer;
+use App\Services\TaxConfigService;
 use App\Services\UserProfile\ProfileCompletenessChecker;
 
 class EstateAgent extends BaseAgent
@@ -22,7 +23,8 @@ class EstateAgent extends BaseAgent
         private GiftingStrategy $giftingStrategy,
         private NetWorthAnalyzer $netWorthAnalyzer,
         private CashFlowProjector $cashFlowProjector,
-        private ProfileCompletenessChecker $completenessChecker
+        private ProfileCompletenessChecker $completenessChecker,
+        private TaxConfigService $taxConfig
     ) {}
 
     /**
@@ -222,7 +224,8 @@ class EstateAgent extends BaseAgent
         // Scenario 2: With annual gifting
         if (isset($parameters['annual_gifting_years'])) {
             $years = $parameters['annual_gifting_years'];
-            $annualGift = config('uk_tax_config.gifting_exemptions.annual_exemption', 3000);
+            $giftingConfig = $this->taxConfig->getGiftingExemptions();
+            $annualGift = $giftingConfig['annual_exemption'] ?? 3000;
             $totalGifted = $annualGift * $years;
 
             $reducedEstateValue = max(0, $assets->sum('current_value') - $totalGifted);

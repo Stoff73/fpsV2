@@ -61,13 +61,13 @@ export default {
           offsetY: -20,
           style: {
             fontSize: '12px',
-            colors: ['#304758'],
+            colours: ['#304758'],
           },
         },
         stroke: {
           show: true,
           width: 2,
-          colors: ['transparent'],
+          colours: ['transparent'],
         },
         xaxis: {
           categories: this.categories,
@@ -103,7 +103,7 @@ export default {
           floating: false,
           fontSize: '14px',
         },
-        colors: ['#3b82f6', '#10b981'],
+        colours: ['#3b82f6', '#10b981'],
       };
     },
 

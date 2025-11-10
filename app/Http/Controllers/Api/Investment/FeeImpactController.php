@@ -1,0 +1,421 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Api\Investment;
+
+use App\Http\Controllers\Controller;
+use App\Models\Investment\Holding;
+use App\Services\Investment\Fees\FeeAnalyzer;
+use App\Services\Investment\Fees\OCFImpactCalculator;
+use App\Services\Investment\Fees\PlatformComparator;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+
+/**
+ * Fee Impact Controller
+ * Manages API endpoints for investment fee analysis and optimization
+ */
+class FeeImpactController extends Controller
+{
+    public function __construct(
+        private FeeAnalyzer $feeAnalyzer,
+        private OCFImpactCalculator $ocfCalculator,
+        private PlatformComparator $platformComparator
+    ) {}
+
+    /**
+     * Analyze portfolio fees
+     *
+     * GET /api/investment/fees/analyze
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function analyzePortfolioFees(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            $cacheKey = "fee_analysis_{$user->id}";
+
+            $result = Cache::remember($cacheKey, 3600, function () use ($user) {
+                return $this->feeAnalyzer->analyzePortfolioFees($user->id);
+            });
+
+            if (! $result['success']) {
+                return response()->json($result, 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Fee analysis failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to analyze fees',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Analyze fees by holding
+     *
+     * GET /api/investment/fees/holdings
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function analyzeHoldingFees(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            $result = $this->feeAnalyzer->analyzeHoldingFees($user->id);
+
+            if (! $result['success']) {
+                return response()->json($result, 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Holding fee analysis failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to analyze holding fees',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Calculate OCF impact over time
+     *
+     * POST /api/investment/fees/ocf-impact
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function calculateOCFImpact(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'years' => 'nullable|integer|min:1|max:50',
+            'expected_return' => 'nullable|numeric|min:0|max:0.5',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        try {
+            // Get all user holdings
+            $holdings = Holding::whereHas('investmentAccount', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->get();
+
+            $result = $this->ocfCalculator->calculateOCFImpact(
+                $holdings,
+                $validated['years'] ?? 20,
+                $validated['expected_return'] ?? 0.06
+            );
+
+            if (! $result['success']) {
+                return response()->json($result, 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('OCF impact calculation failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to calculate OCF impact',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Compare active vs passive funds
+     *
+     * GET /api/investment/fees/active-vs-passive
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function compareActiveVsPassive(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            $holdings = Holding::whereHas('investmentAccount', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->get();
+
+            $result = $this->ocfCalculator->compareActiveVsPassive($holdings);
+
+            if (! $result['success']) {
+                return response()->json($result, 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Active vs passive comparison failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to compare active vs passive',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Find low-cost alternatives for a holding
+     *
+     * GET /api/investment/fees/alternatives/{holdingId}
+     *
+     * @param  Request  $request
+     * @param  int  $holdingId
+     * @return JsonResponse
+     */
+    public function findAlternatives(Request $request, int $holdingId): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            $holding = Holding::find($holdingId);
+
+            if (! $holding) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Holding not found',
+                ], 404);
+            }
+
+            // Verify ownership
+            if ($holding->investmentAccount->user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access to holding',
+                ], 403);
+            }
+
+            $result = $this->ocfCalculator->findLowCostAlternatives($holding);
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Alternative search failed', [
+                'user_id' => $user->id,
+                'holding_id' => $holdingId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to find alternatives',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Compare investment platforms
+     *
+     * GET /api/investment/fees/compare-platforms
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function comparePlatforms(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'portfolio_value' => 'required|numeric|min:0',
+            'account_type' => 'nullable|in:isa,sipp,gia,jisa,lifetime_isa',
+            'trades_per_year' => 'nullable|integer|min:0|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        try {
+            $result = $this->platformComparator->comparePlatforms(
+                $validated['portfolio_value'],
+                $validated['account_type'] ?? 'isa',
+                $validated['trades_per_year'] ?? 4
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Platform comparison failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to compare platforms',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Compare specific platforms
+     *
+     * POST /api/investment/fees/compare-specific
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function compareSpecificPlatforms(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'platforms' => 'required|array|min:2',
+            'platforms.*' => 'required|string',
+            'portfolio_value' => 'required|numeric|min:0',
+            'account_type' => 'nullable|in:isa,sipp,gia,jisa,lifetime_isa',
+            'trades_per_year' => 'nullable|integer|min:0|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        try {
+            $result = $this->platformComparator->compareSpecificPlatforms(
+                $validated['platforms'],
+                $validated['portfolio_value'],
+                $validated['account_type'] ?? 'isa',
+                $validated['trades_per_year'] ?? 4
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Specific platform comparison failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to compare platforms',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Clear fee analysis cache
+     *
+     * DELETE /api/investment/fees/clear-cache
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function clearCache(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            $cacheKeys = [
+                "fee_analysis_{$user->id}",
+            ];
+
+            foreach ($cacheKeys as $key) {
+                Cache::forget($key);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Fee analysis cache cleared',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Cache clearing failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to clear cache',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Clear user's fee cache (static method for use by other controllers)
+     *
+     * @param  int  $userId  User ID
+     * @return void
+     */
+    public static function clearUserFeeCache(int $userId): void
+    {
+        Cache::forget("fee_analysis_{$userId}");
+    }
+}

@@ -12,6 +12,7 @@ use App\Models\Estate\Liability;
 use App\Models\Estate\Trust;
 use App\Services\Estate\IHTCalculator;
 use App\Services\Estate\TrustService;
+use App\Services\TaxConfigService;
 use App\Services\Trust\IHTPeriodicChargeCalculator;
 use App\Services\Trust\TrustAssetAggregatorService;
 use Illuminate\Http\JsonResponse;
@@ -23,7 +24,8 @@ class TrustController extends Controller
         private TrustService $trustService,
         private TrustAssetAggregatorService $trustAssetAggregator,
         private IHTPeriodicChargeCalculator $periodicChargeCalculator,
-        private IHTCalculator $ihtCalculator
+        private IHTCalculator $ihtCalculator,
+        private TaxConfigService $taxConfig
     ) {}
 
     public function getTrusts(Request $request): JsonResponse
@@ -167,14 +169,16 @@ class TrustController extends Controller
         $assets = Asset::where('user_id', $user->id)->get();
         $liabilities = Liability::where('user_id', $user->id)->get();
         $gifts = Gift::where('user_id', $user->id)->get();
+        $trusts = Trust::where('user_id', $user->id)->where('is_active', true)->get();
+        $will = Will::where('user_id', $user->id)->first();
         $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
 
         // Create default profile if missing
         if (! $ihtProfile) {
             // For married users, default to full spouse NRB (£325,000)
             $isMarried = in_array($user->marital_status, ['married']);
-            $config = config('uk_tax_config.inheritance_tax');
-            $defaultSpouseNRB = $isMarried ? $config['nil_rate_band'] : 0;
+            $ihtConfig = $this->taxConfig->getInheritanceTax();
+            $defaultSpouseNRB = $isMarried ? $ihtConfig['nil_rate_band'] : 0;
 
             $ihtProfile = new IHTProfile([
                 'user_id' => $user->id,
@@ -186,7 +190,18 @@ class TrustController extends Controller
             ]);
         }
 
-        $ihtCalculation = $this->ihtCalculator->calculateIHTLiability($assets, $ihtProfile, $gifts);
+        // Calculate total liabilities value
+        $totalLiabilities = $liabilities->sum('amount');
+
+        $ihtCalculation = $this->ihtCalculator->calculateIHTLiability(
+            $assets,
+            $ihtProfile,
+            $gifts,
+            $trusts,
+            $totalLiabilities,
+            $will,
+            $user
+        );
 
         $circumstances = [
             'has_children' => $request->input('has_children', false),

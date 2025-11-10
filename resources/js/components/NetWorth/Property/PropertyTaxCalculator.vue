@@ -58,7 +58,7 @@
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="main_residence">Main Residence</option>
-            <option value="second_home">Second Home / Additional Property</option>
+            <option value="secondary_residence">Secondary Residence / Additional Property</option>
             <option value="buy_to_let">Buy to Let</option>
           </select>
         </div>

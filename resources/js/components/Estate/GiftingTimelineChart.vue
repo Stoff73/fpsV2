@@ -24,15 +24,15 @@
     <!-- Legend -->
     <div class="legend">
       <div class="legend-item">
-        <span class="legend-color" style="background-color: #ef4444;"></span>
+        <span class="legend-colour" style="background-color: #ef4444;"></span>
         <span>Within 7 years (potentially taxable)</span>
       </div>
       <div class="legend-item">
-        <span class="legend-color" style="background-color: #f59e0b;"></span>
+        <span class="legend-colour" style="background-color: #f59e0b;"></span>
         <span>Years 3-7 (taper relief applies)</span>
       </div>
       <div class="legend-item">
-        <span class="legend-color" style="background-color: #10b981;"></span>
+        <span class="legend-colour" style="background-color: #10b981;"></span>
         <span>Survived 7 years (IHT-exempt)</span>
       </div>
     </div>
@@ -129,12 +129,12 @@ export default {
             sevenYearsLater.setFullYear(sevenYearsLater.getFullYear() + 7);
 
             const yearsElapsed = this.calculateYearsElapsed(giftDate, today);
-            const color = this.getGiftColor(yearsElapsed);
+            const colour = this.getGiftColour(yearsElapsed);
 
             return {
               x: gift.recipient || 'Unknown',
               y: [giftDate.getTime(), sevenYearsLater.getTime()],
-              fillColor: color,
+              fillColour: colour,
               meta: {
                 gift_value: gift.gift_value,
                 gift_type: gift.gift_type,
@@ -195,7 +195,7 @@ export default {
             return this.formatCurrency(meta.gift_value);
           },
           style: {
-            colors: ['#fff'],
+            colours: ['#fff'],
             fontSize: '11px',
             fontWeight: 'bold',
           },
@@ -265,7 +265,7 @@ export default {
       return diffYears;
     },
 
-    getGiftColor(yearsElapsed) {
+    getGiftColour(yearsElapsed) {
       if (yearsElapsed >= 7) {
         return '#10b981'; // Green - survived 7 years
       } else if (yearsElapsed >= 3) {
@@ -383,7 +383,7 @@ export default {
   color: #374151;
 }
 
-.legend-color {
+.legend-colour {
   width: 16px;
   height: 16px;
   border-radius: 3px;

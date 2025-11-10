@@ -82,7 +82,7 @@
           required
         >
           <option value="">Select ownership type...</option>
-          <option value="sole">Sole Ownership</option>
+          <option value="individual">Sole Ownership</option>
           <option value="joint_tenants">Joint Tenants (with spouse/partner)</option>
           <option value="tenants_in_common">Tenants in Common</option>
           <option value="trust">Held in Trust</option>
@@ -288,7 +288,7 @@ export default {
 
     ownershipTypeDescription() {
       const descriptions = {
-        sole: 'You are the sole owner - passes via your will',
+        individual: 'You are the sole owner - passes via your will',
         joint_tenants: 'Automatically passes to surviving owner on death',
         tenants_in_common: 'Your share passes via your will',
         trust: 'Held in trust - special IHT treatment may apply',
@@ -319,6 +319,25 @@ export default {
   },
 
   methods: {
+    formatDateForInput(date) {
+      if (!date) return new Date().toISOString().split('T')[0];
+      try {
+        // If it's already in YYYY-MM-DD format, return it
+        if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          return date;
+        }
+        // Parse and format the date
+        const dateObj = new Date(date);
+        if (isNaN(dateObj.getTime())) return new Date().toISOString().split('T')[0];
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return new Date().toISOString().split('T')[0];
+      }
+    },
+
     populateForm(asset) {
       this.formData = {
         asset_type: asset.asset_type || '',
@@ -327,7 +346,7 @@ export default {
         ownership_type: asset.ownership_type || '',
         beneficiary_designation: asset.beneficiary_designation || '',
         is_iht_exempt: asset.is_iht_exempt || false,
-        valuation_date: asset.valuation_date || new Date().toISOString().split('T')[0],
+        valuation_date: this.formatDateForInput(asset.valuation_date),
         property_address: asset.property_address || '',
         mortgage_outstanding: asset.mortgage_outstanding || null,
         is_main_residence: asset.is_main_residence || false,
@@ -496,7 +515,7 @@ label.required::after {
   font-size: 14px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  transition: border-color 0.2s;
+  transition: border-colour 0.2s;
 }
 
 .form-control:focus {

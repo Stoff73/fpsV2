@@ -351,10 +351,8 @@ export default {
     propertyTypeLabel() {
       const types = {
         main_residence: 'Main Residence',
-        second_home: 'Second Home',
+        secondary_residence: 'Secondary Residence',
         buy_to_let: 'Buy to Let',
-        commercial: 'Commercial',
-        land: 'Land',
       };
       return types[this.property?.property_type] || '';
     },

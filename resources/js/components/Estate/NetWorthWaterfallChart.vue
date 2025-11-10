@@ -76,17 +76,17 @@ export default {
             {
               x: 'Total Assets',
               y: this.totalAssets,
-              fillColor: '#10b981',
+              fillColour: '#10b981',
             },
             {
               x: 'Total Liabilities',
               y: -this.totalLiabilities,
-              fillColor: '#ef4444',
+              fillColour: '#ef4444',
             },
             {
               x: 'Net Worth',
               y: this.netWorth,
-              fillColor: '#3b82f6',
+              fillColour: '#3b82f6',
             },
           ],
         },
@@ -131,7 +131,7 @@ export default {
           offsetY: -20,
           style: {
             fontSize: '12px',
-            colors: ['#304758'],
+            colours: ['#304758'],
           },
         },
         xaxis: {

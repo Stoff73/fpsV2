@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Investment\Holding;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * DC Pension Model
@@ -53,5 +55,13 @@ class DCPension extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get all holdings for this DC pension (polymorphic relationship)
+     */
+    public function holdings(): MorphMany
+    {
+        return $this->morphMany(Holding::class, 'holdable');
     }
 }

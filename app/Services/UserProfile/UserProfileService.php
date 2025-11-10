@@ -77,6 +77,8 @@ class UserProfileService
                     'employer' => $user->employer,
                     'industry' => $user->industry,
                     'employment_status' => $user->employment_status,
+                    'target_retirement_age' => $user->target_retirement_age,
+                    'retirement_date' => $user->retirement_date,
                     'annual_employment_income' => $user->annual_employment_income,
                     'annual_self_employment_income' => $user->annual_self_employment_income,
                     'annual_rental_income' => $this->calculateAnnualRentalIncome($user),

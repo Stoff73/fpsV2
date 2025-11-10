@@ -27,7 +27,7 @@
               ]"
             >
               <svg
-                :class="['h-6 w-6', iconColorClass]"
+                :class="['h-6 w-6', iconColourClass]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -178,7 +178,7 @@ export default {
       return classes[this.type] || classes.danger;
     },
 
-    iconColorClass() {
+    iconColourClass() {
       const classes = {
         danger: 'text-red-600',
         warning: 'text-yellow-600',

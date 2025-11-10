@@ -20,6 +20,13 @@ class Property extends Model
         'trust_id',
         'property_type',
         'ownership_type',
+        'joint_ownership_type',
+        'joint_owner_id',
+        'joint_owner_name',
+        'trust_name',
+        'tenure_type',
+        'lease_remaining_years',
+        'lease_expiry_date',
         'country',
         'ownership_percentage',
         'address_line_1',
@@ -37,13 +44,18 @@ class Property extends Model
         'outstanding_mortgage',
         'occupancy_rate_percent',
         'tenant_name',
+        'tenant_email',
         'lease_start_date',
         'lease_end_date',
-        'annual_service_charge',
-        'annual_ground_rent',
-        'annual_insurance',
-        'annual_maintenance_reserve',
-        'other_annual_costs',
+        'monthly_council_tax',
+        'monthly_gas',
+        'monthly_electricity',
+        'monthly_water',
+        'monthly_building_insurance',
+        'monthly_contents_insurance',
+        'monthly_service_charge',
+        'monthly_maintenance_reserve',
+        'other_monthly_costs',
         'notes',
     ];
 
@@ -52,19 +64,25 @@ class Property extends Model
         'valuation_date' => 'date',
         'lease_start_date' => 'date',
         'lease_end_date' => 'date',
+        'lease_expiry_date' => 'date',
         'purchase_price' => 'decimal:2',
         'current_value' => 'decimal:2',
         'sdlt_paid' => 'decimal:2',
         'monthly_rental_income' => 'decimal:2',
         'annual_rental_income' => 'decimal:2',
         'outstanding_mortgage' => 'decimal:2',
-        'annual_service_charge' => 'decimal:2',
-        'annual_ground_rent' => 'decimal:2',
-        'annual_insurance' => 'decimal:2',
-        'annual_maintenance_reserve' => 'decimal:2',
-        'other_annual_costs' => 'decimal:2',
+        'monthly_council_tax' => 'decimal:2',
+        'monthly_gas' => 'decimal:2',
+        'monthly_electricity' => 'decimal:2',
+        'monthly_water' => 'decimal:2',
+        'monthly_building_insurance' => 'decimal:2',
+        'monthly_contents_insurance' => 'decimal:2',
+        'monthly_service_charge' => 'decimal:2',
+        'monthly_maintenance_reserve' => 'decimal:2',
+        'other_monthly_costs' => 'decimal:2',
         'ownership_percentage' => 'decimal:2',
         'occupancy_rate_percent' => 'integer',
+        'lease_remaining_years' => 'integer',
     ];
 
     /**
@@ -97,5 +115,76 @@ class Property extends Model
     public function mortgages(): HasMany
     {
         return $this->hasMany(Mortgage::class);
+    }
+
+    /**
+     * Get the joint owner (if property is jointly owned and linked to system user).
+     */
+    public function jointOwner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'joint_owner_id');
+    }
+
+    /**
+     * Get the joint owner display name (from linked user or free text).
+     */
+    public function getJointOwnerDisplayNameAttribute(): ?string
+    {
+        if ($this->ownership_type !== 'joint') {
+            return null;
+        }
+
+        return $this->jointOwner?->name ?? $this->joint_owner_name;
+    }
+
+    /**
+     * Get the trust display name (from linked trust or free text).
+     */
+    public function getTrustDisplayNameAttribute(): ?string
+    {
+        if ($this->ownership_type !== 'trust') {
+            return null;
+        }
+
+        return $this->trust?->trust_name ?? $this->trust_name;
+    }
+
+    /**
+     * Check if property is leasehold and approaching end of term.
+     * UK government phasing out leaseholds for new builds.
+     */
+    public function isLeaseholdExpiringAttribute(): bool
+    {
+        if ($this->tenure_type !== 'leasehold') {
+            return false;
+        }
+
+        // Properties with less than 80 years are harder to mortgage
+        // Properties with less than 60 years significantly lose value
+        return $this->lease_remaining_years !== null && $this->lease_remaining_years < 80;
+    }
+
+    /**
+     * Get ownership type description with context.
+     */
+    public function getOwnershipDescriptionAttribute(): string
+    {
+        $description = match ($this->ownership_type) {
+            'individual' => 'Individual ownership',
+            'joint' => 'Joint ownership',
+            'trust' => 'Trust ownership',
+            default => ucfirst($this->ownership_type ?? 'Unknown'),
+        };
+
+        if ($this->ownership_type === 'joint' && $this->joint_ownership_type) {
+            $jointType = match ($this->joint_ownership_type) {
+                'joint_tenancy' => 'Joint Tenancy (equal rights, passes to survivor)',
+                'tenants_in_common' => 'Tenants in Common (specified shares, passes via will)',
+                default => ucfirst(str_replace('_', ' ', $this->joint_ownership_type)),
+            };
+            $description .= ' - '.$jointType;
+        }
+
+        return $description;
     }
 }

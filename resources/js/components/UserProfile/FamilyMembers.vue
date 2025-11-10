@@ -56,6 +56,17 @@
               >
                 Shared from Spouse
               </span>
+              <!-- Linked Account Indicator for Spouse -->
+              <span
+                v-if="member.relationship === 'spouse' && member.email"
+                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                title="Spouse account is linked"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                Account Linked
+              </span>
             </div>
 
             <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -139,6 +150,15 @@
       @confirm="handleDelete"
       @cancel="showDeleteConfirm = false"
     />
+
+    <!-- Spouse Success Modal -->
+    <SpouseSuccessModal
+      :show="showSpouseSuccess"
+      :is-created="spouseCreated"
+      :spouse-email="spouseEmail"
+      :temporary-password="temporaryPassword"
+      @close="closeSpouseSuccess"
+    />
   </div>
 </template>
 
@@ -147,6 +167,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import FamilyMemberFormModal from './FamilyMemberFormModal.vue';
 import ConfirmationModal from '@/components/Common/ConfirmationModal.vue';
+import SpouseSuccessModal from '@/components/Shared/SpouseSuccessModal.vue';
 
 export default {
   name: 'FamilyMembers',
@@ -154,6 +175,7 @@ export default {
   components: {
     FamilyMemberFormModal,
     ConfirmationModal,
+    SpouseSuccessModal,
   },
 
   setup() {
@@ -163,6 +185,10 @@ export default {
     const successMessage = ref('');
     const showDeleteConfirm = ref(false);
     const memberToDelete = ref(null);
+    const showSpouseSuccess = ref(false);
+    const spouseCreated = ref(false);
+    const spouseEmail = ref(null);
+    const temporaryPassword = ref(null);
 
     const familyMembers = computed(() => store.getters['userProfile/familyMembers']);
 
@@ -206,6 +232,7 @@ export default {
       const classes = {
         spouse: 'bg-purple-100 text-purple-800',
         child: 'bg-blue-100 text-blue-800',
+        step_child: 'bg-blue-100 text-blue-800',
         parent: 'bg-green-100 text-green-800',
         other_dependent: 'bg-amber-100 text-amber-800',
       };
@@ -243,11 +270,19 @@ export default {
           // Check if spouse account was created or linked
           if (formData.relationship === 'spouse' && response.data) {
             if (response.data.created) {
-              successMessage.value = `Spouse account created successfully! An email has been sent to ${formData.email} with instructions to set their password.`;
+              // Show spouse success modal with credentials
+              spouseCreated.value = true;
+              spouseEmail.value = response.data.spouse_email;
+              temporaryPassword.value = response.data.temporary_password;
+              showSpouseSuccess.value = true;
               // Refresh user data to reflect spouse linkage
               await store.dispatch('auth/fetchUser');
             } else if (response.data.linked) {
-              successMessage.value = `Spouse account linked successfully! You can now request permission to share financial data with ${formData.name}.`;
+              // Show spouse success modal for linking
+              spouseCreated.value = false;
+              spouseEmail.value = formData.email;
+              temporaryPassword.value = null;
+              showSpouseSuccess.value = true;
               // Refresh user data to reflect spouse linkage
               await store.dispatch('auth/fetchUser');
             } else {
@@ -260,13 +295,22 @@ export default {
 
         closeModal();
 
-        // Clear success message after 5 seconds (longer for spouse messages)
-        setTimeout(() => {
-          successMessage.value = '';
-        }, 5000);
+        // Clear success message after 5 seconds
+        if (successMessage.value) {
+          setTimeout(() => {
+            successMessage.value = '';
+          }, 5000);
+        }
       } catch (error) {
         console.error('Failed to save family member:', error);
       }
+    };
+
+    const closeSpouseSuccess = () => {
+      showSpouseSuccess.value = false;
+      spouseCreated.value = false;
+      spouseEmail.value = null;
+      temporaryPassword.value = null;
     };
 
     const confirmDelete = (member) => {
@@ -303,6 +347,10 @@ export default {
       successMessage,
       showDeleteConfirm,
       memberToDelete,
+      showSpouseSuccess,
+      spouseCreated,
+      spouseEmail,
+      temporaryPassword,
       formatDate,
       calculateAge,
       formatCurrency,
@@ -312,6 +360,7 @@ export default {
       openEditModal,
       closeModal,
       handleSave,
+      closeSpouseSuccess,
       confirmDelete,
       handleDelete,
     };

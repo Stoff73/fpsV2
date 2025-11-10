@@ -30,7 +30,7 @@
             cy="100"
             r="85"
             fill="none"
-            :stroke="gaugeColor"
+            :stroke="gaugeColour"
             stroke-width="20"
             stroke-linecap="round"
             :stroke-dasharray="circumference"
@@ -272,7 +272,7 @@ export default {
       return this.circumference * (1 - progress);
     },
 
-    gaugeColor() {
+    gaugeColour() {
       if (this.compositeScore >= 80) return '#10b981'; // green
       if (this.compositeScore >= 60) return '#f59e0b'; // amber
       return '#ef4444'; // red

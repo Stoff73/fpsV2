@@ -262,7 +262,7 @@
                   </tr>
                   <tr v-for="(relief, index) in taxConfig.inheritance_tax.potentially_exempt_transfers.taper_relief" :key="index">
                     <td class="px-4 py-3 text-sm text-gray-900">{{ relief.years - 1 }}-{{ relief.years }} years</td>
-                    <td class="px-4 py-3 text-sm font-semibold" :class="getReliefColor(relief.rate)">{{ (relief.rate * 100).toFixed(0) }}%</td>
+                    <td class="px-4 py-3 text-sm font-semibold" :class="getReliefColour(relief.rate)">{{ (relief.rate * 100).toFixed(0) }}%</td>
                   </tr>
                   <tr class="bg-green-50">
                     <td class="px-4 py-3 text-sm text-gray-900">7+ years</td>
@@ -927,7 +927,7 @@ export default {
       return num.toLocaleString('en-GB');
     };
 
-    const getReliefColor = (rate) => {
+    const getReliefColour = (rate) => {
       if (rate >= 0.32) return 'text-red-600';
       if (rate >= 0.16) return 'text-orange-600';
       return 'text-green-600';
@@ -941,7 +941,7 @@ export default {
       openModal,
       closeModal,
       formatNumber,
-      getReliefColor,
+      getReliefColour,
     };
   },
 };

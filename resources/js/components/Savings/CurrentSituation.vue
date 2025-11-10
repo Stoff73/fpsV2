@@ -11,7 +11,7 @@
 
       <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
         <h3 class="text-sm font-medium text-gray-600 mb-2">Emergency Fund Runway</h3>
-        <p class="text-3xl font-bold" :class="runwayColor">
+        <p class="text-3xl font-bold" :class="runwayColour">
           {{ emergencyFundRunway.toFixed(1) }} months
         </p>
       </div>
@@ -84,7 +84,7 @@ export default {
     ...mapState('savings', ['accounts']),
     ...mapGetters('savings', ['totalSavings', 'emergencyFundRunway']),
 
-    runwayColor() {
+    runwayColour() {
       if (this.emergencyFundRunway >= 6) return 'text-green-600';
       if (this.emergencyFundRunway >= 3) return 'text-amber-600';
       return 'text-red-600';

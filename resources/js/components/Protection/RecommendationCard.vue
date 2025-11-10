@@ -2,7 +2,7 @@
   <div
     class="recommendation-card bg-white rounded-lg border shadow-sm transition-all duration-200"
     :class="[
-      borderColorClass,
+      borderColourClass,
       isExpanded ? 'shadow-md' : 'hover:shadow-md',
     ]"
   >
@@ -140,7 +140,7 @@ export default {
       return classes[this.recommendation.priority] || 'bg-gray-100 text-gray-800';
     },
 
-    borderColorClass() {
+    borderColourClass() {
       const classes = {
         high: 'border-red-300',
         medium: 'border-amber-300',

@@ -67,8 +67,42 @@
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Will Configuration</h3>
 
         <div class="space-y-6">
-          <!-- Death Scenario -->
+          <!-- Will Last Updated -->
           <div>
+            <label for="will_last_updated" class="block text-sm font-medium text-gray-700 mb-2">
+              When was your will last updated?
+            </label>
+            <input
+              id="will_last_updated"
+              v-model="form.will_last_updated"
+              type="date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              :max="today"
+            />
+            <p class="mt-1 text-xs text-gray-500">
+              It's recommended to review your will every 5 years or after major life events
+            </p>
+          </div>
+
+          <!-- Executor Name -->
+          <div>
+            <label for="executor_name" class="block text-sm font-medium text-gray-700 mb-2">
+              Who is your executor?
+            </label>
+            <input
+              id="executor_name"
+              v-model="form.executor_name"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Executor name"
+            />
+            <p class="mt-1 text-xs text-gray-500">
+              The person responsible for administering your estate
+            </p>
+          </div>
+
+          <!-- Death Scenario -->
+          <div class="border-t border-gray-200 pt-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Death Scenario
             </label>
@@ -296,6 +330,8 @@ export default {
       will: null,
       form: {
         has_will: null,
+        will_last_updated: '',
+        executor_name: '',
         death_scenario: 'user_only',
         spouse_primary_beneficiary: true,
         spouse_bequest_percentage: 100,
@@ -321,6 +357,10 @@ export default {
     nonSpouseAmount() {
       return this.netEstateValue - this.spouseAmount;
     },
+
+    today() {
+      return new Date().toISOString().split('T')[0];
+    },
   },
 
   mounted() {
@@ -330,6 +370,25 @@ export default {
   },
 
   methods: {
+    formatDateForInput(date) {
+      if (!date) return '';
+      try {
+        // If it's already in YYYY-MM-DD format, return it
+        if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          return date;
+        }
+        // Parse and format the date
+        const dateObj = new Date(date);
+        if (isNaN(dateObj.getTime())) return '';
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      } catch (e) {
+        return '';
+      }
+    },
+
     async loadWill() {
       try {
         const response = await api.get('/estate/will');
@@ -337,6 +396,8 @@ export default {
 
         this.form = {
           has_will: this.will.has_will,
+          will_last_updated: this.formatDateForInput(this.will.will_last_updated),
+          executor_name: this.will.executor_name || '',
           death_scenario: this.will.death_scenario,
           spouse_primary_beneficiary: this.will.spouse_primary_beneficiary,
           spouse_bequest_percentage: parseFloat(this.will.spouse_bequest_percentage),

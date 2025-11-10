@@ -109,11 +109,28 @@ class UserProfileController extends Controller
         $validated = $request->validate([
             'monthly_expenditure' => 'nullable|numeric|min:0',
             'annual_expenditure' => 'nullable|numeric|min:0',
+            'food_groceries' => 'nullable|numeric|min:0',
+            'transport_fuel' => 'nullable|numeric|min:0',
+            'healthcare_medical' => 'nullable|numeric|min:0',
+            'insurance' => 'nullable|numeric|min:0',
+            'mobile_phones' => 'nullable|numeric|min:0',
+            'internet_tv' => 'nullable|numeric|min:0',
+            'subscriptions' => 'nullable|numeric|min:0',
+            'clothing_personal_care' => 'nullable|numeric|min:0',
+            'entertainment_dining' => 'nullable|numeric|min:0',
+            'holidays_travel' => 'nullable|numeric|min:0',
+            'pets' => 'nullable|numeric|min:0',
+            'childcare' => 'nullable|numeric|min:0',
+            'school_fees' => 'nullable|numeric|min:0',
+            'children_activities' => 'nullable|numeric|min:0',
+            'gifts_charity' => 'nullable|numeric|min:0',
+            'regular_savings' => 'nullable|numeric|min:0',
+            'other_expenditure' => 'nullable|numeric|min:0',
         ]);
 
         $user->update($validated);
 
-        // Create/update expenditure profile with only the total (no fake breakdown)
+        // Create/update expenditure profile with the total
         if ($validated['monthly_expenditure'] ?? null) {
             $monthly = $validated['monthly_expenditure'];
 

@@ -1,7 +1,7 @@
 <template>
   <div class="tax-fees">
     <h2 class="text-2xl font-bold text-gray-900 mb-4">Tax & Fees</h2>
-    <p class="text-gray-600 mb-6">Monitor fees and optimize tax efficiency</p>
+    <p class="text-gray-600 mb-6">Monitor fees and optimise tax efficiency</p>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Fee Summary -->
@@ -28,8 +28,8 @@
             <span class="text-sm font-medium text-gray-900">{{ taxEfficiencyScore }}/100</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-sm text-gray-600">Unrealized Gains:</span>
-            <span class="text-sm font-medium text-gray-900">{{ formatCurrency(unrealizedGains) }}</span>
+            <span class="text-sm text-gray-600">Unrealised Gains:</span>
+            <span class="text-sm font-medium text-gray-900">{{ formatCurrency(unrealisedGains) }}</span>
           </div>
         </div>
       </div>
@@ -94,12 +94,12 @@
             <span class="font-medium text-gray-900">£3,000</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600">Unrealized Gains:</span>
-            <span class="font-medium text-gray-900">{{ formatCurrency(unrealizedGains) }}</span>
+            <span class="text-gray-600">Unrealised Gains:</span>
+            <span class="font-medium text-gray-900">{{ formatCurrency(unrealisedGains) }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-gray-600">Potential CGT Liability:</span>
-            <span class="font-medium text-gray-900">{{ formatCurrency(calculateCGT(unrealizedGains)) }}</span>
+            <span class="font-medium text-gray-900">{{ formatCurrency(calculateCGT(unrealisedGains)) }}</span>
           </div>
         </div>
         <p class="text-xs text-gray-500 mt-4">
@@ -144,7 +144,7 @@ export default {
     ...mapGetters('investment', [
       'totalFees',
       'feeDragPercent',
-      'unrealizedGains',
+      'unrealisedGains',
       'taxEfficiencyScore',
       'totalISAContributions',
       'isaAllowancePercentage',
@@ -179,9 +179,9 @@ export default {
       }).format(value || 0);
     },
 
-    calculateCGT(unrealizedGain) {
+    calculateCGT(unrealisedGain) {
       const cgtAllowance = 3000; // 2024/25 allowance
-      const taxableGain = Math.max(0, unrealizedGain - cgtAllowance);
+      const taxableGain = Math.max(0, unrealisedGain - cgtAllowance);
       const cgtRate = 0.20; // Higher rate taxpayer
       return taxableGain * cgtRate;
     },

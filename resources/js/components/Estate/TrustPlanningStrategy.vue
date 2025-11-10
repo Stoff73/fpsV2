@@ -89,7 +89,7 @@
           v-for="(strategy, index) in applicableStrategies"
           :key="index"
           class="bg-white rounded-lg border-2 transition-all"
-          :class="getBorderColorClass(strategy.priority)"
+          :class="getBorderColourClass(strategy.priority)"
         >
           <!-- Strategy Header -->
           <div
@@ -428,7 +428,7 @@ export default {
       this.$set(this.expandedStrategies, index, !this.expandedStrategies[index]);
     },
 
-    getBorderColorClass(priority) {
+    getBorderColourClass(priority) {
       if (priority === 1) return 'border-emerald-400 shadow-md';
       if (priority === 2) return 'border-blue-300';
       if (priority === 3) return 'border-purple-300';

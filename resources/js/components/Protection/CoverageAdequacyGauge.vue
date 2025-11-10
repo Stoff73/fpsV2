@@ -23,7 +23,7 @@ export default {
   },
 
   computed: {
-    scoreColor() {
+    scoreColour() {
       if (this.score >= 80) return '#10B981'; // green
       if (this.score >= 60) return '#F59E0B'; // amber
       return '#EF4444'; // red
@@ -80,7 +80,7 @@ export default {
         },
         fill: {
           type: 'solid',
-          colors: [this.scoreColor],
+          colours: [this.scoreColour],
         },
         stroke: {
           lineCap: 'round',

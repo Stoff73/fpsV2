@@ -6,108 +6,62 @@ namespace App\Services\Property;
 
 use App\Models\Property;
 use App\Models\User;
+use App\Services\TaxConfigService;
 
 class PropertyTaxService
 {
     /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
+    /**
      * Calculate Stamp Duty Land Tax (SDLT) for UK property purchase
+     * Uses active tax year rates from TaxConfigService
      *
-     * Rates for 2024/25:
-     * - Main residence: 0% up to £250k, 5% £250k-£925k, 10% £925k-£1.5m, 12% above £1.5m
-     * - First-time buyer relief: 0% up to £425k (properties up to £625k)
-     * - Additional property: +3% surcharge on all bands
-     *
-     * @param  string  $propertyType  ('main_residence', 'second_home', 'buy_to_let')
+     * @param  string  $propertyType  ('main_residence', 'secondary_residence', 'buy_to_let')
      */
     public function calculateSDLT(float $purchasePrice, string $propertyType, bool $isFirstHome = false): array
     {
+        // Get SDLT configuration from service
+        $sdltConfig = $this->taxConfig->getStampDuty();
+        $residential = $sdltConfig['residential'];
+
         $bands = [];
         $totalSDLT = 0;
 
-        // First-time buyer relief (properties up to £625k, relief up to £425k)
-        if ($isFirstHome && $purchasePrice <= 625000) {
-            $bands[] = [
-                'from' => 0,
-                'to' => min($purchasePrice, 425000),
-                'rate' => 0,
-                'tax' => 0,
-            ];
+        // First-time buyer relief
+        if ($isFirstHome) {
+            $ftbConfig = $residential['first_time_buyers'];
+            $maxPropertyValue = $ftbConfig['max_property_value'];
+            $nilRateThreshold = $ftbConfig['nil_rate_threshold'];
 
-            if ($purchasePrice > 425000) {
-                $bandValue = $purchasePrice - 425000;
-                $tax = $bandValue * 0.05;
-                $totalSDLT += $tax;
-
-                $bands[] = [
-                    'from' => 425000,
-                    'to' => $purchasePrice,
-                    'rate' => 5,
-                    'tax' => $tax,
-                ];
+            if ($purchasePrice <= $maxPropertyValue) {
+                // Apply first-time buyer bands
+                $ftbBands = $ftbConfig['bands'];
+                $totalSDLT = $this->calculateBandedTax($purchasePrice, $ftbBands, $bands);
+            } else {
+                // Property too expensive for FTB relief, use standard rates
+                $standardBands = $residential['standard']['bands'];
+                $totalSDLT = $this->calculateBandedTax($purchasePrice, $standardBands, $bands);
             }
         } else {
             // Standard or additional property rates
             $isAdditional = in_array($propertyType, ['secondary_residence', 'buy_to_let']);
-            $surcharge = $isAdditional ? 3 : 0;
 
-            // Band 1: 0 - £250,000
-            if ($purchasePrice > 0) {
-                $bandValue = min($purchasePrice, 250000);
-                $rate = 0 + $surcharge;
-                $tax = $bandValue * ($rate / 100);
-                $totalSDLT += $tax;
-
-                $bands[] = [
-                    'from' => 0,
-                    'to' => 250000,
-                    'rate' => $rate,
-                    'tax' => $tax,
-                ];
-            }
-
-            // Band 2: £250,000 - £925,000
-            if ($purchasePrice > 250000) {
-                $bandValue = min($purchasePrice - 250000, 675000);
-                $rate = 5 + $surcharge;
-                $tax = $bandValue * ($rate / 100);
-                $totalSDLT += $tax;
-
-                $bands[] = [
-                    'from' => 250000,
-                    'to' => min($purchasePrice, 925000),
-                    'rate' => $rate,
-                    'tax' => $tax,
-                ];
-            }
-
-            // Band 3: £925,000 - £1,500,000
-            if ($purchasePrice > 925000) {
-                $bandValue = min($purchasePrice - 925000, 575000);
-                $rate = 10 + $surcharge;
-                $tax = $bandValue * ($rate / 100);
-                $totalSDLT += $tax;
-
-                $bands[] = [
-                    'from' => 925000,
-                    'to' => min($purchasePrice, 1500000),
-                    'rate' => $rate,
-                    'tax' => $tax,
-                ];
-            }
-
-            // Band 4: Above £1,500,000
-            if ($purchasePrice > 1500000) {
-                $bandValue = $purchasePrice - 1500000;
-                $rate = 12 + $surcharge;
-                $tax = $bandValue * ($rate / 100);
-                $totalSDLT += $tax;
-
-                $bands[] = [
-                    'from' => 1500000,
-                    'to' => $purchasePrice,
-                    'rate' => $rate,
-                    'tax' => $tax,
-                ];
+            if ($isAdditional) {
+                $additionalBands = $residential['additional_properties']['bands'];
+                $totalSDLT = $this->calculateBandedTax($purchasePrice, $additionalBands, $bands);
+            } else {
+                $standardBands = $residential['standard']['bands'];
+                $totalSDLT = $this->calculateBandedTax($purchasePrice, $standardBands, $bands);
             }
         }
 
@@ -124,15 +78,53 @@ class PropertyTaxService
     }
 
     /**
-     * Calculate Capital Gains Tax (CGT) on property disposal
+     * Calculate tax based on banded thresholds
      *
-     * CGT rates for 2024/25:
-     * - Annual exempt amount: £3,000
-     * - Basic rate taxpayers: 18% on residential property
-     * - Higher/additional rate taxpayers: 24% on residential property
+     * @param  float  $amount  Purchase price or income
+     * @param  array  $configBands  Array of ['threshold' => X, 'rate' => Y] from config
+     * @param  array  &$outputBands  Reference to array to populate with detailed band info
+     * @return float  Total tax calculated
+     */
+    private function calculateBandedTax(float $amount, array $configBands, array &$outputBands): float
+    {
+        $totalTax = 0;
+
+        for ($i = 0; $i < count($configBands); $i++) {
+            $currentBand = $configBands[$i];
+            $threshold = $currentBand['threshold'];
+            $rate = $currentBand['rate'];
+
+            // Determine upper limit of this band
+            $nextThreshold = isset($configBands[$i + 1]) ? $configBands[$i + 1]['threshold'] : $amount;
+
+            // Only process if amount exceeds this band's threshold
+            if ($amount > $threshold) {
+                $bandValue = min($amount - $threshold, $nextThreshold - $threshold);
+                $tax = $bandValue * $rate;
+                $totalTax += $tax;
+
+                $outputBands[] = [
+                    'from' => $threshold,
+                    'to' => min($amount, $nextThreshold),
+                    'rate' => $rate * 100, // Convert to percentage for display
+                    'tax' => $tax,
+                ];
+            }
+        }
+
+        return $totalTax;
+    }
+
+    /**
+     * Calculate Capital Gains Tax (CGT) on property disposal
+     * Uses active tax year rates from TaxConfigService
      */
     public function calculateCGT(Property $property, float $disposalPrice, float $disposalCosts, User $user): array
     {
+        // Get CGT configuration from service
+        $cgtConfig = $this->taxConfig->getCapitalGainsTax();
+        $incomeTaxConfig = $this->taxConfig->getIncomeTax();
+
         $purchasePrice = $property->purchase_price ?? 0;
         $sdltPaid = $property->sdlt_paid ?? 0;
 
@@ -142,8 +134,8 @@ class PropertyTaxService
         // Calculate gain
         $gain = $disposalPrice - $acquisitionCosts - $disposalCosts;
 
-        // Apply annual exempt amount (£3,000 for 2024/25)
-        $annualExemptAmount = 3000;
+        // Apply annual exempt amount
+        $annualExemptAmount = $cgtConfig['annual_exempt_amount'];
         $taxableGain = (float) max(0, $gain - $annualExemptAmount);
 
         // Determine CGT rate based on user's income
@@ -153,10 +145,14 @@ class PropertyTaxService
             $user->annual_dividend_income +
             $user->annual_other_income;
 
-        // Basic rate threshold for 2024/25: £50,270
-        $basicRateThreshold = 50270;
+        // Get basic rate threshold from income tax config
+        $incomeTaxBands = $incomeTaxConfig['bands'];
+        $personalAllowance = $incomeTaxConfig['personal_allowance'];
+        $basicRateThreshold = $personalAllowance + $incomeTaxBands[0]['max'];
 
-        $cgtRate = $totalIncome > $basicRateThreshold ? 24 : 18;
+        // Get CGT rates for residential property
+        $cgtRates = $cgtConfig['rates']['residential'];
+        $cgtRate = $totalIncome > $basicRateThreshold ? $cgtRates['higher_rate'] * 100 : $cgtRates['basic_rate'] * 100;
         $cgtLiability = $taxableGain * ($cgtRate / 100);
 
         $effectiveRate = $gain > 0 ? ($cgtLiability / $gain) * 100 : 0;
@@ -203,8 +199,10 @@ class PropertyTaxService
             $mortgageInterest += $annualInterest;
         }
 
-        // Mortgage interest tax credit (20% of interest)
-        $mortgageInterestCredit = $mortgageInterest * 0.20;
+        // Mortgage interest tax credit (basic rate relief)
+        $incomeTaxConfig = $this->taxConfig->getIncomeTax();
+        $basicRateOfRelief = $incomeTaxConfig['bands'][0]['rate']; // Basic rate (e.g., 0.20)
+        $mortgageInterestCredit = $mortgageInterest * $basicRateOfRelief;
 
         // Calculate taxable profit (cannot deduct mortgage interest directly)
         $taxableProfit = max(0, $actualIncome - $allowableExpenses);
@@ -216,19 +214,21 @@ class PropertyTaxService
             $user->annual_dividend_income +
             $user->annual_other_income;
 
-        // Tax bands for 2024/25:
-        // Personal allowance: £12,570
-        // Basic rate (20%): £12,571 - £50,270
-        // Higher rate (40%): £50,271 - £125,140
-        // Additional rate (45%): above £125,140
+        // Get tax bands and thresholds from config
+        $personalAllowance = $incomeTaxConfig['personal_allowance'];
+        $bands = $incomeTaxConfig['bands'];
+
+        // Calculate absolute thresholds
+        $basicRateThreshold = $personalAllowance + $bands[0]['max'];
+        $higherRateThreshold = $personalAllowance + $bands[1]['max'];
 
         $marginalTaxRate = 0;
-        if ($totalIncome > 125140) {
-            $marginalTaxRate = 45;
-        } elseif ($totalIncome > 50270) {
-            $marginalTaxRate = 40;
-        } elseif ($totalIncome > 12570) {
-            $marginalTaxRate = 20;
+        if ($totalIncome > $higherRateThreshold) {
+            $marginalTaxRate = $bands[2]['rate'] * 100; // Additional rate
+        } elseif ($totalIncome > $basicRateThreshold) {
+            $marginalTaxRate = $bands[1]['rate'] * 100; // Higher rate
+        } elseif ($totalIncome > $personalAllowance) {
+            $marginalTaxRate = $bands[0]['rate'] * 100; // Basic rate
         }
 
         // Tax liability before mortgage interest credit

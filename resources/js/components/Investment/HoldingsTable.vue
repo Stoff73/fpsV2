@@ -76,7 +76,7 @@
             <div class="flex items-center gap-3 flex-1 min-w-0">
               <div
                 class="w-4 h-4 rounded-full flex-shrink-0"
-                :style="{ backgroundColor: chartColors[index % chartColors.length] }"
+                :style="{ backgroundColour: chartColours[index % chartColours.length] }"
               ></div>
               <div class="min-w-0 flex-1">
                 <p class="text-sm font-medium text-gray-900 truncate">{{ holding.security_name }}</p>
@@ -268,9 +268,9 @@
                   </span>
                 </div>
                 <div>
-                  <span class="text-gray-600">Unrealized Gain/Loss:</span>
+                  <span class="text-gray-600">Unrealised Gain/Loss:</span>
                   <span class="ml-2 font-medium" :class="getReturnClass(getHoldingById(expandedRow).return_percent)">
-                    {{ formatCurrency(getUnrealizedGainLoss(getHoldingById(expandedRow))) }}
+                    {{ formatCurrency(getUnrealisedGainLoss(getHoldingById(expandedRow))) }}
                   </span>
                 </div>
               </div>
@@ -338,7 +338,7 @@ export default {
       sortField: 'security_name',
       sortDirection: 'asc',
       expandedRow: null,
-      chartColors: [
+      chartColours: [
         '#3B82F6', // blue
         '#10B981', // green
         '#F59E0B', // amber
@@ -423,7 +423,7 @@ export default {
           fontFamily: 'Inter, system-ui, sans-serif',
         },
         labels: this.sortedByValue.map(h => h.security_name),
-        colors: this.chartColors,
+        colours: this.chartColours,
         legend: {
           show: false, // We'll use custom legend in separate card
         },
@@ -570,7 +570,7 @@ export default {
       return this.filteredHoldings.find(h => h.id === id) || {};
     },
 
-    getUnrealizedGainLoss(holding) {
+    getUnrealisedGainLoss(holding) {
       const costBasis = (holding.quantity || 0) * (holding.purchase_price || 0);
       const currentValue = holding.current_value || 0;
       return currentValue - costBasis;

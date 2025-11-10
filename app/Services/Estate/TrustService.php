@@ -5,11 +5,24 @@ declare(strict_types=1);
 namespace App\Services\Estate;
 
 use App\Models\Estate\Trust;
+use App\Services\TaxConfigService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class TrustService
 {
+    /**
+     * Tax configuration service
+     */
+    private TaxConfigService $taxConfig;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TaxConfigService $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
     /**
      * Calculate the next periodic charge date for a relevant property trust
      */
@@ -47,8 +60,8 @@ class TrustService
             ];
         }
 
-        $config = config('uk_tax_config.trusts');
-        $ihtConfig = config('uk_tax_config.inheritance_tax');
+        $trustsConfig = $this->taxConfig->getTrusts();
+        $ihtConfig = $this->taxConfig->getInheritanceTax();
         $nrb = $ihtConfig['nil_rate_band'];
 
         // Simplified calculation - in practice this is complex
@@ -57,7 +70,7 @@ class TrustService
         $excessOverNRB = max(0, $trustValue - $nrb);
 
         // Effective rate calculation (simplified)
-        $effectiveRate = min($config['periodic_charges']['max_rate'],
+        $effectiveRate = min($trustsConfig['periodic_charges']['max_rate'],
             ($excessOverNRB / $trustValue) * 0.06);
 
         $chargeAmount = $trustValue * $effectiveRate;
@@ -88,7 +101,8 @@ class TrustService
      */
     public function analyzeTrustEfficiency(Trust $trust): array
     {
-        $trustConfig = config("uk_tax_config.trusts.types.{$trust->trust_type}");
+        $trustsConfig = $this->taxConfig->getTrusts();
+        $trustConfig = $trustsConfig['types'][$trust->trust_type] ?? null;
 
         $valueInEstate = $trust->getIHTValue();
         $valueOutsideEstate = $trust->current_value - $valueInEstate;
@@ -129,7 +143,8 @@ class TrustService
     public function getTrustRecommendations(float $estateValue, float $ihtLiability, array $circumstances = []): array
     {
         $recommendations = [];
-        $trustTypes = config('uk_tax_config.trusts.types');
+        $trustsConfig = $this->taxConfig->getTrusts();
+        $trustTypes = $trustsConfig['types'];
 
         // If significant IHT liability
         if ($ihtLiability > 50000) {

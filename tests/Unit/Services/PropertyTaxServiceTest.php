@@ -7,7 +7,9 @@ namespace Tests\Unit\Services;
 use App\Models\Property;
 use App\Models\User;
 use App\Services\Property\PropertyTaxService;
+use App\Services\TaxConfigService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery;
 use Tests\TestCase;
 
 class PropertyTaxServiceTest extends TestCase
@@ -21,7 +23,68 @@ class PropertyTaxServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->taxService = new PropertyTaxService;
+
+        // Mock TaxConfigService with comprehensive tax data
+        $mockTaxConfig = Mockery::mock(TaxConfigService::class);
+
+        // Mock getStampDuty() for SDLT calculations
+        $mockTaxConfig->shouldReceive('getStampDuty')
+            ->andReturn([
+                'residential' => [
+                    'standard' => [
+                        'bands' => [
+                            ['threshold' => 0, 'rate' => 0.00],
+                            ['threshold' => 250000, 'rate' => 0.05],
+                            ['threshold' => 925000, 'rate' => 0.10],
+                            ['threshold' => 1500000, 'rate' => 0.12],
+                        ],
+                    ],
+                    'additional_properties' => [
+                        'surcharge' => 0.03,
+                        'bands' => [
+                            ['threshold' => 0, 'rate' => 0.03],
+                            ['threshold' => 250000, 'rate' => 0.08],
+                            ['threshold' => 925000, 'rate' => 0.13],
+                            ['threshold' => 1500000, 'rate' => 0.15],
+                        ],
+                    ],
+                    'first_time_buyers' => [
+                        'max_property_value' => 625000,
+                        'nil_rate_threshold' => 425000,
+                        'bands' => [
+                            ['threshold' => 0, 'rate' => 0.00],
+                            ['threshold' => 425000, 'rate' => 0.05],
+                        ],
+                    ],
+                ],
+            ]);
+
+        // Mock getCapitalGainsTax() for CGT calculations
+        $mockTaxConfig->shouldReceive('getCapitalGainsTax')
+            ->andReturn([
+                'annual_exempt_amount' => 3000,
+                'rates' => [
+                    'residential' => [
+                        'basic_rate' => 0.18,
+                        'higher_rate' => 0.24,
+                    ],
+                ],
+            ]);
+
+        // Mock getIncomeTax() for income tax band calculations
+        $mockTaxConfig->shouldReceive('getIncomeTax')
+            ->andReturn([
+                'personal_allowance' => 12570,
+                'bands' => [
+                    ['name' => 'Basic Rate', 'min' => 0, 'max' => 37700, 'rate' => 0.20],
+                    ['name' => 'Higher Rate', 'min' => 37700, 'max' => 112570, 'rate' => 0.40],
+                    ['name' => 'Additional Rate', 'min' => 112570, 'max' => null, 'rate' => 0.45],
+                ],
+            ]);
+
+        // Inject the mocked service
+        $this->taxService = new PropertyTaxService($mockTaxConfig);
+
         // Create user with higher rate income for CGT tests
         $this->user = User::factory()->create([
             'annual_employment_income' => 60000,

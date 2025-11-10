@@ -378,7 +378,7 @@
           <p class="text-sm text-gray-600 mb-1">% of Income</p>
           <p
             class="text-xl font-bold"
-            :class="premiumPercentageColor"
+            :class="premiumPercentageColour"
           >
             {{ premiumPercentage }}%
           </p>
@@ -507,7 +507,7 @@ export default {
       return ((this.totalPremium / this.monthlyIncome) * 100).toFixed(1);
     },
 
-    premiumPercentageColor() {
+    premiumPercentageColour() {
       const percentage = parseFloat(this.premiumPercentage);
       if (percentage <= 10) return 'text-green-600';
       if (percentage <= 15) return 'text-amber-600';

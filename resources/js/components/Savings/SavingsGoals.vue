@@ -59,7 +59,7 @@
           <div class="w-full bg-gray-200 rounded-full h-3">
             <div
               class="h-3 rounded-full transition-all"
-              :class="getProgressBarColor(goal)"
+              :class="getProgressBarColour(goal)"
               :style="{ width: getProgressPercent(goal) + '%' }"
             ></div>
           </div>
@@ -206,7 +206,7 @@ export default {
       return 'bg-gray-100 text-gray-800';
     },
 
-    getProgressBarColor(goal) {
+    getProgressBarColour(goal) {
       const status = this.getStatusLabel(goal);
       if (status === 'Completed') return 'bg-green-600';
       if (status === 'On Track') return 'bg-blue-600';

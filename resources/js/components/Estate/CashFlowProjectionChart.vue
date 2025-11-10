@@ -221,7 +221,7 @@ export default {
             dataLabels: {
               position: 'top',
             },
-            colors: {
+            colours: {
               ranges: [
                 {
                   from: -Infinity,
@@ -245,7 +245,7 @@ export default {
           offsetY: -25,
           style: {
             fontSize: '11px',
-            colors: ['#374151'],
+            colours: ['#374151'],
             fontWeight: 600,
           },
         },
@@ -306,9 +306,9 @@ export default {
             },
           },
         },
-        colors: ['#10b981', '#3b82f6'],
+        colours: ['#10b981', '#3b82f6'],
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
           strokeDashArray: 4,
         },
       };

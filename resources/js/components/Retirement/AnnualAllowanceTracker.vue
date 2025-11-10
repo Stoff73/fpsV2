@@ -29,13 +29,13 @@
       <div class="relative w-full bg-gray-200 rounded-full h-4 mb-2">
         <div
           class="h-4 rounded-full transition-all duration-500"
-          :class="progressBarColor"
+          :class="progressBarColour"
           :style="{ width: progressPercent + '%' }"
         ></div>
       </div>
 
       <div class="flex items-center justify-between text-sm">
-        <span :class="statusTextColor" class="font-medium">
+        <span :class="statusTextColour" class="font-medium">
           {{ statusText }}
         </span>
         <span class="text-gray-600">
@@ -200,14 +200,14 @@ export default {
       return Math.min(100, Math.round((this.contributionsUsed / this.currentAllowance) * 100));
     },
 
-    progressBarColor() {
+    progressBarColour() {
       if (this.progressPercent >= 100) return 'bg-red-500';
       if (this.progressPercent >= 80) return 'bg-amber-500';
       if (this.progressPercent >= 60) return 'bg-yellow-500';
       return 'bg-green-500';
     },
 
-    statusTextColor() {
+    statusTextColour() {
       if (this.progressPercent >= 100) return 'text-red-600';
       if (this.progressPercent >= 80) return 'text-amber-600';
       return 'text-green-600';
@@ -286,6 +286,6 @@ export default {
 .bg-yellow-500,
 .bg-amber-500,
 .bg-red-500 {
-  transition: width 0.5s ease-out, background-color 0.3s ease;
+  transition: width 0.5s ease-out, background-colour 0.3s ease;
 }
 </style>

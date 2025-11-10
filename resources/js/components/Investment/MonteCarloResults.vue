@@ -39,7 +39,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h4 class="text-xs font-medium text-blue-900 mb-1">Success Probability</h4>
-                <p class="text-2xl font-bold" :class="getProbabilityColor(results.success_probability)">
+                <p class="text-2xl font-bold" :class="getProbabilityColour(results.success_probability)">
                   {{ results.success_probability }}%
                 </p>
               </div>
@@ -269,7 +269,7 @@ export default {
             },
           },
         },
-        colors: ['#10b981', '#3b82f6', '#ef4444'],
+        colours: ['#10b981', '#3b82f6', '#ef4444'],
         stroke: {
           width: 2,
           curve: 'smooth',
@@ -293,7 +293,7 @@ export default {
           },
           labels: {
             style: {
-              colors: '#6b7280',
+              colours: '#6b7280',
               fontSize: '12px',
             },
           },
@@ -310,7 +310,7 @@ export default {
           labels: {
             formatter: (val) => this.formatCurrencyShort(val),
             style: {
-              colors: '#6b7280',
+              colours: '#6b7280',
               fontSize: '12px',
             },
           },
@@ -324,15 +324,15 @@ export default {
         },
         legend: {
           position: 'top',
-          horizontalAlign: 'center',
+          horizontalAlign: 'centre',
           fontSize: '14px',
           fontWeight: 500,
           labels: {
-            colors: '#374151',
+            colours: '#374151',
           },
         },
         grid: {
-          borderColor: '#e5e7eb',
+          borderColour: '#e5e7eb',
           strokeDashArray: 3,
         },
         dataLabels: {
@@ -342,10 +342,10 @@ export default {
           yaxis: [
             {
               y: this.targetAmount,
-              borderColor: '#8b5cf6',
+              borderColour: '#8b5cf6',
               strokeDashArray: 5,
               label: {
-                borderColor: '#8b5cf6',
+                borderColour: '#8b5cf6',
                 style: {
                   color: '#fff',
                   background: '#8b5cf6',
@@ -382,7 +382,7 @@ export default {
       return this.formatCurrency(value);
     },
 
-    getProbabilityColor(probability) {
+    getProbabilityColour(probability) {
       if (probability >= 80) return 'text-green-600';
       if (probability >= 60) return 'text-blue-600';
       if (probability >= 40) return 'text-yellow-600';

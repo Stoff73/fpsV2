@@ -18,7 +18,6 @@
           @change="handleLiabilityTypeChange"
         >
           <option value="">Select liability type...</option>
-          <option value="mortgage">Mortgage</option>
           <option value="secured_loan">Secured Loan</option>
           <option value="personal_loan">Personal Loan</option>
           <option value="credit_card">Credit Card</option>
@@ -576,7 +575,7 @@ label.required::after {
   font-size: 14px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  transition: border-color 0.2s;
+  transition: border-colour 0.2s;
 }
 
 .form-control:focus {

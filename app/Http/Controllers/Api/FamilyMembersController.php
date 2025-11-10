@@ -55,7 +55,7 @@ class FamilyMembersController extends Controller
         });
 
         // Add spouse's children with shared flag
-        $spouseChildren = $spouseChildren->map(function ($member) use ($user, $familyMembers) {
+        $spouseChildren = $spouseChildren->map(function ($member) use ($familyMembers) {
             $memberArray = $member->toArray();
 
             // Check if this child already exists in user's family members (duplicate)
@@ -65,9 +65,10 @@ class FamilyMembersController extends Controller
                        $fm['date_of_birth'] === $member->date_of_birth;
             });
 
-            if (!$isDuplicate) {
+            if (! $isDuplicate) {
                 $memberArray['is_shared'] = true;
                 $memberArray['owner'] = 'spouse';
+
                 return $memberArray;
             }
 
@@ -264,6 +265,8 @@ class FamilyMembersController extends Controller
                 'family_member' => $familyMember,
                 'spouse_user' => $spouseUser,
                 'created' => true,
+                'temporary_password' => $temporaryPassword, // Show to user so they can share with spouse
+                'spouse_email' => $spouseEmail,
             ],
         ], 201);
     }
