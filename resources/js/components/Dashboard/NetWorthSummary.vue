@@ -8,7 +8,7 @@
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColour"
+          stroke="currentColor"
         >
           <path
             stroke-linecap="round"
@@ -26,13 +26,13 @@
         <span class="text-4xl font-bold text-gray-800">
           {{ formattedNetWorth }}
         </span>
-        <div v-if="trend" class="ml-3 flex items-centre">
+        <div v-if="trend" class="ml-3 flex items-center">
           <svg
             v-if="trend > 0"
             xmlns="http://www.w3.org/2000/svg"
             class="h-5 w-5 text-green-600"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -45,7 +45,7 @@
             xmlns="http://www.w3.org/2000/svg"
             class="h-5 w-5 text-red-600"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -65,8 +65,8 @@
     <div class="mb-6">
       <h4 class="text-sm font-semibold text-gray-700 mb-3">Assets</h4>
       <div class="space-y-2">
-        <div class="flex justify-between items-centre">
-          <div class="flex items-centre">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
             <span class="text-sm text-gray-700">Savings</span>
           </div>
@@ -74,8 +74,8 @@
             {{ formattedSavings }}
           </span>
         </div>
-        <div class="flex justify-between items-centre">
-          <div class="flex items-centre">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
             <span class="text-sm text-gray-700">Investments</span>
           </div>
@@ -83,8 +83,8 @@
             {{ formattedInvestments }}
           </span>
         </div>
-        <div class="flex justify-between items-centre">
-          <div class="flex items-centre">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
             <span class="text-sm text-gray-700">Pensions</span>
           </div>
@@ -92,8 +92,8 @@
             {{ formattedPensions }}
           </span>
         </div>
-        <div class="flex justify-between items-centre">
-          <div class="flex items-centre">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
             <div class="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
             <span class="text-sm text-gray-700">Other Assets</span>
           </div>
@@ -101,7 +101,7 @@
             {{ formattedOtherAssets }}
           </span>
         </div>
-        <div class="border-t pt-2 flex justify-between items-centre">
+        <div class="border-t pt-2 flex justify-between items-center">
           <span class="text-sm font-semibold text-gray-700">Total Assets</span>
           <span class="text-sm font-bold text-gray-800">
             {{ formattedTotalAssets }}
@@ -114,7 +114,7 @@
     <div class="mb-6">
       <h4 class="text-sm font-semibold text-gray-700 mb-3">Liabilities</h4>
       <div class="space-y-2">
-        <div class="flex justify-between items-centre">
+        <div class="flex justify-between items-center">
           <span class="text-sm text-gray-700">Total Liabilities</span>
           <span class="text-sm font-semibold text-red-600">
             {{ formattedLiabilities }}
@@ -126,7 +126,7 @@
     <!-- View Details Button -->
     <button
       @click="navigateToEstate"
-      class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colours"
+      class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
     >
       View Detailed Breakdown
     </button>

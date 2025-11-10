@@ -13,6 +13,7 @@ const state = {
     },
     trend: [],
     assetsSummary: {
+        pensions: { count: 0, total_value: 0, breakdown: { dc: 0, db: 0, state: 0 } },
         property: { count: 0, total_value: 0 },
         investments: { count: 0, total_value: 0 },
         cash: { count: 0, total_value: 0 },
@@ -75,6 +76,7 @@ const mutations = {
         };
         state.trend = [];
         state.assetsSummary = {
+            pensions: { count: 0, total_value: 0, breakdown: { dc: 0, db: 0, state: 0 } },
             property: { count: 0, total_value: 0 },
             investments: { count: 0, total_value: 0 },
             cash: { count: 0, total_value: 0 },
@@ -636,6 +638,7 @@ const getters = {
     hasAssets: (state) => state.overview.totalAssets > 0,
 
     assetCounts: (state) => ({
+        pensions: state.assetsSummary.pensions?.count || 0,
         property: state.assetsSummary.property?.count || 0,
         investments: state.assetsSummary.investments?.count || 0,
         cash: state.assetsSummary.cash?.count || 0,

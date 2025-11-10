@@ -3,16 +3,16 @@
     <div class="px-4 sm:px-0">
       <!-- Header -->
       <div class="mb-6">
-        <div class="flex items-centre justify-between">
+        <div class="flex items-center justify-between">
           <div>
             <h1 class="font-display text-h1 text-gray-900">Admin Panel</h1>
             <p class="text-body text-gray-600 mt-2">
               System administration and management
             </p>
           </div>
-          <div class="flex items-centre space-x-2">
-            <span class="inline-flex items-centre px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-              <svg class="w-4 h-4 mr-1" fill="currentColour" viewBox="0 0 20 20">
+          <div class="flex items-center space-x-2">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
               Administrator
@@ -29,13 +29,13 @@
             :key="tab.id"
             @click="activeTab = tab.id"
             :class="[
-              'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colours flex items-centre',
+              'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center',
               activeTab === tab.id
                 ? 'border-primary-600 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             ]"
           >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getTabIcon(tab.id)" />
             </svg>
             {{ tab.label }}

@@ -270,23 +270,23 @@ export default {
 }
 
 .gift-card.status-exempt {
-  border-left-colour: #10b981;
+  border-left-color: #10b981;
 }
 
 .gift-card.status-taper {
-  border-left-colour: #f59e0b;
+  border-left-color: #f59e0b;
 }
 
 .gift-card.status-taxable {
-  border-left-colour: #ef4444;
+  border-left-color: #ef4444;
 }
 
 .card-header {
   display: flex;
-  align-items: centre;
+  align-items: center;
   gap: 16px;
   padding: 20px;
-  background-colour: #f9fafb;
+  background-color: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -295,24 +295,24 @@ export default {
   height: 48px;
   border-radius: 50%;
   display: flex;
-  align-items: centre;
-  justify-content: centre;
+  align-items: center;
+  justify-content: center;
   font-size: 20px;
 }
 
 .icon-success {
-  background-colour: #d1fae5;
-  colour: #059669;
+  background-color: #d1fae5;
+  color: #059669;
 }
 
 .icon-warning {
-  background-colour: #fef3c7;
-  colour: #d97706;
+  background-color: #fef3c7;
+  color: #d97706;
 }
 
 .icon-danger {
-  background-colour: #fee2e2;
-  colour: #dc2626;
+  background-color: #fee2e2;
+  color: #dc2626;
 }
 
 .gift-info {
@@ -322,16 +322,16 @@ export default {
 .recipient-name {
   font-size: 16px;
   font-weight: 600;
-  colour: #1f2937;
+  color: #1f2937;
   margin: 0 0 4px 0;
 }
 
 .gift-date {
   font-size: 13px;
-  colour: #6b7280;
+  color: #6b7280;
   margin: 0;
   display: flex;
-  align-items: centre;
+  align-items: center;
   gap: 6px;
 }
 
@@ -342,7 +342,7 @@ export default {
 .value-label {
   display: block;
   font-size: 12px;
-  colour: #6b7280;
+  color: #6b7280;
   margin-bottom: 4px;
 }
 
@@ -350,7 +350,7 @@ export default {
   display: block;
   font-size: 18px;
   font-weight: 700;
-  colour: #1f2937;
+  color: #1f2937;
 }
 
 .card-body {
@@ -365,12 +365,12 @@ export default {
 }
 
 .info-row .label {
-  colour: #6b7280;
+  color: #6b7280;
   font-weight: 500;
 }
 
 .info-row .value {
-  colour: #1f2937;
+  color: #1f2937;
   font-weight: 600;
 }
 
@@ -386,18 +386,18 @@ export default {
 }
 
 .progress-label {
-  colour: #6b7280;
+  color: #6b7280;
   font-weight: 500;
 }
 
 .progress-percentage {
-  colour: #1f2937;
+  color: #1f2937;
   font-weight: 600;
 }
 
 .progress-bar-container {
   height: 12px;
-  background-colour: #f3f4f6;
+  background-color: #f3f4f6;
   border-radius: 6px;
   overflow: hidden;
 }
@@ -423,13 +423,13 @@ export default {
 .taper-relief {
   margin: 16px 0;
   padding: 12px;
-  background-colour: #fffbeb;
+  background-color: #fffbeb;
   border-radius: 6px;
 }
 
 .relief-badge {
   display: inline-flex;
-  align-items: centre;
+  align-items: center;
   gap: 8px;
   padding: 6px 12px;
   border-radius: 12px;
@@ -439,29 +439,29 @@ export default {
 }
 
 .relief-low {
-  background-colour: #fecaca;
-  colour: #991b1b;
+  background-color: #fecaca;
+  color: #991b1b;
 }
 
 .relief-medium {
-  background-colour: #fed7aa;
-  colour: #92400e;
+  background-color: #fed7aa;
+  color: #92400e;
 }
 
 .relief-high {
-  background-colour: #d1fae5;
-  colour: #065f46;
+  background-color: #d1fae5;
+  color: #065f46;
 }
 
 .relief-description {
   font-size: 12px;
-  colour: #78350f;
+  color: #78350f;
   margin: 0;
 }
 
 .status-banner {
   display: flex;
-  align-items: centre;
+  align-items: center;
   gap: 10px;
   padding: 12px 16px;
   border-radius: 6px;
@@ -474,20 +474,20 @@ export default {
 }
 
 .banner-success {
-  background-colour: #d1fae5;
-  colour: #065f46;
+  background-color: #d1fae5;
+  color: #065f46;
   border: 1px solid #10b981;
 }
 
 .banner-warning {
-  background-colour: #fef3c7;
-  colour: #92400e;
+  background-color: #fef3c7;
+  color: #92400e;
   border: 1px solid #f59e0b;
 }
 
 .banner-danger {
-  background-colour: #fee2e2;
-  colour: #991b1b;
+  background-color: #fee2e2;
+  color: #991b1b;
   border: 1px solid #ef4444;
 }
 
@@ -496,7 +496,7 @@ export default {
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 20px;
-  background-colour: #f9fafb;
+  background-color: #f9fafb;
   border-top: 1px solid #e5e7eb;
 }
 
@@ -509,7 +509,7 @@ export default {
   cursor: pointer;
   transition: all 0.2s;
   display: inline-flex;
-  align-items: centre;
+  align-items: center;
   gap: 6px;
 }
 
@@ -524,20 +524,20 @@ export default {
 }
 
 .btn-secondary {
-  background-colour: #e5e7eb;
-  colour: #374151;
+  background-color: #e5e7eb;
+  color: #374151;
 }
 
 .btn-secondary:hover {
-  background-colour: #d1d5db;
+  background-color: #d1d5db;
 }
 
 .btn-danger {
-  background-colour: #fecaca;
-  colour: #991b1b;
+  background-color: #fecaca;
+  color: #991b1b;
 }
 
 .btn-danger:hover {
-  background-colour: #fca5a5;
+  background-color: #fca5a5;
 }
 </style>

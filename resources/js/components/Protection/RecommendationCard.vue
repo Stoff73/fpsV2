@@ -13,7 +13,7 @@
     >
       <div class="flex items-start justify-between">
         <div class="flex-1">
-          <div class="flex items-centre gap-3 mb-2">
+          <div class="flex items-center gap-3 mb-2">
             <span
               class="px-3 py-1 text-xs font-semibold rounded-full"
               :class="priorityBadgeClass"
@@ -33,7 +33,7 @@
         </div>
 
         <button
-          class="ml-4 text-gray-400 hover:text-gray-600 transition-colours flex-shrink-0"
+          class="ml-4 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
           @click.stop="isExpanded = !isExpanded"
         >
           <svg
@@ -41,7 +41,7 @@
             :class="{ 'transform rotate-180': isExpanded }"
             fill="none"
             viewBox="0 0 24 24"
-            stroke="currentColour"
+            stroke="currentColor"
           >
             <path
               stroke-linecap="round"
@@ -96,12 +96,12 @@
       <div class="flex gap-3 mt-4">
         <button
           @click="handleMarkDone"
-          class="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colours"
+          class="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
         >
           Mark as Done
         </button>
         <button
-          class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colours"
+          class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
         >
           Learn More
         </button>

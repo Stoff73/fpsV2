@@ -226,12 +226,12 @@ export default {
                 {
                   from: -Infinity,
                   to: 0,
-                  colour: '#ef4444',
+                  color: '#ef4444',
                 },
                 {
                   from: 0,
                   to: Infinity,
-                  colour: '#10b981',
+                  color: '#10b981',
                 },
               ],
             },
@@ -370,43 +370,43 @@ export default {
 }
 
 .chart-header {
-  text-align: centre;
+  text-align: center;
   margin-bottom: 20px;
 }
 
 .chart-header h3 {
   font-size: 18px;
   font-weight: 600;
-  colour: #1f2937;
+  color: #1f2937;
   margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 14px;
-  colour: #6b7280;
+  color: #6b7280;
   margin: 0;
 }
 
 .chart-controls {
   display: flex;
-  justify-content: centre;
+  justify-content: center;
   gap: 32px;
   margin-bottom: 24px;
   padding: 16px;
-  background-colour: #f9fafb;
+  background-color: #f9fafb;
   border-radius: 6px;
 }
 
 .control-group {
   display: flex;
-  align-items: centre;
+  align-items: center;
   gap: 10px;
 }
 
 .control-group label {
   font-size: 13px;
   font-weight: 500;
-  colour: #374151;
+  color: #374151;
   white-space: nowrap;
 }
 
@@ -415,13 +415,13 @@ export default {
   font-size: 13px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
-  background-colour: white;
+  background-color: white;
   cursor: pointer;
 }
 
 .form-control-sm:focus {
   outline: none;
-  border-colour: #3b82f6;
+  border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -430,20 +430,20 @@ export default {
 }
 
 .empty-state {
-  text-align: centre;
+  text-align: center;
   padding: 80px 20px;
-  colour: #9ca3af;
+  color: #9ca3af;
 }
 
 .empty-state i {
-  colour: #d1d5db;
+  color: #d1d5db;
   margin-bottom: 16px;
 }
 
 .empty-state p {
   margin: 8px 0;
   font-size: 16px;
-  colour: #6b7280;
+  color: #6b7280;
 }
 
 .summary-cards {
@@ -455,10 +455,10 @@ export default {
 
 .summary-card {
   display: flex;
-  align-items: centre;
+  align-items: center;
   gap: 16px;
   padding: 20px;
-  background-colour: #f9fafb;
+  background-color: #f9fafb;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
 }
@@ -468,19 +468,19 @@ export default {
   height: 48px;
   border-radius: 50%;
   display: flex;
-  align-items: centre;
-  justify-content: centre;
+  align-items: center;
+  justify-content: center;
   font-size: 20px;
 }
 
 .card-icon.positive {
-  background-colour: #d1fae5;
-  colour: #059669;
+  background-color: #d1fae5;
+  color: #059669;
 }
 
 .card-icon.negative {
-  background-colour: #fee2e2;
-  colour: #dc2626;
+  background-color: #fee2e2;
+  color: #dc2626;
 }
 
 .card-content {
@@ -492,7 +492,7 @@ export default {
 
 .card-label {
   font-size: 13px;
-  colour: #6b7280;
+  color: #6b7280;
   font-weight: 500;
 }
 
@@ -502,11 +502,11 @@ export default {
 }
 
 .card-value.positive {
-  colour: #059669;
+  color: #059669;
 }
 
 .card-value.negative {
-  colour: #dc2626;
+  color: #dc2626;
 }
 
 @media (max-width: 768px) {

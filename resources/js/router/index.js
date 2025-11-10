@@ -18,6 +18,7 @@ const Settings = () => import('@/views/Settings.vue');
 const UserProfile = () => import('@/views/UserProfile.vue');
 const NetWorthDashboard = () => import('@/views/NetWorth/NetWorthDashboard.vue');
 const NetWorthOverview = () => import('@/components/NetWorth/NetWorthOverview.vue');
+const RetirementView = () => import('@/views/NetWorth/RetirementView.vue');
 const PropertyList = () => import('@/components/NetWorth/PropertyList.vue');
 const PropertyDetail = () => import('@/components/NetWorth/Property/PropertyDetail.vue');
 const BusinessInterestsList = () => import('@/components/NetWorth/BusinessInterestsList.vue');
@@ -119,6 +120,11 @@ const routes = [
         path: 'overview',
         name: 'NetWorthOverview',
         component: NetWorthOverview,
+      },
+      {
+        path: 'retirement',
+        name: 'NetWorthRetirement',
+        component: RetirementView,
       },
       {
         path: 'property',

@@ -7,9 +7,9 @@
 
     <!-- Income Projection Chart -->
     <div class="bg-white rounded-lg shadow p-6 mb-8">
-      <div class="flex items-centre justify-between mb-6">
+      <div class="flex items-center justify-between mb-6">
         <h3 class="text-lg font-semibold text-gray-900">Projected Retirement Income</h3>
-        <div class="flex items-centre space-x-2">
+        <div class="flex items-center space-x-2">
           <span class="text-sm text-gray-600">View:</span>
           <select
             v-model="incomeViewMode"
@@ -28,20 +28,20 @@
       />
 
       <!-- Legend -->
-      <div class="mt-6 flex flex-wrap items-centre justify-centre gap-4">
-        <div class="flex items-centre">
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-4">
+        <div class="flex items-center">
           <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
           <span class="text-sm text-gray-700">DC Pension</span>
         </div>
-        <div class="flex items-centre">
+        <div class="flex items-center">
           <div class="w-4 h-4 bg-purple-500 rounded mr-2"></div>
           <span class="text-sm text-gray-700">DB Pension</span>
         </div>
-        <div class="flex items-centre">
+        <div class="flex items-center">
           <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
           <span class="text-sm text-gray-700">State Pension</span>
         </div>
-        <div class="flex items-centre">
+        <div class="flex items-center">
           <div class="w-3 h-0.5 bg-amber-500 mr-2"></div>
           <span class="text-sm text-gray-700">Target Income</span>
         </div>
@@ -52,7 +52,7 @@
     <div class="bg-white rounded-lg shadow p-6 mb-8">
       <h3 class="text-lg font-semibold text-gray-900 mb-6">Pension Pot Accumulation</h3>
       <AccumulationChart />
-      <p class="text-sm text-gray-500 mt-4 text-centre">
+      <p class="text-sm text-gray-500 mt-4 text-center">
         Shows projected DC pension fund value growth to retirement
       </p>
     </div>
@@ -61,9 +61,9 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <!-- Projected Annual Income at Retirement -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-centre justify-between mb-2">
+        <div class="flex items-center justify-between mb-2">
           <h4 class="text-sm font-medium text-gray-600">Projected Annual Income</h4>
-          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
@@ -73,9 +73,9 @@
 
       <!-- Replacement Ratio -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-centre justify-between mb-2">
+        <div class="flex items-center justify-between mb-2">
           <h4 class="text-sm font-medium text-gray-600">Income Replacement</h4>
-          <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
           </svg>
         </div>
@@ -85,9 +85,9 @@
 
       <!-- Projected Pension Pot at Retirement -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-centre justify-between mb-2">
+        <div class="flex items-center justify-between mb-2">
           <h4 class="text-sm font-medium text-gray-600">Projected Pension Pot</h4>
-          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
           </svg>
         </div>
@@ -99,7 +99,7 @@
     <!-- Assumptions -->
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
       <div class="flex items-start">
-        <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
         <div class="flex-1">

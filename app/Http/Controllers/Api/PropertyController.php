@@ -191,7 +191,7 @@ class PropertyController extends Controller
     {
         $request->validate([
             'purchase_price' => 'required|numeric|min:0',
-            'property_type' => 'required|in:main_residence,second_home,buy_to_let',
+            'property_type' => 'required|in:main_residence,secondary_residence,buy_to_let',
             'is_first_home' => 'sometimes|boolean',
         ]);
 

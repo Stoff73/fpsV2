@@ -7,7 +7,7 @@
     ></div>
 
     <!-- Modal container -->
-    <div class="flex items-end justify-centre min-h-screen pt-4 px-4 pb-20 text-centre sm:block sm:p-0">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
       <!-- Trick to centre modal on screen -->
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
@@ -19,7 +19,7 @@
           <div class="sm:flex sm:items-start">
             <!-- Icon -->
             <div
-              class="mx-auto flex-shrink-0 flex items-centre justify-centre h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10"
+              class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10"
               :class="iconBgClass"
             >
               <svg
@@ -28,7 +28,7 @@
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColour"
+                stroke="currentColor"
               >
                 <path
                   stroke-linecap="round"
@@ -40,7 +40,7 @@
             </div>
 
             <!-- Content -->
-            <div class="mt-3 text-centre sm:mt-0 sm:ml-4 sm:text-left">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
               <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                 {{ title }}
               </h3>
@@ -59,14 +59,14 @@
             type="button"
             @click="$emit('confirm')"
             :class="confirmClass"
-            class="w-full inline-flex justify-centre rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
           >
             {{ confirmText }}
           </button>
           <button
             type="button"
             @click="$emit('cancel')"
-            class="mt-3 w-full inline-flex justify-centre rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
           >
             {{ cancelText }}
           </button>

@@ -6,7 +6,7 @@
     role="dialog"
     aria-modal="true"
   >
-    <div class="flex items-centre justify-centre min-h-screen pt-4 px-4 pb-20 text-centre sm:block sm:p-0">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
       <!-- Background overlay -->
       <div
         class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity"
@@ -21,12 +21,12 @@
         class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
       >
         <div>
-          <div class="mx-auto flex items-centre justify-centre h-12 w-12 rounded-full bg-amber-100">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-amber-100">
             <svg
               class="h-6 w-6 text-amber-600"
               fill="none"
               viewBox="0 0 24 24"
-              stroke="currentColour"
+              stroke="currentColor"
             >
               <path
                 stroke-linecap="round"
@@ -36,7 +36,7 @@
               />
             </svg>
           </div>
-          <div class="mt-3 text-centre sm:mt-5">
+          <div class="mt-3 text-center sm:mt-5">
             <h3 id="modal-title" class="text-h3 font-display text-gray-900">
               This information is important
             </h3>
@@ -51,14 +51,14 @@
           <button
             type="button"
             @click="onCancel"
-            class="w-full inline-flex justify-centre btn-primary sm:col-start-1"
+            class="w-full inline-flex justify-center btn-primary sm:col-start-1"
           >
             Go Back
           </button>
           <button
             type="button"
             @click="onSkip"
-            class="mt-3 w-full inline-flex justify-centre btn-secondary sm:mt-0 sm:col-start-2"
+            class="mt-3 w-full inline-flex justify-center btn-secondary sm:mt-0 sm:col-start-2"
           >
             Skip Anyway
           </button>

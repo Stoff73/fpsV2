@@ -1,7 +1,7 @@
 <template>
   <div class="will-planning-tab">
     <!-- Loading State -->
-    <div v-if="loading" class="text-centre py-8">
+    <div v-if="loading" class="text-center py-8">
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       <p class="mt-2 text-gray-600">Loading will details...</p>
     </div>
@@ -138,7 +138,7 @@
 
           <!-- Spouse Bequest (only show if married and user_only scenario) -->
           <div v-if="isMarried && form.death_scenario === 'user_only'" class="border-t border-gray-200 pt-6">
-            <div class="flex items-centre justify-between mb-4">
+            <div class="flex items-center justify-between mb-4">
               <label class="block text-sm font-medium text-gray-700">
                 Spouse as Primary Beneficiary
               </label>
@@ -147,7 +147,7 @@
                 @click="form.spouse_primary_beneficiary = !form.spouse_primary_beneficiary"
                 :class="[
                   form.spouse_primary_beneficiary ? 'bg-blue-600' : 'bg-gray-200',
-                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colours duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                 ]"
               >
                 <span
@@ -195,7 +195,7 @@
           <div v-if="form.death_scenario === 'both_simultaneous'" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div class="flex">
               <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColour">
+                <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                 </svg>
               </div>
@@ -236,7 +236,7 @@
 
       <!-- Bequests Section (only shown when has_will is true) -->
       <div v-if="form.has_will === true" class="bg-white rounded-lg border border-gray-200 p-6">
-        <div class="flex justify-between items-centre mb-4">
+        <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-900">Specific Bequests</h3>
           <button
             @click="showBequestModal = true"
@@ -293,7 +293,7 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else class="text-centre py-8 text-gray-500">
+        <div v-else class="text-center py-8 text-gray-500">
           <p class="text-sm">No specific bequests added yet.</p>
           <p class="text-xs mt-1">Click "Add Bequest" to specify gifts to beneficiaries.</p>
         </div>

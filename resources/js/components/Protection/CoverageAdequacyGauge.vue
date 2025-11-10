@@ -62,14 +62,14 @@ export default {
               name: {
                 offsetY: -10,
                 show: true,
-                colour: '#6B7280',
+                color: '#6B7280',
                 fontSize: '14px',
               },
               value: {
                 formatter: (val) => {
                   return parseInt(val) + '%';
                 },
-                colour: '#111827',
+                color: '#111827',
                 fontSize: '36px',
                 fontWeight: 700,
                 show: true,

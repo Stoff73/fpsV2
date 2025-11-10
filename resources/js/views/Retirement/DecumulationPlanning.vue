@@ -16,7 +16,7 @@
 
       <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <div class="flex items-start">
-          <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <div>
@@ -30,7 +30,7 @@
       </div>
 
       <div class="space-y-4">
-        <div class="flex items-centre justify-between p-4 bg-gray-50 rounded-lg">
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
           <div>
             <p class="text-sm text-gray-600">Total DC Pension Pot</p>
             <p class="text-2xl font-bold text-gray-900">£{{ totalDCPot.toLocaleString() }}</p>
@@ -82,9 +82,9 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Drawdown -->
         <div class="border-2 border-indigo-200 rounded-lg p-5">
-          <div class="flex items-centre mb-4">
-            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-centre justify-centre mr-3">
-              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
               </svg>
             </div>
@@ -93,19 +93,19 @@
 
           <div class="space-y-3 mb-4">
             <div class="flex items-start">
-              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
               <span class="text-sm text-gray-700">Flexibility to adjust income</span>
             </div>
             <div class="flex items-start">
-              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
               <span class="text-sm text-gray-700">Potential for investment growth</span>
             </div>
             <div class="flex items-start">
-              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
               <span class="text-sm text-gray-700">Remaining pot can be inherited</span>
@@ -114,13 +114,13 @@
 
           <div class="border-t border-gray-200 pt-3">
             <div class="flex items-start">
-              <svg class="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
               <span class="text-sm text-gray-700">Investment risk - pot can go down</span>
             </div>
             <div class="flex items-start mt-2">
-              <svg class="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
               <span class="text-sm text-gray-700">Income not guaranteed for life</span>
@@ -130,9 +130,9 @@
 
         <!-- Annuity -->
         <div class="border-2 border-purple-200 rounded-lg p-5">
-          <div class="flex items-centre mb-4">
-            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-centre justify-centre mr-3">
-              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
@@ -141,19 +141,19 @@
 
           <div class="space-y-3 mb-4">
             <div class="flex items-start">
-              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
               <span class="text-sm text-gray-700">Guaranteed income for life</span>
             </div>
             <div class="flex items-start">
-              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
               <span class="text-sm text-gray-700">No investment risk</span>
             </div>
             <div class="flex items-start">
-              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
               <span class="text-sm text-gray-700">Can include spouse protection</span>
@@ -162,13 +162,13 @@
 
           <div class="border-t border-gray-200 pt-3">
             <div class="flex items-start">
-              <svg class="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
               <span class="text-sm text-gray-700">No flexibility - income is fixed</span>
             </div>
             <div class="flex items-start mt-2">
-              <svg class="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
               <span class="text-sm text-gray-700">Usually cannot be inherited</span>

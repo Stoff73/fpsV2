@@ -76,7 +76,7 @@ export default {
                 enabled: true,
                 top: 2,
                 left: 0,
-                colour: '#999',
+                color: '#999',
                 opacity: 1,
                 blur: 2,
               },
@@ -87,7 +87,7 @@ export default {
                 fontSize: '16px',
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 600,
-                colour: '#6b7280',
+                color: '#6b7280',
                 offsetY: 75,
               },
               value: {
@@ -95,7 +95,7 @@ export default {
                 fontSize: '48px',
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 700,
-                colour: this.gaugeColour,
+                color: this.gaugeColour,
                 formatter: (val) => {
                   return Math.round(val);
                 },
@@ -130,7 +130,7 @@ export default {
 <style scoped>
 .readiness-gauge {
   display: flex;
-  justify-content: centre;
-  align-items: centre;
+  justify-content: center;
+  align-items: center;
 }
 </style>

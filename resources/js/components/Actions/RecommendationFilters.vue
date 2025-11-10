@@ -108,7 +108,7 @@ export default {
 .filter-group label {
   font-size: 14px;
   font-weight: 500;
-  colour: #374151;
+  color: #374151;
 }
 
 .filter-group select {
@@ -122,7 +122,7 @@ export default {
 
 .filter-group select:focus {
   outline: none;
-  border-colour: #4f46e5;
+  border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
@@ -144,12 +144,12 @@ export default {
 
 .apply-btn {
   background: #4f46e5;
-  colour: white;
+  color: white;
 }
 
 .clear-btn {
   background: #e5e7eb;
-  colour: #374151;
+  color: #374151;
 }
 
 @media (max-width: 768px) {

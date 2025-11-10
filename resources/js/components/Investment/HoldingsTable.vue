@@ -1,8 +1,8 @@
 <template>
   <div class="holdings-table">
     <!-- Filters and Actions Bar -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-centre mb-4 gap-4">
-      <div class="flex flex-wrap items-centre gap-3">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+      <div class="flex flex-wrap items-center gap-3">
         <label class="text-sm font-medium text-gray-700">Filter by:</label>
 
         <!-- Account Filter -->
@@ -36,14 +36,14 @@
 
       <button
         @click="$emit('add-holding')"
-        class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colours"
+        class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
       >
         + Add Holding
       </button>
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-centre justify-centre py-12">
+    <div v-if="loading" class="flex items-center justify-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
@@ -57,7 +57,7 @@
             (Filtered View)
           </span>
         </h3>
-        <div class="flex justify-centre">
+        <div class="flex justify-center">
           <apexchart
             type="donut"
             :options="chartOptions"
@@ -72,8 +72,8 @@
       <div class="bg-white border border-gray-200 rounded-lg p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Holdings Breakdown</h3>
         <div class="max-h-96 overflow-y-auto space-y-2">
-          <div v-for="(holding, index) in sortedByValue" :key="holding.id" class="flex justify-between items-centre py-2 border-b border-gray-100 last:border-b-0">
-            <div class="flex items-centre gap-3 flex-1 min-w-0">
+          <div v-for="(holding, index) in sortedByValue" :key="holding.id" class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
               <div
                 class="w-4 h-4 rounded-full flex-shrink-0"
                 :style="{ backgroundColour: chartColours[index % chartColours.length] }"
@@ -90,7 +90,7 @@
           </div>
         </div>
         <div class="pt-3 mt-3 border-t-2 border-gray-300">
-          <div class="flex justify-between items-centre">
+          <div class="flex justify-between items-center">
             <p class="text-sm font-bold text-gray-900">Total Value:</p>
             <p class="text-lg font-bold text-gray-900">{{ formatCurrency(totalValue) }}</p>
           </div>
@@ -199,7 +199,7 @@
               <div class="text-xs text-gray-500">{{ holding.ticker || holding.isin || 'N/A' }}</div>
             </td>
             <td class="px-4 py-3 text-sm text-gray-700">
-              <span class="inline-flex items-centre px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 {{ formatAssetType(holding.asset_type) }}
               </span>
             </td>
@@ -228,7 +228,7 @@
                   class="text-blue-600 hover:text-blue-800"
                   title="Edit"
                 >
-                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </button>
@@ -237,7 +237,7 @@
                   class="text-red-600 hover:text-red-800"
                   title="Delete"
                 >
-                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
@@ -293,8 +293,8 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-centre py-12 bg-white border border-gray-200 rounded-lg">
-      <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+    <div v-else class="text-center py-12 bg-white border border-gray-200 rounded-lg">
+      <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
       <h3 class="text-lg font-medium text-gray-900 mb-2">No holdings found</h3>
@@ -303,7 +303,7 @@
       </p>
       <button
         @click="$emit('add-holding')"
-        class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colours"
+        class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
       >
         + Add Holding
       </button>
@@ -450,13 +450,13 @@ export default {
                   show: true,
                   fontSize: '16px',
                   fontWeight: 600,
-                  colour: '#111827',
+                  color: '#111827',
                 },
                 value: {
                   show: true,
                   fontSize: '28px',
                   fontWeight: 700,
-                  colour: '#111827',
+                  color: '#111827',
                   formatter: function(val) {
                     return new Intl.NumberFormat('en-GB', {
                       style: 'currency',
@@ -471,7 +471,7 @@ export default {
                   label: 'Total Value',
                   fontSize: '16px',
                   fontWeight: 600,
-                  colour: '#6B7280',
+                  color: '#6B7280',
                   formatter: function(w) {
                     const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
                     return new Intl.NumberFormat('en-GB', {

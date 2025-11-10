@@ -1,7 +1,7 @@
 <template>
   <AppLayout>
     <div class="px-4 sm:px-0">
-      <div class="flex items-centre justify-between mb-6">
+      <div class="flex items-center justify-between mb-6">
         <h1 class="font-display text-h1 text-gray-900">
           Welcome to TenGo
         </h1>
@@ -10,13 +10,13 @@
         <button
           @click="refreshDashboard"
           :disabled="refreshing"
-          class="flex items-centre gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colours"
+          class="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <svg
             :class="{'animate-spin': refreshing}"
             class="w-5 h-5"
             fill="none"
-            stroke="currentColour"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
             <path
@@ -31,35 +31,10 @@
       </div>
 
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <!-- Card 1: Net Worth (Phase 3) -->
+        <!-- Card 1: Net Worth -->
         <NetWorthOverviewCard />
 
-        <!-- Card 2: Retirement Planning -->
-        <div v-if="loading.retirement" class="card animate-pulse">
-          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-          <div class="h-3 bg-gray-200 rounded w-full"></div>
-        </div>
-        <div v-else-if="errors.retirement" class="card border-2 border-red-300 bg-red-50">
-          <h3 class="text-h4 text-red-900 mb-2">Retirement Module</h3>
-          <p class="text-body text-red-700 mb-4">
-            Failed to load retirement data. {{ errors.retirement }}
-          </p>
-          <button
-            @click="retryLoadModule('retirement')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colours"
-          >
-            Retry
-          </button>
-        </div>
-        <RetirementOverviewCard
-          v-else
-          :total-pension-value="retirementData.totalPensionValue"
-          :projected-income="retirementData.projectedIncome"
-          :years-to-retirement="retirementData.yearsToRetirement"
-        />
-
-        <!-- Card 3: Estate Planning -->
+        <!-- Card 2: Estate Planning -->
         <div v-if="loading.estate" class="card animate-pulse">
           <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
           <div class="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
@@ -72,7 +47,7 @@
           </p>
           <button
             @click="retryLoadModule('estate')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colours"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
             Retry
           </button>
@@ -97,7 +72,7 @@
           </p>
           <button
             @click="retryLoadModule('protection')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colours"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
             Retry
           </button>
@@ -110,11 +85,13 @@
           :critical-gaps="protectionData.criticalGaps"
         />
 
-        <!-- Card 5: Actions & Recommendations -->
-        <QuickActions />
-
-        <!-- Card 6: Trusts -->
+        <!-- Card 5: Trusts -->
         <TrustsOverviewCard />
+
+        <!-- Card 6: Plans (spans 2 columns) -->
+        <div class="sm:col-span-2">
+          <QuickActions />
+        </div>
 
         <!-- Card 7: UK Taxes & Allowances (Admin Only) -->
         <UKTaxesOverviewCard v-if="isAdmin" />
@@ -128,7 +105,6 @@ import { mapGetters } from 'vuex';
 import AppLayout from '@/layouts/AppLayout.vue';
 import NetWorthOverviewCard from '@/components/Dashboard/NetWorthOverviewCard.vue';
 import ProtectionOverviewCard from '@/components/Protection/ProtectionOverviewCard.vue';
-import RetirementOverviewCard from '@/components/Retirement/RetirementOverviewCard.vue';
 import EstateOverviewCard from '@/components/Estate/EstateOverviewCard.vue';
 import QuickActions from '@/components/Dashboard/QuickActions.vue';
 import TrustsOverviewCard from '@/components/Trusts/TrustsOverviewCard.vue';
@@ -141,7 +117,6 @@ export default {
     AppLayout,
     NetWorthOverviewCard,
     ProtectionOverviewCard,
-    RetirementOverviewCard,
     EstateOverviewCard,
     QuickActions,
     TrustsOverviewCard,
@@ -152,12 +127,10 @@ export default {
     return {
       loading: {
         protection: false,
-        retirement: false,
         estate: false,
       },
       errors: {
         protection: null,
-        retirement: null,
         estate: null,
       },
       refreshing: false,
@@ -176,11 +149,6 @@ export default {
       protectionTotalCoverage: 'totalCoverage',
       protectionTotalPremium: 'totalPremium',
       protectionCoverageGaps: 'coverageGaps',
-    }),
-    ...mapGetters('retirement', {
-      retirementTotalPensionValue: 'totalPensionWealth',
-      retirementProjectedIncome: 'projectedIncome',
-      retirementYearsToRetirement: 'yearsToRetirement',
     }),
     ...mapGetters('estate', {
       estateIHTLiability: 'ihtLiability',
@@ -214,14 +182,6 @@ export default {
       };
     },
 
-    retirementData() {
-      return {
-        totalPensionValue: this.retirementTotalPensionValue || 0,
-        projectedIncome: this.retirementProjectedIncome || 0,
-        yearsToRetirement: this.retirementYearsToRetirement || 0,
-      };
-    },
-
     estateData() {
       return {
         taxableEstate: this.estateTaxableEstate || 0,
@@ -237,8 +197,6 @@ export default {
       const moduleLoaders = [
         { name: 'netWorth', action: 'netWorth/fetchOverview' },
         { name: 'protection', action: 'protection/fetchProtectionData' },
-        { name: 'retirement', action: 'retirement/fetchRetirementData' },
-        { name: 'retirement', action: 'retirement/analyseRetirement' },
         { name: 'estate', action: 'estate/fetchEstateData' },
         { name: 'estate', action: 'estate/calculateIHT', payload: {} },
       ];
@@ -286,7 +244,6 @@ export default {
 
       const actions = {
         protection: ['protection/fetchProtectionData'],
-        retirement: ['retirement/fetchRetirementData', 'retirement/analyseRetirement'],
         estate: ['estate/fetchEstateData', 'estate/calculateIHT'],
       };
 

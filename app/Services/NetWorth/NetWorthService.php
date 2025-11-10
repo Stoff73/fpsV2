@@ -6,9 +6,12 @@ namespace App\Services\NetWorth;
 
 use App\Models\BusinessInterest;
 use App\Models\Chattel;
+use App\Models\DCPension;
+use App\Models\DBPension;
 use App\Models\Investment\InvestmentAccount;
 use App\Models\PersonalAccount;
 use App\Models\Property;
+use App\Models\StatePension;
 use App\Models\User;
 use App\Services\Shared\CrossModuleAssetAggregator;
 use Carbon\Carbon;
@@ -38,7 +41,10 @@ class NetWorthService
         $businessValue = $this->calculateBusinessValue($userId);
         $chattelValue = $this->calculateChattelValue($userId);
 
-        $totalAssets = $propertyValue + $investmentValue + $cashValue + $businessValue + $chattelValue;
+        // Calculate pension values
+        $pensionValue = $this->calculatePensionValue($userId);
+
+        $totalAssets = $propertyValue + $investmentValue + $cashValue + $pensionValue + $businessValue + $chattelValue;
 
         // Use CrossModuleAssetAggregator for mortgages
         $mortgages = $this->assetAggregator->calculateMortgageTotal($userId);
@@ -55,6 +61,7 @@ class NetWorthService
             'net_worth' => round($netWorth, 2),
             'as_of_date' => $asOfDate->toDateString(),
             'breakdown' => [
+                'pensions' => round($pensionValue, 2),
                 'property' => round($propertyValue, 2),
                 'investments' => round($investmentValue, 2),
                 'cash' => round($cashValue, 2),
@@ -104,6 +111,38 @@ class NetWorthService
         return (float) PersonalAccount::where('user_id', $userId)
             ->where('account_type', 'liability')
             ->sum('amount');
+    }
+
+    /**
+     * Calculate total pension value (DC + DB capital equivalent + State pension capital equivalent)
+     */
+    private function calculatePensionValue(int $userId): float
+    {
+        // DC Pensions - use current fund value
+        $dcValue = DCPension::where('user_id', $userId)
+            ->sum('current_fund_value');
+
+        // DB Pensions - calculate capital equivalent
+        // Use 20x annual pension as a rough capital value (standard actuarial multiplier)
+        $dbValue = DBPension::where('user_id', $userId)
+            ->get()
+            ->sum(function ($dbPension) {
+                $annualPension = $dbPension->accrued_annual_pension ?? 0;
+                $lumpSum = $dbPension->lump_sum_entitlement ?? 0;
+
+                // Capital value = (Annual pension × 20) + Lump sum
+                return ($annualPension * 20) + $lumpSum;
+            });
+
+        // State Pension - calculate capital equivalent
+        // Use 20x annual forecast as capital value
+        $statePension = StatePension::where('user_id', $userId)->first();
+        $stateValue = 0;
+        if ($statePension && $statePension->state_pension_forecast_annual) {
+            $stateValue = $statePension->state_pension_forecast_annual * 20;
+        }
+
+        return (float) ($dcValue + $dbValue + $stateValue);
     }
 
     /**
@@ -170,7 +209,22 @@ class NetWorthService
         // Use CrossModuleAssetAggregator for cross-module asset breakdowns
         $breakdown = $this->assetAggregator->getAssetBreakdown($userId);
 
+        // Calculate pension counts
+        $dcCount = DCPension::where('user_id', $userId)->count();
+        $dbCount = DBPension::where('user_id', $userId)->count();
+        $stateCount = StatePension::where('user_id', $userId)->count();
+        $pensionCount = $dcCount + $dbCount + $stateCount;
+
         return [
+            'pensions' => [
+                'count' => $pensionCount,
+                'total_value' => $this->calculatePensionValue($userId),
+                'breakdown' => [
+                    'dc' => $dcCount,
+                    'db' => $dbCount,
+                    'state' => $stateCount,
+                ],
+            ],
             'property' => [
                 'count' => $breakdown['property']['count'],
                 'total_value' => $breakdown['property']['total'],

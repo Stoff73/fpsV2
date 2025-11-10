@@ -1,7 +1,7 @@
 <template>
   <div class="policy-details">
     <!-- Header with Add Button -->
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-centre sm:justify-between gap-4">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h3 class="text-lg font-semibold text-gray-900">Policy Portfolio</h3>
         <p class="text-sm text-gray-600 mt-1">
@@ -11,14 +11,14 @@
 
       <button
         @click="showAddPolicyModal = true"
-        class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colours flex items-centre gap-2"
+        class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColour"
+          stroke="currentColor"
         >
           <path
             stroke-linecap="round"
@@ -38,7 +38,7 @@
         :key="filter.value"
         @click="selectedFilter = filter.value"
         :class="[
-          'px-4 py-2 rounded-lg text-sm font-medium transition-colours whitespace-nowrap',
+          'px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
           selectedFilter === filter.value
             ? 'bg-blue-600 text-white'
             : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
@@ -71,12 +71,12 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-centre py-12 bg-white rounded-lg border border-gray-200">
+    <div v-else class="text-center py-12 bg-white rounded-lg border border-gray-200">
       <svg
         class="mx-auto h-12 w-12 text-gray-400"
         fill="none"
         viewBox="0 0 24 24"
-        stroke="currentColour"
+        stroke="currentColor"
       >
         <path
           stroke-linecap="round"
@@ -91,7 +91,7 @@
       </p>
       <button
         @click="showAddPolicyModal = true"
-        class="mt-4 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colours"
+        class="mt-4 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
       >
         Add Your First Policy
       </button>

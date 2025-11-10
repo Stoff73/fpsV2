@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-centre justify-centre py-12">
+    <div v-if="loading" class="flex items-center justify-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
     </div>
 
@@ -11,10 +11,10 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <!-- Total Users -->
         <div class="card">
-          <div class="flex items-centre">
+          <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="p-3 bg-blue-100 rounded-lg">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
@@ -28,10 +28,10 @@
 
         <!-- Admin Users -->
         <div class="card">
-          <div class="flex items-centre">
+          <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="p-3 bg-red-100 rounded-lg">
-                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
@@ -45,10 +45,10 @@
 
         <!-- Linked Spouses -->
         <div class="card">
-          <div class="flex items-centre">
+          <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="p-3 bg-green-100 rounded-lg">
-                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
               </div>
@@ -62,10 +62,10 @@
 
         <!-- Database Size -->
         <div class="card">
-          <div class="flex items-centre">
+          <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="p-3 bg-purple-100 rounded-lg">
-                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
                 </svg>
               </div>
@@ -101,7 +101,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ formatDate(user.created_at) }}</td>
               </tr>
               <tr v-if="!stats.recent_users || stats.recent_users.length === 0">
-                <td colspan="4" class="px-6 py-8 text-centre text-gray-500">No users found</td>
+                <td colspan="4" class="px-6 py-8 text-center text-gray-500">No users found</td>
               </tr>
             </tbody>
           </table>
@@ -112,7 +112,7 @@
       <div class="card bg-blue-50 border-blue-200">
         <div class="flex items-start">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -131,7 +131,7 @@
                 @click="refreshData"
                 class="btn-primary"
               >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 Refresh Dashboard
@@ -146,7 +146,7 @@
     <div v-if="error" class="card bg-red-50 border-red-200">
       <div class="flex items-start">
         <div class="flex-shrink-0">
-          <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>

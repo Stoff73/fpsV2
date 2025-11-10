@@ -1,12 +1,12 @@
 <template>
   <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click.self="$emit('close')">
     <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
-      <div class="flex justify-between items-centre mb-4">
+      <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900">
           {{ isEdit ? 'Edit Trust' : 'Add New Trust' }}
         </h3>
         <button @click="$emit('close')" class="text-gray-400 hover:text-gray-500">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -148,7 +148,7 @@
             </div>
 
             <div>
-              <label class="flex items-centre mt-6">
+              <label class="flex items-center mt-6">
                 <input
                   v-model="form.loan_interest_bearing"
                   type="checkbox"
@@ -254,7 +254,7 @@
 
         <!-- Active Status (for edit) -->
         <div v-if="isEdit">
-          <label class="flex items-centre">
+          <label class="flex items-center">
             <input
               v-model="form.is_active"
               type="checkbox"

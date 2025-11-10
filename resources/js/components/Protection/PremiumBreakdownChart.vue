@@ -7,7 +7,7 @@
       :series="series"
       height="300"
     />
-    <div v-if="!hasData" class="flex items-centre justify-centre h-64 text-gray-400">
+    <div v-if="!hasData" class="flex items-center justify-center h-64 text-gray-400">
       <p>No premium data available</p>
     </div>
   </div>

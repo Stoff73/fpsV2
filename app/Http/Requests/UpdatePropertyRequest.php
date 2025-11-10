@@ -24,7 +24,7 @@ class UpdatePropertyRequest extends FormRequest
     {
         return [
             'trust_id' => ['sometimes', 'nullable', 'exists:trusts,id'],
-            'property_type' => ['sometimes', Rule::in(['main_residence', 'second_home', 'buy_to_let', 'commercial', 'land'])],
+            'property_type' => ['sometimes', Rule::in(['main_residence', 'secondary_residence', 'buy_to_let'])],
             'ownership_type' => ['sometimes', Rule::in(['individual', 'joint', 'tenants_in_common', 'trust'])],
             'joint_ownership_type' => ['sometimes', 'nullable', Rule::in(['joint_tenancy', 'tenants_in_common'])],
             'country' => ['sometimes', 'nullable', 'string', 'max:255'],

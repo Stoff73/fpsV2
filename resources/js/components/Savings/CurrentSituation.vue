@@ -36,7 +36,7 @@
         <div
           v-for="account in accounts"
           :key="account.id"
-          class="flex justify-between items-centre p-4 bg-gray-50 rounded-lg"
+          class="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
         >
           <div>
             <h4 class="font-semibold text-gray-900">{{ account.institution }}</h4>
@@ -56,7 +56,7 @@
           </div>
         </div>
       </div>
-      <div v-else class="text-centre py-8 text-gray-500">
+      <div v-else class="text-center py-8 text-gray-500">
         <p>No savings accounts added yet.</p>
         <button
           @click="$router.push({ path: '/savings', query: { tab: 'details' } })"

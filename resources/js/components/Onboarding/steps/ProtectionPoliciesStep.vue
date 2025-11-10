@@ -48,7 +48,7 @@
         >
           <div class="flex justify-between items-start">
             <div class="flex-1">
-              <div class="flex items-centre gap-2 mb-2">
+              <div class="flex items-center gap-2 mb-2">
                 <h5 class="text-body font-medium text-gray-900">
                   {{ getPolicyTypeLabel(policy.policyType || policy.policy_type) }}
                 </h5>

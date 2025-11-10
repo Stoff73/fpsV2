@@ -216,7 +216,7 @@ export default {
               label: {
                 borderColour: '#f59e0b',
                 style: {
-                  colour: '#fff',
+                  color: '#fff',
                   background: '#f59e0b',
                   fontFamily: 'Inter, sans-serif',
                 },

@@ -3,7 +3,7 @@
     <h3 class="text-lg font-semibold text-gray-800 mb-4">ISA Allowance Optimization</h3>
 
     <!-- No Data State -->
-    <div v-if="!strategy" class="text-centre py-12 text-gray-500">
+    <div v-if="!strategy" class="text-center py-12 text-gray-500">
       <p>No ISA strategy available</p>
     </div>
 
@@ -11,7 +11,7 @@
     <div v-else>
       <!-- Allowance Status Card -->
       <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 mb-6 border border-blue-200">
-        <div class="flex justify-between items-centre mb-4">
+        <div class="flex justify-between items-center mb-4">
           <h4 class="text-md font-semibold text-gray-800">ISA Allowance ({{ taxYear }})</h4>
           <span
             class="px-3 py-1 text-xs font-semibold rounded-full"
@@ -48,9 +48,9 @@
         <!-- Warning if over allowance -->
         <div
           v-if="strategy.allowance.utilization_percent > 100"
-          class="mt-4 flex items-centre p-3 bg-red-50 rounded-md border border-red-200"
+          class="mt-4 flex items-center p-3 bg-red-50 rounded-md border border-red-200"
         >
-          <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
+          <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
           </svg>
           <span class="text-sm font-medium text-red-800">
@@ -110,9 +110,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Lump Sum Strategy -->
           <div class="bg-white border border-gray-200 rounded-lg p-4">
-            <div class="flex items-centre justify-between mb-3">
+            <div class="flex items-center justify-between mb-3">
               <h5 class="text-sm font-semibold text-gray-700">Lump Sum</h5>
-              <svg class="w-5 h-5 text-blue-600" fill="currentColour" viewBox="0 0 20 20">
+              <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
                 <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
               </svg>
@@ -136,9 +136,9 @@
 
           <!-- Monthly Contribution Strategy -->
           <div class="bg-white border border-gray-200 rounded-lg p-4">
-            <div class="flex items-centre justify-between mb-3">
+            <div class="flex items-center justify-between mb-3">
               <h5 class="text-sm font-semibold text-gray-700">Monthly Contributions</h5>
-              <svg class="w-5 h-5 text-green-600" fill="currentColour" viewBox="0 0 20 20">
+              <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
               </svg>
             </div>
@@ -165,19 +165,19 @@
       <div class="bg-white border border-gray-200 rounded-lg p-6">
         <h4 class="text-md font-semibold text-gray-800 mb-4">Projected Tax Savings</h4>
         <div class="grid grid-cols-3 gap-6">
-          <div class="text-centre">
+          <div class="text-center">
             <p class="text-sm text-gray-600 mb-1">1 Year</p>
             <p class="text-2xl font-bold text-green-600">
               £{{ formatNumber(strategy.potential_savings?.one_year || 0) }}
             </p>
           </div>
-          <div class="text-centre">
+          <div class="text-center">
             <p class="text-sm text-gray-600 mb-1">5 Years</p>
             <p class="text-2xl font-bold text-green-600">
               £{{ formatNumber(strategy.potential_savings?.five_year || 0) }}
             </p>
           </div>
-          <div class="text-centre">
+          <div class="text-center">
             <p class="text-sm text-gray-600 mb-1">10 Years</p>
             <p class="text-2xl font-bold text-green-600">
               £{{ formatNumber(strategy.potential_savings?.ten_year || 0) }}
@@ -185,7 +185,7 @@
           </div>
         </div>
         <div class="mt-4 pt-4 border-t border-gray-200">
-          <p class="text-xs text-gray-500 text-centre">
+          <p class="text-xs text-gray-500 text-center">
             Projections based on {{ (strategy.assumptions?.expected_return * 100).toFixed(1) }}% annual return
             and {{ (strategy.assumptions?.tax_rate * 100).toFixed(0) }}% tax rate
           </p>
@@ -196,7 +196,7 @@
       <div class="mt-6 flex justify-end space-x-3">
         <button
           @click="$emit('refresh')"
-          class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colours duration-200"
+          class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors duration-200"
         >
           Refresh
         </button>

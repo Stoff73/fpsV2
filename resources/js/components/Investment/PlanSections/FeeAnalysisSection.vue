@@ -2,7 +2,7 @@
   <div class="fee-analysis-section">
     <h4 class="text-md font-semibold text-gray-800 mb-4">Fee Analysis</h4>
 
-    <div v-if="!data" class="text-centre py-8 text-gray-500">
+    <div v-if="!data" class="text-center py-8 text-gray-500">
       <p>No fee analysis data available</p>
     </div>
 
@@ -34,7 +34,7 @@
       <div class="bg-white border border-gray-200 rounded-lg p-5">
         <h5 class="text-sm font-semibold text-gray-700 mb-4">Fee Breakdown by Type</h5>
         <div v-if="data.fee_breakdown" class="space-y-3">
-          <div v-for="(fee, type) in data.fee_breakdown" :key="type" class="flex justify-between items-centre p-3 bg-gray-50 rounded-md">
+          <div v-for="(fee, type) in data.fee_breakdown" :key="type" class="flex justify-between items-center p-3 bg-gray-50 rounded-md">
             <div class="flex-1">
               <p class="text-sm font-medium text-gray-800">{{ formatFeeType(type) }}</p>
               <p class="text-xs text-gray-600 mt-1">{{ formatPercentage(fee.percentage) }}% annual</p>
@@ -54,24 +54,24 @@
           How fees reduce your portfolio value over time
         </p>
         <div class="grid grid-cols-3 gap-6">
-          <div class="text-centre">
+          <div class="text-center">
             <p class="text-sm text-gray-600 mb-1">10 Years</p>
             <p class="text-2xl font-bold text-red-600">-£{{ formatNumber(data.fee_impact_10_year || 0) }}</p>
             <p class="text-xs text-gray-500 mt-1">Lost to fees</p>
           </div>
-          <div class="text-centre">
+          <div class="text-center">
             <p class="text-sm text-gray-600 mb-1">20 Years</p>
             <p class="text-2xl font-bold text-red-600">-£{{ formatNumber(data.fee_impact_20_year || 0) }}</p>
             <p class="text-xs text-gray-500 mt-1">Lost to fees</p>
           </div>
-          <div class="text-centre">
+          <div class="text-center">
             <p class="text-sm text-gray-600 mb-1">30 Years</p>
             <p class="text-2xl font-bold text-red-600">-£{{ formatNumber(data.fee_impact_30_year || 0) }}</p>
             <p class="text-xs text-gray-500 mt-1">Lost to fees</p>
           </div>
         </div>
         <div class="mt-4 pt-4 border-t border-gray-200">
-          <p class="text-xs text-gray-500 text-centre">
+          <p class="text-xs text-gray-500 text-center">
             Based on current portfolio value and {{ formatPercentage(data.assumed_return || 7) }}% assumed annual return
           </p>
         </div>
@@ -231,7 +231,7 @@ export default {
       if (score >= 80) return 'Highly efficient';
       if (score >= 60) return 'Good efficiency';
       if (score >= 40) return 'Room for improvement';
-      return 'Needs optimization';
+      return 'Needs optimisation';
     },
   },
 };

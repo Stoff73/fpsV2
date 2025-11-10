@@ -2,7 +2,7 @@
   <PublicLayout>
     <!-- Header -->
     <div class="bg-gradient-to-r from-blue-600 to-blue-800 py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-centre">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
           Financial Calculators
         </h1>
@@ -15,13 +15,13 @@
     <!-- Calculators Grid -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <!-- Calculator Navigation -->
-      <div class="flex flex-wrap gap-2 mb-8 justify-centre">
+      <div class="flex flex-wrap gap-2 mb-8 justify-center">
         <button
           v-for="calc in calculators"
           :key="calc.id"
           @click="activeCalculator = calc.id"
           :class="[
-            'px-4 py-2 rounded-lg font-medium transition-colours',
+            'px-4 py-2 rounded-lg font-medium transition-colors',
             activeCalculator === calc.id
               ? 'bg-blue-600 text-white'
               : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
@@ -66,7 +66,7 @@
 
             <button
               @click="calculateIncomeTax"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colours"
+              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
               Calculate
             </button>
@@ -179,7 +179,7 @@
 
             <button
               @click="calculateMortgage"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colours"
+              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
               Calculate
             </button>
@@ -268,7 +268,7 @@
 
             <button
               @click="calculateLoan"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colours"
+              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
               Calculate
             </button>
@@ -355,7 +355,7 @@
 
             <button
               @click="calculateEmergencyFund"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colours"
+              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
               Calculate
             </button>
@@ -486,7 +486,7 @@
 
             <button
               @click="calculatePension"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colours"
+              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
               Calculate
             </button>

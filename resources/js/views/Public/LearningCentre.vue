@@ -2,7 +2,7 @@
   <PublicLayout>
     <!-- Header -->
     <div class="bg-gradient-to-r from-indigo-600 to-purple-800 py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-centre">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
           Learning Centre
         </h1>
@@ -21,7 +21,7 @@
             :key="category.id"
             @click="activeCategory = category.id"
             :class="[
-              'px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colours',
+              'px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors',
               activeCategory === category.id
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

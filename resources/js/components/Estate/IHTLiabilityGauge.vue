@@ -159,14 +159,14 @@ export default {
               name: {
                 offsetY: -10,
                 show: true,
-                colour: '#888',
+                color: '#888',
                 fontSize: '14px',
               },
               value: {
                 formatter: (val) => {
                   return this.formatCurrency(this.ihtLiability);
                 },
-                colour: this.gaugeColour,
+                color: this.gaugeColour,
                 fontSize: '28px',
                 fontWeight: 'bold',
                 show: true,
@@ -220,20 +220,20 @@ export default {
 }
 
 .gauge-header {
-  text-align: centre;
+  text-align: center;
   margin-bottom: 20px;
 }
 
 .gauge-header h3 {
   font-size: 18px;
   font-weight: 600;
-  colour: #1f2937;
+  color: #1f2937;
   margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 14px;
-  colour: #6b7280;
+  color: #6b7280;
   margin: 0;
 }
 
@@ -255,12 +255,12 @@ export default {
 }
 
 .detail-row .label {
-  colour: #6b7280;
+  color: #6b7280;
   font-weight: 500;
 }
 
 .detail-row .value {
-  colour: #1f2937;
+  color: #1f2937;
   font-weight: 600;
 }
 
@@ -273,7 +273,7 @@ export default {
   padding: 12px 16px;
   border-radius: 6px;
   display: flex;
-  align-items: centre;
+  align-items: center;
   gap: 12px;
   font-size: 14px;
   font-weight: 500;
@@ -284,20 +284,20 @@ export default {
 }
 
 .status-good {
-  background-colour: #d1fae5;
-  colour: #065f46;
+  background-color: #d1fae5;
+  color: #065f46;
   border: 1px solid #10b981;
 }
 
 .status-warning {
-  background-colour: #fef3c7;
-  colour: #92400e;
+  background-color: #fef3c7;
+  color: #92400e;
   border: 1px solid #f59e0b;
 }
 
 .status-critical {
-  background-colour: #fee2e2;
-  colour: #991b1b;
+  background-color: #fee2e2;
+  color: #991b1b;
   border: 1px solid #ef4444;
 }
 </style>

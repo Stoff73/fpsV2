@@ -4,7 +4,7 @@
     <div v-if="successMessage" class="mb-6 bg-green-50 border-l-4 border-green-500 p-4">
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColour">
+          <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
           </svg>
         </div>
@@ -18,7 +18,7 @@
     <div v-if="errorMessage" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4">
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColour">
+          <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
           </svg>
         </div>
@@ -53,17 +53,17 @@
 
     <!-- Assets Section -->
     <div class="bg-white rounded-lg border border-gray-200 mb-8">
-      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-centre">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
         <h3 class="text-lg font-semibold text-gray-900">Assets</h3>
         <button
           @click="showAssetForm = true"
-          class="inline-flex items-centre px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+          class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
         >
           <svg
             class="-ml-1 mr-2 h-4 w-4"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -74,7 +74,7 @@
           Add Asset
         </button>
       </div>
-      <div v-if="assets.length === 0" class="px-6 py-8 text-centre text-gray-500">
+      <div v-if="assets.length === 0" class="px-6 py-8 text-center text-gray-500">
         No assets recorded yet
       </div>
       <div v-else class="overflow-x-auto">
@@ -101,7 +101,7 @@
           <tbody class="bg-white divide-y divide-gray-200">
             <tr v-for="asset in assets" :key="asset.id" :class="{'bg-blue-50': asset.source === 'investment_module'}">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <div class="flex items-centre">
+                <div class="flex items-center">
                   {{ asset.asset_type }}
                   <span v-if="asset.source === 'investment_module'" class="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded">
                     Investment Module
@@ -153,17 +153,17 @@
 
     <!-- Liabilities Section -->
     <div class="bg-white rounded-lg border border-gray-200">
-      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-centre">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
         <h3 class="text-lg font-semibold text-gray-900">Liabilities</h3>
         <button
           @click="showLiabilityForm = true"
-          class="inline-flex items-centre px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+          class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
         >
           <svg
             class="-ml-1 mr-2 h-4 w-4"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -174,7 +174,7 @@
           Add Liability
         </button>
       </div>
-      <div v-if="liabilities.length === 0" class="px-6 py-8 text-centre text-gray-500">
+      <div v-if="liabilities.length === 0" class="px-6 py-8 text-center text-gray-500">
         No liabilities recorded yet
       </div>
       <div v-else class="overflow-x-auto">
@@ -233,7 +233,7 @@
     </div>
 
     <!-- Asset Form Modal -->
-    <div v-if="showAssetForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-centre justify-centre z-50 p-4">
+    <div v-if="showAssetForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden">
         <AssetForm
           :asset="editingAsset"
@@ -245,7 +245,7 @@
     </div>
 
     <!-- Liability Form Modal -->
-    <div v-if="showLiabilityForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-centre justify-centre z-50 p-4">
+    <div v-if="showLiabilityForm" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden">
         <LiabilityForm
           :liability="editingLiability"

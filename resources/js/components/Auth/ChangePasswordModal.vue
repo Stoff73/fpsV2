@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex min-h-screen items-centre justify-centre p-4">
+    <div class="flex min-h-screen items-center justify-center p-4">
       <!-- Backdrop -->
       <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity"></div>
 

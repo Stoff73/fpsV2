@@ -33,6 +33,166 @@
         </nav>
       </div>
 
+      <!-- Retirement Tab -->
+      <div v-show="activeTab === 'retirement'" class="space-y-4">
+        <p class="text-body-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+          Pensions are often one of the largest components of retirement planning. Add your DC pensions, DB pensions, and State Pension forecast to get a complete retirement picture.
+        </p>
+
+        <!-- DC Pensions -->
+        <div v-if="pensions.dc.length > 0" class="space-y-3">
+          <h4 class="text-body font-medium text-gray-900">
+            DC Pensions ({{ pensions.dc.length }})
+          </h4>
+          <div
+            v-for="pension in pensions.dc"
+            :key="pension.id"
+            class="border border-gray-200 rounded-lg p-4 bg-gray-50"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <h5 class="text-body font-medium text-gray-900">
+                    {{ pension.provider }}
+                  </h5>
+                  <span class="text-body-sm px-2 py-0.5 bg-orange-100 text-orange-700 rounded">
+                    DC Pension
+                  </span>
+                </div>
+                <div class="mt-2">
+                  <p class="text-body-sm text-gray-500">Current Value</p>
+                  <p class="text-body font-medium text-gray-900">£{{ pension.current_fund_value?.toLocaleString() }}</p>
+                </div>
+              </div>
+              <div class="flex gap-2 ml-4">
+                <button
+                  type="button"
+                  class="text-primary-600 hover:text-primary-700 text-body-sm"
+                  @click="openPensionForm('dc', pension)"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="text-red-600 hover:text-red-700 text-body-sm"
+                  @click="deletePension('dc', pension.id)"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DB Pensions -->
+        <div v-if="pensions.db.length > 0" class="space-y-3">
+          <h4 class="text-body font-medium text-gray-900">
+            DB Pensions ({{ pensions.db.length }})
+          </h4>
+          <div
+            v-for="pension in pensions.db"
+            :key="pension.id"
+            class="border border-gray-200 rounded-lg p-4 bg-gray-50"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <h5 class="text-body font-medium text-gray-900">
+                    {{ pension.scheme_name }}
+                  </h5>
+                  <span class="text-body-sm px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded">
+                    DB Pension
+                  </span>
+                </div>
+                <div class="mt-2">
+                  <p class="text-body-sm text-gray-500">Annual Pension</p>
+                  <p class="text-body font-medium text-gray-900">£{{ pension.accrued_annual_pension?.toLocaleString() }}</p>
+                </div>
+              </div>
+              <div class="flex gap-2 ml-4">
+                <button
+                  type="button"
+                  class="text-primary-600 hover:text-primary-700 text-body-sm"
+                  @click="openPensionForm('db', pension)"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="text-red-600 hover:text-red-700 text-body-sm"
+                  @click="deletePension('db', pension.id)"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- State Pension -->
+        <div v-if="pensions.state" class="space-y-3">
+          <h4 class="text-body font-medium text-gray-900">
+            State Pension
+          </h4>
+          <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <h5 class="text-body font-medium text-gray-900">
+                    UK State Pension
+                  </h5>
+                  <span class="text-body-sm px-2 py-0.5 bg-green-100 text-green-700 rounded">
+                    State Pension
+                  </span>
+                </div>
+                <div class="mt-2">
+                  <p class="text-body-sm text-gray-500">Annual Forecast</p>
+                  <p class="text-body font-medium text-gray-900">£{{ pensions.state.state_pension_forecast_annual?.toLocaleString() }}</p>
+                </div>
+              </div>
+              <div class="flex gap-2 ml-4">
+                <button
+                  type="button"
+                  class="text-primary-600 hover:text-primary-700 text-body-sm"
+                  @click="openPensionForm('state', pensions.state)"
+                >
+                  Edit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Pension Buttons -->
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="openPensionForm('dc')"
+          >
+            + Add DC Pension
+          </button>
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="openPensionForm('db')"
+          >
+            + Add DB Pension
+          </button>
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="openPensionForm('state')"
+          >
+            + Add State Pension
+          </button>
+        </div>
+
+        <p v-if="pensions.dc.length === 0 && pensions.db.length === 0 && !pensions.state" class="text-body-sm text-gray-500 italic">
+          You can skip this step and add pensions later from your dashboard.
+        </p>
+      </div>
+
       <!-- Properties Tab -->
       <div v-show="activeTab === 'properties'" class="space-y-4">
         <p class="text-body-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
@@ -52,7 +212,7 @@
           >
             <div class="flex justify-between items-start">
               <div class="flex-1">
-                <div class="flex items-centre gap-2 mb-2">
+                <div class="flex items-center gap-2 mb-2">
                   <h5 class="text-body font-medium text-gray-900 capitalize">
                     {{ property.property_type?.replace(/_/g, ' ') }}
                   </h5>
@@ -110,7 +270,7 @@
         <!-- Feature Status Notice -->
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div class="flex">
-            <svg class="h-5 w-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
+            <svg class="h-5 w-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
             </svg>
             <div>
@@ -141,7 +301,7 @@
           >
             <div class="flex justify-between items-start">
               <div class="flex-1">
-                <div class="flex items-centre gap-2 mb-2">
+                <div class="flex items-center gap-2 mb-2">
                   <h5 class="text-body font-medium text-gray-900">
                     {{ investment.provider }}
                   </h5>
@@ -207,7 +367,7 @@
           >
             <div class="flex justify-between items-start">
               <div class="flex-1">
-                <div class="flex items-centre gap-2 mb-2">
+                <div class="flex items-center gap-2 mb-2">
                   <h5 class="text-body font-medium text-gray-900">
                     {{ savings.institution }}
                   </h5>
@@ -279,6 +439,28 @@
       @close="closeSavingsForm"
       @save="handleSavingsSaved"
     />
+
+    <!-- Pension Form Modals -->
+    <DCPensionForm
+      v-if="showPensionForm && pensionFormType === 'dc'"
+      :pension="editingPension"
+      @close="closePensionForm"
+      @save="handlePensionSaved"
+    />
+
+    <DBPensionForm
+      v-if="showPensionForm && pensionFormType === 'db'"
+      :pension="editingPension"
+      @close="closePensionForm"
+      @save="handlePensionSaved"
+    />
+
+    <StatePensionForm
+      v-if="showPensionForm && pensionFormType === 'state'"
+      :pension="editingPension"
+      @close="closePensionForm"
+      @save="handlePensionSaved"
+    />
   </OnboardingStep>
 </template>
 
@@ -288,9 +470,13 @@ import OnboardingStep from '../OnboardingStep.vue';
 import PropertyForm from '@/components/NetWorth/Property/PropertyForm.vue';
 import AccountForm from '@/components/Investment/AccountForm.vue';
 import SaveAccountModal from '@/components/Savings/SaveAccountModal.vue';
+import DCPensionForm from '@/components/Retirement/DCPensionForm.vue';
+import DBPensionForm from '@/components/Retirement/DBPensionForm.vue';
+import StatePensionForm from '@/components/Retirement/StatePensionForm.vue';
 import propertyService from '@/services/propertyService';
 import investmentService from '@/services/investmentService';
 import savingsService from '@/services/savingsService';
+import retirementService from '@/services/retirementService';
 
 export default {
   name: 'AssetsStep',
@@ -300,12 +486,15 @@ export default {
     PropertyForm,
     AccountForm,
     SaveAccountModal,
+    DCPensionForm,
+    DBPensionForm,
+    StatePensionForm,
   },
 
   emits: ['next', 'back', 'skip'],
 
   setup(_props, { emit }) {
-    const activeTab = ref('properties');
+    const activeTab = ref('retirement');
 
     // Properties state
     const properties = ref([]);
@@ -325,8 +514,15 @@ export default {
     const loading = ref(false);
     const error = ref(null);
 
+    // Pensions state
+    const pensions = ref({ dc: [], db: [], state: null });
+    const showPensionForm = ref(false);
+    const pensionFormType = ref(null); // 'dc', 'db', or 'state'
+    const editingPension = ref(null);
+
     // Tab counts
     const assetTabs = computed(() => [
+      { id: 'retirement', name: 'Retirement', count: pensions.value.dc.length + pensions.value.db.length + (pensions.value.state ? 1 : 0) },
       { id: 'properties', name: 'Properties', count: properties.value.length },
       { id: 'investments', name: 'Investments', count: investments.value.length },
       { id: 'cash', name: 'Cash', count: savingsAccounts.value.length },
@@ -335,11 +531,80 @@ export default {
     // Load existing data
     onMounted(async () => {
       await Promise.all([
+        loadPensions(),
         loadProperties(),
         loadInvestments(),
         loadSavingsAccounts(),
       ]);
     });
+
+    // Pensions methods
+    async function loadPensions() {
+      try {
+        const response = await retirementService.getRetirementData();
+        pensions.value = {
+          dc: response.data?.dc_pensions || [],
+          db: response.data?.db_pensions || [],
+          state: response.data?.state_pension || null,
+        };
+      } catch (err) {
+        console.error('Failed to load pensions', err);
+      }
+    }
+
+    function openPensionForm(type, pension = null) {
+      pensionFormType.value = type;
+      editingPension.value = pension;
+      showPensionForm.value = true;
+    }
+
+    async function deletePension(type, id) {
+      const confirmMessage = `Are you sure you want to delete this ${type === 'dc' ? 'DC' : 'DB'} pension?`;
+      if (confirm(confirmMessage)) {
+        try {
+          if (type === 'dc') {
+            await retirementService.deleteDCPension(id);
+          } else if (type === 'db') {
+            await retirementService.deleteDBPension(id);
+          }
+          await loadPensions();
+        } catch (err) {
+          error.value = 'Failed to delete pension';
+        }
+      }
+    }
+
+    function closePensionForm() {
+      showPensionForm.value = false;
+      pensionFormType.value = null;
+      editingPension.value = null;
+    }
+
+    async function handlePensionSaved(data) {
+      try {
+        if (pensionFormType.value === 'dc') {
+          if (editingPension.value) {
+            await retirementService.updateDCPension(editingPension.value.id, data);
+          } else {
+            await retirementService.createDCPension(data);
+          }
+        } else if (pensionFormType.value === 'db') {
+          if (editingPension.value) {
+            await retirementService.updateDBPension(editingPension.value.id, data);
+          } else {
+            await retirementService.createDBPension(data);
+          }
+        } else if (pensionFormType.value === 'state') {
+          await retirementService.updateStatePension(data);
+        }
+
+        closePensionForm();
+        await loadPensions();
+      } catch (err) {
+        console.error('Failed to save pension:', err);
+        error.value = 'Failed to save pension. Please try again.';
+      }
+    }
 
     // Properties methods
     async function loadProperties() {
@@ -524,6 +789,15 @@ export default {
     return {
       activeTab,
       assetTabs,
+      // Pensions
+      pensions,
+      showPensionForm,
+      pensionFormType,
+      editingPension,
+      openPensionForm,
+      deletePension,
+      closePensionForm,
+      handlePensionSaved,
       // Properties
       properties,
       showPropertyForm,

@@ -163,7 +163,7 @@ export default {
 .chart-title {
   font-size: 18px;
   font-weight: 600;
-  colour: #111827;
+  color: #111827;
   margin: 0 0 20px 0;
 }
 
@@ -172,9 +172,9 @@ export default {
 }
 
 .no-data {
-  text-align: centre;
+  text-align: center;
   padding: 60px 20px;
-  colour: #9ca3af;
+  color: #9ca3af;
 }
 
 .no-data p {

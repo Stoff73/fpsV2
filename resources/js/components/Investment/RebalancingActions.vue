@@ -3,11 +3,11 @@
     <div class="bg-white rounded-lg shadow">
       <!-- Header -->
       <div class="px-6 py-4 border-b border-gray-200">
-        <div class="flex items-centre justify-between">
+        <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold text-gray-900">
             Rebalancing Actions
           </h3>
-          <div v-if="actions.length > 0" class="flex items-centre space-x-2">
+          <div v-if="actions.length > 0" class="flex items-center space-x-2">
             <span class="text-sm text-gray-500">
               {{ actions.length }} action{{ actions.length !== 1 ? 's' : '' }}
             </span>
@@ -30,12 +30,12 @@
       <!-- Empty State -->
       <div
         v-if="actions.length === 0"
-        class="px-6 py-12 text-centre"
+        class="px-6 py-12 text-center"
       >
         <svg
           class="mx-auto h-12 w-12 text-gray-400"
           fill="none"
-          stroke="currentColour"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
           <path
@@ -56,16 +56,16 @@
         <div
           v-for="(action, index) in sortedActions"
           :key="index"
-          class="px-6 py-4 hover:bg-gray-50 transition-colours"
+          class="px-6 py-4 hover:bg-gray-50 transition-colors"
         >
           <div class="flex items-start justify-between">
             <!-- Action Details -->
             <div class="flex-1">
-              <div class="flex items-centre space-x-3">
+              <div class="flex items-center space-x-3">
                 <!-- Action Type Badge -->
                 <span
                   :class="[
-                    'inline-flex items-centre px-2.5 py-0.5 rounded-full text-xs font-medium',
+                    'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                     action.action_type === 'buy'
                       ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
@@ -77,7 +77,7 @@
                 <!-- Priority Badge -->
                 <span
                   :class="[
-                    'inline-flex items-centre px-2 py-0.5 rounded text-xs font-medium',
+                    'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
                     getPriorityClass(action.priority)
                   ]"
                 >
@@ -169,7 +169,7 @@
                 class="text-gray-400 hover:text-red-600 focus:outline-none"
                 title="Remove action"
               >
-                <svg class="h-5 w-5" fill="currentColour" viewBox="0 0 20 20">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fill-rule="evenodd"
                     d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -354,7 +354,7 @@ export default {
 
 <style scoped>
 /* Smooth transitions */
-.transition-colours {
+.transition-colors {
   transition-property: background-colour, border-colour, colour, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;

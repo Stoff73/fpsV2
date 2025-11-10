@@ -13,7 +13,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-centre justify-centre py-12">
+    <div v-if="loading" class="flex items-center justify-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
     </div>
 
@@ -32,14 +32,14 @@
             :key="tab.id"
             @click="activeTab = tab.id"
             :class="[
-              'px-6 py-4 text-sm font-medium whitespace-nowrap transition-colours duration-200',
+              'px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-200',
               activeTab === tab.id
                 ? 'text-indigo-600 border-b-2 border-indigo-600'
                 : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
             ]"
           >
-            <span class="flex items-centre">
-              <svg v-html="tab.icon" class="w-5 h-5 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24"></svg>
+            <span class="flex items-center">
+              <svg v-html="tab.icon" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
               {{ tab.name }}
             </span>
           </button>

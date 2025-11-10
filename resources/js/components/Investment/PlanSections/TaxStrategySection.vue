@@ -2,14 +2,14 @@
   <div class="tax-strategy-section">
     <h4 class="text-md font-semibold text-gray-800 mb-4">Tax Optimization Strategy</h4>
 
-    <div v-if="!data" class="text-centre py-8 text-gray-500">
+    <div v-if="!data" class="text-center py-8 text-gray-500">
       <p>No tax strategy data available</p>
     </div>
 
     <div v-else class="space-y-6">
       <!-- Tax Efficiency Score -->
       <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border border-green-200">
-        <div class="flex justify-between items-centre">
+        <div class="flex justify-between items-center">
           <div>
             <h5 class="text-sm font-semibold text-gray-700 mb-2">Tax Efficiency Score</h5>
             <p class="text-4xl font-bold" :class="getEfficiencyColour(data.efficiency_score)">
@@ -42,7 +42,7 @@
               :style="{ width: Math.min(data.isa_utilization || 0, 100) + '%' }"
             ></div>
           </div>
-          <div class="flex justify-between items-centre mt-2">
+          <div class="flex justify-between items-center mt-2">
             <span class="text-xs text-gray-600">
               {{ formatPercentage(data.isa_utilization || 0) }}% utilized
             </span>
@@ -56,9 +56,9 @@
       <!-- Tax-Efficient Opportunities -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div class="flex items-centre justify-between mb-2">
+          <div class="flex items-center justify-between mb-2">
             <h6 class="text-sm font-semibold text-gray-700">CGT Harvesting</h6>
-            <svg class="w-5 h-5 text-blue-600" fill="currentColour" viewBox="0 0 20 20">
+            <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
             </svg>
           </div>
@@ -67,9 +67,9 @@
         </div>
 
         <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div class="flex items-centre justify-between mb-2">
+          <div class="flex items-center justify-between mb-2">
             <h6 class="text-sm font-semibold text-gray-700">Bed & ISA</h6>
-            <svg class="w-5 h-5 text-amber-600" fill="currentColour" viewBox="0 0 20 20">
+            <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
             </svg>
           </div>
@@ -78,9 +78,9 @@
         </div>
 
         <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-          <div class="flex items-centre justify-between mb-2">
+          <div class="flex items-center justify-between mb-2">
             <h6 class="text-sm font-semibold text-gray-700">Asset Location</h6>
-            <svg class="w-5 h-5 text-purple-600" fill="currentColour" viewBox="0 0 20 20">
+            <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
             </svg>
           </div>
@@ -101,7 +101,7 @@
           >
             <div class="flex items-start">
               <span
-                class="flex-shrink-0 inline-flex items-centre justify-centre h-6 w-6 rounded-full text-xs font-bold text-white mr-3"
+                class="flex-shrink-0 inline-flex items-center justify-center h-6 w-6 rounded-full text-xs font-bold text-white mr-3"
                 :class="getPriorityClass(rec.priority)"
               >
                 {{ index + 1 }}
@@ -124,21 +124,21 @@
       <div class="bg-white border border-gray-200 rounded-lg p-5">
         <h5 class="text-sm font-semibold text-gray-700 mb-4">Projected Tax Savings</h5>
         <div class="grid grid-cols-3 gap-6">
-          <div class="text-centre">
+          <div class="text-center">
             <p class="text-sm text-gray-600 mb-1">1 Year</p>
             <p class="text-2xl font-bold text-green-600">£{{ formatNumber(data.savings_1_year || 0) }}</p>
           </div>
-          <div class="text-centre">
+          <div class="text-center">
             <p class="text-sm text-gray-600 mb-1">5 Years</p>
             <p class="text-2xl font-bold text-green-600">£{{ formatNumber(data.savings_5_year || 0) }}</p>
           </div>
-          <div class="text-centre">
+          <div class="text-center">
             <p class="text-sm text-gray-600 mb-1">10 Years</p>
             <p class="text-2xl font-bold text-green-600">£{{ formatNumber(data.savings_10_year || 0) }}</p>
           </div>
         </div>
         <div class="mt-4 pt-4 border-t border-gray-200">
-          <p class="text-xs text-gray-500 text-centre">
+          <p class="text-xs text-gray-500 text-center">
             Based on current portfolio and tax rates
           </p>
         </div>
@@ -180,7 +180,7 @@ export default {
       if (score >= 80) return 'Highly efficient';
       if (score >= 60) return 'Good efficiency';
       if (score >= 40) return 'Room for improvement';
-      return 'Needs optimization';
+      return 'Needs optimisation';
     },
 
     getIsaBarColour(utilization) {

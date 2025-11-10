@@ -11,7 +11,7 @@
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColour"
+          stroke="currentColor"
         >
           <path
             stroke-linecap="round"
@@ -62,13 +62,13 @@
     <!-- Critical Gaps -->
     <div
       v-if="criticalGaps > 0"
-      class="flex items-centre p-3 bg-red-50 rounded-md"
+      class="flex items-center p-3 bg-red-50 rounded-md"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 text-red-600 mr-2"
         viewBox="0 0 20 20"
-        fill="currentColour"
+        fill="currentColor"
       >
         <path
           fill-rule="evenodd"
@@ -83,13 +83,13 @@
 
     <div
       v-else
-      class="flex items-centre p-3 bg-green-50 rounded-md"
+      class="flex items-center p-3 bg-green-50 rounded-md"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 text-green-600 mr-2"
         viewBox="0 0 20 20"
-        fill="currentColour"
+        fill="currentColor"
       >
         <path
           fill-rule="evenodd"

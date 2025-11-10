@@ -29,12 +29,12 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-centre py-12 bg-white rounded-lg border border-gray-200">
+    <div v-else class="text-center py-12 bg-white rounded-lg border border-gray-200">
       <svg
         class="mx-auto h-12 w-12 text-gray-400"
         fill="none"
         viewBox="0 0 24 24"
-        stroke="currentColour"
+        stroke="currentColor"
       >
         <path
           stroke-linecap="round"

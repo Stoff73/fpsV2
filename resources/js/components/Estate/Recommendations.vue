@@ -9,13 +9,13 @@
     </div>
 
     <!-- Recommendations List -->
-    <div v-if="recommendations.length === 0" class="bg-white rounded-lg border border-gray-200 p-8 text-centre">
+    <div v-if="recommendations.length === 0" class="bg-white rounded-lg border border-gray-200 p-8 text-center">
       <svg
         class="mx-auto h-12 w-12 text-gray-400 mb-4"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
-        stroke="currentColour"
+        stroke="currentColor"
       >
         <path
           stroke-linecap="round"
@@ -31,12 +31,12 @@
     <div v-else class="space-y-4">
       <!-- High Priority Recommendations -->
       <div v-if="priorityRecommendations.length > 0" class="mb-6">
-        <h4 class="text-md font-semibold text-red-800 mb-3 flex items-centre">
+        <h4 class="text-md font-semibold text-red-800 mb-3 flex items-center">
           <svg
             class="h-5 w-5 mr-2"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -69,12 +69,12 @@
 
       <!-- Medium Priority Recommendations -->
       <div v-if="mediumPriorityRecommendations.length > 0" class="mb-6">
-        <h4 class="text-md font-semibold text-amber-800 mb-3 flex items-centre">
+        <h4 class="text-md font-semibold text-amber-800 mb-3 flex items-center">
           <svg
             class="h-5 w-5 mr-2"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -107,12 +107,12 @@
 
       <!-- Low Priority Recommendations -->
       <div v-if="lowPriorityRecommendations.length > 0">
-        <h4 class="text-md font-semibold text-blue-800 mb-3 flex items-centre">
+        <h4 class="text-md font-semibold text-blue-800 mb-3 flex items-center">
           <svg
             class="h-5 w-5 mr-2"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"

@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-3xl mx-auto text-centre">
+  <div class="max-w-3xl mx-auto text-center">
     <div class="mb-8">
-      <div class="mx-auto flex items-centre justify-centre h-20 w-20 rounded-full bg-success-100 mb-6">
-        <svg class="h-12 w-12 text-success-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+      <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-success-100 mb-6">
+        <svg class="h-12 w-12 text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
       </div>
@@ -21,7 +21,7 @@
         Your Setup Summary
       </h3>
 
-      <div v-if="loading" class="text-centre py-8">
+      <div v-if="loading" class="text-center py-8">
         <p class="text-gray-500">Loading your information...</p>
       </div>
 
@@ -29,16 +29,16 @@
         <!-- Personal Information -->
         <button
           @click="goToStep('personal_info')"
-          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colours group"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
         >
-          <svg class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
+          <svg class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
           </svg>
           <div class="flex-1">
             <p class="text-body font-medium text-gray-900 group-hover:text-primary-600">Personal Information</p>
             <p class="text-body-sm text-gray-600">Profile setup complete</p>
           </div>
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colours" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -46,12 +46,12 @@
         <!-- Protection Policies -->
         <button
           @click="goToStep('protection_policies')"
-          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colours group"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
         >
           <svg
             v-if="summary.policies > 0"
             class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColour"
+            fill="currentColor"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -59,7 +59,7 @@
           <svg
             v-else
             class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColour"
+            fill="currentColor"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
@@ -71,7 +71,7 @@
             </p>
             <p v-else class="text-body-sm text-gray-500">Skipped - you can add policies later</p>
           </div>
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colours" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -79,12 +79,12 @@
         <!-- Assets & Wealth (Properties, Investments, Savings) -->
         <button
           @click="goToStep('assets')"
-          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colours group"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
         >
           <svg
             v-if="summary.properties > 0 || summary.investments > 0 || summary.savings > 0"
             class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColour"
+            fill="currentColor"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -92,7 +92,7 @@
           <svg
             v-else
             class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColour"
+            fill="currentColor"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
@@ -114,7 +114,7 @@
               </p>
             </div>
           </div>
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colours" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -122,12 +122,12 @@
         <!-- Liabilities -->
         <button
           @click="goToStep('liabilities')"
-          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colours group"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
         >
           <svg
             v-if="summary.liabilities > 0"
             class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColour"
+            fill="currentColor"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -135,7 +135,7 @@
           <svg
             v-else
             class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColour"
+            fill="currentColor"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
@@ -147,7 +147,7 @@
             </p>
             <p v-else class="text-body-sm text-gray-500">Skipped - you can add liabilities later</p>
           </div>
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colours" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -155,12 +155,12 @@
         <!-- Family Members -->
         <button
           @click="goToStep('family_info')"
-          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colours group"
+          class="flex items-start w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors group"
         >
           <svg
             v-if="summary.familyMembers > 0"
             class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColour"
+            fill="currentColor"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -168,7 +168,7 @@
           <svg
             v-else
             class="h-5 w-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-            fill="currentColour"
+            fill="currentColor"
             viewBox="0 0 20 20"
           >
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd" />
@@ -180,7 +180,7 @@
             </p>
             <p v-else class="text-body-sm text-gray-500">Skipped - you can add family members later</p>
           </div>
-          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colours" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -194,7 +194,7 @@
       </h3>
       <ul class="space-y-3">
         <li class="flex items-start">
-          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span class="text-body text-gray-700">
@@ -202,7 +202,7 @@
           </span>
         </li>
         <li class="flex items-start">
-          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span class="text-body text-gray-700">
@@ -210,7 +210,7 @@
           </span>
         </li>
         <li class="flex items-start">
-          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span class="text-body text-gray-700">
@@ -218,7 +218,7 @@
           </span>
         </li>
         <li class="flex items-start">
-          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span class="text-body text-gray-700">

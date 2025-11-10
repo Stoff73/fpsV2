@@ -1,21 +1,21 @@
 <template>
   <div class="investment-savings-plan-view">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-centre items-centre py-12">
+    <div v-if="loading" class="flex justify-center items-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <span class="ml-3 text-gray-600">Loading comprehensive plan...</span>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6 text-centre">
-      <svg class="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <svg class="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <h3 class="text-lg font-medium text-red-800 mb-2">Failed to load plan</h3>
       <p class="text-sm text-red-600 mb-4">{{ error }}</p>
       <button
         @click="loadPlan"
-        class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colours duration-200"
+        class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors duration-200"
       >
         Try Again
       </button>
@@ -25,7 +25,7 @@
     <div v-else-if="plan" class="space-y-8">
       <!-- Executive Summary -->
       <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md p-6">
-        <div class="flex items-centre justify-between mb-6">
+        <div class="flex items-center justify-between mb-6">
           <div>
             <h2 class="text-2xl font-bold text-gray-900">Executive Summary</h2>
             <p class="text-sm text-gray-600 mt-1">Overview of your wealth and financial position</p>
@@ -78,7 +78,7 @@
               {{ plan.executive_summary.emergency_fund_runway }} months
             </p>
             <div class="mt-3">
-              <span class="inline-flex items-centre px-2.5 py-0.5 rounded-full text-xs font-medium"
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                 :class="getStatusBadgeClass(plan.executive_summary.emergency_fund_status)">
                 {{ plan.executive_summary.emergency_fund_status }}
               </span>
@@ -91,7 +91,7 @@
       <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
           <h2 class="text-2xl font-bold text-white">Investment Portfolio</h2>
-          <p class="text-sm text-blue-100 mt-1">Portfolio analysis, holdings, and optimization strategy</p>
+          <p class="text-sm text-blue-100 mt-1">Portfolio analysis, holdings, and optimisation strategy</p>
         </div>
 
         <div class="p-6 space-y-6">
@@ -143,7 +143,7 @@
                   <div
                     v-for="holding in account.holdings"
                     :key="holding.ticker"
-                    class="flex justify-between items-centre text-sm py-2 border-t border-gray-100"
+                    class="flex justify-between items-center text-sm py-2 border-t border-gray-100"
                   >
                     <div>
                       <span class="font-medium text-gray-900">{{ holding.ticker }}</span>
@@ -249,8 +249,8 @@
           <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Monte Carlo Simulation</h3>
             <div class="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-6">
-              <div class="text-centre py-8">
-                <svg class="mx-auto h-16 w-16 text-blue-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+              <div class="text-center py-8">
+                <svg class="mx-auto h-16 w-16 text-blue-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
                 <h4 class="text-lg font-semibold text-gray-900 mb-2">Portfolio Projections</h4>
@@ -259,10 +259,10 @@
                 </p>
                 <router-link
                   to="/investment?tab=scenarios"
-                  class="inline-flex items-centre px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colours font-medium"
+                  class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
                   View Monte Carlo Analysis
-                  <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </router-link>
@@ -274,20 +274,20 @@
           <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Efficient Frontier Analysis</h3>
             <div class="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6">
-              <div class="text-centre py-8">
-                <svg class="mx-auto h-16 w-16 text-green-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+              <div class="text-center py-8">
+                <svg class="mx-auto h-16 w-16 text-green-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
-                <h4 class="text-lg font-semibold text-gray-900 mb-2">Portfolio Optimization</h4>
+                <h4 class="text-lg font-semibold text-gray-900 mb-2">Portfolio Optimisation</h4>
                 <p class="text-sm text-gray-600 mb-4">
                   Efficient Frontier shows the optimal risk-return trade-offs for your portfolio allocation.
                 </p>
                 <router-link
                   to="/investment?tab=optimization"
-                  class="inline-flex items-centre px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colours font-medium"
+                  class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                 >
                   View Efficient Frontier
-                  <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </router-link>
@@ -307,7 +307,7 @@
               >
                 <div class="flex justify-between items-start mb-2">
                   <h4 class="font-semibold text-gray-900">{{ rec.category }}</h4>
-                  <span class="inline-flex items-centre px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                     :class="getPriorityBadgeClass(rec.priority)">
                     {{ rec.priority }}
                   </span>
@@ -384,7 +384,7 @@
                 </div>
                 <div>
                   <div class="mb-4">
-                    <span class="inline-flex items-centre px-3 py-1 rounded-full text-sm font-medium"
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
                       :class="getStatusBadgeClass(plan.savings.emergency_fund.adequacy_category)">
                       {{ plan.savings.emergency_fund.adequacy_category }}
                     </span>
@@ -428,7 +428,7 @@
                   </div>
                 </div>
                 <div v-if="account.rate_comparison" class="mt-3 pt-3 border-t border-gray-100">
-                  <span class="inline-flex items-centre px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                     :class="getRatingBadgeClass(account.rate_comparison.rating)">
                     Rate: {{ account.rate_comparison.rating }}
                   </span>
@@ -452,7 +452,7 @@
               >
                 <div class="flex justify-between items-start mb-2">
                   <h4 class="font-semibold text-gray-900">{{ rec.category }}</h4>
-                  <span class="inline-flex items-centre px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                     :class="getPriorityBadgeClass(rec.priority)">
                     {{ rec.priority }}
                   </span>
@@ -494,7 +494,7 @@
               :class="getUrgencyBorderClass(action.urgency)"
             >
               <div class="flex-shrink-0 mr-4">
-                <div class="w-8 h-8 rounded-full flex items-centre justify-centre font-bold text-white"
+                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white"
                   :class="getUrgencyBgClass(action.urgency)">
                   {{ action.priority }}
                 </div>
@@ -502,7 +502,7 @@
               <div class="flex-1">
                 <div class="flex justify-between items-start mb-2">
                   <h4 class="font-semibold text-gray-900">{{ action.category }}</h4>
-                  <span class="inline-flex items-centre px-2.5 py-0.5 rounded-full text-xs font-medium ml-2"
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ml-2"
                     :class="getUrgencyBadgeClass(action.urgency)">
                     {{ action.urgency }}
                   </span>
@@ -512,12 +512,12 @@
               </div>
             </div>
           </div>
-          <div v-else class="text-centre py-8 text-gray-500">
+          <div v-else class="text-center py-8 text-gray-500">
             <p>No urgent actions identified. Your financial position is healthy!</p>
           </div>
 
           <div v-if="plan.action_plan.total_actions > 0" class="mt-6 pt-6 border-t border-gray-200">
-            <div class="grid grid-cols-3 gap-4 text-centre">
+            <div class="grid grid-cols-3 gap-4 text-center">
               <div>
                 <p class="text-2xl font-bold text-red-600">{{ plan.action_plan.critical_actions }}</p>
                 <p class="text-xs text-gray-600">Critical</p>

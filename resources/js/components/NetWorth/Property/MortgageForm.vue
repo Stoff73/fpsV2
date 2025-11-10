@@ -1,17 +1,17 @@
 <template>
-  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-centre justify-centre">
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
     <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
       <!-- Header -->
       <div class="bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
-        <div class="flex items-centre justify-between">
+        <div class="flex items-center justify-between">
           <h3 class="text-2xl font-semibold text-gray-900">
             {{ isEditMode ? 'Edit Mortgage' : 'Add Mortgage' }}
           </h3>
           <button
             @click="$emit('close')"
-            class="text-gray-400 hover:text-gray-600 transition-colours"
+            class="text-gray-400 hover:text-gray-600 transition-colors"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -153,7 +153,7 @@
               <button
                 type="button"
                 @click="calculatePayment"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colours whitespace-nowrap"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
               >
                 Calculate
               </button>
@@ -248,7 +248,7 @@
           <button
             type="button"
             @click="$emit('close')"
-            class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colours"
+            class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
           >
             Cancel
           </button>
@@ -256,7 +256,7 @@
           <button
             type="submit"
             :disabled="submitting"
-            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colours disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ submitting ? 'Saving...' : (isEditMode ? 'Update Mortgage' : 'Save Mortgage') }}
           </button>

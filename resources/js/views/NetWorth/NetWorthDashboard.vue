@@ -10,7 +10,7 @@
 
       <div class="header-actions">
         <button @click="refreshData" class="refresh-button" :disabled="loading">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColour" class="w-5 h-5" :class="{ 'animate-spin': loading }">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5" :class="{ 'animate-spin': loading }">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
           </svg>
           <span v-if="!loading">Refresh</span>
@@ -53,6 +53,7 @@ export default {
     return {
       tabs: [
         { path: 'overview', label: 'Overview' },
+        { path: 'retirement', label: 'Retirement' },
         { path: 'property', label: 'Property' },
         { path: 'investments', label: 'Investments' },
         { path: 'cash', label: 'Cash' },
@@ -97,34 +98,34 @@ export default {
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: centre;
+  align-items: center;
   margin-bottom: 24px;
 }
 
 .breadcrumbs {
   display: flex;
-  align-items: centre;
+  align-items: center;
   gap: 8px;
   font-size: 14px;
 }
 
 .breadcrumb-link {
-  colour: #3b82f6;
+  color: #3b82f6;
   text-decoration: none;
   transition: colour 0.2s;
 }
 
 .breadcrumb-link:hover {
-  colour: #2563eb;
+  color: #2563eb;
   text-decoration: underline;
 }
 
 .breadcrumb-separator {
-  colour: #9ca3af;
+  color: #9ca3af;
 }
 
 .breadcrumb-current {
-  colour: #111827;
+  color: #111827;
   font-weight: 600;
 }
 
@@ -135,11 +136,11 @@ export default {
 
 .refresh-button {
   display: inline-flex;
-  align-items: centre;
+  align-items: center;
   gap: 8px;
   padding: 10px 16px;
   background: #3b82f6;
-  colour: white;
+  color: white;
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -187,7 +188,7 @@ export default {
   padding: 12px 20px;
   font-size: 14px;
   font-weight: 500;
-  colour: #6b7280;
+  color: #6b7280;
   text-decoration: none;
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
@@ -196,12 +197,12 @@ export default {
 }
 
 .tab-link:hover {
-  colour: #3b82f6;
+  color: #3b82f6;
 }
 
 .tab-link.active {
-  colour: #3b82f6;
-  border-bottom-colour: #3b82f6;
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
   font-weight: 600;
 }
 

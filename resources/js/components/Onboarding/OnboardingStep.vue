@@ -18,7 +18,7 @@
     </div>
 
     <!-- Navigation -->
-    <div class="mt-6 flex items-centre justify-between">
+    <div class="mt-6 flex items-center justify-between">
       <button
         v-if="canGoBack"
         @click="onBack"
@@ -26,14 +26,14 @@
         type="button"
         class="btn-secondary"
       >
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
         Back
       </button>
       <div v-else></div>
 
-      <div class="flex items-centre gap-3">
+      <div class="flex items-center gap-3">
         <button
           v-if="canSkip"
           @click="onSkip"
@@ -48,10 +48,10 @@
           @click="onNext"
           :disabled="loading || disabled"
           type="button"
-          class="btn-primary flex items-centre"
+          class="btn-primary flex items-center"
         >
           {{ loading ? 'Saving...' : nextButtonText }}
-          <svg v-if="!loading" class="w-4 h-4 ml-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg v-if="!loading" class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>

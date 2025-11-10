@@ -1,14 +1,14 @@
 <template>
   <div class="goals">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-centre items-centre py-12">
+    <div v-if="loading" class="flex justify-center items-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-centre">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
+      <div class="flex items-center">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -16,9 +16,9 @@
     </div>
 
     <!-- Empty State - No Goals -->
-    <div v-else-if="!hasGoals" class="flex flex-col items-centre justify-centre py-16 px-4">
-      <div class="bg-white border-2 border-gray-200 rounded-lg p-8 max-w-md w-full text-centre shadow-sm">
-        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+    <div v-else-if="!hasGoals" class="flex flex-col items-center justify-center py-16 px-4">
+      <div class="bg-white border-2 border-gray-200 rounded-lg p-8 max-w-md w-full text-center shadow-sm">
+        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
         </svg>
         <h2 class="text-2xl font-bold text-gray-900 mb-2">No Investment Goals Yet</h2>
@@ -27,7 +27,7 @@
         </p>
         <button
           @click="openGoalModal"
-          class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colours font-medium"
+          class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
           Create Your First Goal
         </button>
@@ -37,14 +37,14 @@
     <!-- Main Content - Goals Exist -->
     <div v-else class="space-y-6">
       <!-- Header with Add Button -->
-      <div class="flex items-centre justify-between">
+      <div class="flex items-center justify-between">
         <div>
           <h2 class="text-2xl font-bold text-gray-900">Investment Goals</h2>
           <p class="text-sm text-gray-600 mt-1">Track progress towards your financial objectives</p>
         </div>
         <button
           @click="openGoalModal"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colours font-medium text-sm"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
         >
           + Add Goal
         </button>
@@ -142,7 +142,7 @@
           </div>
 
           <!-- Goal Actions -->
-          <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-centre">
+          <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
             <button
               @click.stop="editGoal(goal)"
               class="text-blue-600 hover:text-blue-700 text-sm font-medium"

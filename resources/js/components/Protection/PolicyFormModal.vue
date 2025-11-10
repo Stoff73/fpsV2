@@ -7,7 +7,7 @@
     ></div>
 
     <!-- Modal container -->
-    <div class="flex items-end justify-centre min-h-screen pt-4 px-4 pb-20 text-centre sm:block sm:p-0">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
       <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
       <!-- Modal panel -->
@@ -16,15 +16,15 @@
       >
         <!-- Header -->
         <div class="bg-white px-6 pt-6">
-          <div class="flex items-centre justify-between mb-4">
+          <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-semibold text-gray-900">
               {{ isEditing ? 'Edit Policy' : 'Add New Policy' }}
             </h3>
             <button
               @click="handleClose"
-              class="text-gray-400 hover:text-gray-500 transition-colours"
+              class="text-gray-400 hover:text-gray-500 transition-colors"
             >
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -257,14 +257,14 @@
             <button
               type="submit"
               :disabled="submitting"
-              class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colours"
+              class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
             >
               {{ submitting ? 'Saving...' : (isEditing ? 'Update Policy' : 'Add Policy') }}
             </button>
             <button
               type="button"
               @click="handleClose"
-              class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colours"
+              class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
             >
               Cancel
             </button>
@@ -483,7 +483,7 @@ export default {
 /* Custom scrollbar for form content */
 .overflow-y-auto {
   scrollbar-width: thin;
-  scrollbar-colour: #CBD5E0 #F7FAFC;
+  scrollbar-color: #CBD5E0 #F7FAFC;
 }
 
 .overflow-y-auto::-webkit-scrollbar {

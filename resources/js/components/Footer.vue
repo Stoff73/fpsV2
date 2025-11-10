@@ -1,7 +1,7 @@
 <template>
   <footer class="bg-white border-t border-gray-200">
     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col md:flex-row justify-between items-centre space-y-4 md:space-y-0">
+      <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
         <div class="text-body-sm text-gray-500">
           &copy; {{ currentYear }} TenGo - Financial Planning System. For demonstration purposes only.
           <span class="ml-2 text-gray-400">|</span>
@@ -21,7 +21,7 @@
           </router-link>
         </div>
       </div>
-      <div class="mt-4 text-centre">
+      <div class="mt-4 text-center">
         <p class="text-caption text-gray-400">
           This system is for demonstration purposes only and does not constitute regulated financial advice.
         </p>

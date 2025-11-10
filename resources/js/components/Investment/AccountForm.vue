@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto" @click.self="closeModal">
-    <div class="flex items-centre justify-centre min-h-screen px-4 pt-4 pb-20 text-centre sm:block sm:p-0">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
       <!-- Background overlay -->
       <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closeModal"></div>
 
@@ -8,15 +8,15 @@
       <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
         <!-- Header -->
         <div class="bg-white px-6 py-4 border-b border-gray-200">
-          <div class="flex justify-between items-centre">
+          <div class="flex justify-between items-center">
             <h3 class="text-lg font-semibold text-gray-900">
               {{ isEditMode ? 'Edit Investment Account' : 'Add New Investment Account' }}
             </h3>
             <button
               @click="closeModal"
-              class="text-gray-400 hover:text-gray-600 transition-colours"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -152,7 +152,7 @@
             <!-- ISA-specific fields -->
             <div v-if="isISAType" class="bg-blue-50 border border-blue-200 rounded-md p-4 space-y-4">
               <div class="flex items-start gap-2 mb-3">
-                <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+                <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
@@ -201,7 +201,7 @@
 
               <!-- Remaining Allowance Display -->
               <div v-if="formData.isa_subscription_current_year" class="bg-white border border-blue-200 rounded-md p-3">
-                <div class="flex justify-between items-centre mb-2">
+                <div class="flex justify-between items-center mb-2">
                   <span class="text-sm font-medium text-gray-700">Remaining ISA Allowance:</span>
                   <span class="text-lg font-bold" :class="remainingAllowanceClass">
                     {{ formatCurrency(remainingAllowance) }}
@@ -287,14 +287,14 @@
             <button
               type="button"
               @click="closeModal"
-              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colours"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               :disabled="submitting"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colours disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ submitting ? 'Saving...' : (isEditMode ? 'Update Account' : 'Add Account') }}
             </button>

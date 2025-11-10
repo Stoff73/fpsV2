@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Header Section -->
-    <div class="flex items-centre justify-between">
+    <div class="flex items-center justify-between">
       <div>
         <h2 class="text-xl font-semibold text-gray-900">Tax Configuration Admin</h2>
         <p class="text-sm text-gray-600 mt-1">
@@ -10,7 +10,7 @@
       </div>
       <button
         @click="showCreateModal = true"
-        class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colours"
+        class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
       >
         Create New Tax Year
       </button>
@@ -23,7 +23,7 @@
     >
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
@@ -40,7 +40,7 @@
     >
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
@@ -51,7 +51,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-centre justify-centre py-12">
+    <div v-if="loading" class="flex items-center justify-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
     </div>
 
@@ -62,7 +62,7 @@
         <div class="flex items-start justify-between">
           <div class="flex items-start">
             <div class="flex-shrink-0">
-              <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+              <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -77,7 +77,7 @@
           <button
             v-if="!isEditing"
             @click="startEditing"
-            class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colours"
+            class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
           >
             Edit Configuration
           </button>
@@ -86,7 +86,7 @@
               @click="saveChanges"
               :disabled="saving || !isFormValid"
               :class="[
-                'px-3 py-1 text-white text-sm rounded transition-colours',
+                'px-3 py-1 text-white text-sm rounded transition-colors',
                 (saving || !isFormValid) ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
               ]"
               :title="!isFormValid ? 'Please fix validation errors before saving' : ''"
@@ -96,7 +96,7 @@
             <button
               @click="cancelEditing"
               :disabled="saving"
-              class="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600 transition-colours disabled:opacity-50"
+              class="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
@@ -112,7 +112,7 @@
             :key="tab.id"
             @click="activeTab = tab.id"
             :class="[
-              'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colours',
+              'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors',
               activeTab === tab.id
                 ? 'border-primary-600 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -753,8 +753,8 @@
 
               <div class="border-t pt-4">
                 <h4 class="font-medium text-gray-900 mb-3">Lifetime Allowance</h4>
-                <div class="flex items-centre gap-4">
-                  <div v-if="isEditing" class="flex items-centre">
+                <div class="flex items-center gap-4">
+                  <div v-if="isEditing" class="flex items-center">
                     <input
                       v-model="editableConfig.pension.lifetime_allowance_abolished"
                       type="checkbox"
@@ -1217,7 +1217,7 @@
     <!-- Create/Duplicate Modal -->
     <div
       v-if="showCreateModal || showDuplicateModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-centre justify-centre z-50"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
       @click.self="closeModals"
     >
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
@@ -1259,7 +1259,7 @@
         <div class="mt-6 flex justify-end gap-3">
           <button
             @click="closeModals"
-            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colours"
+            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
           >
             Cancel
           </button>
@@ -1267,7 +1267,7 @@
             @click="showDuplicateModal ? submitDuplicate() : submitCreate()"
             :disabled="creating || !isNewConfigFormValid"
             :class="[
-              'px-4 py-2 text-white rounded-lg transition-colours',
+              'px-4 py-2 text-white rounded-lg transition-colors',
               (creating || !isNewConfigFormValid) ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'
             ]"
             :title="!isNewConfigFormValid ? 'Please fill in all required fields with valid data' : ''"

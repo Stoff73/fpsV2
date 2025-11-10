@@ -63,7 +63,7 @@
           </div>
         </div>
 
-        <div v-else class="text-centre py-8">
+        <div v-else class="text-center py-8">
           <p class="text-body-base text-gray-500">Loading your information...</p>
         </div>
       </div>
@@ -78,7 +78,7 @@
         </div>
 
         <div class="space-y-4">
-          <div class="flex items-centre justify-between py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between py-4 border-b border-gray-200">
             <div>
               <h3 class="text-body-base font-medium text-gray-900">Change Password</h3>
               <p class="text-body-sm text-gray-600">Update your password to keep your account secure</p>
@@ -88,7 +88,7 @@
             </button>
           </div>
 
-          <div class="flex items-centre justify-between py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between py-4 border-b border-gray-200">
             <div>
               <h3 class="text-body-base font-medium text-gray-900">Email Notifications</h3>
               <p class="text-body-sm text-gray-600">Manage your email notification preferences</p>
@@ -98,7 +98,7 @@
             </button>
           </div>
 
-          <div class="flex items-centre justify-between py-4">
+          <div class="flex items-center justify-between py-4">
             <div>
               <h3 class="text-body-base font-medium text-error-700">Sign Out</h3>
               <p class="text-body-sm text-gray-600">Sign out of your account on this device</p>

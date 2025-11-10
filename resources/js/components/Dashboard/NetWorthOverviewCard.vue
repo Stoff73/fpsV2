@@ -9,7 +9,7 @@
     <div class="card-header">
       <h3 class="card-title">Net Worth</h3>
       <span class="card-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColour" class="w-6 h-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
         </svg>
       </span>
@@ -35,25 +35,29 @@
       </div>
 
       <div class="asset-breakdown">
-        <div class="breakdown-item" v-if="hasProperty">
+        <div class="breakdown-item">
+          <span class="breakdown-label">Pensions</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.pensions || 0) }}</span>
+        </div>
+        <div class="breakdown-item">
           <span class="breakdown-label">Property</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.property) }}</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.property || 0) }}</span>
         </div>
-        <div class="breakdown-item" v-if="hasInvestments">
+        <div class="breakdown-item">
           <span class="breakdown-label">Investments</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.investments) }}</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.investments || 0) }}</span>
         </div>
-        <div class="breakdown-item" v-if="hasCash">
+        <div class="breakdown-item">
           <span class="breakdown-label">Cash</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.cash) }}</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.cash || 0) }}</span>
         </div>
-        <div class="breakdown-item" v-if="hasBusiness">
+        <div class="breakdown-item">
           <span class="breakdown-label">Business</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.business) }}</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.business || 0) }}</span>
         </div>
-        <div class="breakdown-item" v-if="hasChattels">
+        <div class="breakdown-item">
           <span class="breakdown-label">Chattels</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.chattels) }}</span>
+          <span class="breakdown-value">{{ formatCurrency(breakdown.chattels || 0) }}</span>
         </div>
       </div>
 
@@ -76,26 +80,6 @@ export default {
 
     breakdown() {
       return this.overview.breakdown || {};
-    },
-
-    hasProperty() {
-      return this.breakdown.property > 0;
-    },
-
-    hasInvestments() {
-      return this.breakdown.investments > 0;
-    },
-
-    hasCash() {
-      return this.breakdown.cash > 0;
-    },
-
-    hasBusiness() {
-      return this.breakdown.business > 0;
-    },
-
-    hasChattels() {
-      return this.breakdown.chattels > 0;
     },
 
     netWorthClass() {
@@ -153,25 +137,25 @@ export default {
 .net-worth-overview-card:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
-  border-colour: #3b82f6;
+  border-color: #3b82f6;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: centre;
+  align-items: center;
   margin-bottom: 20px;
 }
 
 .card-title {
   font-size: 18px;
   font-weight: 600;
-  colour: #111827;
+  color: #111827;
   margin: 0;
 }
 
 .card-icon {
-  colour: #3b82f6;
+  color: #3b82f6;
 }
 
 .card-icon svg {
@@ -195,22 +179,22 @@ export default {
 
 .value-label {
   font-size: 14px;
-  colour: #6b7280;
+  color: #6b7280;
   font-weight: 500;
 }
 
 .value-amount {
   font-size: 32px;
   font-weight: 700;
-  colour: #111827;
+  color: #111827;
 }
 
 .value-amount.positive {
-  colour: #10b981;
+  color: #10b981;
 }
 
 .value-amount.negative {
-  colour: #ef4444;
+  color: #ef4444;
 }
 
 .asset-breakdown {
@@ -222,17 +206,17 @@ export default {
 .breakdown-item {
   display: flex;
   justify-content: space-between;
-  align-items: centre;
+  align-items: center;
   font-size: 14px;
 }
 
 .breakdown-label {
-  colour: #6b7280;
+  color: #6b7280;
   font-weight: 500;
 }
 
 .breakdown-value {
-  colour: #111827;
+  color: #111827;
   font-weight: 600;
 }
 
@@ -242,11 +226,11 @@ export default {
 }
 
 .view-details {
-  colour: #3b82f6;
+  color: #3b82f6;
   font-size: 14px;
   font-weight: 600;
   display: inline-flex;
-  align-items: centre;
+  align-items: center;
   gap: 4px;
 }
 
@@ -285,18 +269,18 @@ export default {
 
 .error-state {
   padding: 20px;
-  text-align: centre;
+  text-align: center;
 }
 
 .error-message {
-  colour: #ef4444;
+  color: #ef4444;
   font-size: 14px;
   margin-bottom: 12px;
 }
 
 .retry-button {
   background: #3b82f6;
-  colour: white;
+  color: white;
   padding: 8px 16px;
   border-radius: 6px;
   border: none;

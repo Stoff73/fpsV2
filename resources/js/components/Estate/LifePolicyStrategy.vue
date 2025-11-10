@@ -1,7 +1,7 @@
 <template>
   <div class="life-policy-strategy-tab">
     <!-- Loading State -->
-    <div v-if="loading" class="text-centre py-12">
+    <div v-if="loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <p class="mt-4 text-gray-600">Calculating life policy strategy...</p>
     </div>
@@ -9,7 +9,7 @@
     <!-- No IHT Liability State -->
     <div v-else-if="noIHTLiability" class="bg-green-50 border border-green-200 rounded-lg p-6">
       <div class="flex items-start">
-        <svg class="h-6 w-6 text-green-600 mt-1" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <svg class="h-6 w-6 text-green-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div class="ml-3">
@@ -50,7 +50,7 @@
       <!-- Recommended Approach -->
       <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
         <div class="flex items-start">
-          <svg class="h-6 w-6 text-blue-600 mt-1 mr-3" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-6 w-6 text-blue-600 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div class="flex-1">
@@ -63,7 +63,7 @@
       <!-- Option 1: Whole of Life Insurance -->
       <div class="bg-white rounded-lg border-2 border-indigo-300 shadow-lg">
         <div class="bg-indigo-100 px-6 py-4 border-b border-indigo-200">
-          <div class="flex items-centre justify-between">
+          <div class="flex items-center justify-between">
             <div>
               <h3 class="text-xl font-bold text-indigo-900">Option 1: {{ policy.policy_type }}</h3>
               <p class="text-sm text-indigo-700 mt-1">{{ policy.description }}</p>
@@ -106,7 +106,7 @@
             <h4 class="text-md font-semibold text-gray-900 mb-3">Key Features</h4>
             <ul class="space-y-2">
               <li v-for="(feature, index) in policy.key_features" :key="index" class="flex items-start">
-                <svg class="h-5 w-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
+                <svg class="h-5 w-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-gray-700">{{ feature }}</span>
@@ -119,7 +119,7 @@
             <h4 class="text-md font-semibold text-gray-900 mb-3">Implementation Steps</h4>
             <ol class="space-y-2">
               <li v-for="(step, index) in policy.implementation_steps" :key="index" class="flex items-start">
-                <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 text-indigo-700 rounded-full flex items-centre justify-centre text-sm font-semibold mr-3">
+                <span class="flex-shrink-0 w-6 h-6 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-semibold mr-3">
                   {{ index + 1 }}
                 </span>
                 <span class="text-gray-700 pt-0.5">{{ step }}</span>
@@ -132,7 +132,7 @@
       <!-- Option 2: Self-Insurance -->
       <div class="bg-white rounded-lg border-2 border-amber-300 shadow-lg">
         <div class="bg-amber-100 px-6 py-4 border-b border-amber-200">
-          <div class="flex items-centre justify-between">
+          <div class="flex items-center justify-between">
             <div>
               <h3 class="text-xl font-bold text-amber-900">Option 2: {{ selfInsurance.strategy_name }}</h3>
               <p class="text-sm text-amber-700 mt-1">{{ selfInsurance.description }}</p>
@@ -184,8 +184,8 @@
           <!-- Pros and Cons -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <h4 class="text-md font-semibold text-green-900 mb-3 flex items-centre">
-                <svg class="h-5 w-5 mr-2" fill="currentColour" viewBox="0 0 20 20">
+              <h4 class="text-md font-semibold text-green-900 mb-3 flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 Pros
@@ -198,8 +198,8 @@
               </ul>
             </div>
             <div>
-              <h4 class="text-md font-semibold text-red-900 mb-3 flex items-centre">
-                <svg class="h-5 w-5 mr-2" fill="currentColour" viewBox="0 0 20 20">
+              <h4 class="text-md font-semibold text-red-900 mb-3 flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                 </svg>
                 Cons
@@ -229,7 +229,7 @@
             <h4 class="text-md font-semibold text-gray-900 mb-3">Implementation Steps</h4>
             <ol class="space-y-2">
               <li v-for="(step, index) in selfInsurance.implementation_steps" :key="index" class="flex items-start">
-                <span class="flex-shrink-0 w-6 h-6 bg-amber-100 text-amber-700 rounded-full flex items-centre justify-centre text-sm font-semibold mr-3">
+                <span class="flex-shrink-0 w-6 h-6 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-sm font-semibold mr-3">
                   {{ index + 1 }}
                 </span>
                 <span class="text-gray-700 pt-0.5">{{ step }}</span>
@@ -309,8 +309,8 @@
                  }">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
-                  <div class="flex items-centre">
-                    <span class="inline-flex items-centre justify-centre w-8 h-8 rounded-full text-sm font-bold mr-3"
+                  <div class="flex items-center">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold mr-3"
                           :class="{
                             'bg-blue-200 text-blue-800': rec.priority === 1,
                             'bg-green-200 text-green-800': rec.priority === 2,
@@ -349,7 +349,7 @@
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6">
       <div class="flex items-start">
-        <svg class="h-6 w-6 text-red-600 mt-1" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <svg class="h-6 w-6 text-red-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div class="ml-3">

@@ -2,13 +2,13 @@
   <AppLayout>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header with Download Button -->
-      <div class="mb-8 flex items-centre justify-between">
+      <div class="mb-8 flex items-center justify-between">
         <div>
           <button
             @click="$router.go(-1)"
-            class="mb-4 text-sm text-gray-600 hover:text-gray-900 flex items-centre"
+            class="mb-4 text-sm text-gray-600 hover:text-gray-900 flex items-center"
           >
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
             Back to Dashboard
@@ -18,9 +18,9 @@
         </div>
         <button
           @click="downloadPDF"
-          class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-centre gap-2 shadow-md"
+          class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2 shadow-md"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           Download PDF
@@ -28,8 +28,8 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex items-centre justify-centre py-20">
-        <div class="text-centre">
+      <div v-if="loading" class="flex items-center justify-center py-20">
+        <div class="text-center">
           <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mb-4"></div>
           <p class="text-gray-600 text-lg">Generating your comprehensive protection plan...</p>
         </div>
@@ -38,7 +38,7 @@
       <!-- Error State -->
       <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6">
         <div class="flex items-start">
-          <svg class="h-6 w-6 text-red-600 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-6 w-6 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div class="ml-3">
@@ -61,12 +61,12 @@
             <span
               v-if="plan.plan_metadata.plan_type"
               :class="getPlanTypeBadgeClass(plan.plan_metadata.is_complete)"
-              class="inline-flex items-centre px-3 py-1 rounded-full text-sm font-medium"
+              class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
             >
-              <svg v-if="plan.plan_metadata.is_complete" class="w-4 h-4 mr-1" fill="currentColour" viewBox="0 0 20 20">
+              <svg v-if="plan.plan_metadata.is_complete" class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
-              <svg v-else class="w-4 h-4 mr-1" fill="currentColour" viewBox="0 0 20 20">
+              <svg v-else class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
               </svg>
               {{ plan.plan_metadata.plan_type }} Plan
@@ -85,7 +85,7 @@
           >
             <div class="flex items-start">
               <div class="flex-shrink-0">
-                <svg class="h-6 w-6" :class="getWarningIconColour(plan.completeness_warning.severity)" fill="currentColour" viewBox="0 0 20 20">
+                <svg class="h-6 w-6" :class="getWarningIconColour(plan.completeness_warning.severity)" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                 </svg>
               </div>
@@ -114,7 +114,7 @@
                   </ul>
                   <router-link
                     to="/profile"
-                    class="inline-block mt-4 px-4 py-2 text-sm font-medium rounded-md transition-colours"
+                    class="inline-block mt-4 px-4 py-2 text-sm font-medium rounded-md transition-colors"
                     :class="getCompleteProfileButtonClass(plan.completeness_warning.severity)"
                   >
                     Complete Your Profile →
@@ -134,8 +134,8 @@
               <!-- Adequacy Score Gauge -->
               <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
                 <p class="text-sm text-blue-600 font-medium mb-3">Overall Protection Adequacy</p>
-                <div class="flex items-centre justify-centre mb-4">
-                  <div class="text-centre">
+                <div class="flex items-center justify-center mb-4">
+                  <div class="text-center">
                     <p class="text-5xl font-bold" :class="getScoreColourClass(plan.executive_summary.adequacy_score.overall)">
                       {{ plan.executive_summary.adequacy_score.overall }}
                     </p>
@@ -147,19 +147,19 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-2 text-xs">
-                  <div class="text-centre p-2 bg-white rounded">
+                  <div class="text-center p-2 bg-white rounded">
                     <p class="text-gray-600">Life</p>
                     <p class="font-bold" :class="getScoreColourClass(plan.executive_summary.adequacy_score.life)">
                       {{ plan.executive_summary.adequacy_score.life }}
                     </p>
                   </div>
-                  <div class="text-centre p-2 bg-white rounded">
+                  <div class="text-center p-2 bg-white rounded">
                     <p class="text-gray-600">CI</p>
                     <p class="font-bold" :class="getScoreColourClass(plan.executive_summary.adequacy_score.critical_illness)">
                       {{ plan.executive_summary.adequacy_score.critical_illness }}
                     </p>
                   </div>
-                  <div class="text-centre p-2 bg-white rounded">
+                  <div class="text-center p-2 bg-white rounded">
                     <p class="text-gray-600">IP</p>
                     <p class="font-bold" :class="getScoreColourClass(plan.executive_summary.adequacy_score.income_protection)">
                       {{ plan.executive_summary.adequacy_score.income_protection }}
@@ -174,7 +174,7 @@
                   <p class="text-sm text-red-600 font-medium mb-2">Critical Protection Gaps</p>
                   <ul v-if="plan.executive_summary.critical_gaps.length > 0" class="space-y-2">
                     <li v-for="(gap, index) in plan.executive_summary.critical_gaps" :key="index" class="text-sm text-red-800 flex items-start">
-                      <svg class="w-4 h-4 text-red-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
+                      <svg class="w-4 h-4 text-red-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                       </svg>
                       {{ gap }}
@@ -297,11 +297,11 @@
             </div>
 
             <div class="bg-gray-50 rounded-lg p-4 mb-4">
-              <div class="flex justify-between items-centre">
+              <div class="flex justify-between items-center">
                 <span class="text-sm font-medium text-gray-700">Total Monthly Premiums:</span>
                 <span class="text-lg font-bold text-gray-900">{{ formatCurrency(plan.current_coverage.total_monthly_premiums) }}/month</span>
               </div>
-              <div class="flex justify-between items-centre mt-2 pt-2 border-t">
+              <div class="flex justify-between items-center mt-2 pt-2 border-t">
                 <span class="text-sm font-medium text-gray-700">Total Annual Premiums:</span>
                 <span class="text-lg font-bold text-gray-900">{{ formatCurrency(plan.current_coverage.total_annual_premiums) }}/year</span>
               </div>
@@ -370,7 +370,7 @@
               <!-- Life Insurance Analysis -->
               <div class="border rounded-lg overflow-hidden" :class="getCoverageBorderClass(plan.coverage_analysis.life_insurance.score)">
                 <div class="p-4" :class="getCoverageHeaderClass(plan.coverage_analysis.life_insurance.score)">
-                  <div class="flex justify-between items-centre">
+                  <div class="flex justify-between items-center">
                     <h4 class="font-bold text-gray-900">Life Insurance</h4>
                     <span class="px-3 py-1 rounded-full text-sm font-bold" :class="getCoverageStatusClass(plan.coverage_analysis.life_insurance.status)">
                       {{ plan.coverage_analysis.life_insurance.status }}
@@ -378,7 +378,7 @@
                   </div>
                 </div>
                 <div class="p-4 bg-white">
-                  <div class="grid grid-cols-3 gap-4 text-centre mb-4">
+                  <div class="grid grid-cols-3 gap-4 text-center mb-4">
                     <div>
                       <p class="text-xs text-gray-600">Need</p>
                       <p class="text-lg font-bold text-gray-900">{{ formatCurrency(plan.coverage_analysis.life_insurance.need) }}</p>
@@ -394,7 +394,7 @@
                       </p>
                     </div>
                   </div>
-                  <div class="flex items-centre justify-between">
+                  <div class="flex items-center justify-between">
                     <div class="flex-1 bg-gray-200 rounded-full h-4 mr-4">
                       <div class="bg-blue-600 h-4 rounded-full" :style="{ width: plan.coverage_analysis.life_insurance.coverage_percentage + '%' }"></div>
                     </div>
@@ -406,7 +406,7 @@
               <!-- Critical Illness Analysis -->
               <div class="border rounded-lg overflow-hidden" :class="getCoverageBorderClass(plan.coverage_analysis.critical_illness.score)">
                 <div class="p-4" :class="getCoverageHeaderClass(plan.coverage_analysis.critical_illness.score)">
-                  <div class="flex justify-between items-centre">
+                  <div class="flex justify-between items-center">
                     <h4 class="font-bold text-gray-900">Critical Illness</h4>
                     <span class="px-3 py-1 rounded-full text-sm font-bold" :class="getCoverageStatusClass(plan.coverage_analysis.critical_illness.status)">
                       {{ plan.coverage_analysis.critical_illness.status }}
@@ -414,7 +414,7 @@
                   </div>
                 </div>
                 <div class="p-4 bg-white">
-                  <div class="grid grid-cols-3 gap-4 text-centre mb-4">
+                  <div class="grid grid-cols-3 gap-4 text-center mb-4">
                     <div>
                       <p class="text-xs text-gray-600">Need</p>
                       <p class="text-lg font-bold text-gray-900">{{ formatCurrency(plan.coverage_analysis.critical_illness.need) }}</p>
@@ -430,7 +430,7 @@
                       </p>
                     </div>
                   </div>
-                  <div class="flex items-centre justify-between">
+                  <div class="flex items-center justify-between">
                     <div class="flex-1 bg-gray-200 rounded-full h-4 mr-4">
                       <div class="bg-purple-600 h-4 rounded-full" :style="{ width: plan.coverage_analysis.critical_illness.coverage_percentage + '%' }"></div>
                     </div>
@@ -442,7 +442,7 @@
               <!-- Income Protection Analysis -->
               <div class="border rounded-lg overflow-hidden" :class="getCoverageBorderClass(plan.coverage_analysis.income_protection.score)">
                 <div class="p-4" :class="getCoverageHeaderClass(plan.coverage_analysis.income_protection.score)">
-                  <div class="flex justify-between items-centre">
+                  <div class="flex justify-between items-center">
                     <h4 class="font-bold text-gray-900">Income Protection</h4>
                     <span class="px-3 py-1 rounded-full text-sm font-bold" :class="getCoverageStatusClass(plan.coverage_analysis.income_protection.status)">
                       {{ plan.coverage_analysis.income_protection.status }}
@@ -450,7 +450,7 @@
                   </div>
                 </div>
                 <div class="p-4 bg-white">
-                  <div class="grid grid-cols-3 gap-4 text-centre mb-4">
+                  <div class="grid grid-cols-3 gap-4 text-center mb-4">
                     <div>
                       <p class="text-xs text-gray-600">Monthly Need</p>
                       <p class="text-lg font-bold text-gray-900">{{ formatCurrency(plan.coverage_analysis.income_protection.need) }}</p>
@@ -466,7 +466,7 @@
                       </p>
                     </div>
                   </div>
-                  <div class="flex items-centre justify-between">
+                  <div class="flex items-center justify-between">
                     <div class="flex-1 bg-gray-200 rounded-full h-4 mr-4">
                       <div class="bg-indigo-600 h-4 rounded-full" :style="{ width: plan.coverage_analysis.income_protection.coverage_percentage + '%' }"></div>
                     </div>
@@ -509,7 +509,7 @@
                 :class="getPriorityBorderClass(rec.priority)"
               >
                 <div class="px-6 py-4" :class="getPriorityHeaderClass(rec.priority)">
-                  <div class="flex items-centre gap-3">
+                  <div class="flex items-center gap-3">
                     <span class="px-3 py-1 rounded-full text-xs font-bold bg-white" :class="getPriorityTextClass(rec.priority)">
                       Priority {{ rec.priority }}
                     </span>
@@ -556,15 +556,15 @@
                 :key="timeframe"
                 class="bg-gray-50 rounded-lg p-6"
               >
-                <h4 class="font-bold text-gray-900 mb-3 flex items-centre gap-2">
-                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                <h4 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
                   {{ timeframe }}
                 </h4>
                 <ul v-if="steps.length > 0" class="space-y-2">
                   <li v-for="(step, index) in steps" :key="index" class="text-sm text-gray-700 flex items-start gap-2">
-                    <svg class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
+                    <svg class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
                     {{ step }}
@@ -579,7 +579,7 @@
           <section class="mb-8">
             <div class="bg-amber-50 border-l-4 border-amber-500 p-6 rounded">
               <div class="flex items-start">
-                <svg class="h-6 w-6 text-amber-400 mt-0.5" fill="currentColour" viewBox="0 0 20 20">
+                <svg class="h-6 w-6 text-amber-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                 </svg>
                 <div class="ml-3">
@@ -603,7 +603,7 @@
           </section>
 
           <!-- Footer -->
-          <div class="text-centre text-sm text-gray-500 pt-8 border-t">
+          <div class="text-center text-sm text-gray-500 pt-8 border-t">
             <p>Generated by TenGo (Financial Planning System) - Version {{ plan.plan_metadata.plan_version }}</p>
             <p class="mt-1">{{ plan.plan_metadata.generated_date }} at {{ plan.plan_metadata.generated_time }}</p>
             <p class="mt-2">🤖 Generated with <a href="https://claude.com/claude-code" class="text-blue-600 hover:underline" target="_blank">Claude Code</a></p>

@@ -9,7 +9,7 @@
         <p class="text-sm text-gray-600 mt-1">Asset protection & IHT planning</p>
       </div>
       <div class="p-3 bg-purple-100 rounded-lg">
-        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
       </div>
@@ -30,7 +30,7 @@
     <!-- Assets Held -->
     <div class="mb-4">
       <p class="text-sm text-gray-600 mb-2">Assets in Trusts</p>
-      <div class="flex items-centre space-x-2">
+      <div class="flex items-center space-x-2">
         <div class="flex-1 bg-gray-200 rounded-full h-2">
           <div
             class="bg-purple-600 h-2 rounded-full transition-all"
@@ -43,8 +43,8 @@
 
     <!-- Upcoming Charges -->
     <div v-if="upcomingCharges > 0" class="bg-amber-50 border border-amber-200 rounded-lg p-3">
-      <div class="flex items-centre">
-        <svg class="w-5 h-5 text-amber-600 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-amber-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span class="text-sm text-amber-900">
@@ -54,7 +54,7 @@
     </div>
 
     <!-- No Trusts State -->
-    <div v-if="activeTrustsCount === 0" class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-centre">
+    <div v-if="activeTrustsCount === 0" class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
       <p class="text-sm text-gray-600">No trusts set up</p>
       <button class="mt-2 text-sm text-purple-600 hover:text-purple-700 font-medium">
         Create your first trust →
@@ -63,9 +63,9 @@
 
     <!-- Quick Actions -->
     <div class="mt-4 pt-4 border-t border-gray-200">
-      <button class="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-centre">
+      <button class="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center">
         View all trusts
-        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </button>

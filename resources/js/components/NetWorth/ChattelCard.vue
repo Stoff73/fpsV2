@@ -104,13 +104,13 @@ export default {
 .chattel-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-colour: #ec4899;
+  border-color: #ec4899;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: centre;
+  align-items: center;
   margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 8px;
@@ -125,32 +125,32 @@ export default {
 
 .type-vehicle {
   background: #dbeafe;
-  colour: #1e40af;
+  color: #1e40af;
 }
 
 .type-art {
   background: #fce7f3;
-  colour: #9f1239;
+  color: #9f1239;
 }
 
 .type-antique {
   background: #fef3c7;
-  colour: #92400e;
+  color: #92400e;
 }
 
 .type-jewelry {
   background: #f3e8ff;
-  colour: #6b21a8;
+  color: #6b21a8;
 }
 
 .type-collectible {
   background: #d1fae5;
-  colour: #065f46;
+  color: #065f46;
 }
 
 .type-other {
   background: #f3f4f6;
-  colour: #374151;
+  color: #374151;
 }
 
 .ownership-badge {
@@ -159,7 +159,7 @@ export default {
   font-size: 12px;
   font-weight: 600;
   background: #e0e7ff;
-  colour: #3730a3;
+  color: #3730a3;
 }
 
 .card-content {
@@ -171,7 +171,7 @@ export default {
 .chattel-name {
   font-size: 18px;
   font-weight: 600;
-  colour: #111827;
+  color: #111827;
   margin: 0;
 }
 
@@ -182,7 +182,7 @@ export default {
 
 .vehicle-info {
   font-size: 14px;
-  colour: #6b7280;
+  color: #6b7280;
   margin: 0;
 }
 
@@ -197,16 +197,16 @@ export default {
 .detail-row {
   display: flex;
   justify-content: space-between;
-  align-items: centre;
+  align-items: center;
   font-size: 14px;
 }
 
 .detail-label {
-  colour: #6b7280;
+  color: #6b7280;
 }
 
 .detail-value {
-  colour: #111827;
+  color: #111827;
   font-weight: 600;
 }
 

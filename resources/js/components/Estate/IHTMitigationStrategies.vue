@@ -27,10 +27,10 @@
         >
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <div class="flex items-centre space-x-2 mb-1">
+              <div class="flex items-center space-x-2 mb-1">
                 <!-- Priority Badge -->
                 <span
-                  class="inline-flex items-centre px-2 py-0.5 rounded text-xs font-medium"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                   :class="getPriorityBadgeClass(strategy.priority)"
                 >
                   Priority {{ strategy.priority }}
@@ -39,7 +39,7 @@
                 <!-- Effectiveness Badge -->
                 <span
                   v-if="strategy.effectiveness"
-                  class="inline-flex items-centre px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
                 >
                   {{ strategy.effectiveness }} Effectiveness
                 </span>
@@ -53,7 +53,7 @@
                 {{ strategy.description }}
               </p>
 
-              <div class="mt-2 flex items-centre space-x-4 text-sm">
+              <div class="mt-2 flex items-center space-x-4 text-sm">
                 <div v-if="strategy.iht_saved" class="text-green-600 font-medium">
                   IHT Saved: {{ formatCurrency(strategy.iht_saved) }}
                 </div>
@@ -75,7 +75,7 @@
               :class="{ 'transform rotate-180': expandedStrategies[index] }"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
-              fill="currentColour"
+              fill="currentColor"
             >
               <path
                 fill-rule="evenodd"
@@ -98,9 +98,9 @@
                 </div>
                 <button
                   @click="$emit('navigate-to-gifting')"
-                  class="inline-flex items-centre px-3 py-1.5 border border-blue-400 rounded-md text-xs font-medium text-blue-800 bg-white hover:bg-blue-50 transition shadow-sm"
+                  class="inline-flex items-center px-3 py-1.5 border border-blue-400 rounded-md text-xs font-medium text-blue-800 bg-white hover:bg-blue-50 transition shadow-sm"
                 >
-                  <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
                   View Full Timeline
@@ -165,7 +165,7 @@
     <!-- Total potential savings -->
     <div v-if="ihtLiability > 0 && enhancedStrategies.length > 0" class="mt-6 pt-6 border-t border-gray-200">
       <div class="bg-green-50 rounded-lg p-4">
-        <div class="flex justify-between items-centre">
+        <div class="flex justify-between items-center">
           <div>
             <p class="text-sm text-green-600 font-medium">Total Potential IHT Savings</p>
             <p class="text-xs text-green-500 mt-1">By implementing all recommended strategies</p>

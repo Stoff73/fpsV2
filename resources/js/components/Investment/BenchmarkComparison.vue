@@ -1,14 +1,14 @@
 <template>
   <div class="benchmark-comparison">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-centre items-centre py-12">
+    <div v-if="loading" class="flex justify-center items-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-centre">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
+      <div class="flex items-center">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -19,10 +19,10 @@
     <div v-else class="space-y-6">
       <!-- Benchmark Selector & Period -->
       <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex flex-wrap items-centre justify-between gap-4">
+        <div class="flex flex-wrap items-center justify-between gap-4">
           <h2 class="text-xl font-semibold text-gray-800">Benchmark Comparison</h2>
 
-          <div class="flex items-centre space-x-4">
+          <div class="flex items-center space-x-4">
             <select
               v-model="selectedBenchmarks"
               multiple
@@ -53,7 +53,7 @@
             <button
               @click="compareSelected"
               :disabled="selectedBenchmarks.length === 0"
-              class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colours disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Compare
             </button>

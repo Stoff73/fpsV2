@@ -3,12 +3,12 @@
     <h3 class="text-lg font-semibold text-gray-900 mb-4">What-If Scenarios</h3>
 
     <div class="bg-white rounded-lg border border-gray-200 p-6">
-      <div class="text-centre py-12">
+      <div class="text-center py-12">
         <svg
           class="mx-auto h-12 w-12 text-gray-400"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColour"
+          stroke="currentColor"
         >
           <path
             stroke-linecap="round"

@@ -24,7 +24,7 @@ class StorePropertyRequest extends FormRequest
     {
         return [
             'trust_id' => ['nullable', 'exists:trusts,id'],
-            'property_type' => ['required', Rule::in(['main_residence', 'second_home', 'buy_to_let', 'commercial', 'land'])],
+            'property_type' => ['required', Rule::in(['main_residence', 'secondary_residence', 'buy_to_let'])],
             'ownership_type' => ['nullable', Rule::in(['individual', 'joint', 'tenants_in_common', 'trust'])],
             'joint_ownership_type' => ['nullable', Rule::in(['joint_tenancy', 'tenants_in_common'])],
             'country' => ['nullable', 'string', 'max:255'],

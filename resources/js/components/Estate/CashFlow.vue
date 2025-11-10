@@ -51,27 +51,27 @@
         <div class="mb-6">
           <h4 class="text-sm font-semibold text-gray-900 mb-3 uppercase">Income</h4>
           <div class="space-y-2">
-            <div class="flex justify-between items-centre">
+            <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">Employment Income</span>
               <span class="text-sm font-medium text-gray-900">{{ formatCurrency(cashFlowData.employment_income || 0) }}</span>
             </div>
-            <div class="flex justify-between items-centre">
+            <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">Dividend Income</span>
               <span class="text-sm font-medium text-gray-900">{{ formatCurrency(cashFlowData.dividend_income || 0) }}</span>
             </div>
-            <div class="flex justify-between items-centre">
+            <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">Rental Income</span>
               <span class="text-sm font-medium text-gray-900">{{ formatCurrency(cashFlowData.rental_income || 0) }}</span>
             </div>
-            <div class="flex justify-between items-centre">
+            <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">Interest Income</span>
               <span class="text-sm font-medium text-gray-900">{{ formatCurrency(cashFlowData.interest_income || 0) }}</span>
             </div>
-            <div class="flex justify-between items-centre">
+            <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">Other Income</span>
               <span class="text-sm font-medium text-gray-900">{{ formatCurrency(cashFlowData.other_income || 0) }}</span>
             </div>
-            <div class="flex justify-between items-centre pt-2 border-t border-gray-200">
+            <div class="flex justify-between items-center pt-2 border-t border-gray-200">
               <span class="text-sm font-semibold text-gray-900">Total Income</span>
               <span class="text-sm font-bold text-gray-900">{{ formattedIncome }}</span>
             </div>
@@ -82,23 +82,23 @@
         <div class="mb-6">
           <h4 class="text-sm font-semibold text-gray-900 mb-3 uppercase">Expenses</h4>
           <div class="space-y-2">
-            <div class="flex justify-between items-centre">
+            <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">Essential Expenses</span>
               <span class="text-sm font-medium text-gray-900">{{ formatCurrency(cashFlowData.essential_expenses || 0) }}</span>
             </div>
-            <div class="flex justify-between items-centre">
+            <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">Lifestyle Expenses</span>
               <span class="text-sm font-medium text-gray-900">{{ formatCurrency(cashFlowData.lifestyle_expenses || 0) }}</span>
             </div>
-            <div class="flex justify-between items-centre">
+            <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">Debt Servicing</span>
               <span class="text-sm font-medium text-gray-900">{{ formatCurrency(cashFlowData.debt_servicing || 0) }}</span>
             </div>
-            <div class="flex justify-between items-centre">
+            <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">Taxes</span>
               <span class="text-sm font-medium text-gray-900">{{ formatCurrency(cashFlowData.taxes || 0) }}</span>
             </div>
-            <div class="flex justify-between items-centre pt-2 border-t border-gray-200">
+            <div class="flex justify-between items-center pt-2 border-t border-gray-200">
               <span class="text-sm font-semibold text-gray-900">Total Expenses</span>
               <span class="text-sm font-bold text-gray-900">{{ formattedExpenses }}</span>
             </div>
@@ -110,7 +110,7 @@
           'p-4 rounded-lg',
           netCashFlow >= 0 ? 'bg-green-50' : 'bg-red-50',
         ]">
-          <div class="flex justify-between items-centre">
+          <div class="flex justify-between items-center">
             <span :class="[
               'text-base font-bold',
               netCashFlow >= 0 ? 'text-green-800' : 'text-red-800',
@@ -136,7 +136,7 @@
             class="h-5 w-5 text-red-400"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -160,7 +160,7 @@
             class="h-5 w-5 text-green-400"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"

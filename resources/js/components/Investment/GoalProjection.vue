@@ -1,14 +1,14 @@
 <template>
   <div class="goal-projection">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-centre items-centre py-12">
+    <div v-if="loading" class="flex justify-center items-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-      <div class="flex items-centre">
-        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColour" viewBox="0 0 20 20">
+      <div class="flex items-center">
+        <svg class="h-5 w-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <span class="text-sm font-medium text-red-800">{{ error }}</span>
@@ -19,7 +19,7 @@
     <div v-else class="space-y-6">
       <!-- Goal Selector -->
       <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex flex-wrap items-centre justify-between gap-4">
+        <div class="flex flex-wrap items-center justify-between gap-4">
           <h2 class="text-xl font-semibold text-gray-800">Goal-Based Projection Analysis</h2>
 
           <select
@@ -68,7 +68,7 @@
           <!-- On Track Status -->
           <div>
             <p class="text-sm text-gray-600 mb-2">Status</p>
-            <div class="flex items-centre">
+            <div class="flex items-center">
               <span class="px-4 py-2 rounded-full text-sm font-semibold" :class="getStatusClass(projectionData.on_track_status)">
                 {{ projectionData.on_track_status }}
               </span>
@@ -96,7 +96,7 @@
           <!-- Probability Breakdown -->
           <div class="space-y-4">
             <div class="border border-gray-200 rounded-lg p-4">
-              <div class="flex justify-between items-centre mb-2">
+              <div class="flex justify-between items-center mb-2">
                 <span class="text-sm font-medium text-gray-700">Median Outcome (50th percentile)</span>
                 <span class="text-xl font-bold text-gray-800">
                   £{{ formatNumber(projectionData.monte_carlo?.median_value || 0) }}
@@ -108,7 +108,7 @@
             </div>
 
             <div class="border border-green-200 bg-green-50 rounded-lg p-4">
-              <div class="flex justify-between items-centre mb-2">
+              <div class="flex justify-between items-center mb-2">
                 <span class="text-sm font-medium text-gray-700">Best Case (95th percentile)</span>
                 <span class="text-xl font-bold text-green-600">
                   £{{ formatNumber(projectionData.monte_carlo?.percentile_95 || 0) }}
@@ -118,7 +118,7 @@
             </div>
 
             <div class="border border-red-200 bg-red-50 rounded-lg p-4">
-              <div class="flex justify-between items-centre mb-2">
+              <div class="flex justify-between items-center mb-2">
                 <span class="text-sm font-medium text-gray-700">Worst Case (5th percentile)</span>
                 <span class="text-xl font-bold text-red-600">
                   £{{ formatNumber(projectionData.monte_carlo?.percentile_5 || 0) }}
@@ -150,19 +150,19 @@
         />
 
         <div class="mt-4 grid grid-cols-3 gap-4">
-          <div class="text-centre p-3 bg-red-50 rounded-lg">
+          <div class="text-center p-3 bg-red-50 rounded-lg">
             <p class="text-xs text-gray-600 mb-1">Conservative (5th %ile)</p>
             <p class="text-lg font-semibold text-red-600">
               £{{ formatNumber(projectionData.trajectory?.conservative_final || 0) }}
             </p>
           </div>
-          <div class="text-centre p-3 bg-blue-50 rounded-lg">
+          <div class="text-center p-3 bg-blue-50 rounded-lg">
             <p class="text-xs text-gray-600 mb-1">Expected (Median)</p>
             <p class="text-lg font-semibold text-blue-600">
               £{{ formatNumber(projectionData.trajectory?.expected_final || 0) }}
             </p>
           </div>
-          <div class="text-centre p-3 bg-green-50 rounded-lg">
+          <div class="text-center p-3 bg-green-50 rounded-lg">
             <p class="text-xs text-gray-600 mb-1">Optimistic (95th %ile)</p>
             <p class="text-lg font-semibold text-green-600">
               £{{ formatNumber(projectionData.trajectory?.optimistic_final || 0) }}
@@ -177,7 +177,7 @@
 
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
           <div class="flex items-start">
-            <svg class="h-6 w-6 text-yellow-600 mr-3 mt-0.5" fill="currentColour" viewBox="0 0 20 20">
+            <svg class="h-6 w-6 text-yellow-600 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
             </svg>
             <div>
@@ -290,9 +290,9 @@
           <div
             v-for="(action, index) in projectionData.action_items"
             :key="index"
-            class="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colours"
+            class="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-centre justify-centre font-semibold mr-4">
+            <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold mr-4">
               {{ index + 1 }}
             </div>
             <div class="flex-1">
@@ -423,7 +423,7 @@ export default {
             label: {
               text: 'Target',
               style: {
-                colour: '#fff',
+                color: '#fff',
                 background: '#000',
               },
             },

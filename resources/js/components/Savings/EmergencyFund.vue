@@ -3,14 +3,14 @@
     <!-- Emergency Fund Gauge -->
     <div class="mb-8">
       <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4 text-centre">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 text-center">
           Emergency Fund Status
         </h3>
         <EmergencyFundGauge
           :runway-months="emergencyFundRunway"
           :target-months="targetMonths"
         />
-        <p class="text-centre text-sm text-gray-600 mt-4">
+        <p class="text-center text-sm text-gray-600 mt-4">
           {{ statusMessage }}
         </p>
       </div>
@@ -20,21 +20,21 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- Monthly Expenditure Breakdown -->
       <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <div class="flex justify-between items-centre mb-4">
+        <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-900">Monthly Expenditure</h3>
           <button
             v-if="!hasExpenditure"
             @click="navigateToAddExpenditure"
-            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colours"
+            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
             Add Expenditure
           </button>
         </div>
 
         <!-- Show message if no expenditure data -->
-        <div v-if="!hasExpenditure" class="text-centre py-8">
+        <div v-if="!hasExpenditure" class="text-center py-8">
           <div class="mb-4">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </div>
@@ -43,7 +43,7 @@
         </div>
 
         <!-- Show total expenditure if data exists -->
-        <div v-else class="text-centre py-8">
+        <div v-else class="text-center py-8">
           <p class="text-sm text-gray-600 mb-2">Total Monthly Expenditure</p>
           <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(monthlyTotal) }}</p>
           <p class="text-sm text-gray-500 mt-2">

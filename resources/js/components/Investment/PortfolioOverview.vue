@@ -28,13 +28,13 @@
     <!-- Investment Accounts List -->
     <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
-        <div class="flex justify-between items-centre">
+        <div class="flex justify-between items-center">
           <h2 class="text-xl font-semibold text-gray-900">Investment Accounts</h2>
           <button
             @click="addAccount"
-            class="inline-flex items-centre px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colours"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
-            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Add Account
@@ -44,8 +44,8 @@
 
       <!-- Empty State -->
       <div v-if="!loading && accounts.length === 0" class="px-6 py-12">
-        <div class="text-centre">
-          <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+        <div class="text-center">
+          <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
           <h3 class="mt-4 text-lg font-medium text-gray-900">No investment accounts yet</h3>
@@ -55,9 +55,9 @@
           <div class="mt-6">
             <button
               @click="addAccount"
-              class="inline-flex items-centre px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colours"
+              class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
-              <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+              <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
               Add Your First Account
@@ -71,15 +71,15 @@
         <div
           v-for="account in accounts"
           :key="account.id"
-          class="px-6 py-4 hover:bg-gray-50 transition-colours cursor-pointer"
+          class="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
           @click="viewAccount(account.id)"
         >
-          <div class="flex items-centre justify-between">
+          <div class="flex items-center justify-between">
             <div class="flex-1">
-              <div class="flex items-centre space-x-3">
+              <div class="flex items-center space-x-3">
                 <div class="flex-shrink-0">
-                  <div class="h-10 w-10 rounded-full bg-blue-100 flex items-centre justify-centre">
-                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+                  <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
                   </div>
@@ -102,7 +102,7 @@
 
       <!-- Loading State -->
       <div v-else class="px-6 py-12">
-        <div class="flex justify-centre items-centre">
+        <div class="flex justify-center items-center">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <span class="ml-3 text-gray-600">Loading accounts...</span>
         </div>
@@ -127,7 +127,7 @@
             <span class="text-sm font-medium text-gray-900">{{ riskMetrics.estimated_volatility }}%</span>
           </div>
         </div>
-        <p v-else class="text-gray-500 text-centre py-4">No risk metrics available</p>
+        <p v-else class="text-gray-500 text-center py-4">No risk metrics available</p>
       </div>
 
       <div class="bg-white border border-gray-200 rounded-lg p-6">
@@ -146,7 +146,7 @@
             <span class="text-sm font-medium text-gray-900">{{ isaAllowancePercentage.toFixed(1) }}%</span>
           </div>
         </div>
-        <p v-else class="text-gray-500 text-centre py-4">No tax efficiency data available</p>
+        <p v-else class="text-gray-500 text-center py-4">No tax efficiency data available</p>
       </div>
     </div>
   </div>

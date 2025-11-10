@@ -8,7 +8,7 @@
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColour"
+          stroke="currentColor"
         >
           <path
             stroke-linecap="round"
@@ -52,8 +52,8 @@
 
     <!-- Breakdown -->
     <div class="space-y-3 mb-6">
-      <div class="flex justify-between items-centre">
-        <div class="flex items-centre">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
           <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
           <span class="text-sm text-gray-700">Cash ISA</span>
         </div>
@@ -61,8 +61,8 @@
           {{ formattedCashISA }}
         </span>
       </div>
-      <div class="flex justify-between items-centre">
-        <div class="flex items-centre">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
           <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
           <span class="text-sm text-gray-700">Stocks & Shares ISA</span>
         </div>
@@ -76,13 +76,13 @@
     <div class="flex space-x-2">
       <button
         @click="navigateToSavings"
-        class="flex-1 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colours"
+        class="flex-1 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
       >
         Manage Cash ISAs
       </button>
       <button
         @click="navigateToInvestment"
-        class="flex-1 px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition-colours"
+        class="flex-1 px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition-colors"
       >
         Manage S&S ISAs
       </button>
@@ -97,7 +97,7 @@
         xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 text-red-600 mr-2 flex-shrink-0 mt-0.5"
         viewBox="0 0 20 20"
-        fill="currentColour"
+        fill="currentColor"
       >
         <path
           fill-rule="evenodd"

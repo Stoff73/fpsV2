@@ -20,7 +20,7 @@
     <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Net Worth Breakdown</h3>
       <!-- Chart temporarily disabled to fix navigation issues -->
-      <div class="text-centre py-8 text-gray-500">
+      <div class="text-center py-8 text-gray-500">
         Chart visualization coming soon
       </div>
       <!-- <NetWorthWaterfallChart :assets="assets" :liabilities="liabilities" /> -->
@@ -30,14 +30,14 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div class="bg-white rounded-lg border border-gray-200 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Asset Composition</h3>
-        <div v-if="assets.length === 0" class="text-centre py-8 text-gray-500">
+        <div v-if="assets.length === 0" class="text-center py-8 text-gray-500">
           No assets recorded yet
         </div>
         <div v-else class="space-y-4">
           <div
             v-for="(group, type) in assetsByType"
             :key="type"
-            class="flex justify-between items-centre"
+            class="flex justify-between items-center"
           >
             <span class="text-sm text-gray-600">{{ type }}</span>
             <span class="text-sm font-medium text-gray-900">
@@ -49,14 +49,14 @@
 
       <div class="bg-white rounded-lg border border-gray-200 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Liability Composition</h3>
-        <div v-if="liabilities.length === 0" class="text-centre py-8 text-gray-500">
+        <div v-if="liabilities.length === 0" class="text-center py-8 text-gray-500">
           No liabilities recorded yet
         </div>
         <div v-else class="space-y-4">
           <div
             v-for="(group, type) in liabilitiesByType"
             :key="type"
-            class="flex justify-between items-centre"
+            class="flex justify-between items-center"
           >
             <span class="text-sm text-gray-600">{{ type }}</span>
             <span class="text-sm font-medium text-gray-900">

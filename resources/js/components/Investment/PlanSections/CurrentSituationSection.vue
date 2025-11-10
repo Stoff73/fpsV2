@@ -2,7 +2,7 @@
   <div class="current-situation-section">
     <h4 class="text-md font-semibold text-gray-800 mb-4">Current Portfolio Situation</h4>
 
-    <div v-if="!data" class="text-centre py-8 text-gray-500">
+    <div v-if="!data" class="text-center py-8 text-gray-500">
       <p>No current situation data available</p>
     </div>
 
@@ -45,7 +45,7 @@
             </tbody>
           </table>
         </div>
-        <div v-else class="text-centre py-4 text-gray-500 text-sm">
+        <div v-else class="text-center py-4 text-gray-500 text-sm">
           No account data available
         </div>
       </div>

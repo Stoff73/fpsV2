@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto" @click.self="closeModal">
-    <div class="flex items-centre justify-centre min-h-screen px-4 pt-4 pb-20 text-centre sm:block sm:p-0">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
       <!-- Background overlay -->
       <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closeModal"></div>
 
@@ -8,15 +8,15 @@
       <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
         <!-- Header -->
         <div class="bg-white px-6 py-4 border-b border-gray-200">
-          <div class="flex justify-between items-centre">
+          <div class="flex justify-between items-center">
             <h3 class="text-lg font-semibold text-gray-900">
               {{ isEditMode ? 'Edit Investment Goal' : 'Add New Investment Goal' }}
             </h3>
             <button
               @click="closeModal"
-              class="text-gray-400 hover:text-gray-600 transition-colours"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -118,7 +118,7 @@
 
             <!-- Is Essential -->
             <div>
-              <label class="flex items-centre">
+              <label class="flex items-center">
                 <input
                   type="checkbox"
                   v-model="formData.is_essential"
@@ -135,14 +135,14 @@
             <button
               type="button"
               @click="closeModal"
-              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colours"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               :disabled="submitting"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colours disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ submitting ? 'Saving...' : (isEditMode ? 'Update Goal' : 'Create Goal') }}
             </button>

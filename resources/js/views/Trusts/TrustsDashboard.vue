@@ -8,7 +8,7 @@
           <span class="text-gray-400 mx-2">/</span>
           <span class="text-gray-600">Trusts</span>
         </nav>
-        <div class="flex items-centre justify-between">
+        <div class="flex items-center justify-between">
           <div>
             <h1 class="font-display text-h1 text-gray-900">Trusts Dashboard</h1>
             <p class="text-body text-gray-600 mt-2">
@@ -17,9 +17,9 @@
           </div>
           <button
             @click="openCreateTrustModal"
-            class="btn-primary flex items-centre"
+            class="btn-primary flex items-center"
           >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Create Trust
@@ -28,7 +28,7 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex justify-centre items-centre py-12">
+      <div v-if="loading" class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
 
@@ -74,7 +74,7 @@
               :key="filter.id"
               @click="activeFilter = filter.id"
               :class="[
-                'py-4 px-1 border-b-2 font-medium text-sm transition-colours',
+                'py-4 px-1 border-b-2 font-medium text-sm transition-colors',
                 activeFilter === filter.id
                   ? 'border-purple-600 text-purple-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -101,8 +101,8 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else class="card text-centre py-12">
-          <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <div v-else class="card text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
           <h3 class="text-lg font-medium text-gray-900 mb-2">No trusts found</h3>
@@ -152,7 +152,7 @@
                 v-for="taxReturn in taxReturnsData"
                 :key="taxReturn.trust_id"
                 :class="[
-                  'flex items-centre justify-between p-3 rounded-lg',
+                  'flex items-center justify-between p-3 rounded-lg',
                   taxReturn.is_overdue ? 'bg-red-50 border border-red-200' : 'bg-gray-50 border border-gray-200'
                 ]"
               >

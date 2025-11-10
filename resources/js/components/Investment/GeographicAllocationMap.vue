@@ -1,6 +1,6 @@
 <template>
   <div class="geographic-allocation-map">
-    <div class="flex justify-between items-centre mb-4">
+    <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-semibold text-gray-900">Geographic Allocation</h3>
       <button
         v-if="showViewDetails"
@@ -11,7 +11,7 @@
       </button>
     </div>
 
-    <div v-if="loading" class="flex items-centre justify-centre h-64">
+    <div v-if="loading" class="flex items-center justify-center h-64">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
 
@@ -24,9 +24,9 @@
       />
     </div>
 
-    <div v-else class="flex items-centre justify-centre h-64 text-gray-500">
-      <div class="text-centre">
-        <svg class="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+    <div v-else class="flex items-center justify-center h-64 text-gray-500">
+      <div class="text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <p>No geographic data available</p>

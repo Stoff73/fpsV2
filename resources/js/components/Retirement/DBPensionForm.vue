@@ -1,13 +1,13 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-centre justify-centre z-50 p-4" @click.self="$emit('close')">
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click.self="$emit('close')">
     <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
       <!-- Header -->
-      <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-centre justify-between">
+      <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <h3 class="text-xl font-semibold text-gray-900">
           {{ isEdit ? 'Edit' : 'Add' }} DB Pension
         </h3>
-        <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 transition-colours">
-          <svg class="w-6 h-6" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
@@ -15,7 +15,7 @@
 
       <!-- Important Warning -->
       <div class="mx-6 mt-6 bg-amber-50 border-2 border-amber-400 rounded-lg p-4 flex items-start">
-        <svg class="w-6 h-6 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <svg class="w-6 h-6 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
         </svg>
         <div>
@@ -214,17 +214,17 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex items-centre justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+        <div class="flex items-center justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
           <button
             type="button"
             @click="$emit('close')"
-            class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colours duration-200"
+            class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
           >
             Cancel
           </button>
           <button
             type="submit"
-            class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colours duration-200"
+            class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
           >
             {{ isEdit ? 'Update' : 'Add' }} Pension
           </button>

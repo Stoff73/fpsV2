@@ -11,7 +11,7 @@
             :class="iconColour"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -29,7 +29,7 @@
 
             <!-- Progress Bar -->
             <div class="mt-3">
-              <div class="flex items-centre justify-between mb-1">
+              <div class="flex items-center justify-between mb-1">
                 <span class="text-xs font-semibold">Profile Completeness</span>
                 <span class="text-xs font-semibold">{{ completenessData.completeness_score }}%</span>
               </div>

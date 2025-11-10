@@ -51,7 +51,7 @@
               v-for="amount in quickAmounts"
               :key="amount"
               @click="additionalCoverage = amount"
-              class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-md transition-colours"
+              class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
             >
               £{{ formatNumber(amount) }}
             </button>
@@ -98,7 +98,7 @@
 
       <!-- Estimated Premium -->
       <div class="p-4 bg-gray-50 rounded-lg">
-        <div class="flex justify-between items-centre">
+        <div class="flex justify-between items-center">
           <span class="text-sm font-medium text-gray-700">Estimated Additional Premium:</span>
           <span class="text-lg font-bold text-gray-900">
             £{{ estimatedPremium.toFixed(2)}} <span class="text-sm font-normal">/month</span>
@@ -114,13 +114,13 @@
         <button
           @click="runScenario"
           :disabled="!canRunScenario"
-          class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colours"
+          class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           Run Scenario
         </button>
         <button
           @click="resetScenario"
-          class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colours"
+          class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
         >
           Reset
         </button>

@@ -40,7 +40,7 @@
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Fee Breakdown</h3>
       <div v-if="feeBreakdown && feeBreakdown.length > 0" class="space-y-4">
         <div v-for="(fee, index) in feeBreakdown" :key="index" class="border-b border-gray-200 pb-3 last:border-b-0">
-          <div class="flex justify-between items-centre mb-2">
+          <div class="flex justify-between items-center mb-2">
             <span class="text-sm font-medium text-gray-700">{{ fee.type }}</span>
             <span class="text-sm font-semibold text-gray-900">{{ formatCurrency(fee.amount) }}</span>
           </div>
@@ -52,13 +52,13 @@
           </div>
         </div>
         <div class="pt-3 border-t-2 border-gray-300">
-          <div class="flex justify-between items-centre">
+          <div class="flex justify-between items-center">
             <span class="text-base font-semibold text-gray-900">Total Annual Fees</span>
             <span class="text-lg font-bold text-gray-900">{{ formatCurrency(totalFees) }}</span>
           </div>
         </div>
       </div>
-      <p v-else class="text-gray-500 text-centre py-6">No fee data available</p>
+      <p v-else class="text-gray-500 text-center py-6">No fee data available</p>
     </div>
 
     <!-- Tax Wrappers -->
@@ -67,7 +67,7 @@
       <div class="bg-white border border-gray-200 rounded-lg p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">ISA Allowance (2024/25)</h3>
         <div class="mb-4">
-          <div class="flex justify-between items-centre mb-2">
+          <div class="flex justify-between items-center mb-2">
             <span class="text-sm text-gray-600">Used</span>
             <span class="text-sm font-medium text-gray-900">{{ formatCurrency(isaUsed) }} / £20,000</span>
           </div>
@@ -117,7 +117,7 @@
           :key="index"
           class="flex items-start p-4 bg-blue-50 border border-blue-200 rounded-lg"
         >
-          <svg class="h-5 w-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+          <svg class="h-5 w-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div class="flex-1">
@@ -129,7 +129,7 @@
           </div>
         </div>
       </div>
-      <p v-else class="text-gray-500 text-centre py-6">No optimization opportunities identified</p>
+      <p v-else class="text-gray-500 text-center py-6">No optimization opportunities identified</p>
     </div>
   </div>
 </template>

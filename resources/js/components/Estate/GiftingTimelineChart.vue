@@ -24,15 +24,15 @@
     <!-- Legend -->
     <div class="legend">
       <div class="legend-item">
-        <span class="legend-colour" style="background-colour: #ef4444;"></span>
+        <span class="legend-colour" style="background-color: #ef4444;"></span>
         <span>Within 7 years (potentially taxable)</span>
       </div>
       <div class="legend-item">
-        <span class="legend-colour" style="background-colour: #f59e0b;"></span>
+        <span class="legend-colour" style="background-color: #f59e0b;"></span>
         <span>Years 3-7 (taper relief applies)</span>
       </div>
       <div class="legend-item">
-        <span class="legend-colour" style="background-colour: #10b981;"></span>
+        <span class="legend-colour" style="background-color: #10b981;"></span>
         <span>Survived 7 years (IHT-exempt)</span>
       </div>
     </div>
@@ -326,20 +326,20 @@ export default {
 }
 
 .chart-header {
-  text-align: centre;
+  text-align: center;
   margin-bottom: 24px;
 }
 
 .chart-header h3 {
   font-size: 18px;
   font-weight: 600;
-  colour: #1f2937;
+  color: #1f2937;
   margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 14px;
-  colour: #6b7280;
+  color: #6b7280;
   margin: 0;
 }
 
@@ -348,39 +348,39 @@ export default {
 }
 
 .empty-state {
-  text-align: centre;
+  text-align: center;
   padding: 60px 20px;
-  colour: #9ca3af;
+  color: #9ca3af;
 }
 
 .empty-state i {
-  colour: #d1d5db;
+  color: #d1d5db;
   margin-bottom: 16px;
 }
 
 .empty-state p {
   margin: 8px 0;
   font-size: 16px;
-  colour: #6b7280;
+  color: #6b7280;
 }
 
 .legend {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: centre;
+  justify-content: center;
   margin: 24px 0;
   padding: 16px;
-  background-colour: #f9fafb;
+  background-color: #f9fafb;
   border-radius: 6px;
 }
 
 .legend-item {
   display: flex;
-  align-items: centre;
+  align-items: center;
   gap: 8px;
   font-size: 13px;
-  colour: #374151;
+  color: #374151;
 }
 
 .legend-colour {
@@ -399,7 +399,7 @@ export default {
 .taper-relief-info h4 {
   font-size: 16px;
   font-weight: 600;
-  colour: #1f2937;
+  color: #1f2937;
   margin: 0 0 16px 0;
 }
 
@@ -410,34 +410,34 @@ export default {
 }
 
 .relief-table thead {
-  background-colour: #f3f4f6;
+  background-color: #f3f4f6;
 }
 
 .relief-table th {
   padding: 12px;
   text-align: left;
   font-weight: 600;
-  colour: #374151;
+  color: #374151;
   border-bottom: 2px solid #e5e7eb;
 }
 
 .relief-table td {
   padding: 12px;
-  colour: #6b7280;
+  color: #6b7280;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .relief-table tbody tr:hover {
-  background-colour: #f9fafb;
+  background-color: #f9fafb;
 }
 
 .relief-table tbody tr.highlight {
-  background-colour: #d1fae5;
+  background-color: #d1fae5;
   font-weight: 600;
 }
 
 .relief-table tbody tr.highlight td {
-  colour: #065f46;
+  color: #065f46;
 }
 </style>
 
@@ -452,12 +452,12 @@ export default {
 }
 
 .tooltip-header {
-  background-colour: #f3f4f6;
+  background-color: #f3f4f6;
   padding: 12px 16px;
   border-bottom: 1px solid #e5e7eb;
   border-radius: 6px 6px 0 0;
   font-size: 14px;
-  colour: #1f2937;
+  color: #1f2937;
 }
 
 .tooltip-body {
@@ -472,11 +472,11 @@ export default {
 }
 
 .tooltip-row span {
-  colour: #6b7280;
+  color: #6b7280;
 }
 
 .tooltip-row strong {
-  colour: #1f2937;
+  color: #1f2937;
 }
 
 .tooltip-row.highlight {

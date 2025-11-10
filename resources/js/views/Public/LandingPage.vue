@@ -3,7 +3,7 @@
     <!-- Hero Section -->
     <div class="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 overflow-hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div class="text-centre">
+        <div class="text-center">
           <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
             Take Control of Your Financial Future
           </h1>
@@ -11,16 +11,16 @@
             Comprehensive financial planning tools for UK individuals and families.
             Plan your protection, savings, investments, retirement, and estate.
           </p>
-          <div class="flex flex-col sm:flex-row justify-centre gap-4">
+          <div class="flex flex-col sm:flex-row justify-center gap-4">
             <router-link
               to="/register"
-              class="px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold text-lg hover:bg-blue-50 transition-colours shadow-lg"
+              class="px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold text-lg hover:bg-blue-50 transition-colors shadow-lg"
             >
               Get Started Free
             </router-link>
             <router-link
               to="/learning-centre"
-              class="px-8 py-4 bg-blue-500 text-white rounded-lg font-semibold text-lg hover:bg-blue-400 transition-colours"
+              class="px-8 py-4 bg-blue-500 text-white rounded-lg font-semibold text-lg hover:bg-blue-400 transition-colors"
             >
               Learn More
             </router-link>
@@ -35,7 +35,7 @@
 
     <!-- Features Section -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-      <div class="text-centre mb-16">
+      <div class="text-center mb-16">
         <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
           Five Integrated Planning Modules
         </h2>
@@ -47,8 +47,8 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- Protection -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-centre justify-centre mb-4">
-            <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
@@ -65,8 +65,8 @@
 
         <!-- Savings -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-centre justify-centre mb-4">
-            <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
@@ -83,8 +83,8 @@
 
         <!-- Investment -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-centre justify-centre mb-4">
-            <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
           </div>
@@ -101,14 +101,14 @@
 
         <!-- Retirement -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-centre justify-centre mb-4">
-            <svg class="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+          <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">Retirement Planning</h3>
           <p class="text-gray-600 mb-4">
-            Pension projections, contribution optimization, and retirement readiness scoring with £60k annual allowance tracking.
+            Pension projections, contribution optimisation, and retirement readiness scoring with £60k annual allowance tracking.
           </p>
           <ul class="text-sm text-gray-500 space-y-1">
             <li>• Pension projections</li>
@@ -119,8 +119,8 @@
 
         <!-- Estate -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-red-100 rounded-lg flex items-centre justify-centre mb-4">
-            <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+          <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
           </div>
@@ -137,8 +137,8 @@
 
         <!-- Holistic -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-centre justify-centre mb-4">
-            <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+          <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
@@ -158,7 +158,7 @@
     <!-- FCA News Section -->
     <div class="bg-gray-100 py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-centre mb-12">
+        <div class="text-center mb-12">
           <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Latest from the FCA
           </h2>
@@ -167,7 +167,7 @@
           </p>
         </div>
 
-        <div v-if="loadingNews" class="text-centre py-8">
+        <div v-if="loadingNews" class="text-center py-8">
           <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <p class="mt-2 text-gray-600">Loading FCA news...</p>
         </div>
@@ -187,7 +187,7 @@
           </div>
         </div>
 
-        <div v-else class="bg-white rounded-lg shadow-md p-8 text-centre">
+        <div v-else class="bg-white rounded-lg shadow-md p-8 text-center">
           <p class="text-gray-600 mb-4">Unable to load FCA news at this time.</p>
           <a href="https://www.fca.org.uk/news" target="_blank" class="text-blue-600 hover:text-blue-700 font-medium">
             Visit FCA News →
@@ -198,7 +198,7 @@
 
     <!-- CTA Section -->
     <div class="bg-gradient-to-r from-blue-600 to-blue-800 py-20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-centre">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
           Ready to Plan Your Financial Future?
         </h2>
@@ -207,7 +207,7 @@
         </p>
         <router-link
           to="/register"
-          class="inline-block px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold text-lg hover:bg-blue-50 transition-colours shadow-lg"
+          class="inline-block px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold text-lg hover:bg-blue-50 transition-colors shadow-lg"
         >
           Create Free Account
         </router-link>

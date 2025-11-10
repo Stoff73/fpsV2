@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto" @click.self="closeModal">
-    <div class="flex items-centre justify-centre min-h-screen px-4 pt-4 pb-20 text-centre sm:block sm:p-0">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
       <!-- Background overlay -->
       <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closeModal"></div>
 
@@ -8,16 +8,16 @@
       <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
         <!-- Header -->
         <div class="bg-white px-6 py-4 border-b border-gray-200">
-          <div class="flex justify-between items-centre">
+          <div class="flex justify-between items-center">
             <div>
               <h3 class="text-xl font-semibold text-gray-900">Monte Carlo Simulation Results</h3>
               <p v-if="goalName" class="text-sm text-gray-600 mt-1">{{ goalName }}</p>
             </div>
             <button
               @click="closeModal"
-              class="text-gray-400 hover:text-gray-600 transition-colours"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -27,7 +27,7 @@
         <!-- Content -->
         <div class="bg-white px-6 py-4">
           <!-- Loading State -->
-          <div v-if="loading" class="flex flex-col items-centre justify-centre py-12">
+          <div v-if="loading" class="flex flex-col items-center justify-center py-12">
             <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
             <p class="text-gray-600 mb-2">Running Monte Carlo simulation...</p>
             <p class="text-sm text-gray-500">This may take a few moments (1,000 iterations)</p>
@@ -146,8 +146,8 @@
           </div>
 
           <!-- Error State -->
-          <div v-else-if="error" class="text-centre py-12">
-            <svg class="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+          <div v-else-if="error" class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p class="text-gray-900 font-medium mb-2">Failed to load simulation results</p>
@@ -159,7 +159,7 @@
         <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
           <button
             @click="closeModal"
-            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colours"
+            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
           >
             Close
           </button>
@@ -288,7 +288,7 @@ export default {
             style: {
               fontSize: '12px',
               fontWeight: 600,
-              colour: '#6b7280',
+              color: '#6b7280',
             },
           },
           labels: {
@@ -304,7 +304,7 @@ export default {
             style: {
               fontSize: '12px',
               fontWeight: 600,
-              colour: '#6b7280',
+              color: '#6b7280',
             },
           },
           labels: {
@@ -347,7 +347,7 @@ export default {
               label: {
                 borderColour: '#8b5cf6',
                 style: {
-                  colour: '#fff',
+                  color: '#fff',
                   background: '#8b5cf6',
                 },
                 text: `Target: ${this.formatCurrencyShort(this.targetAmount)}`,

@@ -2,13 +2,13 @@
   <AppLayout>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header with Download Button -->
-      <div class="mb-8 flex items-centre justify-between">
+      <div class="mb-8 flex items-center justify-between">
         <div>
           <button
             @click="$router.go(-1)"
-            class="mb-4 text-sm text-gray-600 hover:text-gray-900 flex items-centre"
+            class="mb-4 text-sm text-gray-600 hover:text-gray-900 flex items-center"
           >
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
             Back to Dashboard
@@ -18,9 +18,9 @@
         </div>
         <button
           @click="downloadPDF"
-          class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-centre gap-2 shadow-md"
+          class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2 shadow-md"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           Download PDF
@@ -28,8 +28,8 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex items-centre justify-centre py-20">
-        <div class="text-centre">
+      <div v-if="loading" class="flex items-center justify-center py-20">
+        <div class="text-center">
           <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mb-4"></div>
           <p class="text-gray-600 text-lg">Generating your comprehensive estate plan...</p>
         </div>
@@ -38,7 +38,7 @@
       <!-- Error State -->
       <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6">
         <div class="flex items-start">
-          <svg class="h-6 w-6 text-red-600 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+          <svg class="h-6 w-6 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div class="ml-3">
@@ -61,12 +61,12 @@
             <span
               v-if="plan.plan_metadata.plan_type"
               :class="getPlanTypeBadgeClass(plan.plan_metadata.is_complete)"
-              class="inline-flex items-centre px-3 py-1 rounded-full text-sm font-medium"
+              class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
             >
-              <svg v-if="plan.plan_metadata.is_complete" class="w-4 h-4 mr-1" fill="currentColour" viewBox="0 0 20 20">
+              <svg v-if="plan.plan_metadata.is_complete" class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
-              <svg v-else class="w-4 h-4 mr-1" fill="currentColour" viewBox="0 0 20 20">
+              <svg v-else class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
               </svg>
               {{ plan.plan_metadata.plan_type }} Plan
@@ -85,7 +85,7 @@
           >
             <div class="flex items-start">
               <div class="flex-shrink-0">
-                <svg class="h-6 w-6" :class="getWarningIconColour(plan.completeness_warning.severity)" fill="currentColour" viewBox="0 0 20 20">
+                <svg class="h-6 w-6" :class="getWarningIconColour(plan.completeness_warning.severity)" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                 </svg>
               </div>
@@ -114,7 +114,7 @@
                   </ul>
                   <router-link
                     to="/profile"
-                    class="inline-block mt-4 px-4 py-2 text-sm font-medium rounded-md transition-colours"
+                    class="inline-block mt-4 px-4 py-2 text-sm font-medium rounded-md transition-colors"
                     :class="getCompleteProfileButtonClass(plan.completeness_warning.severity)"
                   >
                     Complete Your Profile →
@@ -169,7 +169,7 @@
                     :key="index"
                     class="flex items-start gap-2"
                   >
-                    <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
+                    <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
                     <span class="text-xs leading-tight">{{ action }}</span>
@@ -257,9 +257,9 @@
                     <div
                       v-for="(asset, index) in assets"
                       :key="index"
-                      class="flex justify-between items-centre p-3 border-b last:border-b-0 hover:bg-gray-50"
+                      class="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-gray-50"
                     >
-                      <div class="flex items-centre gap-3">
+                      <div class="flex items-center gap-3">
                         <span class="text-gray-900">{{ asset.name }}</span>
                         <span v-if="asset.is_iht_exempt" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
                           IHT Exempt
@@ -302,9 +302,9 @@
                     <div
                       v-for="(asset, index) in assets"
                       :key="index"
-                      class="flex justify-between items-centre p-3 border-b last:border-b-0 hover:bg-gray-50"
+                      class="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-gray-50"
                     >
-                      <div class="flex items-centre gap-3">
+                      <div class="flex items-center gap-3">
                         <span class="text-gray-900">{{ asset.name }}</span>
                         <span v-if="asset.is_iht_exempt" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
                           IHT Exempt
@@ -347,9 +347,9 @@
                     <div
                       v-for="(asset, index) in assets"
                       :key="index"
-                      class="flex justify-between items-centre p-3 border-b last:border-b-0 hover:bg-gray-50"
+                      class="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-gray-50"
                     >
-                      <div class="flex items-centre gap-3">
+                      <div class="flex items-center gap-3">
                         <span class="text-gray-900">{{ asset.name }}</span>
                         <span v-if="asset.is_iht_exempt" class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
                           IHT Exempt
@@ -374,39 +374,39 @@
                 <h4 class="text-lg font-semibold text-gray-800 mb-3">If Both Die Now</h4>
                 <div class="bg-gray-50 rounded-lg p-6">
                   <div class="space-y-3">
-                    <div class="flex justify-between items-centre pb-3 border-b">
+                    <div class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700">Gross Estate Value</span>
                       <span class="font-bold text-gray-900">{{ formatCurrency(plan.current_iht_position.now.gross_estate) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre pb-3 border-b">
+                    <div class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700">Less: Liabilities</span>
                       <span class="font-bold text-gray-900">-{{ formatCurrency(plan.current_iht_position.now.liabilities) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre pb-3 border-b">
+                    <div class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700">Net Estate</span>
                       <span class="font-bold text-gray-900">{{ formatCurrency(plan.current_iht_position.now.net_estate) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre pb-3 border-b">
+                    <div class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700 text-sm">NRB (User)</span>
                       <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.now.user_nrb) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre pb-3 border-b">
+                    <div class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700 text-sm">NRB (Spouse)</span>
                       <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.now.spouse_nrb) }}</span>
                     </div>
-                    <div v-if="plan.current_iht_position.now.user_rnrb > 0" class="flex justify-between items-centre pb-3 border-b">
+                    <div v-if="plan.current_iht_position.now.user_rnrb > 0" class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700 text-sm">RNRB (User)</span>
                       <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.now.user_rnrb) }}</span>
                     </div>
-                    <div v-if="plan.current_iht_position.now.spouse_rnrb > 0" class="flex justify-between items-centre pb-3 border-b">
+                    <div v-if="plan.current_iht_position.now.spouse_rnrb > 0" class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700 text-sm">RNRB (Spouse)</span>
                       <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.now.spouse_rnrb) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre pb-3 border-b bg-amber-50 -mx-6 px-6 py-3">
+                    <div class="flex justify-between items-center pb-3 border-b bg-amber-50 -mx-6 px-6 py-3">
                       <span class="font-semibold text-gray-900">Taxable Estate</span>
                       <span class="font-bold text-amber-700">{{ formatCurrency(plan.current_iht_position.now.taxable_estate) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre bg-red-50 -mx-6 px-6 py-3 rounded">
+                    <div class="flex justify-between items-center bg-red-50 -mx-6 px-6 py-3 rounded">
                       <span class="font-semibold text-red-900">IHT Liability (40%)</span>
                       <span class="font-bold text-red-700 text-xl">{{ formatCurrency(plan.current_iht_position.now.iht_liability) }}</span>
                     </div>
@@ -419,39 +419,39 @@
                 <h4 class="text-lg font-semibold text-gray-800 mb-3">At Expected Death (Age {{ plan.current_iht_position.projected.age_at_death }})</h4>
                 <div class="bg-gray-50 rounded-lg p-6">
                   <div class="space-y-3">
-                    <div class="flex justify-between items-centre pb-3 border-b">
+                    <div class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700">Gross Estate Value</span>
                       <span class="font-bold text-gray-900">{{ formatCurrency(plan.current_iht_position.projected.gross_estate) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre pb-3 border-b">
+                    <div class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700">Less: Liabilities</span>
                       <span class="font-bold text-gray-900">-{{ formatCurrency(plan.current_iht_position.projected.liabilities) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre pb-3 border-b">
+                    <div class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700">Net Estate</span>
                       <span class="font-bold text-gray-900">{{ formatCurrency(plan.current_iht_position.projected.net_estate) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre pb-3 border-b">
+                    <div class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700 text-sm">NRB (User)</span>
                       <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.projected.user_nrb) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre pb-3 border-b">
+                    <div class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700 text-sm">NRB (Spouse)</span>
                       <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.projected.spouse_nrb) }}</span>
                     </div>
-                    <div v-if="plan.current_iht_position.projected.user_rnrb > 0" class="flex justify-between items-centre pb-3 border-b">
+                    <div v-if="plan.current_iht_position.projected.user_rnrb > 0" class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700 text-sm">RNRB (User)</span>
                       <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.projected.user_rnrb) }}</span>
                     </div>
-                    <div v-if="plan.current_iht_position.projected.spouse_rnrb > 0" class="flex justify-between items-centre pb-3 border-b">
+                    <div v-if="plan.current_iht_position.projected.spouse_rnrb > 0" class="flex justify-between items-center pb-3 border-b">
                       <span class="text-gray-700 text-sm">RNRB (Spouse)</span>
                       <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.projected.spouse_rnrb) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre pb-3 border-b bg-amber-50 -mx-6 px-6 py-3">
+                    <div class="flex justify-between items-center pb-3 border-b bg-amber-50 -mx-6 px-6 py-3">
                       <span class="font-semibold text-gray-900">Taxable Estate</span>
                       <span class="font-bold text-amber-700">{{ formatCurrency(plan.current_iht_position.projected.taxable_estate) }}</span>
                     </div>
-                    <div class="flex justify-between items-centre bg-red-50 -mx-6 px-6 py-3 rounded">
+                    <div class="flex justify-between items-center bg-red-50 -mx-6 px-6 py-3 rounded">
                       <span class="font-semibold text-red-900">IHT Liability (40%)</span>
                       <span class="font-bold text-red-700 text-xl">{{ formatCurrency(plan.current_iht_position.projected.iht_liability) }}</span>
                     </div>
@@ -463,27 +463,27 @@
             <!-- Single Person - Show current only -->
             <div v-else class="bg-gray-50 rounded-lg p-6">
               <div class="space-y-3">
-                <div class="flex justify-between items-centre pb-3 border-b">
+                <div class="flex justify-between items-center pb-3 border-b">
                   <span class="text-gray-700">Gross Estate Value</span>
                   <span class="font-bold text-gray-900">{{ formatCurrency(plan.current_iht_position.gross_estate) }}</span>
                 </div>
-                <div class="flex justify-between items-centre pb-3 border-b">
+                <div class="flex justify-between items-center pb-3 border-b">
                   <span class="text-gray-700">Available NRB</span>
                   <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.available_nrb) }}</span>
                 </div>
-                <div v-if="plan.current_iht_position.rnrb > 0" class="flex justify-between items-centre pb-3 border-b">
+                <div v-if="plan.current_iht_position.rnrb > 0" class="flex justify-between items-center pb-3 border-b">
                   <span class="text-gray-700">RNRB</span>
                   <span class="font-bold text-green-600">-{{ formatCurrency(plan.current_iht_position.rnrb) }}</span>
                 </div>
-                <div class="flex justify-between items-centre pb-3 border-b bg-amber-50 -mx-6 px-6 py-3">
+                <div class="flex justify-between items-center pb-3 border-b bg-amber-50 -mx-6 px-6 py-3">
                   <span class="font-semibold text-gray-900">Taxable Estate</span>
                   <span class="font-bold text-amber-700">{{ formatCurrency(plan.current_iht_position.taxable_estate) }}</span>
                 </div>
-                <div class="flex justify-between items-centre bg-red-50 -mx-6 px-6 py-3 rounded">
+                <div class="flex justify-between items-center bg-red-50 -mx-6 px-6 py-3 rounded">
                   <span class="font-semibold text-red-900">IHT Liability (40%)</span>
                   <span class="font-bold text-red-700 text-xl">{{ formatCurrency(plan.current_iht_position.iht_liability) }}</span>
                 </div>
-                <div class="flex justify-between items-centre pt-2">
+                <div class="flex justify-between items-center pt-2">
                   <span class="text-sm text-gray-600">Effective IHT Rate</span>
                   <span class="text-sm font-medium text-gray-700">{{ plan.current_iht_position.effective_rate.toFixed(1) }}%</span>
                 </div>
@@ -527,7 +527,7 @@
                 :class="getPriorityBorderClass(rec.priority)"
               >
                 <div class="px-6 py-4" :class="getPriorityHeaderClass(rec.priority)">
-                  <div class="flex items-centre gap-3">
+                  <div class="flex items-center gap-3">
                     <span class="px-3 py-1 rounded-full text-xs font-bold bg-white" :class="getPriorityTextClass(rec.priority)">
                       Priority {{ rec.priority }}
                     </span>
@@ -576,10 +576,10 @@
               <div
                 v-for="(item, index) in plan.implementation_timeline"
                 :key="index"
-                class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colours"
+                class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div class="flex-shrink-0">
-                  <div class="w-10 h-10 rounded-full flex items-centre justify-centre text-white font-bold" :class="getTimelineBadgeClass(item.priority)">
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" :class="getTimelineBadgeClass(item.priority)">
                     {{ item.priority }}
                   </div>
                 </div>
@@ -605,15 +605,15 @@
                 :key="timeframe"
                 class="bg-gray-50 rounded-lg p-6"
               >
-                <h4 class="font-bold text-gray-900 mb-3 flex items-centre gap-2">
-                  <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                <h4 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
                   {{ timeframe }}
                 </h4>
                 <ul v-if="steps.length > 0" class="space-y-2">
                   <li v-for="(step, index) in steps" :key="index" class="text-sm text-gray-700 flex items-start gap-2">
-                    <svg class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="currentColour" viewBox="0 0 20 20">
+                    <svg class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
                     {{ step }}
@@ -628,7 +628,7 @@
           <section class="mb-8">
             <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
               <div class="flex items-start">
-                <svg class="h-6 w-6 text-blue-400 mt-0.5" fill="currentColour" viewBox="0 0 20 20">
+                <svg class="h-6 w-6 text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                 </svg>
                 <div class="ml-3">
@@ -652,7 +652,7 @@
           </section>
 
           <!-- Footer -->
-          <div class="text-centre text-sm text-gray-500 pt-8 border-t">
+          <div class="text-center text-sm text-gray-500 pt-8 border-t">
             <p>Generated by TenGo (Financial Planning System) - Version {{ plan.plan_metadata.plan_version }}</p>
             <p class="mt-1">{{ plan.plan_metadata.generated_date }} at {{ plan.plan_metadata.generated_time }}</p>
             <p class="mt-2">🤖 Generated with <a href="https://claude.com/claude-code" class="text-primary-600 hover:underline" target="_blank">Claude Code</a></p>

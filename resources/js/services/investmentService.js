@@ -19,7 +19,7 @@ const investmentService = {
      * @returns {Promise} Analysis results with recommendations
      */
     async analyseInvestment() {
-        const response = await api.post('/investment/analyse');
+        const response = await api.post('/investment/analyze');
         return response.data;
     },
 
@@ -225,7 +225,7 @@ const investmentService = {
      * @returns {Promise} Complete tax analysis with opportunities and efficiency score
      */
     async analyseTaxPosition(params = {}) {
-        const response = await api.get('/investment/tax-optimization/analyse', { params });
+        const response = await api.get('/investment/tax-optimization/analyze', { params });
         return response.data;
     },
 
@@ -327,7 +327,7 @@ const investmentService = {
      * @returns {Promise} Complete asset location analysis
      */
     async analyseAssetLocation(params = {}) {
-        const response = await api.get('/investment/asset-location/analyse', { params });
+        const response = await api.get('/investment/asset-location/analyze', { params });
         return response.data;
     },
 
@@ -389,7 +389,7 @@ const investmentService = {
      * @returns {Promise} Performance attribution by asset class, sector, geography
      */
     async analysePerformance(period = '1y') {
-        const response = await api.get('/investment/performance/analyse', { params: { period } });
+        const response = await api.get('/investment/performance/analyze', { params: { period } });
         return response.data;
     },
 
@@ -544,7 +544,7 @@ const investmentService = {
      * @returns {Promise} Fee analysis with breakdown by account
      */
     async analysePortfolioFees() {
-        const response = await api.get('/investment/fees/analyse');
+        const response = await api.get('/investment/fees/analyze');
         return response.data;
     },
 
@@ -749,7 +749,7 @@ const investmentService = {
      * @returns {Promise} Optimised asset allocation
      */
     async optimiseAllocationByAge(age, rule = '110_minus_age') {
-        const response = await api.get('/investment/model-portfolio/optimise-by-age', {
+        const response = await api.get('/investment/model-portfolio/optimize-by-age', {
             params: { age, rule },
         });
         return response.data;
@@ -763,7 +763,7 @@ const investmentService = {
      * @returns {Promise} Optimised allocation and required return
      */
     async optimiseAllocationByTimeHorizon(years, targetValue, currentValue) {
-        const response = await api.post('/investment/model-portfolio/optimise-by-horizon', {
+        const response = await api.post('/investment/model-portfolio/optimize-by-horizon', {
             years,
             target_value: targetValue,
             current_value: currentValue,
@@ -1352,7 +1352,7 @@ const investmentService = {
      * @returns {Promise} Wrapper allocation, projections, and tax efficiency score
      */
     async optimiseContributions(inputs) {
-        const response = await api.post('/investment/contribution/optimise', inputs);
+        const response = await api.post('/investment/contribution/optimize', inputs);
         return response.data;
     },
 
@@ -1418,7 +1418,7 @@ const investmentService = {
      * @returns {Promise} Comprehensive fee analysis with breakdown by type and holdings
      */
     async analyseFees() {
-        const response = await api.get('/investment/fees/analyse');
+        const response = await api.get('/investment/fees/analyze');
         return response.data;
     },
 
@@ -1449,7 +1449,7 @@ const investmentService = {
      * @returns {Promise} Asset location analysis with tax drag and recommendations
      */
     async analyseAssetLocation() {
-        const response = await api.get('/investment/asset-location/analyse');
+        const response = await api.get('/investment/asset-location/analyze');
         return response.data;
     },
 

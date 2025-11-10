@@ -1,18 +1,18 @@
 <template>
-  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-centre justify-centre" @click.self="">
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center" @click.self="">
     <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden" @click.stop>
       <div class="overflow-y-auto max-h-[90vh]">
       <!-- Header -->
       <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg z-10">
-        <div class="flex items-centre justify-between">
+        <div class="flex items-center justify-between">
           <h3 class="text-2xl font-semibold text-gray-900">
             {{ isEditMode ? 'Edit Property' : 'Add Property' }}
           </h3>
           <button
             @click="$emit('close')"
-            class="text-gray-400 hover:text-gray-600 transition-colours"
+            class="text-gray-400 hover:text-gray-600 transition-colors"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -20,14 +20,14 @@
 
         <!-- Progress Indicator -->
         <div class="mt-4">
-          <div class="flex items-centre justify-between">
+          <div class="flex items-center justify-between">
             <div
               v-for="(step, index) in activeSteps"
               :key="index"
-              class="flex-1 flex flex-col items-centre relative"
+              class="flex-1 flex flex-col items-center relative"
             >
               <div
-                class="w-10 h-10 rounded-full flex items-centre justify-centre border-2 transition-all cursor-pointer hover:opacity-80"
+                class="w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all cursor-pointer hover:opacity-80"
                 :class="
                   currentStep === index + 1
                     ? 'bg-blue-600 border-blue-600 text-white'
@@ -40,7 +40,7 @@
               >
                 {{ index + 1 }}
               </div>
-              <span class="text-xs mt-1 text-centre px-1" :class="currentStep === index + 1 ? 'text-blue-600 font-semibold' : 'text-gray-500'">
+              <span class="text-xs mt-1 text-center px-1" :class="currentStep === index + 1 ? 'text-blue-600 font-semibold' : 'text-gray-500'">
                 {{ step }}
               </span>
               <div
@@ -60,7 +60,7 @@
           <!-- Error Message -->
           <div v-if="error" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div class="flex items-start">
-              <svg class="w-5 h-5 text-red-600 mt-0.5 mr-2" fill="currentColour" viewBox="0 0 20 20">
+              <svg class="w-5 h-5 text-red-600 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
               </svg>
               <p class="text-sm text-red-700">{{ error }}</p>
@@ -82,10 +82,8 @@
               >
                 <option value="">Select property type</option>
                 <option value="main_residence">Main Residence</option>
-                <option value="second_home">Second Home</option>
+                <option value="secondary_residence">Secondary Residence</option>
                 <option value="buy_to_let">Buy to Let</option>
-                <option value="commercial">Commercial</option>
-                <option value="land">Land</option>
               </select>
             </div>
 
@@ -165,7 +163,7 @@
               <!-- Non-UK Property Message -->
               <div v-if="form.country !== 'United Kingdom'" class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
                 <p class="text-sm text-blue-800">
-                  <svg class="inline w-4 h-4 mr-1" fill="currentColour" viewBox="0 0 20 20">
+                  <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                   </svg>
                   Please enter values in GBP. Local currency and currency conversion is coming soon.
@@ -226,7 +224,7 @@
 
             <!-- Mortgage Checkbox -->
             <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-              <label class="flex items-centre cursor-pointer">
+              <label class="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   v-model="hasMortgage"
@@ -246,7 +244,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Tenure Type <span class="text-red-500">*</span></label>
               <div class="space-y-2">
-                <label class="flex items-centre">
+                <label class="flex items-center">
                   <input
                     type="radio"
                     v-model="form.tenure_type"
@@ -256,7 +254,7 @@
                   />
                   <span>Freehold</span>
                 </label>
-                <label class="flex items-centre">
+                <label class="flex items-center">
                   <input
                     type="radio"
                     v-model="form.tenure_type"
@@ -375,13 +373,13 @@
 
               <!-- Ownership Split Display -->
               <div class="bg-white p-3 rounded border border-blue-300">
-                <div class="flex justify-between items-centre">
+                <div class="flex justify-between items-center">
                   <div>
                     <p class="text-sm font-medium text-gray-700">Your Share</p>
                     <p class="text-2xl font-bold text-blue-600">50%</p>
                   </div>
                   <div class="text-gray-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
                   </div>
@@ -390,7 +388,7 @@
                     <p class="text-2xl font-bold text-blue-600">50%</p>
                   </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-centre">Equal shares - Passes to survivor automatically</p>
+                <p class="text-xs text-gray-500 mt-2 text-center">Equal shares - Passes to survivor automatically</p>
               </div>
 
               <!-- Joint Owner Selection -->
@@ -459,13 +457,13 @@
 
               <!-- Ownership Split Display -->
               <div class="bg-white p-3 rounded border border-green-300">
-                <div class="flex justify-between items-centre">
+                <div class="flex justify-between items-center">
                   <div>
                     <p class="text-sm font-medium text-gray-700">Your Share</p>
                     <p class="text-2xl font-bold text-green-600">{{ form.ownership_percentage || 0 }}%</p>
                   </div>
                   <div class="text-gray-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
                   </div>
@@ -474,7 +472,7 @@
                     <p class="text-2xl font-bold text-green-600">{{ coOwnerPercentage }}%</p>
                   </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-centre">Your share passes via your will or intestacy rules</p>
+                <p class="text-xs text-gray-500 mt-2 text-center">Your share passes via your will or intestacy rules</p>
               </div>
 
               <!-- Joint Owner Selection -->
@@ -525,7 +523,7 @@
               <!-- Trust Feature Notice -->
               <div class="p-3 bg-blue-50 border border-blue-200 rounded-md">
                 <p class="text-sm text-blue-800">
-                  <svg class="inline w-4 h-4 mr-1" fill="currentColour" viewBox="0 0 20 20">
+                  <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                   </svg>
                   While it is technically possible to gift or transfer a % of property into Trust, this feature will be coming in the Trust's update.
@@ -534,13 +532,13 @@
 
               <!-- Ownership Split Display -->
               <div class="bg-white p-3 rounded border border-purple-300">
-                <div class="flex justify-between items-centre">
+                <div class="flex justify-between items-center">
                   <div>
                     <p class="text-sm font-medium text-gray-700">Your Share</p>
                     <p class="text-2xl font-bold text-purple-600">0%</p>
                   </div>
                   <div class="text-gray-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
                   </div>
@@ -549,7 +547,7 @@
                     <p class="text-2xl font-bold text-purple-600">100%</p>
                   </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-centre">Property held entirely in trust</p>
+                <p class="text-xs text-gray-500 mt-2 text-center">Property held entirely in trust</p>
               </div>
 
               <!-- Trust Selection -->
@@ -878,7 +876,7 @@
                 <label for="monthly_service_charge" class="block text-sm font-medium text-gray-700 mb-1">
                   Service Charge (£/month)
                   <span class="relative inline-block group">
-                    <svg class="inline w-4 h-4 text-gray-400 cursor-help ml-1" fill="currentColour" viewBox="0 0 20 20">
+                    <svg class="inline w-4 h-4 text-gray-400 cursor-help ml-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                     </svg>
                     <span class="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-gray-900 rounded-md whitespace-nowrap z-10">
@@ -901,7 +899,7 @@
                 <label for="monthly_maintenance_reserve" class="block text-sm font-medium text-gray-700 mb-1">
                   Maintenance Reserve (£/month)
                   <span class="relative inline-block group">
-                    <svg class="inline w-4 h-4 text-gray-400 cursor-help ml-1" fill="currentColour" viewBox="0 0 20 20">
+                    <svg class="inline w-4 h-4 text-gray-400 cursor-help ml-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                     </svg>
                     <span class="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-gray-900 rounded-md whitespace-nowrap z-10">
@@ -935,7 +933,7 @@
 
             <!-- Total Monthly Costs Summary -->
             <div class="mt-6 p-4 bg-gray-50 border-2 border-gray-300 rounded-lg">
-              <div class="flex justify-between items-centre">
+              <div class="flex justify-between items-center">
                 <span class="text-lg font-semibold text-gray-900">Total Monthly Costs</span>
                 <span class="text-2xl font-bold text-gray-900">£{{ formatCurrency(totalMonthlyCosts) }}</span>
               </div>
@@ -1043,7 +1041,7 @@
             type="button"
             @click="previousStep"
             v-show="currentStep > 1"
-            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colours"
+            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
           >
             Previous
           </button>
@@ -1052,7 +1050,7 @@
             <button
               type="button"
               @click="$emit('close')"
-              class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colours"
+              class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
@@ -1061,7 +1059,7 @@
               v-if="currentStep < totalSteps"
               type="button"
               @click="nextStep"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colours"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               Next
             </button>
@@ -1070,7 +1068,7 @@
               v-else
               type="submit"
               :disabled="submitting"
-              class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colours disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ submitting ? 'Saving...' : 'Save Property' }}
             </button>

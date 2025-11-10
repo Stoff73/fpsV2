@@ -11,7 +11,7 @@
           class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
-          stroke="currentColour"
+          stroke="currentColor"
         >
           <path
             stroke-linecap="round"
@@ -62,7 +62,7 @@
 
     <!-- Goals Status -->
     <div
-      class="flex items-centre p-3 rounded-md"
+      class="flex items-center p-3 rounded-md"
       :class="goalsStatusClass"
     >
       <svg
@@ -70,7 +70,7 @@
         class="h-5 w-5 mr-2"
         :class="goalsIconClass"
         viewBox="0 0 20 20"
-        fill="currentColour"
+        fill="currentColor"
       >
         <path
           fill-rule="evenodd"

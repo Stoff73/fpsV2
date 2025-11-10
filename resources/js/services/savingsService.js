@@ -20,7 +20,7 @@ const savingsService = {
      * @returns {Promise} Analysis results with recommendations
      */
     async analyseSavings(data) {
-        const response = await api.post('/savings/analyse', data);
+        const response = await api.post('/savings/analyze', data);
         return response.data;
     },
 

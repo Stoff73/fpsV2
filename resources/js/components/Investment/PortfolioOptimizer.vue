@@ -1,6 +1,6 @@
 <template>
   <div class="portfolio-optimiser">
-    <div class="flex justify-between items-centre mb-6">
+    <div class="flex justify-between items-center mb-6">
       <div>
         <h3 class="text-lg font-semibold text-gray-900">Portfolio Optimiser</h3>
         <p class="text-sm text-gray-600 mt-1">
@@ -38,7 +38,7 @@
             <div class="flex items-start">
               <div class="flex-shrink-0">
                 <div :class="[
-                  'w-5 h-5 rounded-full border-2 flex items-centre justify-centre',
+                  'w-5 h-5 rounded-full border-2 flex items-center justify-center',
                   selectedStrategy === strategy.value
                     ? 'border-blue-600 bg-blue-600'
                     : 'border-gray-300'
@@ -60,7 +60,7 @@
         <label class="block text-sm font-medium text-gray-900 mb-2">
           Target Return
         </label>
-        <div class="flex items-centre gap-4">
+        <div class="flex items-center gap-4">
           <input
             v-model.number="targetReturn"
             type="number"
@@ -89,7 +89,7 @@
             <label class="block text-xs font-medium text-gray-700 mb-2">
               Minimum Weight per Asset
             </label>
-            <div class="flex items-centre gap-2">
+            <div class="flex items-center gap-2">
               <input
                 v-model.number="constraints.minWeight"
                 type="number"
@@ -110,7 +110,7 @@
             <label class="block text-xs font-medium text-gray-700 mb-2">
               Maximum Weight per Asset
             </label>
-            <div class="flex items-centre gap-2">
+            <div class="flex items-center gap-2">
               <input
                 v-model.number="constraints.maxWeight"
                 type="number"
@@ -146,7 +146,7 @@
       <!-- Error Display -->
       <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4">
         <div class="flex">
-          <svg class="h-5 w-5 text-red-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+          <svg class="h-5 w-5 text-red-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
@@ -247,7 +247,7 @@
       </div>
 
       <!-- Actions -->
-      <div class="flex justify-between items-centre">
+      <div class="flex justify-between items-center">
         <button
           @click="$emit('view-frontier')"
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"

@@ -11,7 +11,7 @@
     </div>
 
     <!-- Radial Gauge -->
-    <div class="flex justify-centre mb-6">
+    <div class="flex justify-center mb-6">
       <div class="relative w-48 h-48">
         <!-- SVG Radial Gauge -->
         <svg class="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
@@ -39,7 +39,7 @@
           />
         </svg>
         <!-- Score text -->
-        <div class="absolute inset-0 flex flex-col items-centre justify-centre">
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
           <span class="text-4xl font-bold" :class="scoreTextClass">
             {{ Math.round(compositeScore) }}
           </span>
@@ -49,7 +49,7 @@
     </div>
 
     <!-- Score Label -->
-    <div class="text-centre mb-6">
+    <div class="text-center mb-6">
       <span
         class="inline-block px-4 py-2 rounded-full text-sm font-semibold"
         :class="scoreBadgeClass"
@@ -64,13 +64,13 @@
 
       <!-- Protection -->
       <div class="space-y-1">
-        <div class="flex justify-between items-centre text-sm">
+        <div class="flex justify-between items-center text-sm">
           <span class="text-gray-700">Protection Coverage</span>
           <span class="font-semibold" :class="getScoreClass(protectionScore)">
             {{ Math.round(protectionScore) }}/100
           </span>
         </div>
-        <div class="flex items-centre text-xs text-gray-500">
+        <div class="flex items-center text-xs text-gray-500">
           <span>Weight: 20%</span>
           <span class="mx-2">•</span>
           <span>Contribution: {{ Math.round(protectionContribution) }} pts</span>
@@ -86,13 +86,13 @@
 
       <!-- Emergency Fund -->
       <div class="space-y-1">
-        <div class="flex justify-between items-centre text-sm">
+        <div class="flex justify-between items-center text-sm">
           <span class="text-gray-700">Emergency Fund</span>
           <span class="font-semibold" :class="getScoreClass(emergencyFundScore)">
             {{ Math.round(emergencyFundScore) }}/100
           </span>
         </div>
-        <div class="flex items-centre text-xs text-gray-500">
+        <div class="flex items-center text-xs text-gray-500">
           <span>Weight: 15%</span>
           <span class="mx-2">•</span>
           <span>Contribution: {{ Math.round(emergencyFundContribution) }} pts</span>
@@ -108,13 +108,13 @@
 
       <!-- Retirement Readiness -->
       <div class="space-y-1">
-        <div class="flex justify-between items-centre text-sm">
+        <div class="flex justify-between items-center text-sm">
           <span class="text-gray-700">Retirement Readiness</span>
           <span class="font-semibold" :class="getScoreClass(retirementScore)">
             {{ Math.round(retirementScore) }}/100
           </span>
         </div>
-        <div class="flex items-centre text-xs text-gray-500">
+        <div class="flex items-center text-xs text-gray-500">
           <span>Weight: 25%</span>
           <span class="mx-2">•</span>
           <span>Contribution: {{ Math.round(retirementContribution) }} pts</span>
@@ -130,13 +130,13 @@
 
       <!-- Investment Diversification -->
       <div class="space-y-1">
-        <div class="flex justify-between items-centre text-sm">
+        <div class="flex justify-between items-center text-sm">
           <span class="text-gray-700">Investment Diversification</span>
           <span class="font-semibold" :class="getScoreClass(investmentScore)">
             {{ Math.round(investmentScore) }}/100
           </span>
         </div>
-        <div class="flex items-centre text-xs text-gray-500">
+        <div class="flex items-center text-xs text-gray-500">
           <span>Weight: 20%</span>
           <span class="mx-2">•</span>
           <span>Contribution: {{ Math.round(investmentContribution) }} pts</span>
@@ -152,13 +152,13 @@
 
       <!-- Estate Planning -->
       <div class="space-y-1">
-        <div class="flex justify-between items-centre text-sm">
+        <div class="flex justify-between items-center text-sm">
           <span class="text-gray-700">Estate Planning</span>
           <span class="font-semibold" :class="getScoreClass(estateScore)">
             {{ Math.round(estateScore) }}/100
           </span>
         </div>
-        <div class="flex items-centre text-xs text-gray-500">
+        <div class="flex items-center text-xs text-gray-500">
           <span>Weight: 20%</span>
           <span class="mx-2">•</span>
           <span>Contribution: {{ Math.round(estateContribution) }} pts</span>
@@ -174,7 +174,7 @@
     </div>
 
     <!-- Recommendation Summary -->
-    <div v-if="!showDetails" class="mt-4 text-sm text-gray-600 text-centre">
+    <div v-if="!showDetails" class="mt-4 text-sm text-gray-600 text-center">
       {{ recommendation }}
     </div>
   </div>

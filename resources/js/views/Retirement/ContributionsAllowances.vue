@@ -16,7 +16,7 @@
 
       <!-- Warning if using estimated salary -->
       <div v-if="!profile?.current_income && dcPensions.length > 0" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex items-start">
-        <svg class="w-5 h-5 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
         </svg>
         <div>
@@ -35,7 +35,7 @@
             <div
               v-for="pension in dcPensions"
               :key="pension.id"
-              class="flex items-centre justify-between p-4 bg-gray-50 rounded-lg"
+              class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
             >
               <div>
                 <p class="font-medium text-gray-900">{{ pension.scheme_name }}</p>
@@ -60,14 +60,14 @@
               </div>
             </div>
           </div>
-          <div v-else class="text-centre text-gray-500 py-4">
+          <div v-else class="text-center text-gray-500 py-4">
             No DC pensions with contributions
           </div>
         </div>
 
         <!-- Total Contributions Summary -->
         <div class="border-t-2 border-gray-200 pt-4">
-          <div class="flex items-centre justify-between">
+          <div class="flex items-center justify-between">
             <p class="text-lg font-semibold text-gray-900">Total Contributions This Year</p>
             <p class="text-2xl font-bold text-indigo-600">
               £{{ totalContributionsThisYear.toLocaleString() }}
@@ -81,8 +81,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- Salary Sacrifice Benefits -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-centre mb-4">
-          <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <div class="flex items-center mb-4">
+          <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <h3 class="text-lg font-semibold text-gray-900">Salary Sacrifice</h3>
@@ -102,26 +102,26 @@
 
       <!-- Key Thresholds -->
       <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-centre mb-4">
-          <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <div class="flex items-center mb-4">
+          <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <h3 class="text-lg font-semibold text-gray-900">Key Thresholds (2024/25)</h3>
         </div>
         <div class="space-y-3">
-          <div class="flex items-centre justify-between p-3 bg-gray-50 rounded">
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
             <span class="text-sm text-gray-600">Standard Annual Allowance</span>
             <span class="font-semibold text-gray-900">£60,000</span>
           </div>
-          <div class="flex items-centre justify-between p-3 bg-gray-50 rounded">
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
             <span class="text-sm text-gray-600">Minimum Tapered Allowance</span>
             <span class="font-semibold text-gray-900">£10,000</span>
           </div>
-          <div class="flex items-centre justify-between p-3 bg-gray-50 rounded">
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
             <span class="text-sm text-gray-600">MPAA (if triggered)</span>
             <span class="font-semibold text-gray-900">£10,000</span>
           </div>
-          <div class="flex items-centre justify-between p-3 bg-gray-50 rounded">
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
             <span class="text-sm text-gray-600">Lifetime Allowance</span>
             <span class="font-semibold text-gray-900">Abolished</span>
           </div>
@@ -132,7 +132,7 @@
     <!-- Tapered Annual Allowance Info -->
     <div class="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-8">
       <div class="flex items-start">
-        <svg class="w-6 h-6 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColour" viewBox="0 0 24 24">
+        <svg class="w-6 h-6 text-amber-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
         <div>
@@ -155,7 +155,7 @@
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Contribution Strategy Tips</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex items-start">
-          <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-centre justify-centre mr-3">
+          <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
             <span class="text-indigo-600 font-bold">1</span>
           </div>
           <div>
@@ -164,7 +164,7 @@
           </div>
         </div>
         <div class="flex items-start">
-          <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-centre justify-centre mr-3">
+          <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
             <span class="text-indigo-600 font-bold">2</span>
           </div>
           <div>
@@ -173,7 +173,7 @@
           </div>
         </div>
         <div class="flex items-start">
-          <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-centre justify-centre mr-3">
+          <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
             <span class="text-indigo-600 font-bold">3</span>
           </div>
           <div>
@@ -182,7 +182,7 @@
           </div>
         </div>
         <div class="flex items-start">
-          <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-centre justify-centre mr-3">
+          <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
             <span class="text-indigo-600 font-bold">4</span>
           </div>
           <div>

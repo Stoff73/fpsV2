@@ -26,7 +26,7 @@
             xmlns="http://www.w3.org/2000/svg"
             class="h-5 w-5 text-red-600"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -39,7 +39,7 @@
             xmlns="http://www.w3.org/2000/svg"
             class="h-5 w-5 text-amber-600"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -52,7 +52,7 @@
             xmlns="http://www.w3.org/2000/svg"
             class="h-5 w-5 text-blue-600"
             viewBox="0 0 20 20"
-            fill="currentColour"
+            fill="currentColor"
           >
             <path
               fill-rule="evenodd"
@@ -70,7 +70,7 @@
                 {{ alert.title }}
               </p>
               <p class="text-sm text-gray-600 mt-1">{{ alert.message }}</p>
-              <div class="flex items-centre mt-2">
+              <div class="flex items-center mt-2">
                 <span
                   class="inline-block px-2 py-1 text-xs rounded-full"
                   :class="moduleBadgeClass(alert.module)"
@@ -98,7 +98,7 @@
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-5 w-5"
                 viewBox="0 0 20 20"
-                fill="currentColour"
+                fill="currentColor"
               >
                 <path
                   fill-rule="evenodd"
@@ -113,13 +113,13 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-centre py-8">
+    <div v-else class="text-center py-8">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-12 w-12 text-gray-300 mx-auto mb-3"
         fill="none"
         viewBox="0 0 24 24"
-        stroke="currentColour"
+        stroke="currentColor"
       >
         <path
           stroke-linecap="round"

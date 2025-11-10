@@ -26,7 +26,7 @@ class PropertyTaxService
      * Calculate Stamp Duty Land Tax (SDLT) for UK property purchase
      * Uses active tax year rates from TaxConfigService
      *
-     * @param  string  $propertyType  ('main_residence', 'second_home', 'buy_to_let')
+     * @param  string  $propertyType  ('main_residence', 'secondary_residence', 'buy_to_let')
      */
     public function calculateSDLT(float $purchasePrice, string $propertyType, bool $isFirstHome = false): array
     {

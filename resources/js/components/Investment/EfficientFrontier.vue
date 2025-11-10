@@ -1,6 +1,6 @@
 <template>
   <div class="efficient-frontier">
-    <div class="flex justify-between items-centre mb-6">
+    <div class="flex justify-between items-center mb-6">
       <div>
         <h3 class="text-lg font-semibold text-gray-900">Efficient Frontier</h3>
         <p class="text-sm text-gray-600 mt-1">
@@ -25,8 +25,8 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-centre justify-centre h-96">
-      <div class="text-centre">
+    <div v-if="loading" class="flex items-center justify-center h-96">
+      <div class="text-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p class="text-sm text-gray-600">Calculating efficient frontier...</p>
       </div>
@@ -35,7 +35,7 @@
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6">
       <div class="flex">
-        <svg class="h-6 w-6 text-red-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+        <svg class="h-6 w-6 text-red-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div>
@@ -61,9 +61,9 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Current Portfolio Card -->
         <div class="bg-white rounded-lg border border-gray-200 p-4">
-          <div class="flex items-centre justify-between mb-3">
+          <div class="flex items-center justify-between mb-3">
             <h4 class="text-sm font-semibold text-gray-900">Current Portfolio</h4>
-            <span class="inline-flex items-centre px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
               Current
             </span>
           </div>
@@ -85,9 +85,9 @@
 
         <!-- Tangency Portfolio Card -->
         <div class="bg-blue-50 rounded-lg border border-blue-200 p-4">
-          <div class="flex items-centre justify-between mb-3">
+          <div class="flex items-center justify-between mb-3">
             <h4 class="text-sm font-semibold text-blue-900">Optimal Portfolio</h4>
-            <span class="inline-flex items-centre px-2 py-1 rounded-full text-xs font-medium bg-blue-600 text-white">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-600 text-white">
               Max Sharpe
             </span>
           </div>
@@ -109,9 +109,9 @@
 
         <!-- Minimum Variance Portfolio Card -->
         <div class="bg-green-50 rounded-lg border border-green-200 p-4">
-          <div class="flex items-centre justify-between mb-3">
+          <div class="flex items-center justify-between mb-3">
             <h4 class="text-sm font-semibold text-green-900">Min Risk Portfolio</h4>
-            <span class="inline-flex items-centre px-2 py-1 rounded-full text-xs font-medium bg-green-600 text-white">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-600 text-white">
               Min Variance
             </span>
           </div>
@@ -179,9 +179,9 @@
     </div>
 
     <!-- No Data State -->
-    <div v-else class="flex items-centre justify-centre h-96">
-      <div class="text-centre max-w-md">
-        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColour">
+    <div v-else class="flex items-center justify-center h-96">
+      <div class="text-center max-w-md">
+        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
         <h4 class="text-lg font-semibold text-gray-900 mb-2">Insufficient Data</h4>

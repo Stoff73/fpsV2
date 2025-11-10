@@ -170,6 +170,115 @@ npm run dev
 - Always use `./dev.sh` script for local development
 - Clear terminal session before deployment: open fresh terminal, don't reuse dev terminal
 
+### 6. CANONICAL DATA TYPES - ONE SOURCE OF TRUTH
+
+**⚠️ ALL ASSET/LIABILITY/PROPERTY TYPES MUST USE CANONICAL VALUES DEFINED BY DATABASE MIGRATIONS**
+
+**CRITICAL PRINCIPLE**: Each entity type has ONE canonical set of values. NEVER introduce variations, synonyms, or alternative spellings.
+
+#### Property Types (ONLY THREE ALLOWED)
+
+**Canonical Values** (from `database/migrations/2025_10_17_142814_create_properties_table.php`):
+```php
+'main_residence'         → "Main Residence"
+'secondary_residence'    → "Secondary Residence"
+'buy_to_let'            → "Buy to Let"
+```
+
+**❌ FORBIDDEN VALUES - DO NOT USE:**
+- `second_home` (use `secondary_residence` instead)
+- `commercial` (removed from canonical list)
+- `land` (removed from canonical list)
+
+**Files to Update When Adding Property Types:**
+- Frontend: `PropertyForm.vue`, `PropertyCard.vue`, `PropertyList.vue`, `PropertyDetail.vue`, `PropertyTaxCalculator.vue`
+- Backend: `StorePropertyRequest.php`, `UpdatePropertyRequest.php`, `PropertyController.php`
+- Services: `PropertyTaxService.php`
+
+#### Investment Account Types
+
+**Canonical Values** (from `database/migrations/2025_10_14_091658_create_investment_accounts_table.php`):
+```php
+'isa'              → "ISA (Stocks & Shares)"
+'gia'              → "General Investment Account"
+'nsi'              → "NS&I (National Savings & Investments)"
+'onshore_bond'     → "Onshore Bond"
+'offshore_bond'    → "Offshore Bond"
+'vct'              → "VCT"
+'eis'              → "EIS"
+```
+
+#### Ownership Types (ALL MODULES)
+
+**Canonical Values** (used across Properties, Assets, Investments, Savings):
+```php
+'individual'       → "Individual" / "Sole Owner"
+'joint'           → "Joint Owner"
+'trust'           → "Trust" / "Held in Trust"
+```
+
+**❌ FORBIDDEN**: Never use `sole` - always use `individual`
+
+#### Liability Types
+
+**Canonical Values** (from `database/migrations/2025_10_14_075637_create_liabilities_table.php`):
+```php
+'mortgage'        → "Mortgage"
+'loan'           → "Loan"
+'credit_card'    → "Credit Card"
+'other'          → "Other"
+```
+
+#### Life Insurance Policy Types
+
+**Canonical Values** (from `database/migrations/2025_10_13_131230_create_life_insurance_policies_table.php`):
+```php
+'term'                    → "Term"
+'whole_of_life'          → "Whole of Life"
+'decreasing_term'        → "Decreasing Term"
+'family_income_benefit'  → "Family Income Benefit"
+'level_term'             → "Level Term"
+```
+
+#### Critical Illness Policy Types
+
+**Canonical Values** (from `database/migrations/2025_10_13_131230_create_critical_illness_policies_table.php`):
+```php
+'standalone'     → "Standalone"
+'accelerated'    → "Accelerated"
+'additional'     → "Additional"
+```
+
+#### Estate Asset Types
+
+**Canonical Values** (from `database/migrations/2025_10_14_075637_create_assets_table.php`):
+```php
+'property'       → "Property"
+'pension'        → "Pension"
+'investment'     → "Investment"
+'business'       → "Business"
+'other'          → "Other"
+```
+
+#### Savings Account Access Types
+
+**Canonical Values** (from `database/migrations/2025_10_14_075511_create_savings_accounts_table.php`):
+```php
+'immediate'      → "Immediate Access"
+'notice'         → "Notice Period"
+'fixed'          → "Fixed Term"
+```
+
+**ENFORCEMENT RULES:**
+1. **Database is Source of Truth**: Always check migration files first
+2. **No Variations**: If migration says `secondary_residence`, NEVER use `second_home` or `second residence`
+3. **Consistent Labels**: Display labels can vary, but underlying values MUST match database exactly
+4. **Backend Validation**: All Form Requests must validate against canonical values only
+5. **Frontend Forms**: All `<select>` options must use canonical values exactly
+6. **Display Components**: All label mapping objects must use canonical values as keys
+
+**VIOLATION OF THIS RULE CREATES DATA INCONSISTENCIES AND BUGS.**
+
 ---
 
 ## Project Overview
@@ -472,6 +581,61 @@ this.formData.start_date = this.formatDateForInput(policy.start_date);
 - PropertyForm.vue
 - DomicileInformationStep.vue
 
+### 3. Dashboard Card Layout Pattern
+
+**Dashboard Grid**: 3-column responsive grid (1 col mobile, 2 cols tablet, 3 cols desktop)
+
+**Card Order** (Dashboard.vue):
+1. Net Worth
+2. Estate Planning
+3. Protection
+4. Trusts
+5. Plans (spans 2 columns)
+6. UK Taxes & Allowances (Admin only)
+
+**Plans Card Special Layout**:
+- **Outer container**: Spans 2 columns on the dashboard grid using `<div class="sm:col-span-2">`
+- **Inner content**: Plan buttons displayed in 2-column grid using `grid grid-cols-2 gap-3`
+- **Card height**: Must use `h-full` class to match height of adjacent cards in the same row
+
+**Pattern**:
+```vue
+<!-- Dashboard.vue -->
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <!-- Regular cards (1 column each) -->
+  <NetWorthOverviewCard />
+  <EstateOverviewCard />
+  <ProtectionOverviewCard />
+  <TrustsOverviewCard />
+
+  <!-- Plans card spans 2 columns -->
+  <div class="sm:col-span-2">
+    <QuickActions />
+  </div>
+</div>
+
+<!-- QuickActions.vue (Plans card) -->
+<div class="card hover:shadow-lg transition-shadow h-full">
+  <!-- Card header -->
+  <div class="flex items-start justify-between mb-4">...</div>
+
+  <!-- Plan buttons in 2-column grid -->
+  <div class="grid grid-cols-2 gap-3">
+    <button>Protection Plan</button>
+    <button>Estate Plan</button>
+    <button>Investment & Savings Plan</button>
+    <!-- More plan buttons... -->
+  </div>
+</div>
+```
+
+**CRITICAL**:
+- ✅ Plans card spans 2 dashboard columns (using wrapper div with `sm:col-span-2`)
+- ✅ Plan buttons inside arranged in 2 columns (using `grid grid-cols-2`)
+- ✅ Plans card uses `h-full` to match height of Trusts card in same row
+- ❌ DO NOT make all dashboard cards span 2 columns
+- ❌ DO NOT display plan buttons in single column when card spans 2 columns
+
 ---
 
 ## Coding Standards
@@ -712,17 +876,112 @@ resources/js/
 
 **Scope**: Converted all user-facing text from American to British English spelling
 
-**Changes Applied**:
+**CRITICAL RULE**: British English for users, American English for code
+
+#### User-Facing Text (Use British Spelling)
+
+All text that users see in the interface must use British English:
+
+**Common Conversions**:
 - `-ize` → `-ise` (organise, analyse, optimise, realise, recognise, customise)
 - `-or` → `-our` (colour, behaviour, favour, neighbour)
 - `-er` → `-re` (centre, fibre, theatre)
 - Additional: travelling, cancelled, defence, offence
-- **Files Modified**: 252 Vue and JavaScript files across entire frontend
 
-**Technical Notes**:
-- Component names and file paths preserved as American spelling (code convention)
-- JavaScript API parameters unchanged (e.g., `behavior: 'smooth'`)
-- CSS class names unchanged (e.g., `items-center`)
+**Where to Apply British Spelling**:
+- ✅ Headings: `<h1>`, `<h2>`, `<h3>`, etc.
+- ✅ Body text: `<p>`, `<span>`, `<li>`, `<div>` text content
+- ✅ Labels: `<label>` text
+- ✅ Button text: `<button>` content
+- ✅ Form inputs: `placeholder=""` attributes
+- ✅ HTML attributes: `title=""`, `aria-label=""` (user-facing only)
+- ✅ Tab labels: `{ id: 'tab', label: 'Portfolio Optimisation' }`
+- ✅ Dropdown options: `<option>` text content
+- ✅ Error/success messages displayed to users
+- ✅ Tooltips and help text
+
+**Example**:
+```vue
+<!-- CORRECT -->
+<h2>Portfolio Optimisation</h2>
+<p>Analyse your portfolio and optimise returns</p>
+<button>Customise Settings</button>
+<label>Colour Scheme</label>
+<option>From Portfolio Optimisation</option>
+```
+
+#### Code Syntax (Use American Spelling - DO NOT CHANGE)
+
+All code-related text must remain in American English:
+
+**NEVER Change These**:
+- ❌ CSS class names: `items-center`, `justify-center`, `text-center`, `transition-colors` (Tailwind convention)
+- ❌ JavaScript properties: `behavior: 'smooth'`, `color: '#fff'` (ECMAScript standard)
+- ❌ API route endpoints: `/api/retirement/analyze`, `/optimization` (Laravel routing convention)
+- ❌ Variable names: `optimizationResult`, `centerPoint`, `colorScheme`
+- ❌ Object keys: `{ id: 'optimization', value: 123 }`
+- ❌ Router parameters: `to="/investment?tab=optimization"`
+- ❌ Component file names: `PortfolioOptimization.vue`, `ColorPicker.vue` (coding convention)
+- ❌ Import statements: `import { analyze } from './analyzer'`
+- ❌ Method names: `analyzePortfolio()`, `optimizeAllocation()`
+- ❌ CSS/SCSS property names: `text-align: center`, `background-color`
+- ❌ JavaScript comparisons: `if (activeTab === 'optimization')`
+- ❌ Computed properties: `computed: { optimization() { ... } }`
+
+**Example**:
+```vue
+<!-- CORRECT - Code syntax in American English -->
+<template>
+  <div class="flex items-center justify-center">
+    <router-link to="/investment?tab=optimization">
+      View Optimisation
+    </router-link>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      optimizationResult: null, // Variable name (code)
+    };
+  },
+  methods: {
+    analyzeData() { // Method name (code)
+      // User message (British)
+      this.message = 'Analysing your portfolio optimisation';
+    }
+  }
+}
+</script>
+
+<style>
+.center-text { /* Class name (code) */
+  text-align: center; /* CSS property (code) */
+  color: blue; /* CSS property (code) */
+}
+</style>
+```
+
+#### Quick Reference
+
+| Context | Spelling | Example |
+|---------|----------|---------|
+| HTML text content | **British** | `<h1>Portfolio Optimisation</h1>` |
+| Button labels | **British** | `<button>Customise</button>` |
+| CSS classes | **American** | `class="items-center"` |
+| JavaScript variables | **American** | `const optimizationResult = ...` |
+| API routes | **American** | `/api/retirement/analyze` |
+| Tab labels (user-facing) | **British** | `label: 'Optimisation'` |
+| Router links (code) | **American** | `to="/investment?tab=optimization"` |
+
+**Files Modified**: 252 Vue and JavaScript files (user-facing text only)
+
+**Verification**:
+- 21 instances of "optimization" → "optimisation" in user-facing text
+- 178 Vue files with CSS class corrections
+- 233 instances of `transition-colours` → `transition-colors` fixed
+- API endpoint fixed: `/analyse` → `/analyze` (code convention)
 
 ## Known Issues
 

@@ -9,7 +9,7 @@
 
     <!-- Total Liabilities Card -->
     <div class="card p-6 mb-6 bg-gradient-to-r from-error-50 to-error-100">
-      <div class="text-centre">
+      <div class="text-center">
         <p class="text-body-sm font-medium text-error-700">Total Liabilities</p>
         <p class="text-h2 font-display font-bold text-error-900 mt-2">
           {{ formatCurrency(liabilitiesSummary?.total || 0) }}
@@ -21,7 +21,7 @@
     <div class="space-y-4">
       <!-- Mortgages Section -->
       <div class="card p-6">
-        <div class="flex justify-between items-centre mb-4">
+        <div class="flex justify-between items-center mb-4">
           <h3 class="text-h5 font-semibold text-gray-900">Mortgages</h3>
           <span class="text-body-sm text-gray-500">
             {{ liabilitiesSummary?.mortgages?.count || 0 }} {{ liabilitiesSummary?.mortgages?.count === 1 ? 'mortgage' : 'mortgages' }}
@@ -32,7 +32,7 @@
           <div
             v-for="mortgage in mortgages"
             :key="mortgage.id"
-            class="flex justify-between items-centre py-3 border-b border-gray-200 last:border-0"
+            class="flex justify-between items-center py-3 border-b border-gray-200 last:border-0"
           >
             <div>
               <p class="text-body-base font-medium text-gray-900">
@@ -53,11 +53,11 @@
           </div>
         </div>
 
-        <div v-else class="text-centre py-4 text-gray-500">
+        <div v-else class="text-center py-4 text-gray-500">
           <p class="text-body-sm">No mortgages recorded</p>
         </div>
 
-        <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-centre">
+        <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
           <p class="text-body-base font-semibold text-gray-900">Total Mortgage Debt</p>
           <p class="text-h5 font-semibold text-gray-900">
             {{ formatCurrency(liabilitiesSummary?.mortgages?.total || 0) }}
@@ -67,7 +67,7 @@
 
       <!-- Other Liabilities Section -->
       <div class="card p-6">
-        <div class="flex justify-between items-centre mb-4">
+        <div class="flex justify-between items-center mb-4">
           <h3 class="text-h5 font-semibold text-gray-900">Other Liabilities</h3>
           <span class="text-body-sm text-gray-500">
             {{ liabilitiesSummary?.other?.count || 0 }} {{ liabilitiesSummary?.other?.count === 1 ? 'liability' : 'liabilities' }}
@@ -78,7 +78,7 @@
           <div
             v-for="liability in otherLiabilities"
             :key="liability.id"
-            class="flex justify-between items-centre py-3 border-b border-gray-200 last:border-0"
+            class="flex justify-between items-center py-3 border-b border-gray-200 last:border-0"
           >
             <div>
               <p class="text-body-base font-medium text-gray-900">{{ liability.description }}</p>
@@ -98,11 +98,11 @@
           </div>
         </div>
 
-        <div v-else class="text-centre py-4 text-gray-500">
+        <div v-else class="text-center py-4 text-gray-500">
           <p class="text-body-sm">No other liabilities recorded</p>
         </div>
 
-        <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-centre">
+        <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
           <p class="text-body-base font-semibold text-gray-900">Total Other Liabilities</p>
           <p class="text-h5 font-semibold text-gray-900">
             {{ formatCurrency(liabilitiesSummary?.other?.total || 0) }}

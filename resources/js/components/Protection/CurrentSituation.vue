@@ -4,7 +4,7 @@
     <div v-if="hasNoPolicies" class="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-8">
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg class="h-6 w-6 text-amber-600" fill="currentColour" viewBox="0 0 20 20">
+          <svg class="h-6 w-6 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
           </svg>
         </div>
@@ -26,13 +26,13 @@
             <div class="flex gap-3">
               <button
                 @click="$router.push('/protection')"
-                class="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colours font-medium text-sm"
+                class="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors font-medium text-sm"
               >
                 View Gap Analysis →
               </button>
               <button
                 @click="$emit('add-policy')"
-                class="px-4 py-2 bg-white text-amber-600 border border-amber-600 rounded-md hover:bg-amber-50 transition-colours font-medium text-sm"
+                class="px-4 py-2 bg-white text-amber-600 border border-amber-600 rounded-md hover:bg-amber-50 transition-colors font-medium text-sm"
               >
                 I Have Protection to Add
               </button>
@@ -40,7 +40,7 @@
 
             <!-- I Don't Have Protection Checkbox -->
             <div class="flex items-start pt-2 border-t border-amber-200">
-              <div class="flex items-centre h-5">
+              <div class="flex items-center h-5">
                 <input
                   id="has_no_policies"
                   v-model="hasNoPoliciesChecked"
@@ -99,25 +99,25 @@
     <div v-if="!hasNoPolicies" class="bg-white rounded-lg border border-gray-200 p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Risk Exposure</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="text-centre">
+        <div class="text-center">
           <div class="text-3xl font-bold text-blue-600 mb-1">
             {{ formatCurrency(humanCapital) }}
           </div>
           <div class="text-sm text-gray-600">Human Capital</div>
         </div>
-        <div class="text-centre">
+        <div class="text-center">
           <div class="text-3xl font-bold text-purple-600 mb-1">
             {{ formatCurrency(totalDebt) }}
           </div>
           <div class="text-sm text-gray-600">Total Debt</div>
         </div>
-        <div class="text-centre">
+        <div class="text-center">
           <div class="text-3xl font-bold text-green-600 mb-1">
             {{ formatCurrency(totalCoverage) }}
           </div>
           <div class="text-sm text-gray-600">Total Coverage</div>
         </div>
-        <div class="text-centre">
+        <div class="text-center">
           <div
             class="text-3xl font-bold mb-1"
             :class="coverageRatioColour"
