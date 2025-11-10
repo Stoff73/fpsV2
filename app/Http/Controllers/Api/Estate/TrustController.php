@@ -169,6 +169,8 @@ class TrustController extends Controller
         $assets = Asset::where('user_id', $user->id)->get();
         $liabilities = Liability::where('user_id', $user->id)->get();
         $gifts = Gift::where('user_id', $user->id)->get();
+        $trusts = Trust::where('user_id', $user->id)->where('is_active', true)->get();
+        $will = Will::where('user_id', $user->id)->first();
         $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
 
         // Create default profile if missing
@@ -188,7 +190,18 @@ class TrustController extends Controller
             ]);
         }
 
-        $ihtCalculation = $this->ihtCalculator->calculateIHTLiability($assets, $ihtProfile, $gifts);
+        // Calculate total liabilities value
+        $totalLiabilities = $liabilities->sum('amount');
+
+        $ihtCalculation = $this->ihtCalculator->calculateIHTLiability(
+            $assets,
+            $ihtProfile,
+            $gifts,
+            $trusts,
+            $totalLiabilities,
+            $will,
+            $user
+        );
 
         $circumstances = [
             'has_children' => $request->input('has_children', false),
