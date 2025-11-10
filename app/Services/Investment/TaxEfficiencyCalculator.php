@@ -21,6 +21,7 @@ class TaxEfficiencyCalculator
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Calculate unrealized gains across all holdings
      */

@@ -30,9 +30,6 @@ class RiskProfileController extends Controller
      * Get risk questionnaire
      *
      * GET /api/investment/risk-profile/questionnaire
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getQuestionnaire(Request $request): JsonResponse
     {
@@ -60,9 +57,6 @@ class RiskProfileController extends Controller
      * Calculate risk score from questionnaire answers
      *
      * POST /api/investment/risk-profile/calculate-score
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateScore(Request $request): JsonResponse
     {
@@ -107,9 +101,6 @@ class RiskProfileController extends Controller
      * Generate complete risk profile
      *
      * POST /api/investment/risk-profile/generate
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function generateProfile(Request $request): JsonResponse
     {
@@ -173,9 +164,6 @@ class RiskProfileController extends Controller
      * Analyze capacity for loss
      *
      * POST /api/investment/risk-profile/capacity
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function analyzeCapacity(Request $request): JsonResponse
     {
@@ -230,9 +218,6 @@ class RiskProfileController extends Controller
      * Get cached risk profile
      *
      * GET /api/investment/risk-profile
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getProfile(Request $request): JsonResponse
     {
@@ -270,9 +255,6 @@ class RiskProfileController extends Controller
      * Clear risk profile cache
      *
      * DELETE /api/investment/risk-profile/clear-cache
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function clearCache(Request $request): JsonResponse
     {
@@ -303,7 +285,6 @@ class RiskProfileController extends Controller
      * Clear user's risk profile cache (static method for use by other controllers)
      *
      * @param  int  $userId  User ID
-     * @return void
      */
     public static function clearUserRiskProfileCache(int $userId): void
     {

@@ -8,7 +8,6 @@ use App\Models\LetterToSpouse;
 use App\Models\Property;
 use App\Models\SavingsAccount;
 use App\Models\User;
-use Illuminate\Support\Collection;
 
 class LetterToSpouseService
 {
@@ -71,18 +70,18 @@ class LetterToSpouseService
     {
         $actions = [];
 
-        $actions[] = "1. Contact our executor immediately (details below)";
+        $actions[] = '1. Contact our executor immediately (details below)';
         $actions[] = "2. Notify my employer's HR department";
-        $actions[] = "3. Access joint bank accounts for immediate expenses";
-        $actions[] = "4. Contact our financial advisor for guidance";
+        $actions[] = '3. Access joint bank accounts for immediate expenses';
+        $actions[] = '4. Contact our financial advisor for guidance';
 
         if ($user->protectionProfile) {
-            $actions[] = "5. Contact life insurance companies to file claims (policy details below)";
+            $actions[] = '5. Contact life insurance companies to file claims (policy details below)';
         }
 
-        $actions[] = "6. Keep my mobile phone active for account verification";
-        $actions[] = "7. Register the death with the local registrar";
-        $actions[] = "8. Obtain multiple death certificates (at least 10 copies)";
+        $actions[] = '6. Keep my mobile phone active for account verification';
+        $actions[] = '7. Register the death with the local registrar';
+        $actions[] = '8. Obtain multiple death certificates (at least 10 copies)';
 
         return implode("\n", $actions);
     }
@@ -97,13 +96,13 @@ class LetterToSpouseService
             ->get();
 
         if ($savingsAccounts->isEmpty()) {
-            return "Note: Review which accounts are joint accounts that can be accessed immediately.";
+            return 'Note: Review which accounts are joint accounts that can be accessed immediately.';
         }
 
         $info = "Joint Accounts (Accessible Immediately):\n\n";
 
         foreach ($savingsAccounts as $account) {
-            $info .= "• {$account->institution} - £" . number_format((float) $account->current_balance, 2) . "\n";
+            $info .= "• {$account->institution} - £".number_format((float) $account->current_balance, 2)."\n";
         }
 
         $info .= "\nThese joint accounts remain accessible. Individual accounts may be frozen until probate.";
@@ -127,13 +126,13 @@ class LetterToSpouseService
         foreach ($savingsAccounts as $account) {
             $ownership = ucfirst($account->ownership_type ?? 'individual');
             $info .= "• {$account->institution}\n";
-            $info .= "  Account Type: " . ucfirst(str_replace('_', ' ', $account->account_type ?? 'savings')) . "\n";
+            $info .= '  Account Type: '.ucfirst(str_replace('_', ' ', $account->account_type ?? 'savings'))."\n";
             $info .= "  Ownership: {$ownership}\n";
-            $info .= "  Current Balance: £" . number_format((float) $account->current_balance, 2) . "\n";
+            $info .= '  Current Balance: £'.number_format((float) $account->current_balance, 2)."\n";
             $info .= "  Sort Code/Account Number: [Please add]\n\n";
         }
 
-        $info .= "Note: Add login credentials to password manager.";
+        $info .= 'Note: Add login credentials to password manager.';
 
         return $info;
     }
@@ -154,13 +153,13 @@ class LetterToSpouseService
         foreach ($investmentAccounts as $account) {
             $ownership = ucfirst($account->ownership_type ?? 'individual');
             $info .= "• {$account->provider}\n";
-            $info .= "  Account Type: " . strtoupper($account->account_type) . "\n";
+            $info .= '  Account Type: '.strtoupper($account->account_type)."\n";
             $info .= "  Ownership: {$ownership}\n";
-            $info .= "  Current Value: £" . number_format((float) $account->current_value, 2) . "\n";
+            $info .= '  Current Value: £'.number_format((float) $account->current_value, 2)."\n";
             $info .= "  Account Number: [Please add]\n\n";
         }
 
-        $info .= "Note: Add login credentials to password manager.";
+        $info .= 'Note: Add login credentials to password manager.';
 
         return $info;
     }
@@ -214,12 +213,12 @@ class LetterToSpouseService
         foreach ($policies as $policy) {
             $info .= "• {$policy['type']} - {$policy['provider']}\n";
             $info .= "  Policy Number: {$policy['policy_number']}\n";
-            $info .= "  Sum Assured: £" . number_format((float) $policy['sum_assured'], 2) . "\n";
+            $info .= '  Sum Assured: £'.number_format((float) $policy['sum_assured'], 2)."\n";
             $info .= "  Contact: [Add claims phone number]\n\n";
         }
 
         $info .= "Home Insurance: [Please add details]\n";
-        $info .= "Auto Insurance: [Please add details]";
+        $info .= 'Auto Insurance: [Please add details]';
 
         return $info;
     }
@@ -240,13 +239,13 @@ class LetterToSpouseService
         foreach ($properties as $property) {
             $ownership = ucfirst($property->ownership_type ?? 'individual');
             $info .= "• {$property->address_line_1}, {$property->city}, {$property->postcode}\n";
-            $info .= "  Type: " . ucfirst(str_replace('_', ' ', $property->property_type ?? 'residential')) . "\n";
+            $info .= '  Type: '.ucfirst(str_replace('_', ' ', $property->property_type ?? 'residential'))."\n";
             $info .= "  Ownership: {$ownership}\n";
-            $info .= "  Current Value: £" . number_format((float) $property->current_value, 2) . "\n";
-            $info .= "  Use: " . ucfirst($property->property_use ?? 'primary_residence') . "\n";
+            $info .= '  Current Value: £'.number_format((float) $property->current_value, 2)."\n";
+            $info .= '  Use: '.ucfirst($property->property_use ?? 'primary_residence')."\n";
 
             if ($property->outstanding_mortgage > 0) {
-                $info .= "  Outstanding Mortgage: £" . number_format((float) $property->outstanding_mortgage, 2) . "\n";
+                $info .= '  Outstanding Mortgage: £'.number_format((float) $property->outstanding_mortgage, 2)."\n";
             }
 
             $info .= "  Title Deeds Location: [Please add]\n\n";
@@ -264,7 +263,7 @@ class LetterToSpouseService
         $mortgages = $user->mortgages;
 
         if ($liabilities->isEmpty() && $mortgages->isEmpty()) {
-            return "No outstanding liabilities recorded.";
+            return 'No outstanding liabilities recorded.';
         }
 
         $info = "Outstanding Liabilities:\n\n";
@@ -272,17 +271,17 @@ class LetterToSpouseService
         // Mortgages
         foreach ($mortgages as $mortgage) {
             $info .= "• Mortgage - {$mortgage->lender}\n";
-            $info .= "  Outstanding: £" . number_format((float) $mortgage->outstanding_balance, 2) . "\n";
-            $info .= "  Monthly Payment: £" . number_format((float) $mortgage->monthly_payment, 2) . "\n";
+            $info .= '  Outstanding: £'.number_format((float) $mortgage->outstanding_balance, 2)."\n";
+            $info .= '  Monthly Payment: £'.number_format((float) $mortgage->monthly_payment, 2)."\n";
             $info .= "  Account Number: [Please add]\n\n";
         }
 
         // Other liabilities
         foreach ($liabilities as $liability) {
-            $info .= "• " . ucfirst(str_replace('_', ' ', $liability->liability_type ?? 'loan')) . " - {$liability->creditor}\n";
-            $info .= "  Outstanding: £" . number_format((float) $liability->outstanding_balance, 2) . "\n";
+            $info .= '• '.ucfirst(str_replace('_', ' ', $liability->liability_type ?? 'loan'))." - {$liability->creditor}\n";
+            $info .= '  Outstanding: £'.number_format((float) $liability->outstanding_balance, 2)."\n";
             if ($liability->monthly_payment) {
-                $info .= "  Monthly Payment: £" . number_format((float) $liability->monthly_payment, 2) . "\n";
+                $info .= '  Monthly Payment: £'.number_format((float) $liability->monthly_payment, 2)."\n";
             }
             $info .= "  Account Number: [Please add]\n\n";
         }
@@ -305,7 +304,7 @@ class LetterToSpouseService
 
         foreach ($familyMembers as $member) {
             $info .= "• {$member->name}\n";
-            $info .= "  Relationship: " . ucfirst($member->relationship ?? 'dependent') . "\n";
+            $info .= '  Relationship: '.ucfirst($member->relationship ?? 'dependent')."\n";
             if ($member->date_of_birth) {
                 $age = \Carbon\Carbon::parse($member->date_of_birth)->age;
                 $info .= "  Age: {$age}\n";
@@ -313,7 +312,7 @@ class LetterToSpouseService
             $info .= "\n";
         }
 
-        $info .= "Review life insurance beneficiary designations and pension death benefits.";
+        $info .= 'Review life insurance beneficiary designations and pension death benefits.';
 
         return $info;
     }
@@ -352,7 +351,7 @@ class LetterToSpouseService
 
         if ($user->annual_employment_income > 0 || $user->annual_self_employment_income > 0) {
             $totalIncome = ($user->annual_employment_income ?? 0) + ($user->annual_self_employment_income ?? 0);
-            $info .= "Current Household Income: £" . number_format((float) $totalIncome, 2) . " per year\n\n";
+            $info .= 'Current Household Income: £'.number_format((float) $totalIncome, 2)." per year\n\n";
         }
 
         $info .= "Please contact our financial advisor for guidance on:\n";
@@ -362,7 +361,7 @@ class LetterToSpouseService
         $info .= "• Investment portfolio rebalancing\n";
         $info .= "• Inheritance tax planning\n\n";
 
-        $info .= "Consider waiting at least 6 months before making major financial decisions.";
+        $info .= 'Consider waiting at least 6 months before making major financial decisions.';
 
         return $info;
     }

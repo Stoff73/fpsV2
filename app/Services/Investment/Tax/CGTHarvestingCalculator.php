@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Investment\Tax;
 
-use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\Holding;
+use App\Models\Investment\InvestmentAccount;
 use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
 
@@ -35,6 +35,7 @@ class CGTHarvestingCalculator
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Calculate tax-loss harvesting opportunities
      *
@@ -211,7 +212,7 @@ class CGTHarvestingCalculator
             ? $holding->purchase_date
             : new \DateTime($holding->purchase_date);
 
-        $now = new \DateTime();
+        $now = new \DateTime;
         $interval = $purchaseDate->diff($now);
 
         return (int) $interval->days;
@@ -412,6 +413,7 @@ class CGTHarvestingCalculator
             if ($remainingGains <= 0) {
                 // No more gains to offset - keep rest for future
                 $strategy['harvest_later'][] = $opp;
+
                 continue;
             }
 
@@ -495,7 +497,7 @@ class CGTHarvestingCalculator
      */
     private function getRepurchaseDate(): string
     {
-        $date = new \DateTime();
+        $date = new \DateTime;
         $date->modify('+30 days');
 
         return $date->format('Y-m-d');
@@ -508,7 +510,7 @@ class CGTHarvestingCalculator
      */
     private function getMonthsToYearEnd(): int
     {
-        $now = new \DateTime();
+        $now = new \DateTime;
         $currentYear = (int) $now->format('Y');
         $currentMonth = (int) $now->format('m');
 

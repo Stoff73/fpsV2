@@ -53,6 +53,7 @@ class Holding extends Model
 
     /**
      * Investment account relationship (for backward compatibility)
+     *
      * @deprecated Use holdable() instead
      */
     public function investmentAccount(): BelongsTo

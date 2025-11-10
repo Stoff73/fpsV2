@@ -516,7 +516,7 @@ class IHTController extends Controller
                         'years_until_death' => $yearsUntilDeath,
                         'estimated_age_at_death' => $estimatedAgeAtDeath,
                         'is_user' => true, // User dies second (no spouse data available)
-                        'name' => $user->first_name . ' ' . $user->last_name,
+                        'name' => $user->first_name.' '.$user->last_name,
                         'projected_combined_estate_at_second_death' => $projectedNetEstate,
                     ],
                     'first_death' => [

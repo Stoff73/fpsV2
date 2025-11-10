@@ -29,6 +29,7 @@ class ContributionOptimizer
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Optimize pension contributions based on retirement profile and goals.
      */

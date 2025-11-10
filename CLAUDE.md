@@ -851,30 +851,48 @@ resources/js/
 
 ## Recent Fixes (November 2025)
 
-### Expenditure Data Type Fix ✅
+### November 10, 2025 - Estate & Investment Bug Fixes ✅
 
-**Issue**: Expenditure totals displaying as "£NaN" due to incorrect data type handling
+**Summary**: 11 critical bug fixes across Estate, Investment, Protection, and Net Worth modules
 
-**Resolution**:
+**Commit Range**: 135b7f6 → f94fa73 (merge commit)
+
+**Key Fixes**:
+1. **Estate Plan API Field Naming** - Fixed `optimised_recommendation` → `optimized_recommendation` (API uses American spelling)
+2. **Investment Plan Polymorphic Relationships** - Fixed Holdings queries to use `holdable_type`/`holdable_id` instead of non-existent `investment_account_id`
+3. **Property Type Standardisation** - Enforced ONE SOURCE OF TRUTH, removed all `second_home` fallbacks
+4. **Estate Life Policy Strategy** - Added complete `second_death_analysis` structure when spouse data unavailable
+5. **Estate Trust Strategy** - Fixed TrustController to pass all 7 required parameters to calculateIHTLiability()
+6. **Estate Overview Data Loading** - Fixed Dashboard to call appropriate IHT calculation based on marital status
+7. **Estate IHT Math for Married Couples** - Implemented correct second death scenario: combined NRB (£650k), combined RNRB (£350k), no spouse exemption
+8. **Dashboard Estate Values** - Fixed store getters to display current IHT values instead of projected values
+9. **Protection Card Icon** - Changed from document to shield-check icon
+10. **Life Insurance "In Trust" Checkbox** - Added checkbox for policies held in trust (works in onboarding and protection module)
+11. **Git Branch Merge** - Successfully merged feature/investment-financial-planning into main
+
+**Files Modified**: 11 files across backend (Laravel) and frontend (Vue.js)
+
+**Status**: ✅ Complete - All fixes deployed to main branch
+
+**See**: `NOVEMBER_10_2025_FIXES.md` for detailed breakdown of each fix
+
+### November 9, 2025 - Data Type and UI Improvements ✅
+
+**Expenditure Data Type Fix**:
 - Changed database columns from `DECIMAL(15,2)` to `DOUBLE` for all income and expenditure fields
 - Updated Eloquent model casts from `'decimal:2'` to `'float'` in User model
 - Migration: `2025_11_09_133324_change_expenditure_columns_to_double.php`
 - **Impact**: All monetary values now serialize as numbers instead of strings, preventing NaN issues
 
-### User Profile UI Improvements ✅
-
-**Edit Button Repositioning**:
+**User Profile UI Improvements**:
 - Moved "Edit Information" button from bottom to top right in all User Profile tabs
-- Affected components:
-  - `PersonalInformation.vue`
-  - `IncomeOccupation.vue`
-  - `DomicileInformation.vue`
-  - `HealthInformation.vue` (already had button at top)
+- Affected components: PersonalInformation.vue, IncomeOccupation.vue, DomicileInformation.vue, HealthInformation.vue
 - **Benefit**: Improved UX with consistent button placement
 
-### British Spelling Conversion ✅
-
-**Scope**: Converted all user-facing text from American to British English spelling
+**British Spelling Conversion**:
+- Converted all user-facing text from American to British English spelling
+- **Files Modified**: 252 Vue and JavaScript files
+- **Verification**: Fixed 233 instances of `transition-colours` → `transition-colors`, corrected API endpoint `/analyse` → `/analyze`
 
 **CRITICAL RULE**: British English for users, American English for code
 
@@ -1029,7 +1047,7 @@ export default {
 ---
 
 **Current Version**: v0.2.1 (Beta)
-**Last Updated**: November 9, 2025
+**Last Updated**: November 10, 2025
 **Status**: 🚀 Active Development - Core Modules Complete
 
 ---

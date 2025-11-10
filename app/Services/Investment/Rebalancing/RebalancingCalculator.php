@@ -6,7 +6,6 @@ namespace App\Services\Investment\Rebalancing;
 
 use App\Models\Investment\InvestmentAccount;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Calculate rebalancing trades to move from current to target allocation
@@ -334,7 +333,7 @@ class RebalancingCalculator
             0 // Will calculate percentage in controller
         );
 
-        return implode('. ', $parts) . '.';
+        return implode('. ', $parts).'.';
     }
 
     /**

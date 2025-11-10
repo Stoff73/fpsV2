@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Investment\Performance;
 
-use App\Models\Investment\InvestmentAccount;
-use Illuminate\Support\Collection;
-
 /**
  * Benchmark Comparator
  * Compares portfolio performance against standard market benchmarks

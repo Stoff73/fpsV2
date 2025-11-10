@@ -31,9 +31,6 @@ class PortfolioOptimizationController extends Controller
 
     /**
      * Calculate efficient frontier for user's portfolio
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateEfficientFrontier(Request $request): JsonResponse
     {
@@ -90,9 +87,6 @@ class PortfolioOptimizationController extends Controller
 
     /**
      * Optimize portfolio for minimum variance
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function optimizeMinimumVariance(Request $request): JsonResponse
     {
@@ -166,9 +160,6 @@ class PortfolioOptimizationController extends Controller
 
     /**
      * Optimize portfolio for maximum Sharpe ratio
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function optimizeMaximumSharpe(Request $request): JsonResponse
     {
@@ -245,9 +236,6 @@ class PortfolioOptimizationController extends Controller
 
     /**
      * Optimize portfolio for target return
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function optimizeTargetReturn(Request $request): JsonResponse
     {
@@ -324,9 +312,6 @@ class PortfolioOptimizationController extends Controller
 
     /**
      * Calculate risk parity portfolio
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function optimizeRiskParity(Request $request): JsonResponse
     {
@@ -394,9 +379,6 @@ class PortfolioOptimizationController extends Controller
 
     /**
      * Get current portfolio position on efficient frontier
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getCurrentPosition(Request $request): JsonResponse
     {
@@ -441,9 +423,6 @@ class PortfolioOptimizationController extends Controller
 
     /**
      * Get correlation matrix for user's holdings
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getCorrelationMatrix(Request $request): JsonResponse
     {
@@ -533,9 +512,6 @@ class PortfolioOptimizationController extends Controller
 
     /**
      * Clear cached efficient frontier calculations
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function clearCache(Request $request): JsonResponse
     {
@@ -553,7 +529,6 @@ class PortfolioOptimizationController extends Controller
      * Can be called statically from other controllers when holdings change
      *
      * @param  int  $userId  User ID
-     * @return void
      */
     public static function clearUserOptimizationCache(int $userId): void
     {
@@ -577,5 +552,4 @@ class PortfolioOptimizationController extends Controller
 
         Log::info('Cleared optimization caches for user', ['user_id' => $userId]);
     }
-
 }

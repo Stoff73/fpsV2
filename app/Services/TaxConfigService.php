@@ -34,7 +34,6 @@ class TaxConfigService
     /**
      * Get the full active tax configuration
      *
-     * @return array
      * @throws RuntimeException if no active tax year found
      */
     public function getAll(): array
@@ -45,9 +44,9 @@ class TaxConfigService
     /**
      * Get a specific tax configuration value using dot notation
      *
-     * @param string $key Dot notation key (e.g., 'income_tax.personal_allowance')
-     * @param mixed $default Default value if key doesn't exist
-     * @return mixed
+     * @param  string  $key  Dot notation key (e.g., 'income_tax.personal_allowance')
+     * @param  mixed  $default  Default value if key doesn't exist
+     *
      * @throws RuntimeException if no active tax year found
      */
     public function get(string $key, mixed $default = null): mixed
@@ -60,8 +59,7 @@ class TaxConfigService
     /**
      * Check if a configuration key exists
      *
-     * @param string $key Dot notation key
-     * @return bool
+     * @param  string  $key  Dot notation key
      */
     public function has(string $key): bool
     {
@@ -74,6 +72,7 @@ class TaxConfigService
      * Get the active tax year string
      *
      * @return string e.g., '2025/26'
+     *
      * @throws RuntimeException if no active tax year found
      */
     public function getTaxYear(): string
@@ -85,6 +84,7 @@ class TaxConfigService
      * Get the effective from date
      *
      * @return string e.g., '2025-04-06'
+     *
      * @throws RuntimeException if no active tax year found
      */
     public function getEffectiveFrom(): string
@@ -96,6 +96,7 @@ class TaxConfigService
      * Get the effective to date
      *
      * @return string e.g., '2026-04-05'
+     *
      * @throws RuntimeException if no active tax year found
      */
     public function getEffectiveTo(): string
@@ -106,8 +107,7 @@ class TaxConfigService
     /**
      * Check if a date falls within the current tax year
      *
-     * @param \Carbon\Carbon|string $date
-     * @return bool
+     * @param  \Carbon\Carbon|string  $date
      */
     public function isInCurrentTaxYear($date): bool
     {
@@ -252,7 +252,6 @@ class TaxConfigService
     /**
      * Load active tax configuration (with request-scoped caching)
      *
-     * @return array
      * @throws RuntimeException if no active tax year found
      */
     private function loadActiveConfig(): array
@@ -285,8 +284,6 @@ class TaxConfigService
 
     /**
      * Clear cached configuration (mainly for testing)
-     *
-     * @return void
      */
     public function clearCache(): void
     {
@@ -296,8 +293,6 @@ class TaxConfigService
 
     /**
      * Get the underlying TaxConfiguration model (if needed for relationships)
-     *
-     * @return TaxConfiguration|null
      */
     public function getModel(): ?TaxConfiguration
     {
@@ -321,8 +316,7 @@ class TaxConfigService
     /**
      * Get joint ownership type information
      *
-     * @param string|null $type Optional specific type ('joint_tenancy' or 'tenants_in_common')
-     * @return array|null
+     * @param  string|null  $type  Optional specific type ('joint_tenancy' or 'tenants_in_common')
      */
     public function getJointOwnershipType(?string $type = null): ?array
     {
@@ -348,7 +342,6 @@ class TaxConfigService
     /**
      * Check if a leasehold property is approaching problematic remaining lease term
      *
-     * @param int $remainingYears
      * @return array Returns warnings and thresholds
      */
     public function getLeaseholdValuationWarnings(int $remainingYears): array
@@ -361,14 +354,14 @@ class TaxConfigService
         if ($remainingYears < $thresholds['difficult_to_mortgage']) {
             $warnings[] = [
                 'level' => 'warning',
-                'message' => 'Properties with less than ' . $thresholds['difficult_to_mortgage'] . ' years remaining may be difficult to mortgage',
+                'message' => 'Properties with less than '.$thresholds['difficult_to_mortgage'].' years remaining may be difficult to mortgage',
             ];
         }
 
         if ($remainingYears < $thresholds['significant_value_loss']) {
             $warnings[] = [
                 'level' => 'danger',
-                'message' => 'Properties with less than ' . $thresholds['significant_value_loss'] . ' years remaining may significantly lose value',
+                'message' => 'Properties with less than '.$thresholds['significant_value_loss'].' years remaining may significantly lose value',
             ];
         }
 
@@ -382,9 +375,6 @@ class TaxConfigService
 
     /**
      * Check if joint tenancy has survivorship rights (for IHT calculations)
-     *
-     * @param string $jointOwnershipType
-     * @return bool
      */
     public function hasSurvivorshipRights(string $jointOwnershipType): bool
     {
@@ -395,9 +385,6 @@ class TaxConfigService
 
     /**
      * Check if joint ownership type allows will override
-     *
-     * @param string $jointOwnershipType
-     * @return bool
      */
     public function allowsWillOverride(string $jointOwnershipType): bool
     {

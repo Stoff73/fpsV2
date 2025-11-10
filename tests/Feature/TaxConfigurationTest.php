@@ -108,7 +108,7 @@ class TaxConfigurationTest extends TestCase
             ->postJson("/api/tax-settings/{$config2025->id}/activate");
 
         // Create fresh service instance to pick up new active config
-        $taxService = new TaxConfigService();
+        $taxService = new TaxConfigService;
         $incomeTax = $taxService->getIncomeTax();
 
         // Verify service uses new config

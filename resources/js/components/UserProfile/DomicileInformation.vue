@@ -78,7 +78,7 @@
             id="uk_arrival_date"
             v-model="form.uk_arrival_date"
             type="date"
-            class="form-input"
+            class="input-field"
             :max="today"
             :required="shouldShowUKArrivalDate"
             :disabled="!isEditing"

@@ -149,7 +149,7 @@ class RebalancingStrategyService
         string $frequency = 'annual'
     ): array {
         $lastRebalance = new \DateTime($lastRebalanceDate);
-        $today = new \DateTime();
+        $today = new \DateTime;
         $daysSince = $today->diff($lastRebalance)->days;
 
         $frequencyDays = match ($frequency) {
@@ -442,11 +442,6 @@ class RebalancingStrategyService
 
     /**
      * Generate threshold strategy recommendation
-     *
-     * @param  bool  $needsRebalancing
-     * @param  float  $maxDrift
-     * @param  float  $threshold
-     * @return string
      */
     private function generateThresholdRecommendation(
         bool $needsRebalancing,
@@ -470,10 +465,6 @@ class RebalancingStrategyService
 
     /**
      * Generate tolerance band recommendation
-     *
-     * @param  bool  $needsRebalancing
-     * @param  int  $breachCount
-     * @return string
      */
     private function generateToleranceBandRecommendation(
         bool $needsRebalancing,
@@ -492,11 +483,6 @@ class RebalancingStrategyService
 
     /**
      * Generate calendar recommendation
-     *
-     * @param  bool  $needsRebalancing
-     * @param  int  $daysUntilNext
-     * @param  string  $nextDate
-     * @return string
      */
     private function generateCalendarRecommendation(
         bool $needsRebalancing,
@@ -516,11 +502,6 @@ class RebalancingStrategyService
 
     /**
      * Generate opportunistic recommendation
-     *
-     * @param  bool  $feasible
-     * @param  bool  $isContribution
-     * @param  float  $cashFlowPercent
-     * @return string
      */
     private function generateOpportunisticRecommendation(
         bool $feasible,

@@ -654,55 +654,7 @@ export default {
     };
 
     onMounted(async () => {
-      // Load existing user data if available
-      const currentUser = store.getters['auth/currentUser'];
-      if (currentUser) {
-        // Check if user has detailed breakdown or just totals
-        const hasDetailedData =
-          (currentUser.food_groceries || 0) > 0 ||
-          (currentUser.transport_fuel || 0) > 0 ||
-          (currentUser.healthcare_medical || 0) > 0 ||
-          (currentUser.insurance || 0) > 0 ||
-          (currentUser.mobile_phones || 0) > 0 ||
-          (currentUser.internet_tv || 0) > 0 ||
-          (currentUser.subscriptions || 0) > 0 ||
-          (currentUser.clothing_personal_care || 0) > 0 ||
-          (currentUser.entertainment_dining || 0) > 0 ||
-          (currentUser.holidays_travel || 0) > 0 ||
-          (currentUser.pets || 0) > 0 ||
-          (currentUser.childcare || 0) > 0 ||
-          (currentUser.school_fees || 0) > 0 ||
-          (currentUser.children_activities || 0) > 0 ||
-          (currentUser.other_expenditure || 0) > 0;
-
-        if (hasDetailedData) {
-          // Load detailed breakdown
-          useSimpleEntry.value = false;
-          formData.value = {
-            food_groceries: currentUser.food_groceries || 0,
-            transport_fuel: currentUser.transport_fuel || 0,
-            healthcare_medical: currentUser.healthcare_medical || 0,
-            insurance: currentUser.insurance || 0,
-            mobile_phones: currentUser.mobile_phones || 0,
-            internet_tv: currentUser.internet_tv || 0,
-            subscriptions: currentUser.subscriptions || 0,
-            clothing_personal_care: currentUser.clothing_personal_care || 0,
-            entertainment_dining: currentUser.entertainment_dining || 0,
-            holidays_travel: currentUser.holidays_travel || 0,
-            pets: currentUser.pets || 0,
-            childcare: currentUser.childcare || 0,
-            school_fees: currentUser.school_fees || 0,
-            children_activities: currentUser.children_activities || 0,
-            other_expenditure: currentUser.other_expenditure || 0,
-          };
-        } else if (currentUser.monthly_expenditure && currentUser.monthly_expenditure > 0) {
-          // Load simple total
-          useSimpleEntry.value = true;
-          simpleMonthlyExpenditure.value = currentUser.monthly_expenditure || 0;
-        }
-      }
-
-      // Load existing step data if available
+      // ONLY load from backend API - single source of truth
       try {
         const stepData = await store.dispatch('onboarding/fetchStepData', 'expenditure');
         if (stepData && Object.keys(stepData).length > 0) {
@@ -726,7 +678,6 @@ export default {
 
           if (hasStepDetailedData) {
             useSimpleEntry.value = false;
-            // Load only the category fields, NOT the totals (to avoid compounding)
             formData.value = {
               food_groceries: stepData.food_groceries || 0,
               transport_fuel: stepData.transport_fuel || 0,
@@ -750,7 +701,7 @@ export default {
           }
         }
       } catch (err) {
-        // No existing data, start fresh
+        // No existing data, start with empty form (correct for new users)
       }
     });
 

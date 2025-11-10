@@ -52,7 +52,7 @@
             v-model="form.name"
             type="text"
             required
-            class="form-input"
+            class="input-field"
             :disabled="!isEditing"
           />
         </div>
@@ -67,7 +67,7 @@
             v-model="form.email"
             type="email"
             required
-            class="form-input"
+            class="input-field"
             :disabled="!isEditing"
           />
         </div>
@@ -81,7 +81,7 @@
             id="date_of_birth"
             v-model="form.date_of_birth"
             type="date"
-            class="form-input"
+            class="input-field"
             :disabled="!isEditing"
           />
         </div>
@@ -94,7 +94,7 @@
           <select
             id="gender"
             v-model="form.gender"
-            class="form-select"
+            class="input-field"
             :disabled="!isEditing"
           >
             <option value="">Select gender</option>
@@ -112,7 +112,7 @@
           <select
             id="marital_status"
             v-model="form.marital_status"
-            class="form-select"
+            class="input-field"
             :disabled="!isEditing"
           >
             <option value="">Select status</option>
@@ -134,7 +134,7 @@
             type="text"
             placeholder="AB123456C"
             maxlength="9"
-            class="form-input uppercase"
+            class="input-field uppercase"
             :disabled="!isEditing"
           />
         </div>
@@ -149,7 +149,7 @@
             v-model="form.phone"
             type="tel"
             placeholder="+44 or 0"
-            class="form-input"
+            class="input-field"
             :disabled="!isEditing"
           />
         </div>
@@ -162,7 +162,7 @@
           <select
             id="education_level"
             v-model="form.education_level"
-            class="form-select"
+            class="input-field"
             :disabled="!isEditing"
           >
             <option value="">Select...</option>
@@ -189,7 +189,7 @@
               id="address_line_1"
               v-model="form.address_line_1"
               type="text"
-              class="form-input"
+              class="input-field"
               :disabled="!isEditing"
             />
           </div>
@@ -203,7 +203,7 @@
               id="address_line_2"
               v-model="form.address_line_2"
               type="text"
-              class="form-input"
+              class="input-field"
               :disabled="!isEditing"
             />
           </div>
@@ -217,7 +217,7 @@
               id="city"
               v-model="form.city"
               type="text"
-              class="form-input"
+              class="input-field"
               :disabled="!isEditing"
             />
           </div>
@@ -231,7 +231,7 @@
               id="county"
               v-model="form.county"
               type="text"
-              class="form-input"
+              class="input-field"
               :disabled="!isEditing"
             />
           </div>
@@ -246,7 +246,7 @@
               v-model="form.postcode"
               type="text"
               placeholder="SW1A 1AA"
-              class="form-input uppercase"
+              class="input-field uppercase"
               :disabled="!isEditing"
             />
           </div>

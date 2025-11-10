@@ -22,14 +22,14 @@ return new class extends Migration
                 'yes',
                 'no_previous',
                 'no_existing',
-                'no_both'
+                'no_both',
             ])->default('yes')->after('occupation');
 
             $table->enum('smoking_status', [
                 'never',
                 'quit_recent',
                 'quit_long_ago',
-                'yes'
+                'yes',
             ])->default('never')->after('health_status');
         });
     }

@@ -64,7 +64,6 @@ class DriftAnalyzer
     /**
      * Calculate current allocation from holdings
      *
-     * @param  Collection  $holdings
      * @return array Current allocation by asset class
      */
     private function calculateCurrentAllocation(Collection $holdings): array
@@ -192,7 +191,6 @@ class DriftAnalyzer
      * Calculate drift score (0-100)
      * 0 = perfect alignment, 100 = severe drift
      *
-     * @param  array  $driftMetrics
      * @return float Drift score
      */
     private function calculateDriftScore(array $driftMetrics): float
@@ -303,8 +301,6 @@ class DriftAnalyzer
     /**
      * Generate drift recommendation
      *
-     * @param  float  $driftScore
-     * @param  array  $urgency
      * @return string Recommendation text
      */
     private function generateDriftRecommendation(float $driftScore, array $urgency): string

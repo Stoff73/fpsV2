@@ -23,7 +23,7 @@ return new class extends Migration
                 'undergraduate',
                 'postgraduate',
                 'professional',
-                'other'
+                'other',
             ])->nullable()->after('smoker');
         });
     }

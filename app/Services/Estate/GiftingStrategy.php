@@ -24,6 +24,7 @@ class GiftingStrategy
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Analyze potentially exempt transfers (PETs)
      */

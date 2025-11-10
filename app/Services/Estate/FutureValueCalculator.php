@@ -23,6 +23,7 @@ class FutureValueCalculator
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Get life expectancy for user based on UK ONS actuarial tables
      *

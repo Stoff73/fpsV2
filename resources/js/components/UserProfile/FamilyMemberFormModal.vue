@@ -25,7 +25,7 @@
                 id="relationship"
                 v-model="form.relationship"
                 required
-                class="form-select"
+                class="input-field"
               >
                 <option value="">Select relationship</option>
                 <option value="spouse">Spouse</option>
@@ -49,7 +49,7 @@
                 v-model="form.email"
                 type="email"
                 :required="form.relationship === 'spouse'"
-                class="form-input"
+                class="input-field"
                 placeholder="spouse@example.com"
               />
               <p class="mt-1 text-body-xs text-gray-500">
@@ -67,7 +67,7 @@
                 v-model="form.name"
                 type="text"
                 required
-                class="form-input"
+                class="input-field"
               />
             </div>
 
@@ -81,7 +81,7 @@
                   id="date_of_birth"
                   v-model="form.date_of_birth"
                   type="date"
-                  class="form-input"
+                  class="input-field"
                 />
               </div>
 
@@ -93,7 +93,7 @@
                 <select
                   id="gender"
                   v-model="form.gender"
-                  class="form-select"
+                  class="input-field"
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
@@ -116,7 +116,7 @@
                   type="text"
                   placeholder="AB123456C"
                   maxlength="9"
-                  class="form-input uppercase"
+                  class="input-field uppercase"
                 />
               </div>
 
@@ -135,7 +135,7 @@
                     type="number"
                     step="0.01"
                     min="0"
-                    class="form-input pl-7"
+                    class="input-field pl-7"
                     placeholder="0.00"
                   />
                 </div>
@@ -170,16 +170,16 @@
               <select
                 id="education_status"
                 v-model="form.education_status"
-                class="form-select"
+                class="input-field"
               >
                 <option value="">Select status</option>
-                <option value="nursery">Nursery</option>
+                <option value="pre_school">Pre-School/Nursery</option>
                 <option value="primary">Primary</option>
                 <option value="secondary">Secondary</option>
-                <option value="sixth_form">Sixth Form</option>
-                <option value="university">University</option>
+                <option value="further_education">Further Education (Sixth Form/College)</option>
+                <option value="higher_education">Higher Education (University)</option>
                 <option value="graduated">Graduated</option>
-                <option value="not_in_education">Not in Education</option>
+                <option value="not_applicable">Not in Education</option>
               </select>
             </div>
 

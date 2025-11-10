@@ -6,8 +6,8 @@ namespace App\Services\NetWorth;
 
 use App\Models\BusinessInterest;
 use App\Models\Chattel;
-use App\Models\DCPension;
 use App\Models\DBPension;
+use App\Models\DCPension;
 use App\Models\Investment\InvestmentAccount;
 use App\Models\PersonalAccount;
 use App\Models\Property;

@@ -244,6 +244,7 @@ class EfficientFrontierCalculator
                     'target_return' => $targetReturn,
                     'error' => $e->getMessage(),
                 ]);
+
                 continue;
             }
         }

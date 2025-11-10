@@ -43,7 +43,6 @@ api.interceptors.response.use(
           console.error('[API] 401 Unauthorized - Token expired or invalid. Redirecting to login...');
           // Clear token and redirect to login for protected routes
           localStorage.removeItem('auth_token');
-          localStorage.removeItem('user');
           // Get the base path from the current location to handle subfolder deployments
           const basePath = window.location.pathname.includes('/fps/') ? '/fps' : '';
           window.location.href = `${basePath}/login`;

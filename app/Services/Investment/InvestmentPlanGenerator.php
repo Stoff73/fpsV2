@@ -35,10 +35,6 @@ class InvestmentPlanGenerator
 
     /**
      * Generate a comprehensive investment plan for a user
-     *
-     * @param  int  $userId
-     * @param  array  $options
-     * @return array
      */
     public function generatePlan(int $userId, array $options = []): array
     {

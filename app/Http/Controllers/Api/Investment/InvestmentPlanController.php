@@ -26,9 +26,6 @@ class InvestmentPlanController extends Controller
      * Generate a comprehensive investment plan
      *
      * POST /api/investment/generate-plan
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function generatePlan(Request $request): JsonResponse
     {
@@ -65,9 +62,6 @@ class InvestmentPlanController extends Controller
      * Get the latest investment plan
      *
      * GET /api/investment/plan
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getLatestPlan(Request $request): JsonResponse
     {
@@ -120,10 +114,6 @@ class InvestmentPlanController extends Controller
      * Get a specific investment plan by ID
      *
      * GET /api/investment/plan/{id}
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return JsonResponse
      */
     public function getPlanById(Request $request, int $id): JsonResponse
     {
@@ -171,9 +161,6 @@ class InvestmentPlanController extends Controller
      * Get all investment plans for the user
      *
      * GET /api/investment/plans
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getAllPlans(Request $request): JsonResponse
     {
@@ -216,10 +203,6 @@ class InvestmentPlanController extends Controller
      * Delete an investment plan
      *
      * DELETE /api/investment/plan/{id}
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return JsonResponse
      */
     public function deletePlan(Request $request, int $id): JsonResponse
     {
@@ -265,9 +248,6 @@ class InvestmentPlanController extends Controller
      * Clear cached plan
      *
      * DELETE /api/investment/plan/clear-cache
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function clearCache(Request $request): JsonResponse
     {

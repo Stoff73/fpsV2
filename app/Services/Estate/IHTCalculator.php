@@ -27,6 +27,7 @@ class IHTCalculator
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Calculate IHT liability on an estate
      *

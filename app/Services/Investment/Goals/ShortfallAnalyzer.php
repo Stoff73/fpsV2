@@ -184,7 +184,7 @@ class ShortfallAnalyzer
      */
     private function calculateYearsToGoal(string $targetDate): float
     {
-        $now = new \DateTime();
+        $now = new \DateTime;
         $target = new \DateTime($targetDate);
         $interval = $now->diff($target);
 

@@ -60,7 +60,7 @@ class ProtectionController extends Controller
             'criticalIllnessPolicies',
             'incomeProtectionPolicies',
             'disabilityPolicies',
-            'sicknessIllnessPolicies'
+            'sicknessIllnessPolicies',
         ]);
 
         $lifePolicies = $user->lifeInsurancePolicies;

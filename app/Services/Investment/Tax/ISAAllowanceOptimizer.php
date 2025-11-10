@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Investment\Tax;
 
-use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\Holding;
+use App\Models\Investment\InvestmentAccount;
 use App\Models\Savings\SavingsAccount;
 use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
@@ -37,6 +37,7 @@ class ISAAllowanceOptimizer
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Calculate optimal ISA contribution strategy
      *
@@ -545,7 +546,7 @@ class ISAAllowanceOptimizer
     private function getMonthsRemainingInTaxYear(string $taxYear): int
     {
         $taxYearEnd = $this->getTaxYearEnd($taxYear);
-        $now = new \DateTime();
+        $now = new \DateTime;
         $end = new \DateTime($taxYearEnd);
 
         $interval = $now->diff($end);
@@ -580,7 +581,7 @@ class ISAAllowanceOptimizer
      */
     private function getCurrentTaxYear(): string
     {
-        $now = new \DateTime();
+        $now = new \DateTime;
         $currentYear = (int) $now->format('Y');
         $currentMonth = (int) $now->format('m');
         $currentDay = (int) $now->format('d');

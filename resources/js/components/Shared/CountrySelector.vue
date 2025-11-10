@@ -18,7 +18,7 @@
         :placeholder="placeholder"
         :disabled="disabled"
         :required="required"
-        class="form-input pr-10"
+        class="input-field pr-10"
         :class="{ 'cursor-not-allowed bg-gray-100': disabled }"
         @focus="showDropdown = true"
         @blur="handleBlur"

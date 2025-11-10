@@ -17,7 +17,7 @@
           <select
             id="property_type"
             v-model="formData.property_type"
-            class="form-select"
+            class="input-field"
             required
           >
             <option value="">Select property type</option>
@@ -35,7 +35,7 @@
             id="address"
             v-model="formData.address"
             type="text"
-            class="form-input"
+            class="input-field"
             placeholder="123 Main Street, London"
             required
           />
@@ -49,7 +49,7 @@
             id="postcode"
             v-model="formData.postcode"
             type="text"
-            class="form-input"
+            class="input-field"
             placeholder="SW1A 1AA"
           />
         </div>
@@ -63,7 +63,7 @@
             type="number"
             step="any"
             min="0"
-            class="form-input"
+            class="input-field"
             placeholder="500000"
             required
           />
@@ -79,7 +79,7 @@
             type="number"
             step="any"
             min="0"
-            class="form-input"
+            class="input-field"
             placeholder="400000"
           />
         </div>
@@ -91,7 +91,7 @@
             id="purchase_date"
             v-model="formData.purchase_date"
             type="date"
-            class="form-input"
+            class="input-field"
           />
         </div>
 
@@ -104,7 +104,7 @@
             type="number"
             step="any"
             min="0"
-            class="form-input"
+            class="input-field"
             placeholder="200000"
           />
         </div>
@@ -118,7 +118,7 @@
             type="number"
             step="any"
             min="0"
-            class="form-input"
+            class="input-field"
             placeholder="2000"
           />
         </div>
@@ -158,7 +158,7 @@
             step="any"
             min="0"
             max="100"
-            class="form-input"
+            class="input-field"
             placeholder="50"
           />
         </div>
@@ -169,7 +169,7 @@
           <select
             id="joint_owner_id"
             v-model="formData.joint_owner_id"
-            class="form-select"
+            class="input-field"
             required
           >
             <option value="">Select joint owner</option>
@@ -419,8 +419,8 @@ export default {
   margin-bottom: 6px;
 }
 
-.form-input,
-.form-select,
+.input-field,
+.input-field,
 .form-textarea {
   width: 100%;
   padding: 10px 12px;
@@ -431,8 +431,8 @@ export default {
   transition: all 0.2s;
 }
 
-.form-input:focus,
-.form-select:focus,
+.input-field:focus,
+.input-field:focus,
 .form-textarea:focus {
   outline: none;
   border-color: #3b82f6;

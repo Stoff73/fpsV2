@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         // Change interest_rate from DECIMAL(5,4) to DECIMAL(5,2) to support percentages up to 999.99%
-        DB::statement("ALTER TABLE liabilities MODIFY COLUMN interest_rate DECIMAL(5,2) NULL");
+        DB::statement('ALTER TABLE liabilities MODIFY COLUMN interest_rate DECIMAL(5,2) NULL');
     }
 
     /**
@@ -20,6 +20,6 @@ return new class extends Migration
     public function down(): void
     {
         // Revert back to DECIMAL(5,4)
-        DB::statement("ALTER TABLE liabilities MODIFY COLUMN interest_rate DECIMAL(5,4) NULL");
+        DB::statement('ALTER TABLE liabilities MODIFY COLUMN interest_rate DECIMAL(5,4) NULL');
     }
 };

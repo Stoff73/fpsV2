@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Investment;
 
 use App\Http\Controllers\Controller;
+use App\Services\Investment\AssetLocation\AccountTypeRecommender;
 use App\Services\Investment\AssetLocation\AssetLocationOptimizer;
 use App\Services\Investment\AssetLocation\TaxDragCalculator;
-use App\Services\Investment\AssetLocation\AccountTypeRecommender;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -30,9 +30,6 @@ class AssetLocationController extends Controller
      * Get comprehensive asset location analysis
      *
      * GET /api/investment/asset-location/analyze
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function analyzeAssetLocation(Request $request): JsonResponse
     {
@@ -90,9 +87,6 @@ class AssetLocationController extends Controller
      * Get placement recommendations for all holdings
      *
      * GET /api/investment/asset-location/recommendations
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getRecommendations(Request $request): JsonResponse
     {
@@ -157,9 +151,6 @@ class AssetLocationController extends Controller
      * Calculate portfolio tax drag
      *
      * GET /api/investment/asset-location/tax-drag
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateTaxDrag(Request $request): JsonResponse
     {
@@ -191,9 +182,6 @@ class AssetLocationController extends Controller
      * Get optimization score
      *
      * GET /api/investment/asset-location/optimization-score
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getOptimizationScore(Request $request): JsonResponse
     {
@@ -243,9 +231,6 @@ class AssetLocationController extends Controller
      * Compare account types for a specific holding
      *
      * POST /api/investment/asset-location/compare-accounts
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function compareAccountTypes(Request $request): JsonResponse
     {
@@ -266,15 +251,10 @@ class AssetLocationController extends Controller
         $validated = $validator->validated();
 
         try {
-            $holding = \App\Models\Investment\Holding::find($validated['holding_id']);
-
-            // Verify ownership
-            if ($holding->investmentAccount->user_id !== $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to holding',
-                ], 403);
-            }
+            // SECURITY: Fetch with ownership check to prevent information disclosure
+            $holding = \App\Models\Investment\Holding::whereHas('investmentAccount', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->where('id', $validated['holding_id'])->firstOrFail();
 
             $userTaxProfile = $this->buildDefaultTaxProfile($user);
             $comparison = $this->taxDragCalculator->compareAccountTypes($holding, $userTaxProfile);
@@ -302,9 +282,6 @@ class AssetLocationController extends Controller
      * Clear asset location caches
      *
      * DELETE /api/investment/asset-location/clear-cache
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function clearCache(Request $request): JsonResponse
     {
@@ -348,7 +325,7 @@ class AssetLocationController extends Controller
     {
         $annualIncome = $user->gross_annual_income ?? 50000;
         $age = $user->date_of_birth
-            ? (new \DateTime())->diff(new \DateTime($user->date_of_birth))->y
+            ? (new \DateTime)->diff(new \DateTime($user->date_of_birth))->y
             : 45;
 
         return [
@@ -389,7 +366,6 @@ class AssetLocationController extends Controller
      * Clear user's asset location cache (static method for use by other controllers)
      *
      * @param  int  $userId  User ID
-     * @return void
      */
     public static function clearUserAssetLocationCache(int $userId): void
     {

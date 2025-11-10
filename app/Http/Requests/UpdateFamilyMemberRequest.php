@@ -23,14 +23,14 @@ class UpdateFamilyMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'relationship' => ['sometimes', Rule::in(['spouse', 'child', 'step_child', 'parent', 'other_dependent'])],
+            'relationship' => ['sometimes', Rule::in(['spouse', 'child', 'parent', 'other_dependent'])],
             'name' => ['sometimes', 'string', 'max:255'],
             'date_of_birth' => ['sometimes', 'nullable', 'date', 'before:today'],
             'gender' => ['sometimes', 'nullable', Rule::in(['male', 'female', 'other', 'prefer_not_to_say'])],
             'national_insurance_number' => ['sometimes', 'nullable', 'string', 'regex:/^[A-Z]{2}[0-9]{6}[A-Z]{1}$/'],
             'annual_income' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'is_dependent' => ['sometimes', 'boolean'],
-            'education_status' => ['sometimes', 'nullable', Rule::in(['nursery', 'primary', 'secondary', 'sixth_form', 'university', 'graduated', 'not_in_education'])],
+            'education_status' => ['sometimes', 'nullable', Rule::in(['pre_school', 'primary', 'secondary', 'further_education', 'higher_education', 'graduated', 'not_applicable'])],
             'notes' => ['sometimes', 'nullable', 'string', 'max:1000'],
         ];
     }

@@ -18,7 +18,7 @@
             id="start_date"
             v-model="period.start_date"
             type="date"
-            class="form-input"
+            class="input-field"
           />
         </div>
         <div>
@@ -29,7 +29,7 @@
             id="end_date"
             v-model="period.end_date"
             type="date"
-            class="form-input"
+            class="input-field"
           />
         </div>
         <div>
@@ -40,7 +40,7 @@
             id="as_of_date"
             v-model="period.as_of_date"
             type="date"
-            class="form-input"
+            class="input-field"
           />
         </div>
         <div class="flex items-end">

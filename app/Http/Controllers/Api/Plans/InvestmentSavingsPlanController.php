@@ -39,7 +39,7 @@ class InvestmentSavingsPlanController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate plan: ' . $e->getMessage(),
+                'message' => 'Failed to generate plan: '.$e->getMessage(),
             ], 500);
         }
     }

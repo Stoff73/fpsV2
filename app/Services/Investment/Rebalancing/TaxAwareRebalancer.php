@@ -6,7 +6,6 @@ namespace App\Services\Investment\Rebalancing;
 
 use App\Models\Investment\Holding;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Tax-aware rebalancing optimizer
@@ -324,7 +323,7 @@ class TaxAwareRebalancer
             ? $holding->purchase_date
             : new \DateTime($holding->purchase_date);
 
-        $now = new \DateTime();
+        $now = new \DateTime;
         $interval = $purchaseDate->diff($now);
 
         return (int) $interval->days;
@@ -393,7 +392,7 @@ class TaxAwareRebalancer
             );
         }
 
-        return implode('. ', $parts) . '.';
+        return implode('. ', $parts).'.';
     }
 
     /**
@@ -476,6 +475,7 @@ class TaxAwareRebalancer
             if ($gainOrLoss < 0) {
                 $selectedActions[] = $action;
                 $cumulativeGains += $gainOrLoss;
+
                 continue;
             }
 

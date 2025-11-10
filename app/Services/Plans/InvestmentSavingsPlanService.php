@@ -6,8 +6,8 @@ namespace App\Services\Plans;
 
 use App\Agents\InvestmentAgent;
 use App\Agents\SavingsAgent;
-use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\Holding;
+use App\Models\Investment\InvestmentAccount;
 use App\Models\SavingsAccount;
 use App\Models\User;
 
@@ -45,7 +45,7 @@ class InvestmentSavingsPlanService
 
         // Build comprehensive plan
         return [
-            'plan_id' => 'inv_sav_' . time(),
+            'plan_id' => 'inv_sav_'.time(),
             'generated_at' => now()->toIso8601String(),
             'user_name' => $user->name,
 
@@ -208,7 +208,7 @@ class InvestmentSavingsPlanService
                     'priority' => $maxDeviation > 10 ? 'High' : 'Medium',
                     'recommendations' => [
                         'Rebalance portfolio to target allocation',
-                        'Maximum deviation: ' . round($maxDeviation, 1) . '%',
+                        'Maximum deviation: '.round($maxDeviation, 1).'%',
                         'Consider tax implications when rebalancing',
                     ],
                 ];
@@ -247,7 +247,7 @@ class InvestmentSavingsPlanService
                     'potential_saving' => round(abs($totalLoss) * 0.20, 2), // 20% CGT
                     'recommendations' => [
                         'Harvest tax losses to offset gains',
-                        count($opportunities) . ' opportunities identified',
+                        count($opportunities).' opportunities identified',
                         'Potential CGT savings available',
                     ],
                 ];
@@ -370,7 +370,7 @@ class InvestmentSavingsPlanService
                 'category' => 'Emergency Fund',
                 'priority' => $runway < 3 ? 'Critical' : 'High',
                 'current_status' => $emergencyFund['category'] ?? 'Unknown',
-                'action_required' => "Build emergency fund to 6 months of expenses",
+                'action_required' => 'Build emergency fund to 6 months of expenses',
                 'shortfall_amount' => round($shortfallAmount, 2),
                 'suggested_monthly_contribution' => round($monthlyTopUp, 2),
                 'timeline' => '12 months',
@@ -483,7 +483,7 @@ class InvestmentSavingsPlanService
                 $actions[] = [
                     'priority' => $priority++,
                     'category' => 'Tax Optimization',
-                    'action' => "Implement tax-efficient investment strategy",
+                    'action' => 'Implement tax-efficient investment strategy',
                     'urgency' => 'Medium',
                     'timeline' => '2-3 months',
                 ];
@@ -525,6 +525,7 @@ class InvestmentSavingsPlanService
         if ($runway >= 1) {
             return 'orange';
         }
+
         return 'red';
     }
 
@@ -536,6 +537,7 @@ class InvestmentSavingsPlanService
         return collect($recommendations)
             ->sortByDesc(function ($rec) {
                 $priorities = ['Critical' => 4, 'High' => 3, 'Medium' => 2, 'Low' => 1];
+
                 return $priorities[$rec['priority']] ?? 0;
             })
             ->take(3)

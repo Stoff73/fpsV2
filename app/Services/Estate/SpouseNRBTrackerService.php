@@ -24,6 +24,7 @@ class SpouseNRBTrackerService
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Calculate how much NRB the spouse has used from their own estate
      *

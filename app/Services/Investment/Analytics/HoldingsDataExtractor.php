@@ -79,7 +79,6 @@ class HoldingsDataExtractor
      * Extract expected returns, labels, and metadata from holdings
      *
      * @param  Collection  $holdings  Holdings collection
-     * @return array
      */
     private function extractHoldingsData(Collection $holdings): array
     {
@@ -190,7 +189,7 @@ class HoldingsDataExtractor
         $purchaseDateObj = $purchaseDate instanceof \DateTime
             ? $purchaseDate
             : new \DateTime($purchaseDate);
-        $now = new \DateTime();
+        $now = new \DateTime;
         $interval = $purchaseDateObj->diff($now);
         $yearsHeld = $interval->y + ($interval->m / 12) + ($interval->d / 365);
 
@@ -282,7 +281,7 @@ class HoldingsDataExtractor
 
         // Check for invalid returns
         foreach ($data['expected_returns'] as $index => $return) {
-            if (!is_numeric($return) || $return < -0.50 || $return > 1.0) {
+            if (! is_numeric($return) || $return < -0.50 || $return > 1.0) {
                 $errors[] = "Invalid expected return for holding {$index}: {$return}";
             }
         }

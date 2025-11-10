@@ -55,7 +55,7 @@
               id="occupation"
               v-model="form.occupation"
               type="text"
-              class="form-input"
+              class="input-field"
               :disabled="!isEditing"
               placeholder="e.g., Software Engineer"
             />
@@ -70,7 +70,7 @@
               id="employer"
               v-model="form.employer"
               type="text"
-              class="form-input"
+              class="input-field"
               :disabled="!isEditing"
               placeholder="e.g., Tech Corp Ltd"
             />
@@ -85,7 +85,7 @@
               id="industry"
               v-model="form.industry"
               type="text"
-              class="form-input"
+              class="input-field"
               :disabled="!isEditing"
               placeholder="e.g., Technology"
             />
@@ -99,7 +99,7 @@
             <select
               id="employment_status"
               v-model="form.employment_status"
-              class="form-select"
+              class="input-field"
               :disabled="!isEditing"
             >
               <option value="">Select status</option>
@@ -123,7 +123,7 @@
               type="number"
               min="55"
               max="75"
-              class="form-input"
+              class="input-field"
               :disabled="!isEditing"
               placeholder="65"
             />
@@ -140,7 +140,7 @@
               v-model="form.retirement_date"
               type="date"
               :max="today"
-              class="form-input"
+              class="input-field"
               :disabled="!isEditing"
             />
             <p class="mt-1 text-body-xs text-gray-500">The date you retired from work</p>
@@ -183,7 +183,7 @@
                 type="number"
                 step="0.01"
                 min="0"
-                class="form-input pl-7"
+                class="input-field pl-7"
                 :disabled="!isEditing"
                 placeholder="0.00"
               />
@@ -205,7 +205,7 @@
                 type="number"
                 step="0.01"
                 min="0"
-                class="form-input pl-7"
+                class="input-field pl-7"
                 :disabled="!isEditing"
                 placeholder="0.00"
               />
@@ -227,7 +227,7 @@
                 type="number"
                 step="0.01"
                 min="0"
-                class="form-input pl-7 bg-gray-50"
+                class="input-field pl-7 bg-gray-50"
                 disabled
                 placeholder="0.00"
               />
@@ -250,7 +250,7 @@
                 type="number"
                 step="0.01"
                 min="0"
-                class="form-input pl-7"
+                class="input-field pl-7"
                 :disabled="!isEditing"
                 placeholder="0.00"
               />
@@ -272,7 +272,7 @@
                 type="number"
                 step="0.01"
                 min="0"
-                class="form-input pl-7"
+                class="input-field pl-7"
                 :disabled="!isEditing"
                 placeholder="0.00"
               />
@@ -291,7 +291,7 @@
               <input
                 :value="totalIncome"
                 type="text"
-                class="form-input pl-7 bg-gray-50"
+                class="input-field pl-7 bg-gray-50"
                 disabled
               />
             </div>

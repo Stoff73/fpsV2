@@ -23,6 +23,7 @@ class TrustService
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Calculate the next periodic charge date for a relevant property trust
      */

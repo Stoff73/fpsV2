@@ -23,6 +23,7 @@ class CashFlowProjector
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Create personal profit & loss statement for a tax year
      */

@@ -2,7 +2,7 @@ import authService from '@/services/authService';
 
 const state = {
   token: authService.getToken(),
-  user: authService.getStoredUser(),
+  user: null, // NEVER cache user in state - always fetch fresh from API
   loading: false,
   error: null,
 };
@@ -17,16 +17,21 @@ const getters = {
 };
 
 const actions = {
-  async register({ commit }, userData) {
+  async register({ commit, dispatch }, userData) {
     commit('setLoading', true);
     commit('setError', null);
 
+    // Clear any existing auth state to prevent data leakage
+    commit('clearAuth');
+
     try {
       const response = await authService.register(userData);
-      commit('setAuth', {
-        token: response.data.access_token,
-        user: response.data.user,
-      });
+      // Store ONLY the token
+      commit('setToken', response.data.access_token);
+
+      // Fetch user data fresh from API (not from registration response)
+      await dispatch('fetchUser');
+
       return response;
     } catch (error) {
       const errorMessage = error.message || 'Registration failed';
@@ -37,16 +42,21 @@ const actions = {
     }
   },
 
-  async login({ commit }, credentials) {
+  async login({ commit, dispatch }, credentials) {
     commit('setLoading', true);
     commit('setError', null);
 
+    // Clear any existing auth state to prevent data leakage
+    commit('clearAuth');
+
     try {
       const response = await authService.login(credentials);
-      commit('setAuth', {
-        token: response.data.access_token,
-        user: response.data.user,
-      });
+      // Store ONLY the token
+      commit('setToken', response.data.access_token);
+
+      // Fetch user data fresh from API (not from login response)
+      await dispatch('fetchUser');
+
       return response;
     } catch (error) {
       const errorMessage = error.message || 'Login failed';
@@ -94,9 +104,8 @@ const actions = {
 };
 
 const mutations = {
-  setAuth(state, { token, user }) {
+  setToken(state, token) {
     state.token = token;
-    state.user = user;
   },
 
   setUser(state, user) {

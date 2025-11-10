@@ -22,6 +22,7 @@ class UKTaxCalculator
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Calculate net income after income tax and National Insurance.
      *

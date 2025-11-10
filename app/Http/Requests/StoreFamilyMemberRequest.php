@@ -23,7 +23,7 @@ class StoreFamilyMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'relationship' => ['required', Rule::in(['spouse', 'child', 'step_child', 'parent', 'other_dependent'])],
+            'relationship' => ['required', Rule::in(['spouse', 'child', 'parent', 'other_dependent'])],
             'email' => ['required_if:relationship,spouse', 'nullable', 'email', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
@@ -31,7 +31,7 @@ class StoreFamilyMemberRequest extends FormRequest
             'national_insurance_number' => ['nullable', 'string', 'regex:/^[A-Z]{2}[0-9]{6}[A-Z]{1}$/'],
             'annual_income' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'is_dependent' => ['sometimes', 'boolean'],
-            'education_status' => ['nullable', Rule::in(['nursery', 'primary', 'secondary', 'sixth_form', 'university', 'graduated', 'not_in_education'])],
+            'education_status' => ['nullable', Rule::in(['pre_school', 'primary', 'secondary', 'further_education', 'higher_education', 'graduated', 'not_applicable'])],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }

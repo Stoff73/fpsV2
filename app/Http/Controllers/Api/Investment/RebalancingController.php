@@ -13,7 +13,6 @@ use App\Services\Investment\Rebalancing\RebalancingStrategyService;
 use App\Services\Investment\Rebalancing\TaxAwareRebalancer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -34,9 +33,6 @@ class RebalancingController extends Controller
      * Calculate rebalancing actions from target weights
      *
      * POST /api/investment/rebalancing/calculate
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateRebalancing(Request $request): JsonResponse
     {
@@ -169,9 +165,6 @@ class RebalancingController extends Controller
      * Calculate rebalancing from optimization result
      *
      * POST /api/investment/rebalancing/from-optimization
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateFromOptimization(Request $request): JsonResponse
     {
@@ -208,9 +201,6 @@ class RebalancingController extends Controller
      * Save rebalancing actions to database
      *
      * POST /api/investment/rebalancing/save
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function saveRebalancingActions(Request $request): JsonResponse
     {
@@ -280,9 +270,6 @@ class RebalancingController extends Controller
      * Get user's pending rebalancing actions
      *
      * GET /api/investment/rebalancing/actions
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getRebalancingActions(Request $request): JsonResponse
     {
@@ -329,10 +316,6 @@ class RebalancingController extends Controller
      * Update rebalancing action status
      *
      * PUT /api/investment/rebalancing/actions/{id}
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return JsonResponse
      */
     public function updateRebalancingAction(Request $request, int $id): JsonResponse
     {
@@ -394,10 +377,6 @@ class RebalancingController extends Controller
      * Delete rebalancing action
      *
      * DELETE /api/investment/rebalancing/actions/{id}
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return JsonResponse
      */
     public function deleteRebalancingAction(Request $request, int $id): JsonResponse
     {
@@ -440,9 +419,6 @@ class RebalancingController extends Controller
      * Compare CGT between different rebalancing strategies
      *
      * POST /api/investment/rebalancing/compare-cgt
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function compareCGTStrategies(Request $request): JsonResponse
     {
@@ -535,9 +511,6 @@ class RebalancingController extends Controller
      * Calculate rebalancing within CGT allowance
      *
      * POST /api/investment/rebalancing/within-cgt-allowance
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function rebalanceWithinCGTAllowance(Request $request): JsonResponse
     {
@@ -621,9 +594,6 @@ class RebalancingController extends Controller
      * Analyze portfolio drift from target allocation
      *
      * POST /api/investment/rebalancing/analyze-drift
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function analyzeDrift(Request $request): JsonResponse
     {
@@ -690,9 +660,6 @@ class RebalancingController extends Controller
      * Evaluate rebalancing strategies
      *
      * POST /api/investment/rebalancing/evaluate-strategies
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function evaluateStrategies(Request $request): JsonResponse
     {
@@ -786,9 +753,6 @@ class RebalancingController extends Controller
      * Recommend optimal rebalancing frequency
      *
      * POST /api/investment/rebalancing/recommend-frequency
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function recommendFrequency(Request $request): JsonResponse
     {
@@ -838,9 +802,6 @@ class RebalancingController extends Controller
      * Evaluate threshold-based rebalancing strategy
      *
      * POST /api/investment/rebalancing/threshold-strategy
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function evaluateThresholdStrategy(Request $request): JsonResponse
     {
@@ -917,9 +878,6 @@ class RebalancingController extends Controller
      * Evaluate calendar-based rebalancing strategy
      *
      * POST /api/investment/rebalancing/calendar-strategy
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function evaluateCalendarStrategy(Request $request): JsonResponse
     {
@@ -965,9 +923,6 @@ class RebalancingController extends Controller
      * Evaluate opportunistic rebalancing with cash flow
      *
      * POST /api/investment/rebalancing/opportunistic-strategy
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function evaluateOpportunisticStrategy(Request $request): JsonResponse
     {
@@ -1043,9 +998,6 @@ class RebalancingController extends Controller
 
     /**
      * Normalize asset class names
-     *
-     * @param  string  $assetType
-     * @return string
      */
     private function normalizeAssetClass(string $assetType): string
     {

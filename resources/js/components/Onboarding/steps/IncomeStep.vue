@@ -378,31 +378,14 @@ export default {
     };
 
     onMounted(async () => {
-      // Load existing user data if available
-      const currentUser = store.getters['auth/currentUser'];
-      if (currentUser) {
-        formData.value = {
-          occupation: currentUser.occupation || '',
-          employer: currentUser.employer || '',
-          industry: currentUser.industry || '',
-          employment_status: currentUser.employment_status || '',
-          target_retirement_age: null,
-          retirement_date: '',
-          annual_employment_income: currentUser.annual_employment_income || 0,
-          annual_self_employment_income: currentUser.annual_self_employment_income || 0,
-          annual_dividend_income: currentUser.annual_dividend_income || 0,
-          annual_other_income: currentUser.annual_other_income || 0,
-        };
-      }
-
-      // Load existing step data if available
+      // ONLY load from backend API - single source of truth
       try {
         const stepData = await store.dispatch('onboarding/fetchStepData', 'income');
         if (stepData && Object.keys(stepData).length > 0) {
           formData.value = { ...formData.value, ...stepData };
         }
       } catch (err) {
-        // No existing data, start fresh
+        // No existing data, start with empty form (correct for new users)
       }
     });
 

@@ -223,8 +223,9 @@ class OnboardingService
 
         foreach ($data['family_members'] as $memberData) {
             // Special handling for spouse with email - attempt account linking
-            if ($memberData['relationship'] === 'spouse' && !empty($memberData['email'])) {
+            if ($memberData['relationship'] === 'spouse' && ! empty($memberData['email'])) {
                 $this->handleSpouseLinking($user, $memberData);
+
                 continue; // Skip normal family member creation as it's handled by spouse linking
             }
 
@@ -351,13 +352,13 @@ class OnboardingService
         ];
 
         // Add last reviewed date if will exists and date is provided
-        if ($hasWill && !empty($data['will_last_updated'])) {
+        if ($hasWill && ! empty($data['will_last_updated'])) {
             $willData['last_reviewed_date'] = $data['will_last_updated'];
         }
 
         // Add executor notes if provided
-        if ($hasWill && !empty($data['executor_name'])) {
-            $willData['executor_notes'] = 'Executor: ' . $data['executor_name'];
+        if ($hasWill && ! empty($data['executor_name'])) {
+            $willData['executor_notes'] = 'Executor: '.$data['executor_name'];
         }
 
         // Use updateOrCreate to handle both new and existing records

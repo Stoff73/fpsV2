@@ -31,9 +31,6 @@ class FeeImpactController extends Controller
      * Analyze portfolio fees
      *
      * GET /api/investment/fees/analyze
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function analyzePortfolioFees(Request $request): JsonResponse
     {
@@ -73,9 +70,6 @@ class FeeImpactController extends Controller
      * Analyze fees by holding
      *
      * GET /api/investment/fees/holdings
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function analyzeHoldingFees(Request $request): JsonResponse
     {
@@ -110,9 +104,6 @@ class FeeImpactController extends Controller
      * Calculate OCF impact over time
      *
      * POST /api/investment/fees/ocf-impact
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateOCFImpact(Request $request): JsonResponse
     {
@@ -171,9 +162,6 @@ class FeeImpactController extends Controller
      * Compare active vs passive funds
      *
      * GET /api/investment/fees/active-vs-passive
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function compareActiveVsPassive(Request $request): JsonResponse
     {
@@ -212,32 +200,16 @@ class FeeImpactController extends Controller
      * Find low-cost alternatives for a holding
      *
      * GET /api/investment/fees/alternatives/{holdingId}
-     *
-     * @param  Request  $request
-     * @param  int  $holdingId
-     * @return JsonResponse
      */
     public function findAlternatives(Request $request, int $holdingId): JsonResponse
     {
         $user = $request->user();
 
         try {
-            $holding = Holding::find($holdingId);
-
-            if (! $holding) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Holding not found',
-                ], 404);
-            }
-
-            // Verify ownership
-            if ($holding->investmentAccount->user_id !== $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to holding',
-                ], 403);
-            }
+            // SECURITY: Fetch with ownership check to prevent information disclosure
+            $holding = Holding::whereHas('investmentAccount', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->where('id', $holdingId)->firstOrFail();
 
             $result = $this->ocfCalculator->findLowCostAlternatives($holding);
 
@@ -264,9 +236,6 @@ class FeeImpactController extends Controller
      * Compare investment platforms
      *
      * GET /api/investment/fees/compare-platforms
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function comparePlatforms(Request $request): JsonResponse
     {
@@ -317,9 +286,6 @@ class FeeImpactController extends Controller
      * Compare specific platforms
      *
      * POST /api/investment/fees/compare-specific
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function compareSpecificPlatforms(Request $request): JsonResponse
     {
@@ -373,9 +339,6 @@ class FeeImpactController extends Controller
      * Clear fee analysis cache
      *
      * DELETE /api/investment/fees/clear-cache
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function clearCache(Request $request): JsonResponse
     {
@@ -412,7 +375,6 @@ class FeeImpactController extends Controller
      * Clear user's fee cache (static method for use by other controllers)
      *
      * @param  int  $userId  User ID
-     * @return void
      */
     public static function clearUserFeeCache(int $userId): void
     {

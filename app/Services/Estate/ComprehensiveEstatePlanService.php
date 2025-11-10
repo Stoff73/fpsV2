@@ -124,7 +124,7 @@ class ComprehensiveEstatePlanService
                 }
             } catch (\Exception $e) {
                 // If second death calculation fails, continue with single person calculation
-                \Log::warning('Second death IHT calculation failed for estate plan: ' . $e->getMessage());
+                \Log::warning('Second death IHT calculation failed for estate plan: '.$e->getMessage());
             }
         }
 
@@ -353,7 +353,7 @@ class ComprehensiveEstatePlanService
             $allAssets = $aggregatedAssets->concat($spouseAggregatedAssets);
 
             // User's estate
-            $userAssets = $allAssets->filter(fn($asset) => $asset->user_id === $user->id);
+            $userAssets = $allAssets->filter(fn ($asset) => $asset->user_id === $user->id);
             $breakdown['user'] = [
                 'name' => $secondDeathAnalysis['first_death']['name'],
                 'total_assets' => $secondDeathAnalysis['first_death']['current_estate_value'],
@@ -364,7 +364,7 @@ class ComprehensiveEstatePlanService
             ];
 
             // Spouse's estate
-            $spouseAssets = $allAssets->filter(fn($asset) => $asset->user_id === $spouse->id);
+            $spouseAssets = $allAssets->filter(fn ($asset) => $asset->user_id === $spouse->id);
             $breakdown['spouse'] = [
                 'name' => $secondDeathAnalysis['second_death']['name'],
                 'total_assets' => $secondDeathAnalysis['second_death']['current_estate_value'],
@@ -573,6 +573,7 @@ class ComprehensiveEstatePlanService
 
         // Single person - just show current position
         $ihtConfig = $this->taxConfig->getInheritanceTax();
+
         return [
             'has_projection' => false,
             'gross_estate' => $ihtAnalysis['net_estate_value'] ?? 0,

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Investment\Goals;
 
-use App\Models\Investment\InvestmentGoal;
 use App\Models\Investment\InvestmentAccount;
-use Illuminate\Support\Collection;
+use App\Models\Investment\InvestmentGoal;
 
 /**
  * Goal Progress Analyzer
@@ -201,7 +200,7 @@ class GoalProgressAnalyzer
      */
     private function calculateTimeRemaining(string $targetDate): array
     {
-        $now = new \DateTime();
+        $now = new \DateTime;
         $target = new \DateTime($targetDate);
         $interval = $now->diff($target);
 

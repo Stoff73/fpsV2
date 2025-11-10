@@ -108,7 +108,7 @@ class AssetAllocationOptimizer
      */
     public function optimizeWithConstraints(int $baseRiskLevel, array $constraints = []): array
     {
-        $modelBuilder = new ModelPortfolioBuilder();
+        $modelBuilder = new ModelPortfolioBuilder;
         $baseAllocation = $modelBuilder->getModelPortfolio($baseRiskLevel)['asset_allocation'];
 
         // Apply constraints

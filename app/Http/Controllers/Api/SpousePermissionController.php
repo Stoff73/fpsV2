@@ -28,7 +28,7 @@ class SpousePermissionController extends Controller
             ->where('relationship', 'spouse')
             ->first();
 
-        if (!$hasLinkedSpouse && !$spouseFamilyMember) {
+        if (! $hasLinkedSpouse && ! $spouseFamilyMember) {
             return response()->json([
                 'success' => true,
                 'data' => [

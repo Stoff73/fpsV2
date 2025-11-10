@@ -6,7 +6,6 @@ namespace App\Services\Investment\AssetLocation;
 
 use App\Models\Investment\Holding;
 use App\Models\Investment\InvestmentAccount;
-use Illuminate\Support\Collection;
 
 /**
  * Account Type Recommender

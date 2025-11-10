@@ -408,27 +408,16 @@ export default {
     };
 
     onMounted(async () => {
-      // Load existing user data if available
-      const currentUser = store.getters['auth/currentUser'];
-      if (currentUser) {
-        formData.value = {
-          date_of_birth: formatDate(currentUser.date_of_birth),
-          gender: currentUser.gender || '',
-          marital_status: currentUser.marital_status || '',
-          national_insurance_number: currentUser.national_insurance_number || '',
-          address_line_1: currentUser.address_line_1 || '',
-          address_line_2: currentUser.address_line_2 || '',
-          city: currentUser.city || '',
-          county: currentUser.county || '',
-          postcode: currentUser.postcode || '',
-          phone: currentUser.phone || '',
-          health_status: currentUser.health_status || '',
-          smoking_status: currentUser.smoking_status || '',
-          education_level: currentUser.education_level || '',
-        };
+      // Ensure we have latest user data from backend
+      if (!store.getters['auth/currentUser']) {
+        try {
+          await store.dispatch('auth/fetchUser');
+        } catch (err) {
+          console.error('Failed to fetch current user:', err);
+        }
       }
 
-      // Load existing step data if available
+      // Fetch step data from backend (will be empty for new users)
       try {
         const stepData = await store.dispatch('onboarding/fetchStepData', 'personal_info');
         if (stepData && Object.keys(stepData).length > 0) {
@@ -439,7 +428,7 @@ export default {
           formData.value = { ...formData.value, ...stepData };
         }
       } catch (err) {
-        // No existing data, start fresh
+        // No existing data, start with empty form (correct for new users)
       }
     });
 

@@ -591,8 +591,9 @@ class EstateController extends Controller
         } catch (\Exception $e) {
             \Log::error('Failed to create liability', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create liability: '.$e->getMessage(),

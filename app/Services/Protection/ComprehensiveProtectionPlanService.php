@@ -194,7 +194,7 @@ class ComprehensiveProtectionPlanService
         // Format education level for display
         $educationLevel = 'Not specified';
         if ($user->education_level) {
-            $educationLevel = match($user->education_level) {
+            $educationLevel = match ($user->education_level) {
                 'secondary' => 'Secondary (GCSE/O-Levels)',
                 'a_level' => 'A-Levels/Vocational',
                 'undergraduate' => 'Undergraduate Degree',
@@ -671,18 +671,20 @@ class ComprehensiveProtectionPlanService
         }
 
         // If life coverage is good but other types are missing, recommend them
-        if ($lifeScore >= 80 && !empty($missingCoverage)) {
+        if ($lifeScore >= 80 && ! empty($missingCoverage)) {
             $types = implode(' and ', $missingCoverage);
+
             return "Your life insurance coverage is excellent. Consider adding {$types} to provide comprehensive protection.";
         }
 
         // If life coverage has gaps, prioritize that
         if ($lifeScore < 80 && $lifeScore > 0) {
             $recommendation = 'Priority: Increase life insurance coverage to adequate levels.';
-            if (!empty($missingCoverage)) {
+            if (! empty($missingCoverage)) {
                 $types = implode(' and ', $missingCoverage);
                 $recommendation .= " Also consider adding {$types}.";
             }
+
             return $recommendation;
         }
 

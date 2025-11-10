@@ -473,7 +473,7 @@ describe('Correlation Matrix Calculation', function () {
         ]);
 
         // Request only first account
-        $response = $this->getJson('/api/investment/optimization/correlation-matrix?account_ids[]=' . $this->account->id);
+        $response = $this->getJson('/api/investment/optimization/correlation-matrix?account_ids[]='.$this->account->id);
 
         $response->assertStatus(200);
 
@@ -628,7 +628,7 @@ describe('Security and Authorization', function () {
         ]);
 
         // Try to filter by other user's account
-        $response = $this->getJson('/api/investment/optimization/correlation-matrix?account_ids[]=' . $otherAccount->id);
+        $response = $this->getJson('/api/investment/optimization/correlation-matrix?account_ids[]='.$otherAccount->id);
 
         // Should return validation error or no data
         $response->assertStatus(422);

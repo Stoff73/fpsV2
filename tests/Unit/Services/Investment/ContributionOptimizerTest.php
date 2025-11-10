@@ -9,7 +9,7 @@ beforeEach(function () {
     $this->user = User::factory()->create([
         'marital_status' => 'single',
     ]);
-    $this->optimizer = new ContributionOptimizer();
+    $this->optimizer = new ContributionOptimizer;
 });
 
 describe('ContributionOptimizer', function () {

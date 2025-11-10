@@ -9,7 +9,6 @@ use App\Models\CashAccount;
 use App\Models\Chattel;
 use App\Models\DCPension;
 use App\Models\Estate\Asset;
-use App\Models\Estate\Liability;
 use App\Models\Investment\InvestmentAccount;
 use App\Models\Property;
 use App\Models\SavingsAccount;

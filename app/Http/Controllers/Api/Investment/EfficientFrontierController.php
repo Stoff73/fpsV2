@@ -10,7 +10,6 @@ use App\Services\Investment\EfficientFrontier\EfficientFrontierCalculator;
 use App\Services\Investment\EfficientFrontier\PortfolioStatisticsCalculator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -29,9 +28,6 @@ class EfficientFrontierController extends Controller
      * Calculate efficient frontier
      *
      * POST /api/investment/efficient-frontier/calculate
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateEfficientFrontier(Request $request): JsonResponse
     {
@@ -82,9 +78,6 @@ class EfficientFrontierController extends Controller
      * Calculate efficient frontier with default UK assumptions
      *
      * GET /api/investment/efficient-frontier/default
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateWithDefaults(Request $request): JsonResponse
     {
@@ -134,9 +127,6 @@ class EfficientFrontierController extends Controller
      * Find optimal portfolio for target return
      *
      * POST /api/investment/efficient-frontier/optimal-by-return
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function findOptimalByReturn(Request $request): JsonResponse
     {
@@ -186,9 +176,6 @@ class EfficientFrontierController extends Controller
      * Find optimal portfolio for target risk level
      *
      * POST /api/investment/efficient-frontier/optimal-by-risk
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function findOptimalByRisk(Request $request): JsonResponse
     {
@@ -238,9 +225,6 @@ class EfficientFrontierController extends Controller
      * Compare current portfolio with efficient frontier
      *
      * POST /api/investment/efficient-frontier/compare
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function compareWithFrontier(Request $request): JsonResponse
     {
@@ -303,9 +287,6 @@ class EfficientFrontierController extends Controller
      * Calculate comprehensive portfolio statistics
      *
      * POST /api/investment/efficient-frontier/statistics
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateStatistics(Request $request): JsonResponse
     {
@@ -374,9 +355,6 @@ class EfficientFrontierController extends Controller
      * Get default asset class assumptions
      *
      * GET /api/investment/efficient-frontier/default-assumptions
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getDefaultAssumptions(Request $request): JsonResponse
     {
@@ -405,9 +383,6 @@ class EfficientFrontierController extends Controller
      * Analyze user's current portfolio efficiency
      *
      * GET /api/investment/efficient-frontier/analyze-current
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function analyzeCurrentPortfolio(Request $request): JsonResponse
     {
@@ -507,9 +482,6 @@ class EfficientFrontierController extends Controller
 
     /**
      * Normalize asset class names
-     *
-     * @param  string  $assetType
-     * @return string
      */
     private function normalizeAssetClass(string $assetType): string
     {

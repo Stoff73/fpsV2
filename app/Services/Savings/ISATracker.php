@@ -24,6 +24,7 @@ class ISATracker
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Get current UK tax year (April 6 - April 5)
      */

@@ -25,7 +25,7 @@ class TaxConfigServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new TaxConfigService();
+        $this->service = new TaxConfigService;
     }
 
     /**

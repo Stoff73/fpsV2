@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Investment;
 
 use App\Http\Controllers\Controller;
-use App\Services\Investment\Performance\PerformanceAttributionAnalyzer;
-use App\Services\Investment\Performance\BenchmarkComparator;
 use App\Services\Investment\Performance\AlphaBetaCalculator;
+use App\Services\Investment\Performance\BenchmarkComparator;
+use App\Services\Investment\Performance\PerformanceAttributionAnalyzer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -181,7 +181,7 @@ class PerformanceAttributionController extends Controller
         try {
             $cacheKey = "risk_metrics_{$user->id}";
 
-            $result = Cache::remember($cacheKey, 3600, function () use ($user) {
+            $result = Cache::remember($cacheKey, 3600, function () {
                 // Get portfolio returns (would be real data in production)
                 $portfolioReturns = $this->generateSampleReturns(0.007, 0.03, 36);
                 $benchmarkReturns = $this->generateSampleReturns(0.0065, 0.035, 36);
@@ -287,7 +287,6 @@ class PerformanceAttributionController extends Controller
      * Clear user's performance cache (static method for use by other controllers)
      *
      * @param  int  $userId  User ID
-     * @return void
      */
     public static function clearUserPerformanceCache(int $userId): void
     {

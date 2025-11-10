@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Investment;
 
-use App\Models\Investment\InvestmentScenario;
 use App\Jobs\RunMonteCarloSimulation;
+use App\Models\Investment\InvestmentScenario;
 use Illuminate\Support\Str;
 
 class ScenarioService
@@ -116,6 +116,7 @@ class ScenarioService
                 return $template;
             }
         }
+
         return null;
     }
 

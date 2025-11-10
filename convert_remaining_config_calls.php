@@ -6,7 +6,6 @@
  *
  * This script systematically updates files to use TaxConfigService instead of config()
  */
-
 $filesToUpdate = [
     'app/Agents/EstateAgent.php',
     'app/Services/Estate/GiftingStrategy.php',
@@ -36,7 +35,7 @@ $replacements = [
     'trusts' => '$this->taxConfig->getTrusts()',
 ];
 
-echo "Files to update: " . count($filesToUpdate) . "\n";
+echo 'Files to update: '.count($filesToUpdate)."\n";
 echo "Pattern: Direct config('uk_tax_config.*') -> TaxConfigService methods\n\n";
 
 foreach ($filesToUpdate as $file) {

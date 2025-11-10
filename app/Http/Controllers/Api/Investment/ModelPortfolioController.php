@@ -30,10 +30,6 @@ class ModelPortfolioController extends Controller
      * Get model portfolio by risk level
      *
      * GET /api/investment/model-portfolio/{riskLevel}
-     *
-     * @param  Request  $request
-     * @param  int  $riskLevel
-     * @return JsonResponse
      */
     public function getModelPortfolio(Request $request, int $riskLevel): JsonResponse
     {
@@ -69,9 +65,6 @@ class ModelPortfolioController extends Controller
      * Get all model portfolios
      *
      * GET /api/investment/model-portfolio/all
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getAllPortfolios(Request $request): JsonResponse
     {
@@ -99,9 +92,6 @@ class ModelPortfolioController extends Controller
      * Compare current allocation with model
      *
      * POST /api/investment/model-portfolio/compare
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function compareWithModel(Request $request): JsonResponse
     {
@@ -166,9 +156,6 @@ class ModelPortfolioController extends Controller
      * Optimize allocation by age
      *
      * GET /api/investment/model-portfolio/optimize-by-age
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function optimizeByAge(Request $request): JsonResponse
     {
@@ -214,9 +201,6 @@ class ModelPortfolioController extends Controller
      * Optimize allocation by time horizon
      *
      * POST /api/investment/model-portfolio/optimize-by-horizon
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function optimizeByTimeHorizon(Request $request): JsonResponse
     {
@@ -264,9 +248,6 @@ class ModelPortfolioController extends Controller
      * Get glide path allocation
      *
      * GET /api/investment/model-portfolio/glide-path
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getGlidePath(Request $request): JsonResponse
     {
@@ -308,9 +289,6 @@ class ModelPortfolioController extends Controller
      * Get fund recommendations
      *
      * POST /api/investment/model-portfolio/funds
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getFundRecommendations(Request $request): JsonResponse
     {

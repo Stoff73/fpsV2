@@ -22,6 +22,7 @@ class PropertyTaxService
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Calculate Stamp Duty Land Tax (SDLT) for UK property purchase
      * Uses active tax year rates from TaxConfigService
@@ -83,7 +84,7 @@ class PropertyTaxService
      * @param  float  $amount  Purchase price or income
      * @param  array  $configBands  Array of ['threshold' => X, 'rate' => Y] from config
      * @param  array  &$outputBands  Reference to array to populate with detailed band info
-     * @return float  Total tax calculated
+     * @return float Total tax calculated
      */
     private function calculateBandedTax(float $amount, array $configBands, array &$outputBands): float
     {

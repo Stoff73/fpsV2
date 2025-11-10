@@ -15,8 +15,7 @@ class InvestmentScenarioController extends Controller
 {
     public function __construct(
         private readonly ScenarioService $scenarioService
-    ) {
-    }
+    ) {}
 
     /**
      * Get scenario templates
@@ -66,7 +65,7 @@ class InvestmentScenarioController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Scenario not found',
@@ -122,7 +121,7 @@ class InvestmentScenarioController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create scenario: ' . $e->getMessage(),
+                'message' => 'Failed to create scenario: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -138,7 +137,7 @@ class InvestmentScenarioController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Scenario not found',
@@ -179,7 +178,7 @@ class InvestmentScenarioController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Scenario not found',
@@ -201,7 +200,7 @@ class InvestmentScenarioController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to run scenario: ' . $e->getMessage(),
+                'message' => 'Failed to run scenario: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -217,7 +216,7 @@ class InvestmentScenarioController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Scenario not found',
@@ -287,7 +286,7 @@ class InvestmentScenarioController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to compare scenarios: ' . $e->getMessage(),
+                'message' => 'Failed to compare scenarios: '.$e->getMessage(),
             ], 400);
         }
     }
@@ -303,7 +302,7 @@ class InvestmentScenarioController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Scenario not found',
@@ -330,7 +329,7 @@ class InvestmentScenarioController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Scenario not found',
@@ -357,7 +356,7 @@ class InvestmentScenarioController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Scenario not found',

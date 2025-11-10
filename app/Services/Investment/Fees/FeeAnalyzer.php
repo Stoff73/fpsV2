@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Investment\Fees;
 
-use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\Holding;
+use App\Models\Investment\InvestmentAccount;
 use Illuminate\Support\Collection;
 
 /**

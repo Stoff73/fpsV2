@@ -32,9 +32,6 @@ class TaxOptimizationController extends Controller
      * Get comprehensive tax optimization analysis
      *
      * GET /api/investment/tax-optimization/analyze
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function analyzeTaxPosition(Request $request): JsonResponse
     {
@@ -92,9 +89,6 @@ class TaxOptimizationController extends Controller
      * Get ISA allowance optimization recommendations
      *
      * GET /api/investment/tax-optimization/isa-strategy
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getISAStrategy(Request $request): JsonResponse
     {
@@ -147,9 +141,6 @@ class TaxOptimizationController extends Controller
      * Get CGT tax-loss harvesting opportunities
      *
      * GET /api/investment/tax-optimization/cgt-harvesting
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getCGTHarvestingOpportunities(Request $request): JsonResponse
     {
@@ -197,9 +188,6 @@ class TaxOptimizationController extends Controller
      * Get Bed and ISA transfer opportunities
      *
      * GET /api/investment/tax-optimization/bed-and-isa
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getBedAndISAOpportunities(Request $request): JsonResponse
     {
@@ -246,9 +234,6 @@ class TaxOptimizationController extends Controller
      * Get tax efficiency score
      *
      * GET /api/investment/tax-optimization/efficiency-score
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getTaxEfficiencyScore(Request $request): JsonResponse
     {
@@ -298,9 +283,6 @@ class TaxOptimizationController extends Controller
      * Get comprehensive tax optimization recommendations
      *
      * GET /api/investment/tax-optimization/recommendations
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getRecommendations(Request $request): JsonResponse
     {
@@ -385,9 +367,6 @@ class TaxOptimizationController extends Controller
      * Calculate potential tax savings from proposed actions
      *
      * POST /api/investment/tax-optimization/calculate-savings
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculatePotentialSavings(Request $request): JsonResponse
     {
@@ -495,9 +474,6 @@ class TaxOptimizationController extends Controller
      * Clear tax optimization caches
      *
      * DELETE /api/investment/tax-optimization/clear-cache
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function clearCache(Request $request): JsonResponse
     {
@@ -539,7 +515,6 @@ class TaxOptimizationController extends Controller
      * Clear user's tax optimization cache (static method for use by other controllers)
      *
      * @param  int  $userId  User ID
-     * @return void
      */
     public static function clearUserTaxCache(int $userId): void
     {

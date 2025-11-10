@@ -7,10 +7,13 @@ const authService = {
    * @returns {Promise}
    */
   async register(userData) {
+    // Clear any existing auth data to prevent data leakage between users
+    this.clearAuth();
+
     const response = await api.post('/auth/register', userData);
     if (response.data.success && response.data.data.access_token) {
+      // ONLY store token - user data will be fetched fresh from API
       this.setToken(response.data.data.access_token);
-      this.setUser(response.data.data.user);
     }
     return response.data;
   },
@@ -21,10 +24,13 @@ const authService = {
    * @returns {Promise}
    */
   async login(credentials) {
+    // Clear any existing auth data to prevent data leakage between users
+    this.clearAuth();
+
     const response = await api.post('/auth/login', credentials);
     if (response.data.success && response.data.data.access_token) {
+      // ONLY store token - user data will be fetched fresh from API
       this.setToken(response.data.data.access_token);
-      this.setUser(response.data.data.user);
     }
     return response.data;
   },
@@ -50,7 +56,7 @@ const authService = {
   async getUser() {
     const response = await api.get('/auth/user');
     if (response.data.success) {
-      this.setUser(response.data.data.user);
+      // Return user data but DO NOT cache in localStorage
       return response.data.data.user;
     }
   },
@@ -72,27 +78,11 @@ const authService = {
   },
 
   /**
-   * Set user data in localStorage
-   * @param {Object} user
-   */
-  setUser(user) {
-    localStorage.setItem('user', JSON.stringify(user));
-  },
-
-  /**
-   * Get user data from localStorage
-   * @returns {Object|null}
-   */
-  getStoredUser() {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  },
-
-  /**
    * Clear authentication data
    */
   clearAuth() {
     localStorage.removeItem('auth_token');
+    // Remove any legacy cached user data
     localStorage.removeItem('user');
   },
 

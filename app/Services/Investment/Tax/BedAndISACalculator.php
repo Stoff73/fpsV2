@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Investment\Tax;
 
-use App\Models\Investment\InvestmentAccount;
 use App\Models\Investment\Holding;
+use App\Models\Investment\InvestmentAccount;
 use App\Services\TaxConfigService;
 use Illuminate\Support\Collection;
 
@@ -40,6 +40,7 @@ class BedAndISACalculator
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Calculate Bed and ISA opportunities
      *

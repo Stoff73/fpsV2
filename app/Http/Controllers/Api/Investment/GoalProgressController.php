@@ -6,9 +6,9 @@ namespace App\Http\Controllers\Api\Investment;
 
 use App\Http\Controllers\Controller;
 use App\Models\Investment\InvestmentGoal;
+use App\Services\Investment\Goals\GoalProbabilityCalculator;
 use App\Services\Investment\Goals\GoalProgressAnalyzer;
 use App\Services\Investment\Goals\ShortfallAnalyzer;
-use App\Services\Investment\Goals\GoalProbabilityCalculator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -31,32 +31,16 @@ class GoalProgressController extends Controller
      * Analyze progress for a specific goal
      *
      * GET /api/investment/goals/{goalId}/progress
-     *
-     * @param  Request  $request
-     * @param  int  $goalId
-     * @return JsonResponse
      */
     public function analyzeGoalProgress(Request $request, int $goalId): JsonResponse
     {
         $user = $request->user();
 
         try {
-            $goal = InvestmentGoal::find($goalId);
-
-            if (! $goal) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Goal not found',
-                ], 404);
-            }
-
-            // Verify ownership
-            if ($goal->user_id !== $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to goal',
-                ], 403);
-            }
+            // SECURITY: Fetch with ownership check to prevent information disclosure
+            $goal = InvestmentGoal::where('id', $goalId)
+                ->where('user_id', $user->id)
+                ->firstOrFail();
 
             $cacheKey = "goal_progress_{$goalId}";
 
@@ -92,9 +76,6 @@ class GoalProgressController extends Controller
      * Analyze progress for all user goals
      *
      * GET /api/investment/goals/progress/all
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function analyzeAllGoals(Request $request): JsonResponse
     {
@@ -133,32 +114,16 @@ class GoalProgressController extends Controller
      * Analyze goal shortfall and get mitigation strategies
      *
      * GET /api/investment/goals/{goalId}/shortfall
-     *
-     * @param  Request  $request
-     * @param  int  $goalId
-     * @return JsonResponse
      */
     public function analyzeShortfall(Request $request, int $goalId): JsonResponse
     {
         $user = $request->user();
 
         try {
-            $goal = InvestmentGoal::find($goalId);
-
-            if (! $goal) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Goal not found',
-                ], 404);
-            }
-
-            // Verify ownership
-            if ($goal->user_id !== $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to goal',
-                ], 403);
-            }
+            // SECURITY: Fetch with ownership check to prevent information disclosure
+            $goal = InvestmentGoal::where('id', $goalId)
+                ->where('user_id', $user->id)
+                ->firstOrFail();
 
             // Get current value
             $currentValue = $goal->current_value ?? 0;
@@ -192,10 +157,6 @@ class GoalProgressController extends Controller
      * Generate what-if scenarios for a goal
      *
      * POST /api/investment/goals/{goalId}/what-if
-     *
-     * @param  Request  $request
-     * @param  int  $goalId
-     * @return JsonResponse
      */
     public function generateWhatIfScenarios(Request $request, int $goalId): JsonResponse
     {
@@ -219,22 +180,10 @@ class GoalProgressController extends Controller
         $validated = $validator->validated();
 
         try {
-            $goal = InvestmentGoal::find($goalId);
-
-            if (! $goal) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Goal not found',
-                ], 404);
-            }
-
-            // Verify ownership
-            if ($goal->user_id !== $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to goal',
-                ], 403);
-            }
+            // SECURITY: Fetch with ownership check to prevent information disclosure
+            $goal = InvestmentGoal::where('id', $goalId)
+                ->where('user_id', $user->id)
+                ->firstOrFail();
 
             $currentValue = $goal->current_value ?? 0;
             $scenarios = $validated['scenarios'] ?? [];
@@ -268,9 +217,6 @@ class GoalProgressController extends Controller
      * Calculate goal success probability
      *
      * POST /api/investment/goals/calculate-probability
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateProbability(Request $request): JsonResponse
     {
@@ -333,9 +279,6 @@ class GoalProgressController extends Controller
      * Calculate required contribution for target probability
      *
      * POST /api/investment/goals/required-contribution
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function calculateRequiredContribution(Request $request): JsonResponse
     {
@@ -394,9 +337,6 @@ class GoalProgressController extends Controller
      * Get glide path recommendation
      *
      * GET /api/investment/goals/glide-path
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function getGlidePath(Request $request): JsonResponse
     {
@@ -445,9 +385,6 @@ class GoalProgressController extends Controller
      * Clear goal progress caches
      *
      * DELETE /api/investment/goals/clear-cache
-     *
-     * @param  Request  $request
-     * @return JsonResponse
      */
     public function clearCache(Request $request): JsonResponse
     {
@@ -490,7 +427,6 @@ class GoalProgressController extends Controller
      * Clear user's goal progress cache (static method for use by other controllers)
      *
      * @param  int  $userId  User ID
-     * @return void
      */
     public static function clearUserGoalProgressCache(int $userId): void
     {

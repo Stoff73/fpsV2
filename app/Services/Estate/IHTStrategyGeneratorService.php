@@ -27,6 +27,7 @@ class IHTStrategyGeneratorService
     {
         $this->taxConfig = $taxConfig;
     }
+
     /**
      * Generate default gifting strategy for users without linked spouse
      */

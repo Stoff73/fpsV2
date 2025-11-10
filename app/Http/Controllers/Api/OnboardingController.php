@@ -240,7 +240,27 @@ class OnboardingController extends Controller
     public function getStepData(Request $request, string $step): JsonResponse
     {
         try {
-            $stepData = $this->onboardingService->getStepData($request->user()->id, $step);
+            $userId = $request->user()->id;
+            $userEmail = $request->user()->email;
+            $token = $request->bearerToken();
+
+            \Log::info('SECURITY AUDIT: getStepData called', [
+                'user_id' => $userId,
+                'user_email' => $userEmail,
+                'step' => $step,
+                'token_preview' => substr($token, 0, 20).'...',
+                'authenticated_user' => $request->user()->toArray(),
+            ]);
+
+            $stepData = $this->onboardingService->getStepData($userId, $step);
+
+            \Log::info('SECURITY AUDIT: getStepData returning', [
+                'user_id' => $userId,
+                'user_email' => $userEmail,
+                'step' => $step,
+                'has_data' => ! empty($stepData),
+                'data_keys' => $stepData ? array_keys($stepData) : [],
+            ]);
 
             return response()->json([
                 'success' => true,

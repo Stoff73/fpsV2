@@ -107,7 +107,7 @@ class AdequacyScorer
         }
 
         // Calculate individual scores if needs are provided
-        $individualScores = !empty($needs) ? $this->calculateIndividualScores($gaps, $needs) : [
+        $individualScores = ! empty($needs) ? $this->calculateIndividualScores($gaps, $needs) : [
             'life_insurance_score' => 0,
             'critical_illness_score' => 0,
             'income_protection_score' => 0,

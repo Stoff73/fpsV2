@@ -28,6 +28,12 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        \Log::info('SECURITY AUDIT: User registered', [
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+            'token_preview' => substr($token, 0, 20).'...',
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'User registered successfully',

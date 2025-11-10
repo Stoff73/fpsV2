@@ -8,8 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Investment\InvestmentRecommendation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
 
 class InvestmentRecommendationController extends Controller
 {
@@ -76,7 +76,7 @@ class InvestmentRecommendationController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$recommendation) {
+        if (! $recommendation) {
             return response()->json([
                 'success' => false,
                 'message' => 'Recommendation not found',
@@ -144,7 +144,7 @@ class InvestmentRecommendationController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$recommendation) {
+        if (! $recommendation) {
             return response()->json([
                 'success' => false,
                 'message' => 'Recommendation not found',
@@ -197,7 +197,7 @@ class InvestmentRecommendationController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$recommendation) {
+        if (! $recommendation) {
             return response()->json([
                 'success' => false,
                 'message' => 'Recommendation not found',
@@ -247,7 +247,7 @@ class InvestmentRecommendationController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$recommendation) {
+        if (! $recommendation) {
             return response()->json([
                 'success' => false,
                 'message' => 'Recommendation not found',

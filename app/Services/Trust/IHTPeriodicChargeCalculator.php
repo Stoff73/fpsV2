@@ -38,6 +38,7 @@ class IHTPeriodicChargeCalculator
     private function getNRB(): float
     {
         $ihtConfig = $this->taxConfig->getInheritanceTax();
+
         return $ihtConfig['nil_rate_band'];
     }
 
