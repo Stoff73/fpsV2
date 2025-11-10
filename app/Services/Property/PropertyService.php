@@ -32,24 +32,28 @@ class PropertyService
     }
 
     /**
-     * Calculate total annual costs for the property
+     * Calculate total monthly costs for the property
      */
-    public function calculateTotalAnnualCosts(Property $property): float
+    public function calculateTotalMonthlyCosts(Property $property): float
     {
         $costs = 0;
 
-        // Mortgage costs (annual)
+        // Mortgage costs (monthly)
         $mortgages = $property->mortgages;
         foreach ($mortgages as $mortgage) {
-            $costs += ($mortgage->monthly_payment ?? 0) * 12;
+            $costs += $mortgage->monthly_payment ?? 0;
         }
 
-        // Property-specific costs
-        $costs += $property->annual_service_charge ?? 0;
-        $costs += $property->annual_ground_rent ?? 0;
-        $costs += $property->annual_insurance ?? 0;
-        $costs += $property->annual_maintenance_reserve ?? 0;
-        $costs += $property->other_annual_costs ?? 0;
+        // Property-specific costs (monthly)
+        $costs += $property->monthly_council_tax ?? 0;
+        $costs += $property->monthly_gas ?? 0;
+        $costs += $property->monthly_electricity ?? 0;
+        $costs += $property->monthly_water ?? 0;
+        $costs += $property->monthly_building_insurance ?? 0;
+        $costs += $property->monthly_contents_insurance ?? 0;
+        $costs += $property->monthly_service_charge ?? 0;
+        $costs += $property->monthly_maintenance_reserve ?? 0;
+        $costs += $property->other_monthly_costs ?? 0;
 
         return $costs;
     }
@@ -65,19 +69,22 @@ class PropertyService
             return 0;
         }
 
-        // Annual rental income (adjusted for occupancy)
-        $annualRentalIncome = $property->annual_rental_income ?? 0;
+        // Monthly rental income (adjusted for occupancy)
+        $monthlyRentalIncome = $property->monthly_rental_income ?? 0;
         $occupancyRate = ($property->occupancy_rate_percent ?? 100) / 100;
-        $actualIncome = $annualRentalIncome * $occupancyRate;
+        $actualMonthlyIncome = $monthlyRentalIncome * $occupancyRate;
 
-        // Annual costs
-        $annualCosts = $this->calculateTotalAnnualCosts($property);
+        // Monthly costs
+        $monthlyCosts = $this->calculateTotalMonthlyCosts($property);
 
-        // Net rental income
-        $netIncome = $actualIncome - $annualCosts;
+        // Net monthly income
+        $netMonthlyIncome = $actualMonthlyIncome - $monthlyCosts;
+
+        // Calculate annual net income for yield calculation
+        $netAnnualIncome = $netMonthlyIncome * 12;
 
         // Calculate yield as percentage
-        $yield = ($netIncome / $currentValue) * 100;
+        $yield = ($netAnnualIncome / $currentValue) * 100;
 
         return round($yield, 2);
     }
@@ -90,7 +97,7 @@ class PropertyService
         $property->load(['mortgages', 'user', 'household', 'trust']);
 
         $equity = $this->calculateEquity($property);
-        $annualCosts = $this->calculateTotalAnnualCosts($property);
+        $monthlyCosts = $this->calculateTotalMonthlyCosts($property);
         $rentalYield = $this->calculateNetRentalYield($property);
 
         // Calculate loan-to-value ratio
@@ -132,18 +139,22 @@ class PropertyService
             'county' => $property->county,
             'postcode' => $property->postcode,
 
-            // Cost fields (flat for form compatibility)
-            'annual_service_charge' => $property->annual_service_charge ?? 0,
-            'annual_ground_rent' => $property->annual_ground_rent ?? 0,
-            'annual_insurance' => $property->annual_insurance ?? 0,
-            'annual_maintenance_reserve' => $property->annual_maintenance_reserve ?? 0,
-            'other_annual_costs' => $property->other_annual_costs ?? 0,
-            'sdlt_paid' => $property->sdlt_paid ?? 0,
+            // Cost fields (flat for form compatibility) - MONTHLY
+            'monthly_council_tax' => (float) ($property->monthly_council_tax ?? 0),
+            'monthly_gas' => (float) ($property->monthly_gas ?? 0),
+            'monthly_electricity' => (float) ($property->monthly_electricity ?? 0),
+            'monthly_water' => (float) ($property->monthly_water ?? 0),
+            'monthly_building_insurance' => (float) ($property->monthly_building_insurance ?? 0),
+            'monthly_contents_insurance' => (float) ($property->monthly_contents_insurance ?? 0),
+            'monthly_service_charge' => (float) ($property->monthly_service_charge ?? 0),
+            'monthly_maintenance_reserve' => (float) ($property->monthly_maintenance_reserve ?? 0),
+            'other_monthly_costs' => (float) ($property->other_monthly_costs ?? 0),
+            'sdlt_paid' => (float) ($property->sdlt_paid ?? 0),
 
             // Rental fields (flat for form compatibility)
-            'monthly_rental_income' => $property->monthly_rental_income ?? 0,
-            'annual_rental_income' => $property->annual_rental_income ?? 0,
-            'occupancy_rate_percent' => $property->occupancy_rate_percent ?? 100,
+            'monthly_rental_income' => (float) ($property->monthly_rental_income ?? 0),
+            'annual_rental_income' => (float) ($property->annual_rental_income ?? 0),
+            'occupancy_rate_percent' => (int) ($property->occupancy_rate_percent ?? 100),
             'tenant_name' => $property->tenant_name,
             'lease_start_date' => $property->lease_start_date?->format('Y-m-d'),
             'lease_end_date' => $property->lease_end_date?->format('Y-m-d'),
@@ -175,32 +186,38 @@ class PropertyService
                 'equity' => $equity,
                 'mortgage_balance' => $mortgageBalance,
                 'loan_to_value_percent' => round($ltv, 2),
-                'annual_costs' => $annualCosts,
+                'monthly_costs' => $monthlyCosts,
+                'annual_costs' => $monthlyCosts * 12,
             ],
             'rental' => [
-                'annual_rental_income' => $property->annual_rental_income ?? 0,
-                'monthly_rental_income' => $property->monthly_rental_income ?? 0,
-                'occupancy_rate_percent' => $property->occupancy_rate_percent ?? 100,
-                'net_rental_yield_percent' => $rentalYield,
+                'annual_rental_income' => (float) ($property->annual_rental_income ?? 0),
+                'monthly_rental_income' => (float) ($property->monthly_rental_income ?? 0),
+                'occupancy_rate_percent' => (int) ($property->occupancy_rate_percent ?? 100),
+                'net_rental_yield_percent' => (float) $rentalYield,
                 'tenant_name' => $property->tenant_name,
                 'lease_start_date' => $property->lease_start_date?->format('Y-m-d'),
                 'lease_end_date' => $property->lease_end_date?->format('Y-m-d'),
             ],
             'costs' => [
-                'annual_service_charge' => $property->annual_service_charge ?? 0,
-                'annual_ground_rent' => $property->annual_ground_rent ?? 0,
-                'annual_insurance' => $property->annual_insurance ?? 0,
-                'annual_maintenance_reserve' => $property->annual_maintenance_reserve ?? 0,
-                'other_annual_costs' => $property->other_annual_costs ?? 0,
-                'total_annual_costs' => $annualCosts,
+                'monthly_council_tax' => (float) ($property->monthly_council_tax ?? 0),
+                'monthly_gas' => (float) ($property->monthly_gas ?? 0),
+                'monthly_electricity' => (float) ($property->monthly_electricity ?? 0),
+                'monthly_water' => (float) ($property->monthly_water ?? 0),
+                'monthly_building_insurance' => (float) ($property->monthly_building_insurance ?? 0),
+                'monthly_contents_insurance' => (float) ($property->monthly_contents_insurance ?? 0),
+                'monthly_service_charge' => (float) ($property->monthly_service_charge ?? 0),
+                'monthly_maintenance_reserve' => (float) ($property->monthly_maintenance_reserve ?? 0),
+                'other_monthly_costs' => (float) ($property->other_monthly_costs ?? 0),
+                'total_monthly_costs' => (float) $monthlyCosts,
+                'total_annual_costs' => (float) ($monthlyCosts * 12),
             ],
             'mortgages' => $property->mortgages->map(function ($mortgage) {
                 return [
                     'id' => $mortgage->id,
                     'lender_name' => $mortgage->lender_name,
-                    'outstanding_balance' => $mortgage->outstanding_balance,
-                    'monthly_payment' => $mortgage->monthly_payment,
-                    'interest_rate' => $mortgage->interest_rate,
+                    'outstanding_balance' => (float) ($mortgage->outstanding_balance ?? 0),
+                    'monthly_payment' => (float) ($mortgage->monthly_payment ?? 0),
+                    'interest_rate' => (float) ($mortgage->interest_rate ?? 0),
                     'maturity_date' => $mortgage->maturity_date?->format('Y-m-d'),
                 ];
             })->toArray(),

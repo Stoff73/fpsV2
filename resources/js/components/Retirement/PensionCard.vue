@@ -47,14 +47,26 @@
           <span class="text-sm text-gray-600">Current Fund Value</span>
           <span class="text-lg font-bold text-gray-900">£{{ parseFloat(pension.current_fund_value || 0).toLocaleString() }}</span>
         </div>
-        <div class="flex items-center justify-between">
-          <span class="text-sm text-gray-600">Employee Contribution</span>
-          <span class="text-sm font-semibold text-gray-900">{{ parseFloat(pension.employee_contribution_percent || 0) }}%</span>
-        </div>
-        <div class="flex items-center justify-between">
-          <span class="text-sm text-gray-600">Employer Contribution</span>
-          <span class="text-sm font-semibold text-gray-900">{{ parseFloat(pension.employer_contribution_percent || 0) }}%</span>
-        </div>
+
+        <!-- Workplace Pension: Show Employee & Employer Contributions -->
+        <template v-if="isWorkplacePension">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Employee Contribution</span>
+            <span class="text-sm font-semibold text-gray-900">{{ parseFloat(pension.employee_contribution_percent || 0) }}%</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Employer Contribution</span>
+            <span class="text-sm font-semibold text-gray-900">{{ parseFloat(pension.employer_contribution_percent || 0) }}%</span>
+          </div>
+        </template>
+
+        <!-- SIPP/Personal Pension: Show Monthly Contribution -->
+        <template v-else-if="isPersonalPension">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Monthly Contribution</span>
+            <span class="text-sm font-semibold text-gray-900">£{{ parseFloat(pension.monthly_contribution_amount || 0).toLocaleString() }}</span>
+          </div>
+        </template>
       </div>
 
       <!-- DB Pension Summary -->
@@ -154,6 +166,14 @@ export default {
   computed: {
     typeLabel() {
       return this.type === 'dc' ? 'Defined Contribution' : 'Defined Benefit';
+    },
+
+    isWorkplacePension() {
+      return this.type === 'dc' && this.pension.scheme_type === 'workplace';
+    },
+
+    isPersonalPension() {
+      return this.type === 'dc' && (this.pension.scheme_type === 'sipp' || this.pension.scheme_type === 'personal');
     },
   },
 };

@@ -217,8 +217,8 @@
             </div>
           </div>
 
-          <!-- Salary Sacrifice -->
-          <div class="flex items-center">
+          <!-- Salary Sacrifice (Workplace Pensions Only) -->
+          <div v-if="isWorkplacePension" class="flex items-center">
             <input
               id="salary_sacrifice"
               v-model="formData.salary_sacrifice"
@@ -267,6 +267,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   name: 'DCPensionForm',
 
@@ -294,7 +296,7 @@ export default {
         employer_contribution_percent: null,
         monthly_contribution_amount: null,
         expected_return_percent: 5.0,
-        retirement_age: 67,
+        retirement_age: null, // Will be populated from user profile
         salary_sacrifice: false,
         notes: '',
       },
@@ -306,6 +308,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters('auth', ['currentUser']),
+
     isWorkplacePension() {
       return this.formData.scheme_type === 'workplace';
     },
@@ -329,10 +333,25 @@ export default {
     },
   },
 
+  watch: {
+    pension: {
+      immediate: true,
+      handler(newPension) {
+        if (newPension) {
+          // Editing existing pension - populate form with pension data
+          this.formData = { ...newPension };
+        } else {
+          // Adding new pension - populate retirement age from user profile
+          if (this.currentUser && this.currentUser.target_retirement_age) {
+            this.formData.retirement_age = this.currentUser.target_retirement_age;
+          }
+        }
+      },
+    },
+  },
+
   mounted() {
-    if (this.isEdit && this.pension) {
-      this.formData = { ...this.pension };
-    }
+    // Watcher handles form population, mounted just ensures currentUser is available
   },
 
   methods: {

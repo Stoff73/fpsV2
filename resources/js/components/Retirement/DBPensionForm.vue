@@ -235,6 +235,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   name: 'DBPensionForm',
 
@@ -259,7 +261,7 @@ export default {
         service_years: null,
         final_salary: null,
         accrual_rate: null,
-        normal_retirement_age: 65,
+        normal_retirement_age: null, // Will be populated from user profile
         revaluation_rate: null,
         pcls_available: null,
         notes: '',
@@ -267,10 +269,29 @@ export default {
     };
   },
 
+  computed: {
+    ...mapGetters('auth', ['currentUser']),
+  },
+
+  watch: {
+    pension: {
+      immediate: true,
+      handler(newPension) {
+        if (newPension) {
+          // Editing existing pension - populate form with pension data
+          this.formData = { ...newPension };
+        } else {
+          // Adding new pension - populate retirement age from user profile
+          if (this.currentUser && this.currentUser.target_retirement_age) {
+            this.formData.normal_retirement_age = this.currentUser.target_retirement_age;
+          }
+        }
+      },
+    },
+  },
+
   mounted() {
-    if (this.isEdit && this.pension) {
-      this.formData = { ...this.pension };
-    }
+    // Watcher handles form population, mounted just ensures currentUser is available
   },
 
   methods: {

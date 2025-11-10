@@ -2,10 +2,10 @@
   <div class="space-y-6">
     <h3 class="text-lg font-semibold text-gray-800">Property Financials</h3>
 
-    <!-- Annual Costs Breakdown -->
+    <!-- Monthly Costs -->
     <div class="bg-white border border-gray-200 rounded-lg p-6">
       <div class="flex justify-between items-center mb-4">
-        <h4 class="text-md font-semibold text-gray-700">Annual Costs Breakdown</h4>
+        <h4 class="text-md font-semibold text-gray-700">Monthly Costs</h4>
         <button
           @click="showEditCostsModal = true"
           class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -14,68 +14,82 @@
         </button>
       </div>
 
-      <dl class="space-y-2">
-        <div class="flex justify-between py-2 border-b border-gray-100">
-          <dt class="text-sm text-gray-600">Service Charge:</dt>
-          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.annual_service_charge) }}</dd>
-        </div>
-
-        <div class="flex justify-between py-2 border-b border-gray-100">
-          <dt class="text-sm text-gray-600">Ground Rent:</dt>
-          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.annual_ground_rent) }}</dd>
-        </div>
-
-        <div class="flex justify-between py-2 border-b border-gray-100">
-          <dt class="text-sm text-gray-600">Insurance:</dt>
-          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.annual_insurance) }}</dd>
-        </div>
-
-        <div class="flex justify-between py-2 border-b border-gray-100">
-          <dt class="text-sm text-gray-600">Maintenance Reserve:</dt>
-          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.annual_maintenance_reserve) }}</dd>
-        </div>
-
-        <div class="flex justify-between py-2 border-b border-gray-100">
-          <dt class="text-sm text-gray-600">Other Costs:</dt>
-          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.other_annual_costs) }}</dd>
-        </div>
-
-        <div class="flex justify-between py-2 border-b border-gray-100">
-          <dt class="text-sm text-gray-600">Mortgage Payments (Annual):</dt>
-          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(annualMortgagePayments) }}</dd>
-        </div>
-
-        <div class="flex justify-between py-3 border-t-2 border-gray-300 mt-2">
-          <dt class="text-base font-semibold text-gray-700">Total Annual Costs:</dt>
-          <dd class="text-base font-bold text-gray-900">{{ formatCurrency(totalAnnualCosts) }}</dd>
-        </div>
-      </dl>
-
-      <!-- Costs Chart -->
-      <div class="mt-6">
-        <div class="space-y-2">
-          <div
-            v-for="cost in costBreakdown"
-            :key="cost.label"
-            class="flex items-center"
-          >
-            <div class="w-32 text-sm text-gray-600">{{ cost.label }}:</div>
-            <div class="flex-1">
-              <div class="bg-gray-200 rounded-full h-6 overflow-hidden">
-                <div
-                  class="bg-blue-600 h-full flex items-center justify-end pr-2"
-                  :style="{ width: cost.percentage + '%' }"
-                >
-                  <span v-if="cost.percentage > 15" class="text-xs font-medium text-white">
-                    {{ formatCurrency(cost.value) }}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div class="w-16 text-right text-sm text-gray-600 ml-2">
-              {{ cost.percentage.toFixed(1) }}%
-            </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div v-if="monthlyMortgagePayments > 0">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Mortgage Payment (£/month)</label>
+          <div class="w-full px-3 py-2 bg-blue-50 border border-blue-200 rounded-md text-gray-700 font-medium">
+            {{ formatCurrency(monthlyMortgagePayments) }}
           </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Council Tax (£/month)</label>
+          <div class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatCurrency(property.monthly_council_tax || 0) }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Gas (£/month)</label>
+          <div class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatCurrency(property.monthly_gas || 0) }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Electricity (£/month)</label>
+          <div class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatCurrency(property.monthly_electricity || 0) }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Water (£/month)</label>
+          <div class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatCurrency(property.monthly_water || 0) }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Building Insurance (£/month)</label>
+          <div class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatCurrency(property.monthly_building_insurance || 0) }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Contents Insurance (£/month)</label>
+          <div class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatCurrency(property.monthly_contents_insurance || 0) }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Service Charge (£/month)</label>
+          <div class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatCurrency(property.monthly_service_charge || 0) }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Maintenance Reserve (£/month)</label>
+          <div class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatCurrency(property.monthly_maintenance_reserve || 0) }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Other Costs (£/month)</label>
+          <div class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatCurrency(property.other_monthly_costs || 0) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 bg-gray-50 border-2 border-gray-300 rounded-lg">
+        <div class="flex justify-between items-center">
+          <span class="text-lg font-semibold text-gray-900">Total Monthly Costs</span>
+          <span class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalMonthlyCosts) }}</span>
         </div>
       </div>
     </div>
@@ -86,26 +100,27 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="bg-green-50 rounded-lg p-4">
-          <p class="text-sm text-green-700">Annual Rental Income</p>
-          <p class="text-2xl font-bold text-green-900">{{ formatCurrency(property.annual_rental_income) }}</p>
+          <p class="text-sm text-green-700">Monthly Rental Income</p>
+          <p class="text-2xl font-bold text-green-900">{{ formatCurrency(property.monthly_rental_income || 0) }}</p>
         </div>
 
         <div class="bg-blue-50 rounded-lg p-4">
-          <p class="text-sm text-blue-700">Net Rental Income</p>
-          <p class="text-2xl font-bold text-blue-900">{{ formatCurrency(netRentalIncome) }}</p>
-          <p class="text-xs text-blue-600 mt-1">After costs</p>
+          <p class="text-sm text-blue-700">Net Monthly Income</p>
+          <p class="text-2xl font-bold text-blue-900">{{ formatCurrency(netMonthlyIncome) }}</p>
+          <p class="text-xs text-blue-600 mt-1">After all costs</p>
         </div>
 
         <div class="bg-purple-50 rounded-lg p-4">
           <p class="text-sm text-purple-700">Net Rental Yield</p>
           <p class="text-2xl font-bold text-purple-900">{{ netRentalYield }}%</p>
+          <p class="text-xs text-purple-600 mt-1">Annual</p>
         </div>
       </div>
 
       <dl class="space-y-2">
         <div class="flex justify-between py-2 border-b border-gray-100">
           <dt class="text-sm text-gray-600">Monthly Rental Income:</dt>
-          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.monthly_rental_income) }}</dd>
+          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.monthly_rental_income || 0) }}</dd>
         </div>
 
         <div class="flex justify-between py-2 border-b border-gray-100">
@@ -114,19 +129,26 @@
         </div>
 
         <div class="flex justify-between py-2 border-b border-gray-100">
-          <dt class="text-sm text-gray-600">Actual Annual Income:</dt>
-          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(actualAnnualIncome) }}</dd>
+          <dt class="text-sm text-gray-600">Actual Monthly Income:</dt>
+          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(actualMonthlyIncome) }}</dd>
         </div>
 
         <div class="flex justify-between py-2 border-b border-gray-100">
-          <dt class="text-sm text-gray-600">Less: Annual Costs:</dt>
-          <dd class="text-sm font-medium text-red-600">-{{ formatCurrency(totalAnnualCosts) }}</dd>
+          <dt class="text-sm text-gray-600">Less: Total Monthly Costs:</dt>
+          <dd class="text-sm font-medium text-red-600">-{{ formatCurrency(totalMonthlyCosts) }}</dd>
         </div>
 
         <div class="flex justify-between py-3 border-t-2 border-gray-300 mt-2">
-          <dt class="text-base font-semibold text-gray-700">Net Annual Income:</dt>
-          <dd class="text-base font-bold" :class="netRentalIncome >= 0 ? 'text-green-600' : 'text-red-600'">
-            {{ formatCurrency(netRentalIncome) }}
+          <dt class="text-base font-semibold text-gray-700">Net Monthly Income:</dt>
+          <dd class="text-base font-bold" :class="netMonthlyIncome >= 0 ? 'text-green-600' : 'text-red-600'">
+            {{ formatCurrency(netMonthlyIncome) }}
+          </dd>
+        </div>
+
+        <div class="flex justify-between py-2 bg-gray-50 rounded-md p-2 mt-2">
+          <dt class="text-sm text-gray-600">Projected Annual Net Income:</dt>
+          <dd class="text-sm font-semibold" :class="netAnnualIncome >= 0 ? 'text-green-600' : 'text-red-600'">
+            {{ formatCurrency(netAnnualIncome) }}
           </dd>
         </div>
       </dl>
@@ -199,7 +221,7 @@
         <!-- Modal Header -->
         <div class="bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
           <div class="flex items-center justify-between">
-            <h3 class="text-2xl font-semibold text-gray-900">Edit Annual Costs</h3>
+            <h3 class="text-2xl font-semibold text-gray-900">Edit Monthly Costs</h3>
             <button
               @click="closeEditCostsModal"
               class="text-gray-400 hover:text-gray-600 transition-colors"
@@ -214,88 +236,132 @@
         <!-- Modal Content -->
         <form @submit.prevent="handleSaveCosts">
           <div class="px-6 py-4 space-y-4">
-            <div>
-              <label for="annual_service_charge" class="block text-sm font-medium text-gray-700 mb-1">
-                Annual Service Charge (£)
-              </label>
-              <input
-                id="annual_service_charge"
-                v-model.number="costsForm.annual_service_charge"
-                type="number"
-                step="0.01"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="monthly_council_tax" class="block text-sm font-medium text-gray-700 mb-1">
+                  Council Tax (£/month)
+                </label>
+                <input
+                  id="monthly_council_tax"
+                  v-model.number="costsForm.monthly_council_tax"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-            <div>
-              <label for="annual_ground_rent" class="block text-sm font-medium text-gray-700 mb-1">
-                Annual Ground Rent (£)
-              </label>
-              <input
-                id="annual_ground_rent"
-                v-model.number="costsForm.annual_ground_rent"
-                type="number"
-                step="0.01"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+              <div>
+                <label for="monthly_gas" class="block text-sm font-medium text-gray-700 mb-1">
+                  Gas (£/month)
+                </label>
+                <input
+                  id="monthly_gas"
+                  v-model.number="costsForm.monthly_gas"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-            <div>
-              <label for="annual_insurance" class="block text-sm font-medium text-gray-700 mb-1">
-                Annual Insurance (£)
-              </label>
-              <input
-                id="annual_insurance"
-                v-model.number="costsForm.annual_insurance"
-                type="number"
-                step="0.01"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+              <div>
+                <label for="monthly_electricity" class="block text-sm font-medium text-gray-700 mb-1">
+                  Electricity (£/month)
+                </label>
+                <input
+                  id="monthly_electricity"
+                  v-model.number="costsForm.monthly_electricity"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-            <div>
-              <label for="annual_maintenance_reserve" class="block text-sm font-medium text-gray-700 mb-1">
-                Annual Maintenance Reserve (£)
-              </label>
-              <input
-                id="annual_maintenance_reserve"
-                v-model.number="costsForm.annual_maintenance_reserve"
-                type="number"
-                step="0.01"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+              <div>
+                <label for="monthly_water" class="block text-sm font-medium text-gray-700 mb-1">
+                  Water (£/month)
+                </label>
+                <input
+                  id="monthly_water"
+                  v-model.number="costsForm.monthly_water"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-            <div>
-              <label for="other_annual_costs" class="block text-sm font-medium text-gray-700 mb-1">
-                Other Annual Costs (£)
-              </label>
-              <input
-                id="other_annual_costs"
-                v-model.number="costsForm.other_annual_costs"
-                type="number"
-                step="0.01"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+              <div>
+                <label for="monthly_building_insurance" class="block text-sm font-medium text-gray-700 mb-1">
+                  Building Insurance (£/month)
+                </label>
+                <input
+                  id="monthly_building_insurance"
+                  v-model.number="costsForm.monthly_building_insurance"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-            <div>
-              <label for="sdlt_paid" class="block text-sm font-medium text-gray-700 mb-1">
-                SDLT Paid (£)
-              </label>
-              <input
-                id="sdlt_paid"
-                v-model.number="costsForm.sdlt_paid"
-                type="number"
-                step="0.01"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div>
+                <label for="monthly_contents_insurance" class="block text-sm font-medium text-gray-700 mb-1">
+                  Contents Insurance (£/month)
+                </label>
+                <input
+                  id="monthly_contents_insurance"
+                  v-model.number="costsForm.monthly_contents_insurance"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label for="monthly_service_charge" class="block text-sm font-medium text-gray-700 mb-1">
+                  Service Charge (£/month)
+                </label>
+                <input
+                  id="monthly_service_charge"
+                  v-model.number="costsForm.monthly_service_charge"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label for="monthly_maintenance_reserve" class="block text-sm font-medium text-gray-700 mb-1">
+                  Maintenance Reserve (£/month)
+                </label>
+                <input
+                  id="monthly_maintenance_reserve"
+                  v-model.number="costsForm.monthly_maintenance_reserve"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label for="other_monthly_costs" class="block text-sm font-medium text-gray-700 mb-1">
+                  Other Monthly Costs (£/month)
+                </label>
+                <input
+                  id="other_monthly_costs"
+                  v-model.number="costsForm.other_monthly_costs"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
 
             <!-- Error Message -->
@@ -348,69 +414,65 @@ export default {
       submitting: false,
       error: null,
       costsForm: {
-        annual_service_charge: null,
-        annual_ground_rent: null,
-        annual_insurance: null,
-        annual_maintenance_reserve: null,
-        other_annual_costs: null,
-        sdlt_paid: null,
+        monthly_council_tax: null,
+        monthly_gas: null,
+        monthly_electricity: null,
+        monthly_water: null,
+        monthly_building_insurance: null,
+        monthly_contents_insurance: null,
+        monthly_service_charge: null,
+        monthly_maintenance_reserve: null,
+        other_monthly_costs: null,
       },
     };
   },
 
   computed: {
-    annualMortgagePayments() {
-      return this.mortgages.reduce((total, mortgage) => {
-        return total + ((mortgage.monthly_payment || 0) * 12);
+    monthlyMortgagePayments() {
+      // Use mortgages from prop, or fallback to property.mortgages
+      const mortgageList = this.mortgages && this.mortgages.length > 0
+        ? this.mortgages
+        : (this.property.mortgages || []);
+
+      return mortgageList.reduce((total, mortgage) => {
+        const payment = parseFloat(mortgage.monthly_payment) || 0;
+        return total + payment;
       }, 0);
     },
 
-    totalAnnualCosts() {
+    totalMonthlyCosts() {
       return (
-        (this.property.annual_service_charge || 0) +
-        (this.property.annual_ground_rent || 0) +
-        (this.property.annual_insurance || 0) +
-        (this.property.annual_maintenance_reserve || 0) +
-        (this.property.other_annual_costs || 0) +
-        this.annualMortgagePayments
+        (parseFloat(this.property.monthly_council_tax) || 0) +
+        (parseFloat(this.property.monthly_gas) || 0) +
+        (parseFloat(this.property.monthly_electricity) || 0) +
+        (parseFloat(this.property.monthly_water) || 0) +
+        (parseFloat(this.property.monthly_building_insurance) || 0) +
+        (parseFloat(this.property.monthly_contents_insurance) || 0) +
+        (parseFloat(this.property.monthly_service_charge) || 0) +
+        (parseFloat(this.property.monthly_maintenance_reserve) || 0) +
+        (parseFloat(this.property.other_monthly_costs) || 0) +
+        this.monthlyMortgagePayments
       );
     },
 
-    costBreakdown() {
-      const costs = [
-        { label: 'Mortgage Payments', value: this.annualMortgagePayments },
-        { label: 'Service Charge', value: this.property.annual_service_charge || 0 },
-        { label: 'Ground Rent', value: this.property.annual_ground_rent || 0 },
-        { label: 'Insurance', value: this.property.annual_insurance || 0 },
-        { label: 'Maintenance', value: this.property.annual_maintenance_reserve || 0 },
-        { label: 'Other', value: this.property.other_annual_costs || 0 },
-      ];
-
-      const total = this.totalAnnualCosts || 1; // Avoid division by zero
-
-      return costs
-        .map(cost => ({
-          ...cost,
-          percentage: (cost.value / total) * 100,
-        }))
-        .filter(cost => cost.value > 0)
-        .sort((a, b) => b.value - a.value);
-    },
-
-    actualAnnualIncome() {
-      const income = this.property.annual_rental_income || 0;
-      const occupancyRate = (this.property.occupancy_rate_percent || 100) / 100;
+    actualMonthlyIncome() {
+      const income = parseFloat(this.property.monthly_rental_income) || 0;
+      const occupancyRate = (parseFloat(this.property.occupancy_rate_percent) || 100) / 100;
       return income * occupancyRate;
     },
 
-    netRentalIncome() {
-      return this.actualAnnualIncome - this.totalAnnualCosts;
+    netMonthlyIncome() {
+      return this.actualMonthlyIncome - this.totalMonthlyCosts;
+    },
+
+    netAnnualIncome() {
+      return this.netMonthlyIncome * 12;
     },
 
     netRentalYield() {
-      const currentValue = this.property.current_value || 0;
+      const currentValue = parseFloat(this.property.current_value) || 0;
       if (currentValue === 0) return '0.00';
-      const yieldValue = (this.netRentalIncome / currentValue) * 100;
+      const yieldValue = (this.netAnnualIncome / currentValue) * 100;
       return yieldValue.toFixed(2);
     },
 
@@ -447,12 +509,15 @@ export default {
 
   methods: {
     populateCostsForm() {
-      this.costsForm.annual_service_charge = this.property.annual_service_charge || null;
-      this.costsForm.annual_ground_rent = this.property.annual_ground_rent || null;
-      this.costsForm.annual_insurance = this.property.annual_insurance || null;
-      this.costsForm.annual_maintenance_reserve = this.property.annual_maintenance_reserve || null;
-      this.costsForm.other_annual_costs = this.property.other_annual_costs || null;
-      this.costsForm.sdlt_paid = this.property.sdlt_paid || null;
+      this.costsForm.monthly_council_tax = this.property.monthly_council_tax || null;
+      this.costsForm.monthly_gas = this.property.monthly_gas || null;
+      this.costsForm.monthly_electricity = this.property.monthly_electricity || null;
+      this.costsForm.monthly_water = this.property.monthly_water || null;
+      this.costsForm.monthly_building_insurance = this.property.monthly_building_insurance || null;
+      this.costsForm.monthly_contents_insurance = this.property.monthly_contents_insurance || null;
+      this.costsForm.monthly_service_charge = this.property.monthly_service_charge || null;
+      this.costsForm.monthly_maintenance_reserve = this.property.monthly_maintenance_reserve || null;
+      this.costsForm.other_monthly_costs = this.property.other_monthly_costs || null;
     },
 
     closeEditCostsModal() {
@@ -478,13 +543,15 @@ export default {
     },
 
     formatCurrency(value) {
-      if (value === null || value === undefined) return '£0';
+      if (value === null || value === undefined || isNaN(value)) return '£0';
+      const numValue = Number(value);
+      if (isNaN(numValue)) return '£0';
       return new Intl.NumberFormat('en-GB', {
         style: 'currency',
         currency: 'GBP',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
-      }).format(value);
+      }).format(numValue);
     },
 
     formatDate(date) {

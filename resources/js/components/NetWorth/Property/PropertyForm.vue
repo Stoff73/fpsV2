@@ -1498,7 +1498,7 @@ export default {
         return false;
       }
 
-      if (!this.form.ownership_type || !this.form.ownership_percentage) {
+      if (!this.form.ownership_type || this.form.ownership_percentage === null || this.form.ownership_percentage === undefined) {
         this.error = 'Please fill in ownership details (Step 2).';
         this.currentStep = 2; // Go to step with error
         return false;

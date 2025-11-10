@@ -213,13 +213,23 @@ export default {
     };
   },
 
+  watch: {
+    statePension: {
+      immediate: true,
+      handler(newStatePension) {
+        if (newStatePension) {
+          // Editing existing state pension - populate form with data
+          this.formData = {
+            ...newStatePension,
+            forecast_date: this.formatDateForInput(newStatePension.forecast_date),
+          };
+        }
+      },
+    },
+  },
+
   mounted() {
-    if (this.statePension) {
-      this.formData = {
-        ...this.statePension,
-        forecast_date: this.formatDateForInput(this.statePension.forecast_date),
-      };
-    }
+    // Watcher handles form population
   },
 
   methods: {
