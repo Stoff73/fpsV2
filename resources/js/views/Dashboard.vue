@@ -193,12 +193,19 @@ export default {
 
   methods: {
     async loadAllData() {
+      // Determine which estate calculation to use based on marital status
+      const user = this.$store.state.auth.user;
+      const isMarried = user && user.marital_status === 'married';
+      const estateCalculationAction = isMarried
+        ? 'estate/calculateSecondDeathIHTPlanning'
+        : 'estate/calculateIHT';
+
       // Load all module data in parallel with Promise.allSettled
       const moduleLoaders = [
         { name: 'netWorth', action: 'netWorth/fetchOverview' },
         { name: 'protection', action: 'protection/fetchProtectionData' },
         { name: 'estate', action: 'estate/fetchEstateData' },
-        { name: 'estate', action: 'estate/calculateIHT', payload: {} },
+        { name: 'estate', action: estateCalculationAction, payload: {} },
       ];
 
       // Set all modules to loading
@@ -242,9 +249,16 @@ export default {
       this.loading[moduleName] = true;
       this.errors[moduleName] = null;
 
+      // Determine which estate calculation to use based on marital status
+      const user = this.$store.state.auth.user;
+      const isMarried = user && user.marital_status === 'married';
+      const estateCalculationAction = isMarried
+        ? 'estate/calculateSecondDeathIHTPlanning'
+        : 'estate/calculateIHT';
+
       const actions = {
         protection: ['protection/fetchProtectionData'],
-        estate: ['estate/fetchEstateData', 'estate/calculateIHT'],
+        estate: ['estate/fetchEstateData', estateCalculationAction],
       };
 
       try {
@@ -263,6 +277,13 @@ export default {
       this.refreshing = true;
       // Use refreshNetWorth to bypass cache, then load other modules
       try {
+        // Determine which estate calculation to use based on marital status
+        const user = this.$store.state.auth.user;
+        const isMarried = user && user.marital_status === 'married';
+        const estateCalculationAction = isMarried
+          ? 'estate/calculateSecondDeathIHTPlanning'
+          : 'estate/calculateIHT';
+
         await this.$store.dispatch('netWorth/refreshNetWorth');
         // Load other module data
         await Promise.allSettled([
@@ -270,6 +291,7 @@ export default {
           this.$store.dispatch('savings/fetchSavingsData'),
           this.$store.dispatch('investment/fetchInvestmentData'),
           this.$store.dispatch('estate/fetchEstateData'),
+          this.$store.dispatch(estateCalculationAction),
         ]);
       } catch (error) {
         console.error('Error refreshing dashboard:', error);
