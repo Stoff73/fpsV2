@@ -449,16 +449,21 @@ const actions = {
 
         try {
             const response = await estateService.calculateSecondDeathIHTPlanning();
-            commit('setSecondDeathPlanning', response.data);
+            console.log('📊 Second Death IHT Response:', response);
+            console.log('📊 second_death_analysis:', response?.second_death_analysis);
+            console.log('📊 IHT Liability:', response?.second_death_analysis?.iht_calculation?.iht_liability);
+
+            commit('setSecondDeathPlanning', response);
 
             // If spouse is not linked, the backend returns user_iht_calculation
             // Store this in analysis state so the dashboard getters can access it
-            if (response.data?.requires_spouse_link && response.data?.user_iht_calculation) {
-                commit('setAnalysis', response.data.user_iht_calculation);
+            if (response?.requires_spouse_link && response?.user_iht_calculation) {
+                commit('setAnalysis', response.user_iht_calculation);
             }
 
             return response;
         } catch (error) {
+            console.error('❌ Second Death IHT Error:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Failed to calculate second death IHT planning';
             commit('setError', errorMessage);
             throw error;
