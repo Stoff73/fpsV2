@@ -423,11 +423,11 @@ export default {
       if (!this.policies) return true;
 
       const allPolicies = [
-        ...(this.policies.life_insurance || []),
-        ...(this.policies.critical_illness || []),
-        ...(this.policies.income_protection || []),
+        ...(this.policies.life || []),
+        ...(this.policies.criticalIllness || []),
+        ...(this.policies.incomeProtection || []),
         ...(this.policies.disability || []),
-        ...(this.policies.sickness_illness || []),
+        ...(this.policies.sicknessIllness || []),
       ];
 
       return allPolicies.length === 0;

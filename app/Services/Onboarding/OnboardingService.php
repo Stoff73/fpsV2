@@ -178,6 +178,9 @@ class OnboardingService
             'county' => $data['county'] ?? null,
             'postcode' => $data['postcode'] ?? null,
             'phone' => $data['phone'] ?? null,
+            'health_status' => $data['health_status'] ?? null,
+            'smoking_status' => $data['smoking_status'] ?? null,
+            'education_level' => $data['education_level'] ?? null,
         ]);
     }
 

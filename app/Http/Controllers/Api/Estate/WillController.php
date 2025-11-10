@@ -96,8 +96,9 @@ class WillController extends Controller
             'death_scenario' => 'required|in:user_only,both_simultaneous',
             'spouse_primary_beneficiary' => 'boolean',
             'spouse_bequest_percentage' => 'nullable|numeric|min:0|max:100',
+            'executor_name' => 'nullable|string|max:255',
             'executor_notes' => 'nullable|string',
-            'last_reviewed_date' => 'nullable|date',
+            'will_last_updated' => 'nullable|date',
         ]);
 
         $validated['user_id'] = $user->id;

@@ -18,7 +18,7 @@
               <p class="mt-1 text-body-sm text-gray-600">Latest release information</p>
             </div>
             <div class="text-right">
-              <div class="text-3xl font-bold text-primary-600">v0.2.1</div>
+              <div class="text-3xl font-bold text-primary-600">v0.2.5</div>
               <div class="text-body-sm text-gray-500 mt-1">Beta Release</div>
             </div>
           </div>
@@ -28,7 +28,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <h3 class="text-body-sm font-semibold text-gray-700 mb-2">Release Date</h3>
-              <p class="text-body-base text-gray-900">4 November 2025</p>
+              <p class="text-body-base text-gray-900">10 November 2025</p>
             </div>
             <div>
               <h3 class="text-body-sm font-semibold text-gray-700 mb-2">Status</h3>
@@ -40,74 +40,86 @@
 
           <!-- What's New -->
           <div class="mb-6">
-            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">✨ What's New in v0.2.1</h3>
+            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">🐛 Bug Fixes in v0.2.5</h3>
             <ul class="space-y-2">
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Investment & Savings Plans Module:</strong> Comprehensive financial planning tool combining Investment and Savings goals with advanced risk metrics, asset allocation analysis, and consolidated progress tracking. Accessible from Quick Actions on the dashboard.</span>
+                <span class="text-body-base text-gray-700"><strong>Estate Will Tab Display:</strong> Fixed executor name and date not displaying correctly after data entry due to database schema mismatch.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>DC Pension Portfolio Optimisation:</strong> Full integration of Investment module's portfolio optimisation tools into Retirement planning. DC pensions now support individual holdings management with complete portfolio analysis including risk metrics, asset allocation, and fee analysis.</span>
+                <span class="text-body-base text-gray-700"><strong>Estate Spouse Gifting Timeline:</strong> Fixed incorrect "enable data sharing" message showing despite spouse accounts being linked.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Polymorphic Holdings System:</strong> Implemented flexible polymorphic relationship allowing holdings to belong to both Investment Accounts and DC Pensions, enabling consistent portfolio management across all investment vehicles.</span>
+                <span class="text-body-base text-gray-700"><strong>Protection Policies Detection:</strong> Fixed Gap Analysis not detecting policies entered during onboarding due to property naming mismatch.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Advanced Risk Metrics:</strong> Added comprehensive portfolio risk analysis including Alpha (excess returns vs benchmark), Beta (market sensitivity), Sharpe Ratio (risk-adjusted returns), Volatility, Max Drawdown, and Value at Risk (VaR 95%) for both Investment and Retirement modules.</span>
+                <span class="text-body-base text-gray-700"><strong>Protection Tab Reorganisation:</strong> Renamed "Recommendations" tab to "Strategy" and removed "What-If Scenarios" tab for cleaner UX.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Portfolio Analysis & Optimisation:</strong> Asset allocation breakdown, diversification scoring, fee analysis with low-cost alternative comparison, and integration with Monte Carlo Simulation and Efficient Frontier analysis tools.</span>
+                <span class="text-body-base text-gray-700"><strong>Spouse Income in Gap Analysis:</strong> Fixed spouse income not being included in human capital calculation. Implemented proper spouse account creation with income population during onboarding, maintaining single source of truth in users table.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Holdings Management for DC Pensions:</strong> Full CRUD functionality for managing individual fund holdings within DC pension pots, enabling detailed tracking of fund allocations, fees, and performance across pension providers.</span>
+                <span class="text-body-base text-gray-700"><strong>Education Level Data Flow:</strong> Removed duplicate education level field from Personal Information tab. Fixed onboarding data not syncing health_status, smoking_status, and education_level to users table. Education level now appears only in Health tab as intended.</span>
               </li>
             </ul>
           </div>
 
           <!-- Technical Improvements -->
           <div class="mb-6">
-            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">⚙️ Technical Improvements in v0.2.1</h3>
+            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">⚙️ Technical Improvements in v0.2.5</h3>
             <ul class="space-y-2">
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Service Reuse Architecture:</strong> Share Investment module services (PortfolioAnalyzer, FeeAnalyzer, MonteCarloSimulator) with Retirement module via dependency injection, eliminating code duplication while maintaining consistency.</span>
+                <span class="text-body-base text-gray-700"><strong>Database Schema Improvements:</strong> Fixed will information schema (added executor_name field, renamed last_reviewed_date to will_last_updated). Changed income/expenditure columns from DECIMAL to DOUBLE for proper JSON serialisation.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Database Migration with Rollback:</strong> Safely migrated existing investment holdings data to polymorphic structure with full rollback capability, ensuring zero data loss and backward compatibility.</span>
+                <span class="text-body-base text-gray-700"><strong>Spouse Account Management:</strong> Enhanced FamilyMembersController to properly populate spouse user accounts with income data during creation, linking, and updates. Maintains single source of truth in users table.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Enhanced RetirementAgent:</strong> Integrated 5 Investment module services into RetirementAgent for comprehensive DC pension portfolio analysis with risk metrics, fee breakdown, and optimisation recommendations.</span>
+                <span class="text-body-base text-gray-700"><strong>Onboarding Service Enhancement:</strong> Fixed processPersonalInfo() to save health_status, smoking_status, and education_level to users table during onboarding, ensuring data flows correctly to User Profile tabs.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>New API Endpoints:</strong> Added 9 new API endpoints for DC pension holdings management, portfolio analysis, and Investment/Savings plans, all with proper authentication and authorization.</span>
+                <span class="text-body-base text-gray-700"><strong>UI/UX Improvements:</strong> Moved "Edit Information" button to top right in all User Profile tabs. Standardised button placement across 4 profile tab components for consistent user experience.</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>British English Conversion:</strong> Converted all user-facing text from American to British English spelling (252 Vue/JS files updated). Maintained American spelling in code syntax (class names, CSS properties, API routes) per coding conventions.</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>Protection Module Refinements:</strong> Fixed Vuex property naming (camelCase), removed unused components, improved cache invalidation for spouse income updates.</span>
               </li>
             </ul>
           </div>
@@ -199,6 +211,41 @@
           <p class="mt-1 text-body-sm text-gray-600">Previous releases and changes</p>
         </div>
         <div class="p-6">
+          <!-- v0.2.1 -->
+          <div class="mb-8 pb-8 border-b border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-xl font-bold text-gray-900">v0.2.1</h3>
+                <p class="text-body-sm text-gray-600">4 November 2025</p>
+              </div>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-body-sm font-medium bg-blue-100 text-blue-800">
+                Beta Release
+              </span>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-2">Features</h4>
+                <ul class="space-y-1 text-body-sm text-gray-700">
+                  <li>• Investment & Savings Plans Module with consolidated goal tracking</li>
+                  <li>• DC Pension Portfolio Optimisation with full holdings management</li>
+                  <li>• Polymorphic Holdings System for Investment Accounts and DC Pensions</li>
+                  <li>• Advanced Risk Metrics (Alpha, Beta, Sharpe Ratio, VaR, Max Drawdown)</li>
+                  <li>• Portfolio Analysis & Fee Optimisation suggestions</li>
+                  <li>• Monte Carlo Simulation and Efficient Frontier integration</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-2">Technical</h4>
+                <ul class="space-y-1 text-body-sm text-gray-700">
+                  <li>• Service Reuse Architecture (shared Investment services in Retirement)</li>
+                  <li>• Database migration with rollback for polymorphic holdings</li>
+                  <li>• Enhanced RetirementAgent with 5 Investment module services</li>
+                  <li>• 9 new API endpoints for holdings and portfolio analysis</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <!-- v0.1.2.13 -->
           <div class="mb-8 pb-8 border-b border-gray-200">
             <div class="flex items-center justify-between mb-4">

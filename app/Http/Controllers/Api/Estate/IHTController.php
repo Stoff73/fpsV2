@@ -774,7 +774,7 @@ class IHTController extends Controller
                 'mitigation_strategies' => $mitigationStrategies,
                 'projection' => $projection,
                 'user_gifting_timeline' => $this->giftingTimeline->buildGiftingTimeline($userGifts, $user->name),
-                'spouse_gifting_timeline' => $dataSharingEnabled && $spouseGifts ?
+                'spouse_gifting_timeline' => $dataSharingEnabled ?
                     $this->giftingTimeline->buildGiftingTimeline($spouseGifts, $spouse->name) :
                     [
                         'show_empty_timeline' => true,

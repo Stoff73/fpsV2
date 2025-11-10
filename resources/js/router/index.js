@@ -26,6 +26,7 @@ const ChattelsList = () => import('@/components/NetWorth/ChattelsList.vue');
 const ProtectionDashboard = () => import('@/views/Protection/ProtectionDashboard.vue');
 const ComprehensiveProtectionPlan = () => import('@/views/Protection/ComprehensiveProtectionPlan.vue');
 const SavingsDashboard = () => import('@/views/Savings/SavingsDashboard.vue');
+const SavingsAccountDetail = () => import('@/views/Savings/SavingsAccountDetail.vue');
 const InvestmentDashboard = () => import('@/views/Investment/InvestmentDashboard.vue');
 const RetirementDashboard = () => import('@/views/Retirement/RetirementDashboard.vue');
 const EstateDashboard = () => import('@/views/Estate/EstateDashboard.vue');
@@ -35,6 +36,7 @@ const HolisticPlan = () => import('@/views/HolisticPlan.vue');
 const UKTaxesDashboard = () => import('@/views/UKTaxes/UKTaxesDashboard.vue');
 const AdminPanel = () => import('@/views/Admin/AdminPanel.vue');
 const Version = () => import('@/views/Version.vue');
+const Help = () => import('@/views/Help.vue');
 const DebugEnv = () => import('@/views/DebugEnv.vue');
 
 const routes = [
@@ -203,6 +205,19 @@ const routes = [
     },
   },
   {
+    path: '/savings/account/:id',
+    name: 'SavingsAccountDetail',
+    component: SavingsAccountDetail,
+    meta: {
+      requiresAuth: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Savings', path: '/savings' },
+        { label: 'Account', path: '' },
+      ],
+    },
+  },
+  {
     path: '/investment',
     name: 'Investment',
     component: InvestmentDashboard,
@@ -341,6 +356,14 @@ const routes = [
     path: '/version',
     name: 'Version',
     component: Version,
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/help',
+    name: 'Help',
+    component: Help,
     meta: {
       requiresAuth: false,
     },

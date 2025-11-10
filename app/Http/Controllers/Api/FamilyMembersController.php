@@ -172,6 +172,10 @@ class FamilyMembersController extends Controller
 
             $spouseUser->spouse_id = $currentUser->id;
             $spouseUser->marital_status = 'married';
+            // Update spouse user's income if provided in family member data
+            if (isset($data['annual_income']) && $data['annual_income'] > 0) {
+                $spouseUser->annual_employment_income = $data['annual_income'];
+            }
             $spouseUser->save();
 
             // Clear cached protection analysis for both users since spouse linkage affects completeness
@@ -225,6 +229,8 @@ class FamilyMembersController extends Controller
             'household_id' => $currentUser->household_id,
             'is_primary_account' => false,
             'national_insurance_number' => $data['national_insurance_number'] ?? null,
+            // Populate income fields - treat family member annual_income as employment income
+            'annual_employment_income' => $data['annual_income'] ?? 0,
         ]);
 
         // Update current user
@@ -311,7 +317,21 @@ class FamilyMembersController extends Controller
         $familyMember = FamilyMember::where('user_id', $user->id)
             ->findOrFail($id);
 
-        $familyMember->update($request->validated());
+        $data = $request->validated();
+        $familyMember->update($data);
+
+        // If updating a spouse, sync the income to the spouse user account
+        if ($familyMember->relationship === 'spouse' && $user->spouse_id) {
+            $spouseUser = \App\Models\User::find($user->spouse_id);
+            if ($spouseUser && isset($data['annual_income'])) {
+                $spouseUser->annual_employment_income = $data['annual_income'];
+                $spouseUser->save();
+
+                // Clear protection analysis cache for both users
+                \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$user->id}");
+                \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$spouseUser->id}");
+            }
+        }
 
         return response()->json([
             'success' => true,

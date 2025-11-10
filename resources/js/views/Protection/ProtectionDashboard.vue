@@ -107,11 +107,8 @@
             @add-policy="handleAddPolicy"
           />
 
-          <!-- Recommendations Tab -->
+          <!-- Strategy Tab -->
           <Recommendations v-else-if="activeTab === 'recommendations'" />
-
-          <!-- What-If Scenarios Tab -->
-          <WhatIfScenarios v-else-if="activeTab === 'scenarios'" />
 
           <!-- Policy Details Tab -->
           <PolicyDetails
@@ -132,7 +129,6 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import CurrentSituation from '@/components/Protection/CurrentSituation.vue';
 import GapAnalysis from '@/components/Protection/GapAnalysis.vue';
 import Recommendations from '@/components/Protection/Recommendations.vue';
-import WhatIfScenarios from '@/components/Protection/WhatIfScenarios.vue';
 import PolicyDetails from '@/components/Protection/PolicyDetails.vue';
 import ProfileCompletenessAlert from '@/components/Shared/ProfileCompletenessAlert.vue';
 import api from '@/services/api';
@@ -145,7 +141,6 @@ export default {
     CurrentSituation,
     GapAnalysis,
     Recommendations,
-    WhatIfScenarios,
     PolicyDetails,
     ProfileCompletenessAlert,
   },
@@ -156,8 +151,7 @@ export default {
       tabs: [
         { id: 'current', label: 'Current Situation' },
         { id: 'gaps', label: 'Gap Analysis' },
-        { id: 'recommendations', label: 'Recommendations' },
-        { id: 'scenarios', label: 'What-If Scenarios' },
+        { id: 'recommendations', label: 'Strategy' },
         { id: 'details', label: 'Policy Details' },
       ],
       showAddPolicyModal: false,

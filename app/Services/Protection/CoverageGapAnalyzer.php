@@ -228,21 +228,27 @@ class CoverageGapAnalyzer
                 // Permission granted - track spouse income (REDUCES protection need)
                 $spouse = $user->spouse;
                 if ($spouse) {
+                    // Get spouse income from spouse's user record
+                    $spouseEmploymentIncome = (float) ($spouse->annual_employment_income ?? 0);
+                    $spouseSelfEmploymentIncome = (float) ($spouse->annual_self_employment_income ?? 0);
+                    $spouseRentalIncome = (float) ($spouse->annual_rental_income ?? 0);
+                    $spouseDividendIncome = (float) ($spouse->annual_dividend_income ?? 0);
+                    $spouseOtherIncome = (float) ($spouse->annual_other_income ?? 0);
+
                     // Spouse earned income (employment/self-employment)
                     $spouseTaxCalc = $this->taxCalculator->calculateNetIncome(
-                        (float) ($spouse->annual_employment_income ?? 0),
-                        (float) ($spouse->annual_self_employment_income ?? 0),
+                        $spouseEmploymentIncome,
+                        $spouseSelfEmploymentIncome,
                         0, // Rental income calculated separately
                         0, // Dividend income calculated separately
-                        (float) ($spouse->annual_other_income ?? 0)
+                        $spouseOtherIncome
                     );
 
                     $spouseGrossIncome = $spouseTaxCalc['gross_income'];
                     $spouseNetIncome = $spouseTaxCalc['net_income'];
 
                     // Spouse continuing income (rental + dividend)
-                    $spouseContinuingIncome = (float) ($spouse->annual_rental_income ?? 0)
-                                            + (float) ($spouse->annual_dividend_income ?? 0);
+                    $spouseContinuingIncome = $spouseRentalIncome + $spouseDividendIncome;
 
                     $spouseIncluded = true;
                 }

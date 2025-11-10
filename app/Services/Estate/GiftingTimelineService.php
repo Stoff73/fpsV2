@@ -26,6 +26,7 @@ class GiftingTimelineService
             return [
                 'name' => $name,
                 'total_gifts' => 0,
+                'gift_count' => 0,
                 'gifts_within_7_years' => [],
                 'timeline_events' => [],
             ];
