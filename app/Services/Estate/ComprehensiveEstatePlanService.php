@@ -25,10 +25,9 @@ class ComprehensiveEstatePlanService
         private PersonalizedGiftingStrategyService $giftingStrategy,
         private PersonalizedTrustStrategyService $trustStrategy,
         private NetWorthAnalyzer $netWorthAnalyzer,
-        private IHTCalculator $ihtCalculator,
+        private IHTCalculationService $ihtCalculationService,
         private EstateAssetAggregatorService $assetAggregator,
         private ProfileCompletenessChecker $completenessChecker,
-        private SecondDeathIHTCalculator $secondDeathCalculator,
         private TaxConfigService $taxConfig
     ) {}
 
@@ -59,74 +58,16 @@ class ComprehensiveEstatePlanService
         $aggregatedAssets = $this->assetAggregator->gatherUserAssets($user);
         $assets = $this->convertToAssetModels($aggregatedAssets, $user);
 
-        // Calculate current IHT position
-        $ihtAnalysis = $this->ihtCalculator->calculateIHTLiability(
-            $assets,
-            $ihtProfile,
-            collect([]), // gifts
-            collect([]), // trusts
-            0, // liabilities
-            null, // will
-            $user
-        );
+        // Calculate current IHT position using simplified service
+        $spouse = ($user->marital_status === 'married' && $user->spouse_id) ? User::find($user->spouse_id) : null;
+        $dataSharingEnabled = $spouse && $user->hasAcceptedSpousePermission();
+
+        $ihtAnalysis = $this->ihtCalculationService->calculate($user, $spouse, $dataSharingEnabled);
         $currentIHTLiability = $ihtAnalysis['iht_liability'];
 
-        // Get second death IHT analysis (for married couples)
-        $secondDeathAnalysis = null;
-        $projectedIHTLiability = null;
-        if ($user->marital_status === 'married' && $user->spouse_id) {
-            try {
-                // Get spouse user
-                $spouse = User::find($user->spouse_id);
-
-                if ($spouse) {
-                    // Get spouse profile
-                    $spouseProfile = IHTProfile::where('user_id', $spouse->id)->first();
-
-                    // Get spouse assets
-                    $spouseAggregatedAssets = $this->assetAggregator->gatherUserAssets($spouse);
-                    $spouseAssets = $this->convertToAssetModels($spouseAggregatedAssets, $spouse);
-
-                    // Calculate liabilities
-                    $userLiabilities = \App\Models\Estate\Liability::where('user_id', $user->id)->sum('current_balance') ?? 0;
-                    $userLiabilities += \App\Models\Mortgage::where('user_id', $user->id)->sum('outstanding_balance') ?? 0;
-
-                    $spouseLiabilities = \App\Models\Estate\Liability::where('user_id', $spouse->id)->sum('current_balance') ?? 0;
-                    $spouseLiabilities += \App\Models\Mortgage::where('user_id', $spouse->id)->sum('outstanding_balance') ?? 0;
-
-                    // Call second death calculator with all required parameters
-                    $secondDeathResult = $this->secondDeathCalculator->calculateSecondDeathIHT(
-                        $user,
-                        $spouse,
-                        $assets,
-                        $spouseAssets,
-                        $ihtProfile,
-                        $spouseProfile,
-                        collect([]), // userGifts
-                        collect([]), // spouseGifts
-                        collect([]), // userTrusts
-                        collect([]), // spouseTrusts
-                        $userLiabilities,
-                        $spouseLiabilities,
-                        null, // userWill
-                        null, // spouseWill
-                        true  // dataSharingEnabled (assume true for comprehensive plan)
-                    );
-
-                    if ($secondDeathResult['success']) {
-                        // The result IS the data (not nested under 'data' key)
-                        $secondDeathAnalysis = $secondDeathResult;
-                        // Get current combined IHT liability (if both die now)
-                        $currentIHTLiability = $secondDeathAnalysis['current_iht_calculation']['iht_liability'] ?? $currentIHTLiability;
-                        // Get projected IHT liability (at second death age)
-                        $projectedIHTLiability = $secondDeathAnalysis['iht_calculation']['iht_liability'] ?? null;
-                    }
-                }
-            } catch (\Exception $e) {
-                // If second death calculation fails, continue with single person calculation
-                \Log::warning('Second death IHT calculation failed for estate plan: '.$e->getMessage());
-            }
-        }
+        // For married couples, the IHTCalculationService already calculated combined values
+        // Extract projected IHT liability from the calculation result
+        $projectedIHTLiability = $ihtAnalysis['projected_iht_liability'] ?? null;
 
         // Calculate years until death (life expectancy)
         $yearsUntilDeath = $this->calculateYearsUntilDeath($user);

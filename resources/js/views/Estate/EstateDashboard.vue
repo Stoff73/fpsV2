@@ -197,7 +197,30 @@ export default {
       this.loadingCompleteness = true;
       try {
         const response = await api.get('/user/profile/completeness');
-        this.profileCompleteness = response.data.data;
+        const completenessData = response.data.data;
+
+        // Filter out protection and dependants fields for Estate module
+        const filteredMissingFields = {};
+        Object.keys(completenessData.missing_fields || {}).forEach(key => {
+          const field = completenessData.missing_fields[key];
+          // Exclude protection policies and dependants
+          if (!field.message.toLowerCase().includes('protection') &&
+              !field.message.toLowerCase().includes('dependant')) {
+            filteredMissingFields[key] = field;
+          }
+        });
+
+        // Recalculate completeness score based on remaining fields
+        const totalFields = Object.keys(completenessData.missing_fields || {}).length;
+        const remainingFields = Object.keys(filteredMissingFields).length;
+        const fieldsCompleted = totalFields - remainingFields;
+
+        this.profileCompleteness = {
+          ...completenessData,
+          missing_fields: filteredMissingFields,
+          completeness_score: remainingFields === 0 ? 100 : Math.round((fieldsCompleted / totalFields) * 100),
+          is_complete: remainingFields === 0,
+        };
       } catch (error) {
         console.error('Failed to load profile completeness:', error);
       } finally {

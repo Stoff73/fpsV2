@@ -10,7 +10,7 @@ use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Liability;
 use App\Models\Estate\Trust;
-use App\Services\Estate\IHTCalculator;
+use App\Services\Estate\IHTCalculationService;
 use App\Services\Estate\TrustService;
 use App\Services\TaxConfigService;
 use App\Services\Trust\IHTPeriodicChargeCalculator;
@@ -24,7 +24,7 @@ class TrustController extends Controller
         private TrustService $trustService,
         private TrustAssetAggregatorService $trustAssetAggregator,
         private IHTPeriodicChargeCalculator $periodicChargeCalculator,
-        private IHTCalculator $ihtCalculator,
+        private IHTCalculationService $ihtCalculationService,
         private TaxConfigService $taxConfig
     ) {}
 
@@ -190,18 +190,11 @@ class TrustController extends Controller
             ]);
         }
 
-        // Calculate total liabilities value
-        $totalLiabilities = $liabilities->sum('amount');
+        // Use the simplified IHT calculation service
+        $spouse = ($user->marital_status === 'married' && $user->spouse_id) ? \App\Models\User::find($user->spouse_id) : null;
+        $dataSharingEnabled = $spouse && $user->hasAcceptedSpousePermission();
 
-        $ihtCalculation = $this->ihtCalculator->calculateIHTLiability(
-            $assets,
-            $ihtProfile,
-            $gifts,
-            $trusts,
-            $totalLiabilities,
-            $will,
-            $user
-        );
+        $ihtCalculation = $this->ihtCalculationService->calculate($user, $spouse, $dataSharingEnabled);
 
         $circumstances = [
             'has_children' => $request->input('has_children', false),
@@ -209,7 +202,7 @@ class TrustController extends Controller
         ];
 
         $recommendations = $this->trustService->getTrustRecommendations(
-            $ihtCalculation['gross_estate_value'],
+            $ihtCalculation['total_gross_assets'], // gross estate value
             $ihtCalculation['iht_liability'],
             $circumstances
         );
@@ -217,7 +210,7 @@ class TrustController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'estate_value' => $ihtCalculation['gross_estate_value'],
+                'estate_value' => $ihtCalculation['total_gross_assets'],
                 'iht_liability' => $ihtCalculation['iht_liability'],
                 'recommendations' => $recommendations,
             ],
