@@ -159,10 +159,51 @@ class IHTController extends Controller
                 ],
             ];
 
+            // Prepare assets breakdown (grouped by type)
+            $assetsBreakdown = [
+                'investment' => [],
+                'property' => [],
+                'cash' => [],
+                'business' => [],
+                'chattel' => [],
+                'dc_pension' => [],
+                'db_pension' => [],
+            ];
+
+            foreach ($allAssets as $asset) {
+                $assetsBreakdown[$asset->asset_type][] = [
+                    'name' => $asset->asset_name,
+                    'value' => $asset->current_value,
+                    'ownership_type' => $asset->ownership_type,
+                    'is_iht_exempt' => $asset->is_iht_exempt,
+                ];
+            }
+
+            // Prepare liabilities breakdown
+            $liabilitiesBreakdown = [
+                'mortgages' => $mortgages->map(function ($mortgage) {
+                    return [
+                        'property_address' => $mortgage->property->address_line_1 ?? 'Unknown Property',
+                        'outstanding_balance' => $mortgage->outstanding_balance,
+                        'mortgage_type' => $mortgage->mortgage_type,
+                        'remaining_term_months' => $mortgage->remaining_term_months,
+                    ];
+                })->toArray(),
+                'other_liabilities' => $liabilities->map(function ($liability) {
+                    return [
+                        'type' => ucfirst(str_replace('_', ' ', $liability->liability_type)),
+                        'institution' => $liability->institution ?? 'Unknown',
+                        'current_balance' => $liability->current_balance,
+                    ];
+                })->toArray(),
+            ];
+
             return response()->json([
                 'success' => true,
                 'data' => $ihtLiability,
                 'projection' => $projection,
+                'assets_breakdown' => $assetsBreakdown,
+                'liabilities_breakdown' => $liabilitiesBreakdown,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -558,6 +599,103 @@ class IHTController extends Controller
                     $userProfile
                 );
 
+                // Prepare assets breakdown (excluding IHT-exempt assets)
+                $userAssetsForIHT = [
+                    'investment' => [],
+                    'property' => [],
+                    'cash' => [],
+                    'business' => [],
+                    'chattel' => [],
+                ];
+
+                $userAssetsTotal = 0;
+
+                foreach ($userAssets as $asset) {
+                    // Skip IHT-exempt assets (DC/DB pensions) and £0 value assets
+                    if ($asset->is_iht_exempt || $asset->current_value <= 0) {
+                        continue;
+                    }
+
+                    // Only include taxable asset types
+                    if (in_array($asset->asset_type, ['investment', 'property', 'cash', 'business', 'chattel'])) {
+                        $isJoint = ($asset->ownership_type ?? 'individual') === 'joint';
+                        $displayValue = $isJoint ? $asset->current_value / 2 : $asset->current_value;
+
+                        $userAssetsForIHT[$asset->asset_type][] = [
+                            'name' => $asset->asset_name,
+                            'value' => $displayValue,
+                            'is_joint' => $isJoint,
+                            'ownership_type' => $asset->ownership_type,
+                        ];
+                        $userAssetsTotal += $displayValue;
+                    }
+                }
+
+                // Get user full name (handle null cases)
+                $userName = trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: $user->name ?? 'User';
+
+                // Organize assets breakdown by owner with subtotals
+                $assetsBreakdown = [
+                    'user' => [
+                        'name' => $userName,
+                        'assets' => $userAssetsForIHT,
+                        'total' => $userAssetsTotal,
+                    ],
+                    'spouse' => null,
+                ];
+
+                // Prepare liabilities breakdown (excluding £0 balances, handling joint ownership)
+                $mortgages = Mortgage::where('user_id', $user->id)->get();
+                $liabilities = Liability::where('user_id', $user->id)->get();
+
+                $userLiabilitiesForIHT = [
+                    'mortgages' => [],
+                    'other_liabilities' => [],
+                ];
+
+                $userLiabilitiesTotal = 0;
+
+                foreach ($mortgages as $mortgage) {
+                    if ($mortgage->outstanding_balance > 0) {
+                        $property = $mortgage->property;
+                        $isJoint = $property && ($property->ownership_type ?? 'individual') === 'joint';
+                        $displayBalance = $isJoint ? $mortgage->outstanding_balance / 2 : $mortgage->outstanding_balance;
+
+                        $userLiabilitiesForIHT['mortgages'][] = [
+                            'property_address' => $property->address_line_1 ?? 'Unknown Property',
+                            'outstanding_balance' => $displayBalance,
+                            'mortgage_type' => $mortgage->mortgage_type,
+                            'is_joint' => $isJoint,
+                        ];
+                        $userLiabilitiesTotal += $displayBalance;
+                    }
+                }
+
+                foreach ($liabilities as $liability) {
+                    if ($liability->current_balance > 0) {
+                        $isJoint = ($liability->ownership_type ?? 'individual') === 'joint';
+                        $displayBalance = $isJoint ? $liability->current_balance / 2 : $liability->current_balance;
+
+                        $userLiabilitiesForIHT['other_liabilities'][] = [
+                            'type' => ucfirst(str_replace('_', ' ', $liability->liability_type)),
+                            'institution' => $liability->institution ?? 'Unknown',
+                            'current_balance' => $displayBalance,
+                            'is_joint' => $isJoint,
+                        ];
+                        $userLiabilitiesTotal += $displayBalance;
+                    }
+                }
+
+                // Organize liabilities breakdown by owner with subtotals
+                $liabilitiesBreakdown = [
+                    'user' => [
+                        'name' => $userName,
+                        'liabilities' => $userLiabilitiesForIHT,
+                        'total' => $userLiabilitiesTotal,
+                    ],
+                    'spouse' => null,
+                ];
+
                 return response()->json([
                     'success' => true,
                     'show_spouse_exemption_notice' => true,
@@ -570,6 +708,8 @@ class IHTController extends Controller
                     'second_death_analysis' => $secondDeathAnalysis,
                     'mitigation_strategies' => $mitigationStrategies,
                     'projection' => $projection,
+                    'assets_breakdown' => $assetsBreakdown,
+                    'liabilities_breakdown' => $liabilitiesBreakdown,
                 ]);
             }
 
@@ -738,7 +878,7 @@ class IHTController extends Controller
                 $projectedNetEstate = $projectedAssets - $projectedMortgages - $projectedLiabilities;
 
                 // IHT calculations (use second death analysis for projection)
-                $currentIHT = $secondDeathAnalysis['iht_calculation']['iht_liability'] ?? 0;
+                $currentIHT = $secondDeathAnalysis['current_iht_calculation']['iht_liability'] ?? 0;
                 $projectedIHT = $secondDeathAnalysis['iht_calculation']['iht_liability'] ?? 0;
 
                 $projection = [
@@ -762,7 +902,247 @@ class IHTController extends Controller
                 ];
             }
 
-            // 9. Return comprehensive analysis
+            // 9. Prepare assets breakdown (organized by owner, excluding IHT-exempt assets)
+            // Get growth rate and years for projection
+            $assumptions = $this->taxConfig->getAssumptions();
+            $estateGrowthRate = $assumptions['estate_growth_rate'] ?? 0.047; // Default 4.7%
+            $yearsUntilSecondDeath = $secondDeathAnalysis['second_death']['years_until_death'] ?? 0;
+
+            $userAssetsForIHT = [
+                'investment' => [],
+                'property' => [],
+                'cash' => [],
+                'business' => [],
+                'chattel' => [],
+            ];
+
+            $spouseAssetsForIHT = [
+                'investment' => [],
+                'property' => [],
+                'cash' => [],
+                'business' => [],
+                'chattel' => [],
+            ];
+
+            $userAssetsTotal = 0;
+            $spouseAssetsTotal = 0;
+
+            // Track jointly owned assets to avoid double counting
+            $jointAssetIds = [];
+
+            // Add user assets (excluding IHT exempt and £0 value assets)
+            foreach ($userAssets as $asset) {
+                // Skip IHT-exempt assets (DC/DB pensions) and £0 value assets
+                if ($asset->is_iht_exempt || $asset->current_value <= 0) {
+                    continue;
+                }
+
+                // Only include taxable asset types
+                if (in_array($asset->asset_type, ['investment', 'property', 'cash', 'business', 'chattel'])) {
+                    $isJoint = ($asset->ownership_type ?? 'individual') === 'joint';
+                    $displayValue = $isJoint ? $asset->current_value / 2 : $asset->current_value;
+
+                    // Calculate future value at death
+                    $projectedValue = $displayValue * pow(1 + $estateGrowthRate, $yearsUntilSecondDeath);
+
+                    $userAssetsForIHT[$asset->asset_type][] = [
+                        'name' => $asset->asset_name,
+                        'value' => $displayValue,
+                        'projected_value' => $projectedValue,
+                        'is_joint' => $isJoint,
+                        'ownership_type' => $asset->ownership_type,
+                    ];
+                    $userAssetsTotal += $displayValue;
+
+                    // Track joint assets by name to match with spouse
+                    if ($isJoint) {
+                        $jointAssetIds[] = $asset->asset_name;
+                    }
+                }
+            }
+
+            // Add spouse assets if data sharing enabled (excluding IHT exempt and £0 value assets)
+            if ($dataSharingEnabled && $spouseAssets) {
+                foreach ($spouseAssets as $asset) {
+                    // Skip IHT-exempt assets (DC/DB pensions) and £0 value assets
+                    if ($asset->is_iht_exempt || $asset->current_value <= 0) {
+                        continue;
+                    }
+
+                    // Only include taxable asset types
+                    if (in_array($asset->asset_type, ['investment', 'property', 'cash', 'business', 'chattel'])) {
+                        $isJoint = ($asset->ownership_type ?? 'individual') === 'joint';
+                        $displayValue = $isJoint ? $asset->current_value / 2 : $asset->current_value;
+
+                        // Calculate future value at death
+                        $projectedValue = $displayValue * pow(1 + $estateGrowthRate, $yearsUntilSecondDeath);
+
+                        $spouseAssetsForIHT[$asset->asset_type][] = [
+                            'name' => $asset->asset_name,
+                            'value' => $displayValue,
+                            'projected_value' => $projectedValue,
+                            'is_joint' => $isJoint,
+                            'ownership_type' => $asset->ownership_type,
+                        ];
+                        $spouseAssetsTotal += $displayValue;
+                    }
+                }
+            }
+
+            // Get user full name (handle null cases)
+            $userName = trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: $user->name ?? 'User';
+            $spouseName = $dataSharingEnabled && $spouse ? (trim(($spouse->first_name ?? '').' '.($spouse->last_name ?? '')) ?: $spouse->name ?? 'Spouse') : null;
+
+            // Organize assets breakdown by owner with subtotals
+            $assetsBreakdown = [
+                'user' => [
+                    'name' => $userName,
+                    'assets' => $userAssetsForIHT,
+                    'total' => $userAssetsTotal,
+                ],
+                'spouse' => $dataSharingEnabled ? [
+                    'name' => $spouseName,
+                    'assets' => $spouseAssetsForIHT,
+                    'total' => $spouseAssetsTotal,
+                ] : null,
+            ];
+
+            // Prepare liabilities breakdown (organized by owner, excluding £0 balances)
+            $userMortgages = Mortgage::where('user_id', $user->id)->get();
+            $userLiabilitiesCollection = Liability::where('user_id', $user->id)->get();
+
+            $userLiabilitiesForIHT = [
+                'mortgages' => [],
+                'other_liabilities' => [],
+            ];
+
+            $spouseLiabilitiesForIHT = [
+                'mortgages' => [],
+                'other_liabilities' => [],
+            ];
+
+            $userLiabilitiesTotal = 0;
+            $spouseLiabilitiesTotal = 0;
+
+            // Add user mortgages (excluding £0 balances, handling joint ownership)
+            foreach ($userMortgages as $mortgage) {
+                if ($mortgage->outstanding_balance > 0) {
+                    $property = $mortgage->property;
+                    $isJoint = $property && ($property->ownership_type ?? 'individual') === 'joint';
+                    $displayBalance = $isJoint ? $mortgage->outstanding_balance / 2 : $mortgage->outstanding_balance;
+
+                    // Calculate projected mortgage balance
+                    // Assume mortgages paid off by maturity or by age 75
+                    $userCurrentAge = \Carbon\Carbon::parse($user->date_of_birth)->age;
+                    $yearsToAge75 = max(0, 75 - $userCurrentAge);
+                    $yearsToMortgageMaturity = ($mortgage->remaining_term_months ?? 0) / 12;
+
+                    $projectedBalance = 0; // Default: assume paid off
+                    if ($yearsToMortgageMaturity > $yearsToAge75 && $yearsToMortgageMaturity > $yearsUntilSecondDeath) {
+                        // Mortgage extends beyond age 75 and death - still outstanding
+                        // For simplicity, assume constant (conservative)
+                        $projectedBalance = $displayBalance;
+                    }
+
+                    $userLiabilitiesForIHT['mortgages'][] = [
+                        'property_address' => $property->address_line_1 ?? 'Unknown Property',
+                        'outstanding_balance' => $displayBalance,
+                        'projected_balance' => $projectedBalance,
+                        'mortgage_type' => $mortgage->mortgage_type,
+                        'is_joint' => $isJoint,
+                    ];
+                    $userLiabilitiesTotal += $displayBalance;
+                }
+            }
+
+            // Add user other liabilities (excluding £0 balances, handling joint ownership)
+            foreach ($userLiabilitiesCollection as $liability) {
+                if ($liability->current_balance > 0) {
+                    $isJoint = ($liability->ownership_type ?? 'individual') === 'joint';
+                    $displayBalance = $isJoint ? $liability->current_balance / 2 : $liability->current_balance;
+
+                    // Other liabilities assumed constant (conservative)
+                    $projectedBalance = $displayBalance;
+
+                    $userLiabilitiesForIHT['other_liabilities'][] = [
+                        'type' => ucfirst(str_replace('_', ' ', $liability->liability_type)),
+                        'institution' => $liability->institution ?? 'Unknown',
+                        'current_balance' => $displayBalance,
+                        'projected_balance' => $projectedBalance,
+                        'is_joint' => $isJoint,
+                    ];
+                    $userLiabilitiesTotal += $displayBalance;
+                }
+            }
+
+            // Add spouse liabilities if data sharing enabled (excluding £0 balances, handling joint ownership)
+            if ($dataSharingEnabled) {
+                $spouseMortgages = Mortgage::where('user_id', $spouse->id)->get();
+                $spouseLiabilitiesCollection = Liability::where('user_id', $spouse->id)->get();
+
+                foreach ($spouseMortgages as $mortgage) {
+                    if ($mortgage->outstanding_balance > 0) {
+                        $property = $mortgage->property;
+                        $isJoint = $property && ($property->ownership_type ?? 'individual') === 'joint';
+                        $displayBalance = $isJoint ? $mortgage->outstanding_balance / 2 : $mortgage->outstanding_balance;
+
+                        // Calculate projected mortgage balance
+                        $spouseCurrentAge = \Carbon\Carbon::parse($spouse->date_of_birth)->age;
+                        $spouseYearsToAge75 = max(0, 75 - $spouseCurrentAge);
+                        $yearsToMortgageMaturity = ($mortgage->remaining_term_months ?? 0) / 12;
+
+                        $projectedBalance = 0; // Default: assume paid off
+                        if ($yearsToMortgageMaturity > $spouseYearsToAge75 && $yearsToMortgageMaturity > $yearsUntilSecondDeath) {
+                            // Mortgage extends beyond age 75 and death - still outstanding
+                            $projectedBalance = $displayBalance;
+                        }
+
+                        $spouseLiabilitiesForIHT['mortgages'][] = [
+                            'property_address' => $property->address_line_1 ?? 'Unknown Property',
+                            'outstanding_balance' => $displayBalance,
+                            'projected_balance' => $projectedBalance,
+                            'mortgage_type' => $mortgage->mortgage_type,
+                            'is_joint' => $isJoint,
+                        ];
+                        $spouseLiabilitiesTotal += $displayBalance;
+                    }
+                }
+
+                foreach ($spouseLiabilitiesCollection as $liability) {
+                    if ($liability->current_balance > 0) {
+                        $isJoint = ($liability->ownership_type ?? 'individual') === 'joint';
+                        $displayBalance = $isJoint ? $liability->current_balance / 2 : $liability->current_balance;
+
+                        // Other liabilities assumed constant (conservative)
+                        $projectedBalance = $displayBalance;
+
+                        $spouseLiabilitiesForIHT['other_liabilities'][] = [
+                            'type' => ucfirst(str_replace('_', ' ', $liability->liability_type)),
+                            'institution' => $liability->institution ?? 'Unknown',
+                            'current_balance' => $displayBalance,
+                            'projected_balance' => $projectedBalance,
+                            'is_joint' => $isJoint,
+                        ];
+                        $spouseLiabilitiesTotal += $displayBalance;
+                    }
+                }
+            }
+
+            // Organize liabilities breakdown by owner with subtotals
+            $liabilitiesBreakdown = [
+                'user' => [
+                    'name' => $userName,
+                    'liabilities' => $userLiabilitiesForIHT,
+                    'total' => $userLiabilitiesTotal,
+                ],
+                'spouse' => $dataSharingEnabled ? [
+                    'name' => $spouseName,
+                    'liabilities' => $spouseLiabilitiesForIHT,
+                    'total' => $spouseLiabilitiesTotal,
+                ] : null,
+            ];
+
+            // 10. Return comprehensive analysis
             return response()->json([
                 'success' => true,
                 'show_spouse_exemption_notice' => true,
@@ -780,6 +1160,8 @@ class IHTController extends Controller
                         'show_empty_timeline' => true,
                         'message' => 'Enable data sharing with your spouse to track their gifting history for comprehensive IHT planning.',
                     ],
+                'assets_breakdown' => $assetsBreakdown,
+                'liabilities_breakdown' => $liabilitiesBreakdown,
             ]);
         } catch (\Exception $e) {
             \Log::error('Second Death IHT Planning Error:', [

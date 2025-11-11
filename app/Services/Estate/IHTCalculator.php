@@ -42,7 +42,17 @@ class IHTCalculator
     public function calculateIHTLiability(Collection $assets, IHTProfile $profile, ?Collection $gifts = null, ?Collection $trusts = null, float $liabilities = 0, ?Will $will = null, ?User $user = null): array
     {
         // Calculate gross estate value from assets (before deducting liabilities)
-        $grossEstateValue = $assets->sum('current_value');
+        // IMPORTANT: Filter out IHT-exempt assets (DC/DB pensions, assets in trust, etc.)
+        // IMPORTANT: Apply 50/50 split for joint assets to avoid double counting
+        $grossEstateValue = $assets
+            ->filter(function ($asset) {
+                return ! (isset($asset->is_iht_exempt) && $asset->is_iht_exempt);
+            })
+            ->sum(function ($asset) {
+                $value = $asset->current_value ?? 0;
+                $isJoint = ($asset->ownership_type ?? 'individual') === 'joint';
+                return $isJoint ? $value / 2 : $value;
+            });
 
         // Add trust values that count in estate (e.g., discounted gift trust retained value, loan trust loan balance)
         $trustIHTValue = 0;
@@ -102,10 +112,11 @@ class IHTCalculator
         $totalNRB = $nrb + $profile->nrb_transferred_from_spouse;
 
         // Check RNRB eligibility (only applies to estate, not gifts)
+        // Store eligibility separately from the amount (eligibility = has main residence, amount may be tapered to £0)
+        $rnrbEligible = $this->checkRNRBEligibility($profile, $assets);
+
         // Use taxableNetEstate for RNRB taper calculation (after spouse exemption)
-        $rnrb = $this->checkRNRBEligibility($profile, $assets)
-            ? $this->calculateRNRB($taxableNetEstate, $config, $user)
-            : 0;
+        $rnrb = $rnrbEligible ? $this->calculateRNRB($taxableNetEstate, $config, $user) : 0;
 
         // Calculate gift liabilities if gifts provided
         // IMPORTANT: Gifts use the NRB FIRST (chronologically oldest first)
@@ -162,7 +173,7 @@ class IHTCalculator
             'rnrb' => round($rnrb, 2),
             'rnrb_individual' => round($individualRNRB, 2),
             'rnrb_from_spouse' => round($spouseRNRB, 2),
-            'rnrb_eligible' => $rnrb > 0,
+            'rnrb_eligible' => $rnrbEligible,  // Fixed: Based on having main residence, not whether tapered to £0
             'total_allowance' => round($totalAllowance, 2),
             'taxable_estate' => round($taxableEstate, 2),
             'iht_rate' => $ihtRate,
@@ -178,17 +189,24 @@ class IHTCalculator
 
     /**
      * Check if estate qualifies for Residence Nil Rate Band (RNRB)
+     *
+     * RNRB only applies if:
+     * 1. The estate includes a main residence (property_type = 'main_residence')
+     * 2. The property is being left to direct descendants (children/grandchildren)
      */
     public function checkRNRBEligibility(IHTProfile $profile, Collection $assets): bool
     {
-        // Check if there's a property asset in the assets list
-        $hasPropertyAsset = $assets->contains(function ($asset) {
+        // Check if there's a MAIN RESIDENCE in the assets list
+        // RNRB only applies to main residence, not buy-to-let or secondary residences
+        $hasMainResidence = $assets->contains(function ($asset) {
             return isset($asset->asset_type) &&
-                   in_array(strtolower($asset->asset_type), ['property', 'residential_property', 'main_residence', 'home']);
+                   $asset->asset_type === 'property' &&
+                   isset($asset->property_type) &&
+                   $asset->property_type === 'main_residence';
         });
 
-        // If there's a property asset, RNRB is available
-        if ($hasPropertyAsset) {
+        // If there's a main residence, RNRB is available
+        if ($hasMainResidence) {
             return true;
         }
 
@@ -198,7 +216,7 @@ class IHTCalculator
         }
 
         // Must have direct descendants (simplified check - in real system would check will)
-        // For now, we assume if they own a home, they qualify
+        // For now, we assume if they own a main residence, they qualify
         // In production, you'd check beneficiary designation for direct descendants
 
         return false;

@@ -58,6 +58,7 @@ class EstateAssetAggregatorService
                 'asset_name' => $property->address_line_1 ?: 'Property',
                 'current_value' => $userValue,
                 'ownership_type' => $property->ownership_type ?? 'individual',
+                'property_type' => $property->property_type ?? 'unknown', // Include property type for RNRB eligibility
                 'is_iht_exempt' => false,
             ];
         });
@@ -146,13 +147,34 @@ class EstateAssetAggregatorService
 
     /**
      * Calculate total liabilities for a user
+     * IMPORTANT: Applies 50/50 split for joint liabilities to avoid double counting
      */
     public function calculateUserLiabilities(User $user): float
     {
-        $liabilities = Liability::where('user_id', $user->id)->sum('current_balance');
-        $mortgages = Mortgage::where('user_id', $user->id)->sum('outstanding_balance');
+        // Get liabilities and apply 50/50 split for joint ownership
+        $liabilitiesCollection = Liability::where('user_id', $user->id)->get();
+        $liabilities = $liabilitiesCollection->sum(function ($liability) {
+            $isJoint = ($liability->ownership_type ?? 'individual') === 'joint';
+            $value = $isJoint ? $liability->current_balance / 2 : $liability->current_balance;
+            \Log::info('Liability: ' . ($liability->institution ?? 'Unknown') . ' | Type: ' . ($liability->type ?? 'Unknown') . ' | Joint: ' . ($isJoint ? 'YES' : 'NO') . ' | Value: £' . $value);
+            return $value;
+        });
 
-        return $liabilities + $mortgages;
+        // Get mortgages and apply 50/50 split for joint ownership
+        // IMPORTANT: Check the PROPERTY ownership_type, not the mortgage ownership_type
+        $mortgagesCollection = Mortgage::where('user_id', $user->id)->get();
+        $mortgages = $mortgagesCollection->sum(function ($mortgage) {
+            $property = $mortgage->property;
+            $isJoint = $property && ($property->ownership_type ?? 'individual') === 'joint';
+            $value = $isJoint ? $mortgage->outstanding_balance / 2 : $mortgage->outstanding_balance;
+            \Log::info('Mortgage: ' . ($property->address_line_1 ?? 'Unknown') . ' | Property Joint: ' . ($isJoint ? 'YES' : 'NO') . ' | Value: £' . $value);
+            return $value;
+        });
+
+        $total = $liabilities + $mortgages;
+        \Log::info('=== USER ' . $user->name . ' TOTAL LIABILITIES: £' . $total . ' ===');
+
+        return $total;
     }
 
     /**
