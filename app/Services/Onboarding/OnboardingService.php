@@ -297,6 +297,31 @@ class OnboardingService
             \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$user->id}");
             \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$spouseAccount->id}");
 
+            // Create bidirectional spouse data sharing permissions
+            \App\Models\SpousePermission::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'spouse_id' => $spouseAccount->id,
+                ],
+                [
+                    'can_view_data' => true,
+                    'can_edit_data' => false,
+                    'permission_granted_at' => now(),
+                ]
+            );
+
+            \App\Models\SpousePermission::updateOrCreate(
+                [
+                    'user_id' => $spouseAccount->id,
+                    'spouse_id' => $user->id,
+                ],
+                [
+                    'can_view_data' => true,
+                    'can_edit_data' => false,
+                    'permission_granted_at' => now(),
+                ]
+            );
+
             // Create family member record for the current user
             \App\Models\FamilyMember::updateOrCreate(
                 [

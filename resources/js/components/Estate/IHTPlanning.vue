@@ -62,8 +62,8 @@
       <!-- Joint Death NOW -->
       <div class="bg-blue-50 rounded-lg p-6">
         <p class="text-sm text-blue-600 font-medium mb-2">Joint Death (Now)</p>
-        <p class="text-xs text-blue-500 mb-1">Current combined estate</p>
-        <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.current_combined_totals?.gross_assets || secondDeathData.second_death_analysis.current_iht_calculation?.gross_estate_value || 0) }}</p>
+        <p class="text-xs text-blue-500 mb-1">Current net estate</p>
+        <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.current_iht_calculation?.net_estate_value || 0) }}</p>
         <p class="text-xs text-blue-600 mt-2">If both die today</p>
       </div>
 
@@ -71,8 +71,8 @@
       <div class="bg-purple-50 rounded-lg p-6">
         <p class="text-sm text-purple-600 font-medium mb-2">Joint Death (Projected)</p>
         <p class="text-xs text-purple-500 mb-1">At age {{ secondDeathData.second_death_analysis.second_death.estimated_age_at_death }}</p>
-        <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.second_death.projected_combined_estate_at_second_death) }}</p>
-        <p class="text-xs text-purple-600 mt-2">Projected combined estate</p>
+        <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation?.net_estate_value || 0) }}</p>
+        <p class="text-xs text-purple-600 mt-2">Projected net estate</p>
       </div>
 
       <!-- Total IHT Payable -->
@@ -85,7 +85,7 @@
           </div>
           <div class="border-t border-red-200 pt-2">
             <p class="text-xs text-red-500 mb-1">At age {{ secondDeathData.second_death_analysis.second_death.estimated_age_at_death }}:</p>
-            <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation.iht_liability) }}</p>
+            <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(secondDeathData.second_death_analysis.iht_calculation?.iht_liability || 0) }}</p>
           </div>
         </div>
       </div>

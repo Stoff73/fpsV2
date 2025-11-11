@@ -182,6 +182,31 @@ class FamilyMembersController extends Controller
             \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$currentUser->id}");
             \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$spouseUser->id}");
 
+            // Create bidirectional spouse data sharing permissions
+            \App\Models\SpousePermission::updateOrCreate(
+                [
+                    'user_id' => $currentUser->id,
+                    'spouse_id' => $spouseUser->id,
+                ],
+                [
+                    'can_view_data' => true,
+                    'can_edit_data' => false,
+                    'permission_granted_at' => now(),
+                ]
+            );
+
+            \App\Models\SpousePermission::updateOrCreate(
+                [
+                    'user_id' => $spouseUser->id,
+                    'spouse_id' => $currentUser->id,
+                ],
+                [
+                    'can_view_data' => true,
+                    'can_edit_data' => false,
+                    'permission_granted_at' => now(),
+                ]
+            );
+
             // Create family member record
             $familyMember = FamilyMember::create([
                 'user_id' => $currentUser->id,
