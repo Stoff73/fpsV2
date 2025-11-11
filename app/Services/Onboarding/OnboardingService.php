@@ -356,12 +356,12 @@ class OnboardingService
 
         // Add last reviewed date if will exists and date is provided
         if ($hasWill && ! empty($data['will_last_updated'])) {
-            $willData['last_reviewed_date'] = $data['will_last_updated'];
+            $willData['will_last_updated'] = $data['will_last_updated'];
         }
 
-        // Add executor notes if provided
+        // Add executor name if provided
         if ($hasWill && ! empty($data['executor_name'])) {
-            $willData['executor_notes'] = 'Executor: '.$data['executor_name'];
+            $willData['executor_name'] = $data['executor_name'];
         }
 
         // Use updateOrCreate to handle both new and existing records
