@@ -65,6 +65,16 @@ const savingsService = {
     },
 
     /**
+     * Get a single savings account by ID
+     * @param {Number} id - Account ID
+     * @returns {Promise} Account data
+     */
+    async getAccount(id) {
+        const response = await api.get(`/savings/accounts/${id}`);
+        return response.data;
+    },
+
+    /**
      * Update a savings account
      * @param {Number} id - Account ID
      * @param {Object} accountData - Updated account data

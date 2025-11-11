@@ -36,7 +36,8 @@
         <div
           v-for="account in accounts"
           :key="account.id"
-          class="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
+          @click="viewAccountDetail(account.id)"
+          class="flex justify-between items-center p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
         >
           <div>
             <h4 class="font-semibold text-gray-900">{{ account.institution }}</h4>
@@ -92,6 +93,10 @@ export default {
   },
 
   methods: {
+    viewAccountDetail(accountId) {
+      this.$router.push({ name: 'SavingsAccountDetail', params: { id: accountId } });
+    },
+
     formatCurrency(value) {
       return new Intl.NumberFormat('en-GB', {
         style: 'currency',

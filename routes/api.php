@@ -236,6 +236,7 @@ Route::middleware('auth:sanctum')->prefix('savings')->group(function () {
     // Savings accounts
     Route::prefix('accounts')->group(function () {
         Route::post('/', [SavingsController::class, 'storeAccount']);
+        Route::get('/{id}', [SavingsController::class, 'showAccount']);
         Route::put('/{id}', [SavingsController::class, 'updateAccount']);
         Route::delete('/{id}', [SavingsController::class, 'destroyAccount']);
     });

@@ -24,6 +24,10 @@
     <!-- Legend -->
     <div class="legend">
       <div class="legend-item">
+        <span class="legend-colour" style="background-color: #10b981;"></span>
+        <span>Exempt gifts (spouse/charity) - immediately IHT-free</span>
+      </div>
+      <div class="legend-item">
         <span class="legend-colour" style="background-color: #ef4444;"></span>
         <span>Within 7 years (potentially taxable)</span>
       </div>
@@ -40,6 +44,9 @@
     <!-- Taper Relief Table -->
     <div class="taper-relief-info">
       <h4>Taper Relief Rates</h4>
+      <p class="relief-note">
+        <strong>Note:</strong> Gifts to your spouse or civil partner are exempt from IHT under the unlimited spouse exemption and do not need to survive 7 years. The 7-year rule only applies to Potentially Exempt Transfers (PETs) to other individuals.
+      </p>
       <table class="relief-table">
         <thead>
           <tr>
@@ -129,7 +136,7 @@ export default {
             sevenYearsLater.setFullYear(sevenYearsLater.getFullYear() + 7);
 
             const yearsElapsed = this.calculateYearsElapsed(giftDate, today);
-            const colour = this.getGiftColour(yearsElapsed);
+            const colour = this.getGiftColour(yearsElapsed, gift.gift_type);
 
             return {
               x: gift.recipient || 'Unknown',
@@ -140,9 +147,9 @@ export default {
                 gift_type: gift.gift_type,
                 gift_date: gift.gift_date,
                 years_elapsed: yearsElapsed.toFixed(1),
-                years_remaining: Math.max(0, 7 - yearsElapsed).toFixed(1),
-                taper_relief: this.calculateTaperRelief(yearsElapsed),
-                status: this.getGiftStatus(yearsElapsed),
+                years_remaining: gift.gift_type === 'exempt' ? 'N/A (Exempt)' : Math.max(0, 7 - yearsElapsed).toFixed(1),
+                taper_relief: gift.gift_type === 'exempt' ? 'N/A (Exempt)' : this.calculateTaperRelief(yearsElapsed),
+                status: this.getGiftStatus(yearsElapsed, gift.gift_type),
               },
             };
           }),
@@ -217,7 +224,7 @@ export default {
                   </div>
                   <div class="tooltip-row">
                     <span>Gift Type:</span>
-                    <strong>${meta.gift_type || 'General'}</strong>
+                    <strong>${this.formatGiftType(meta.gift_type)}</strong>
                   </div>
                   <div class="tooltip-row">
                     <span>Gift Date:</span>
@@ -265,7 +272,12 @@ export default {
       return diffYears;
     },
 
-    getGiftColour(yearsElapsed) {
+    getGiftColour(yearsElapsed, giftType) {
+      // Exempt gifts (spouse, charity) are always green - immediately IHT-free
+      if (giftType === 'exempt') {
+        return '#10b981'; // Green - exempt
+      }
+
       if (yearsElapsed >= 7) {
         return '#10b981'; // Green - survived 7 years
       } else if (yearsElapsed >= 3) {
@@ -284,9 +296,14 @@ export default {
       return 100;
     },
 
-    getGiftStatus(yearsElapsed) {
+    getGiftStatus(yearsElapsed, giftType) {
+      // Exempt gifts (spouse, charity) are immediately IHT-exempt
+      if (giftType === 'exempt') {
+        return 'Exempt Gift - IHT-Free';
+      }
+
       if (yearsElapsed >= 7) {
-        return 'IHT-Exempt';
+        return 'IHT-Exempt (7 years survived)';
       } else if (yearsElapsed >= 3) {
         return `Taper Relief (${this.calculateTaperRelief(yearsElapsed)}%)`;
       } else {
@@ -312,6 +329,17 @@ export default {
         month: 'short',
         year: 'numeric',
       });
+    },
+
+    formatGiftType(type) {
+      const types = {
+        pet: 'PET (Potentially Exempt Transfer)',
+        clt: 'CLT (Chargeable Lifetime Transfer)',
+        exempt: 'Exempt (Spouse/Charity)',
+        small_gift: 'Small Gift Exemption',
+        annual_exemption: 'Annual Exemption',
+      };
+      return types[type] || type;
     },
   },
 };
@@ -400,7 +428,22 @@ export default {
   font-size: 16px;
   font-weight: 600;
   color: #1f2937;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
+}
+
+.relief-note {
+  font-size: 14px;
+  color: #374151;
+  background-color: #f0fdf4;
+  border-left: 4px solid #10b981;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+
+.relief-note strong {
+  color: #065f46;
 }
 
 .relief-table {

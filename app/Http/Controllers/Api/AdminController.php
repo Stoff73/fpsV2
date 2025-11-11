@@ -221,7 +221,7 @@ class AdminController extends Controller
 
             // Create backups directory if it doesn't exist
             if (! file_exists($path)) {
-                mkdir($path, 0755, true);
+                mkdir($path, 0750, true); // Owner + group only (more secure)
             }
 
             $fullPath = $path.'/'.$filename;
@@ -358,23 +358,33 @@ class AdminController extends Controller
 
             // Get database credentials
             $database = config('database.connections.'.config('database.default'));
-            $host = $database['host'];
-            $dbName = $database['database'];
-            $username = $database['username'];
-            $password = $database['password'];
 
-            // Create mysql restore command
+            // Create temporary my.cnf file with credentials (secure method - same as backup)
+            $configFile = storage_path('app/backups/.my.cnf.'.uniqid());
+            $configContent = sprintf(
+                "[client]\nhost=%s\nuser=%s\npassword=%s\n",
+                $database['host'],
+                $database['username'],
+                $database['password']
+            );
+            file_put_contents($configFile, $configContent);
+            chmod($configFile, 0600); // Secure permissions - owner read/write only
+
+            // Create mysql restore command using config file (password not visible in process list)
             $command = sprintf(
-                'mysql -h %s -u %s %s %s < %s',
-                escapeshellarg($host),
-                escapeshellarg($username),
-                $password ? '-p'.escapeshellarg($password) : '',
-                escapeshellarg($dbName),
+                'mysql --defaults-extra-file=%s %s < %s',
+                escapeshellarg($configFile),
+                escapeshellarg($database['database']),
                 escapeshellarg($path)
             );
 
             // Execute restore
             exec($command, $output, $returnCode);
+
+            // Clean up temporary config file immediately
+            if (file_exists($configFile)) {
+                unlink($configFile);
+            }
 
             if ($returnCode !== 0) {
                 throw new \Exception('Restore command failed with code: '.$returnCode);

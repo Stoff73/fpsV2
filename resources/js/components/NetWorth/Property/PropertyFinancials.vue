@@ -4,14 +4,8 @@
 
     <!-- Monthly Costs -->
     <div class="bg-white border border-gray-200 rounded-lg p-6">
-      <div class="flex justify-between items-center mb-4">
+      <div class="mb-4">
         <h4 class="text-md font-semibold text-gray-700">Monthly Costs</h4>
-        <button
-          @click="showEditCostsModal = true"
-          class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Edit Costs
-        </button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

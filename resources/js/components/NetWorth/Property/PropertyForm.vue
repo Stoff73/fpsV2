@@ -789,7 +789,7 @@
               <div v-if="hasMortgage && mortgageForm.monthly_payment">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Mortgage Payment (£/month)</label>
                 <div class="w-full px-3 py-2 bg-blue-50 border border-blue-200 rounded-md text-gray-700 font-medium">
-                  £{{ formatCurrency(mortgageForm.monthly_payment) }}
+                  {{ formatCurrency(mortgageForm.monthly_payment) }}
                 </div>
               </div>
 
@@ -935,9 +935,9 @@
             <div class="mt-6 p-4 bg-gray-50 border-2 border-gray-300 rounded-lg">
               <div class="flex justify-between items-center">
                 <span class="text-lg font-semibold text-gray-900">Total Monthly Costs</span>
-                <span class="text-2xl font-bold text-gray-900">£{{ formatCurrency(totalMonthlyCosts) }}</span>
+                <span class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalMonthlyCosts) }}</span>
               </div>
-              <p class="text-sm text-gray-600 mt-2">Total Annual: £{{ formatCurrency(totalMonthlyCosts * 12) }}</p>
+              <p class="text-sm text-gray-600 mt-2">Total Annual: {{ formatCurrency(totalMonthlyCosts * 12) }}</p>
             </div>
           </div>
 
@@ -1258,6 +1258,16 @@ export default {
   },
 
   watch: {
+    // Watch for property prop changes to repopulate form
+    property: {
+      immediate: true,
+      handler(newProperty) {
+        if (newProperty) {
+          this.populateForm();
+        }
+      },
+    },
+
     'form.ownership_type'(newVal) {
       // Set default ownership percentages based on ownership type
       if (newVal === 'individual') {
@@ -1348,13 +1358,16 @@ export default {
       this.form.purchase_date = this.formatDateForInput(this.property.purchase_date || this.property.valuation?.purchase_date);
       this.form.valuation_date = this.formatDateForInput(this.property.valuation_date || this.property.valuation?.valuation_date);
 
-      // Cost fields (may be nested or top-level)
-      this.form.annual_service_charge = this.property.annual_service_charge || this.property.costs?.annual_service_charge || null;
-      this.form.annual_ground_rent = this.property.annual_ground_rent || this.property.costs?.annual_ground_rent || null;
-      this.form.annual_insurance = this.property.annual_insurance || this.property.costs?.annual_insurance || null;
-      this.form.annual_maintenance_reserve = this.property.annual_maintenance_reserve || this.property.costs?.annual_maintenance_reserve || null;
-      this.form.other_annual_costs = this.property.other_annual_costs || this.property.costs?.other_annual_costs || null;
-      this.form.sdlt_paid = this.property.sdlt_paid || null;
+      // Monthly Cost fields
+      this.form.monthly_council_tax = this.property.monthly_council_tax || null;
+      this.form.monthly_gas = this.property.monthly_gas || null;
+      this.form.monthly_electricity = this.property.monthly_electricity || null;
+      this.form.monthly_water = this.property.monthly_water || null;
+      this.form.monthly_building_insurance = this.property.monthly_building_insurance || null;
+      this.form.monthly_contents_insurance = this.property.monthly_contents_insurance || null;
+      this.form.monthly_service_charge = this.property.monthly_service_charge || null;
+      this.form.monthly_maintenance_reserve = this.property.monthly_maintenance_reserve || null;
+      this.form.other_monthly_costs = this.property.other_monthly_costs || null;
 
       // Rental fields (may be nested or top-level)
       this.form.monthly_rental_income = this.property.monthly_rental_income || this.property.rental?.monthly_rental_income || null;
@@ -1526,10 +1539,13 @@ export default {
     },
 
     formatCurrency(value) {
-      if (value === null || value === undefined || isNaN(value)) {
-        return '0.00';
-      }
-      return Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     },
   },
 };

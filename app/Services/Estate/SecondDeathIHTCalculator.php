@@ -123,27 +123,38 @@ class SecondDeathIHTCalculator
         // Project combined estate to second death
         $yearsFromFirstToSecondDeath = $survivorYearsUntilDeath - $deceasedYearsUntilDeath;
 
-        // Create a single combined asset for projection
-        $combinedAssetCollection = collect([(object) [
-            'asset_type' => 'combined_estate',
-            'asset_name' => 'Combined Estate Value',
-            'current_value' => $combinedValueAtFirstDeath,
-            'is_iht_exempt' => false,
-        ]]);
+        // Create a combined asset collection but preserve property types for RNRB eligibility
+        // Merge survivor's assets with deceased's assets (survivor inherits everything)
+        // Use concat() instead of merge() because we have stdClass objects, not Eloquent models
+        $combinedAssetCollection = $survivorAssets->concat($deceasedAssets)->values();
 
+        // Get current combined value for growth ratio calculation
+        $currentCombinedValue = $combinedAssetCollection->sum('current_value');
+
+        // Project combined estate from NOW to SECOND DEATH (not from first death to second death)
         $projectedCombinedEstate = $this->fvCalculator->projectEstateAtDeath(
             $combinedAssetCollection,
-            $yearsFromFirstToSecondDeath,
+            $survivorYearsUntilDeath,  // Fixed: Project from NOW to second death
             $this->fvCalculator->getDefaultGrowthRates()
         );
 
-        // Convert projected estate back to collection for IHT calculation
-        $projectedAssets = collect([(object) [
-            'asset_type' => 'combined_estate',
-            'asset_name' => 'Combined Estate at Second Death',
-            'current_value' => $projectedCombinedEstate['projected_estate_value_at_death'],
-            'is_iht_exempt' => false,
-        ]]);
+        // Project individual assets while preserving property_type for RNRB
+        $projectedAssets = $combinedAssetCollection->map(function ($asset) use ($projectedCombinedEstate, $currentCombinedValue) {
+            // Calculate growth ratio from NOW to second death
+            $growthRatio = $currentCombinedValue > 0
+                ? $projectedCombinedEstate['projected_estate_value_at_death'] / $currentCombinedValue
+                : 1;
+
+            return (object) [
+                'user_id' => $asset->user_id ?? null,
+                'asset_type' => $asset->asset_type ?? 'unknown',
+                'asset_name' => $asset->asset_name ?? 'Unknown Asset',
+                'current_value' => $asset->current_value * $growthRatio,
+                'ownership_type' => $asset->ownership_type ?? 'individual',
+                'property_type' => $asset->property_type ?? null, // Preserve property_type for RNRB
+                'is_iht_exempt' => $asset->is_iht_exempt ?? false,
+            ];
+        });
 
         // 4. Get transferred NRB from deceased spouse
         $nrbTransferDetails = $this->nrbTracker->calculateSurvivorTotalNRB($survivor, $deceased);
@@ -220,12 +231,9 @@ class SecondDeathIHTCalculator
         $currentCombinedEstate = $userAssets->sum('current_value') + $spouseAssets->sum('current_value');
         $currentCombinedLiabilities = $userLiabilities + $spouseLiabilities;
 
-        $currentCombinedAssets = collect([(object) [
-            'asset_type' => 'combined_estate',
-            'asset_name' => 'Current Combined Estate',
-            'current_value' => $currentCombinedEstate,
-            'is_iht_exempt' => false,
-        ]]);
+        // Merge actual user and spouse assets to preserve property types for RNRB eligibility
+        // Use concat instead of creating a single generic asset to maintain property_type for RNRB
+        $currentCombinedAssets = $userAssets->concat($spouseAssets);
 
         $currentIHTCalculation = $this->ihtCalculator->calculateIHTLiability(
             $currentCombinedAssets,

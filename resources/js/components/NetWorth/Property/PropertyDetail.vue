@@ -184,7 +184,7 @@
           </div>
 
           <!-- Mortgage Tab -->
-          <div v-show="activeTab === 'mortgage'" class="space-y-4">
+          <div v-show="activeTab === 'mortgage'" class="space-y-6">
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-semibold text-gray-800">Mortgages</h3>
               <button
@@ -199,40 +199,140 @@
               <p>No mortgages found for this property.</p>
             </div>
 
-            <div v-else class="space-y-4">
+            <div v-else class="space-y-6">
               <div
                 v-for="mortgage in mortgages"
                 :key="mortgage.id"
-                class="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                class="bg-white border border-gray-200 rounded-lg p-6"
               >
-                <div class="flex justify-between items-start">
-                  <div class="flex-1">
-                    <h4 class="font-semibold text-gray-900">{{ mortgage.lender_name }}</h4>
-                    <p class="text-sm text-gray-600 mt-1">{{ mortgage.mortgage_type }} - {{ mortgage.rate_type }} {{ mortgage.interest_rate }}%</p>
-                    <div class="grid grid-cols-2 gap-4 mt-3">
-                      <div>
-                        <p class="text-xs text-gray-500">Outstanding Balance</p>
-                        <p class="text-lg font-semibold text-gray-900">{{ formatCurrency(mortgage.outstanding_balance) }}</p>
-                      </div>
-                      <div>
-                        <p class="text-xs text-gray-500">Monthly Payment</p>
-                        <p class="text-lg font-semibold text-gray-900">{{ formatCurrency(mortgage.monthly_payment) }}</p>
-                      </div>
-                    </div>
+                <!-- Mortgage Header -->
+                <div class="flex justify-between items-start mb-6">
+                  <div>
+                    <h4 class="text-xl font-semibold text-gray-900">{{ mortgage.lender_name }}</h4>
+                    <p class="text-sm text-gray-600 mt-1">{{ formatMortgageType(mortgage.mortgage_type) }}</p>
                   </div>
-                  <div class="flex space-x-2 ml-4">
-                    <button
-                      @click="editMortgage(mortgage)"
-                      class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      @click="deleteMortgageConfirm(mortgage.id)"
-                      class="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
-                    >
-                      Delete
-                    </button>
+                  <button
+                    @click="deleteMortgageConfirm(mortgage.id)"
+                    class="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                <!-- Mortgage Details Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Mortgage Details Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Mortgage Details</h5>
+                    <dl class="space-y-2">
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Lender:</dt>
+                        <dd class="text-sm font-medium text-gray-900 text-right">{{ mortgage.lender_name }}</dd>
+                      </div>
+                      <div v-if="mortgage.mortgage_account_number" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Account Number:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.mortgage_account_number }}</dd>
+                      </div>
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Mortgage Type:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatMortgageType(mortgage.mortgage_type) }}</dd>
+                      </div>
+                      <div v-if="mortgage.country" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Property Country:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.country }}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <!-- Loan Information Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Loan Information</h5>
+                    <dl class="space-y-2">
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Original Loan Amount:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(mortgage.original_loan_amount) }}</dd>
+                      </div>
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Outstanding Balance:</dt>
+                        <dd class="text-sm font-medium text-blue-600 font-semibold">{{ formatCurrency(mortgage.outstanding_balance) }}</dd>
+                      </div>
+                      <div v-if="mortgage.original_loan_amount" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Amount Paid Off:</dt>
+                        <dd class="text-sm font-medium text-green-600">{{ formatCurrency(mortgage.original_loan_amount - mortgage.outstanding_balance) }}</dd>
+                      </div>
+                      <div v-if="property.current_value && mortgage.outstanding_balance" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Loan-to-Value (LTV):</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ calculateLTV(mortgage.outstanding_balance, property.current_value) }}%</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <!-- Interest Rate Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Interest Rate</h5>
+                    <dl class="space-y-2">
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Interest Rate:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.interest_rate }}%</dd>
+                      </div>
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Rate Type:</dt>
+                        <dd class="text-sm font-medium text-gray-900 capitalize">{{ mortgage.rate_type }}</dd>
+                      </div>
+                      <div v-if="mortgage.rate_type === 'fixed' && mortgage.rate_fix_end_date" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Rate Fix Ends:</dt>
+                        <dd class="text-sm font-medium text-orange-600">{{ formatDate(mortgage.rate_fix_end_date) }}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <!-- Payment Information Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Payment Information</h5>
+                    <dl class="space-y-2">
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Monthly Payment:</dt>
+                        <dd class="text-sm font-medium text-gray-900 font-semibold">{{ formatCurrency(mortgage.monthly_payment) }}</dd>
+                      </div>
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Annual Payment:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(mortgage.monthly_payment * 12) }}</dd>
+                      </div>
+                      <div v-if="mortgage.start_date && mortgage.maturity_date" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Remaining Term:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ calculateRemainingTerm(mortgage.maturity_date) }}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <!-- Dates Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Important Dates</h5>
+                    <dl class="space-y-2">
+                      <div v-if="mortgage.start_date" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Start Date:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatDate(mortgage.start_date) }}</dd>
+                      </div>
+                      <div v-if="mortgage.maturity_date" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Maturity Date:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatDate(mortgage.maturity_date) }}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <!-- Ownership Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Ownership</h5>
+                    <dl class="space-y-2">
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Ownership Type:</dt>
+                        <dd class="text-sm font-medium text-gray-900 capitalize">{{ mortgage.ownership_type === 'individual' ? 'Sole Owner' : 'Joint Owner' }}</dd>
+                      </div>
+                      <div v-if="mortgage.ownership_type === 'joint' && mortgage.joint_owner_name" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Joint Owner:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.joint_owner_name }}</dd>
+                      </div>
+                    </dl>
                   </div>
                 </div>
               </div>
@@ -491,6 +591,37 @@ export default {
       } catch (error) {
         console.error('Failed to delete mortgage:', error);
       }
+    },
+
+    formatMortgageType(type) {
+      const types = {
+        repayment: 'Repayment',
+        interest_only: 'Interest Only',
+      };
+      return types[type] || type;
+    },
+
+    calculateLTV(outstandingBalance, propertyValue) {
+      if (!propertyValue || propertyValue === 0) return '0.00';
+      const ltv = (outstandingBalance / propertyValue) * 100;
+      return ltv.toFixed(2);
+    },
+
+    calculateRemainingTerm(maturityDate) {
+      if (!maturityDate) return 'N/A';
+      const today = new Date();
+      const maturity = new Date(maturityDate);
+      const diffTime = maturity - today;
+      const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30.44)); // Average days per month
+
+      if (diffMonths <= 0) return 'Matured';
+
+      const years = Math.floor(diffMonths / 12);
+      const months = diffMonths % 12;
+
+      if (years === 0) return `${months} month${months !== 1 ? 's' : ''}`;
+      if (months === 0) return `${years} year${years !== 1 ? 's' : ''}`;
+      return `${years} year${years !== 1 ? 's' : ''}, ${months} month${months !== 1 ? 's' : ''}`;
     },
 
     formatCurrency(value) {

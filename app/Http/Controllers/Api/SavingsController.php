@@ -12,7 +12,6 @@ use App\Http\Requests\Savings\StoreSavingsAccountRequest;
 use App\Http\Requests\Savings\StoreSavingsGoalRequest;
 use App\Http\Requests\Savings\UpdateSavingsAccountRequest;
 use App\Http\Requests\Savings\UpdateSavingsGoalRequest;
-use App\Models\ExpenditureProfile;
 use App\Models\SavingsAccount;
 use App\Models\SavingsGoal;
 use App\Services\NetWorth\NetWorthService;
@@ -38,7 +37,30 @@ class SavingsController extends Controller
 
         $accounts = SavingsAccount::where('user_id', $user->id)->get();
         $goals = SavingsGoal::where('user_id', $user->id)->get();
-        $expenditureProfile = ExpenditureProfile::where('user_id', $user->id)->first();
+
+        // Build expenditure profile from user data
+        $expenditureProfile = [
+            'total_monthly_expenditure' => $user->monthly_expenditure ?? 0,
+            'total_annual_expenditure' => $user->annual_expenditure ?? 0,
+            // Detailed breakdown
+            'food_groceries' => $user->food_groceries ?? 0,
+            'transport_fuel' => $user->transport_fuel ?? 0,
+            'healthcare_medical' => $user->healthcare_medical ?? 0,
+            'insurance' => $user->insurance ?? 0,
+            'mobile_phones' => $user->mobile_phones ?? 0,
+            'internet_tv' => $user->internet_tv ?? 0,
+            'subscriptions' => $user->subscriptions ?? 0,
+            'clothing_personal_care' => $user->clothing_personal_care ?? 0,
+            'entertainment_dining' => $user->entertainment_dining ?? 0,
+            'holidays_travel' => $user->holidays_travel ?? 0,
+            'pets' => $user->pets ?? 0,
+            'childcare' => $user->childcare ?? 0,
+            'school_fees' => $user->school_fees ?? 0,
+            'children_activities' => $user->children_activities ?? 0,
+            'gifts_charity' => $user->gifts_charity ?? 0,
+            'regular_savings' => $user->regular_savings ?? 0,
+            'other_expenditure' => $user->other_expenditure ?? 0,
+        ];
 
         // Get current tax year ISA allowance
         $currentTaxYear = $this->isaTracker->getCurrentTaxYear();
@@ -179,6 +201,35 @@ class SavingsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create account: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get a single savings account
+     */
+    public function showAccount(Request $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            $account = SavingsAccount::where('id', $id)
+                ->where('user_id', $user->id)
+                ->firstOrFail();
+
+            return response()->json([
+                'success' => true,
+                'data' => $account,
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account not found',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch account: '.$e->getMessage(),
             ], 500);
         }
     }

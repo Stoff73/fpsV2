@@ -421,10 +421,33 @@ class IHTController extends Controller
                 // RNRB calculation (if home owned and left to descendants)
                 $rnrb = 0;
                 $rnrbEligible = false;
+                $rnrbIndividual = 0;
+                $rnrbFromSpouse = 0;
+                $rnrbTapered = false;
+                $rnrbTaperAmount = 0;
+
                 if ($ihtCalculation['rnrb_eligible'] ?? false) {
-                    // Full RNRB transferability (£175k × 2 = £350k)
-                    $rnrb = ($ihtConfig['rnrb'] ?? 175000) * 2;
                     $rnrbEligible = true;
+                    $individualRNRB = $ihtConfig['residence_nil_rate_band'] ?? 175000;
+                    $fullRNRB = $individualRNRB * 2; // £350k combined
+
+                    // Check for taper (using CURRENT net estate for now, projected later)
+                    $taperThreshold = $ihtConfig['rnrb_taper_threshold'] ?? 2000000;
+                    $taperRate = $ihtConfig['rnrb_taper_rate'] ?? 0.5;
+
+                    // Calculate taper on current estate
+                    $rnrb = $fullRNRB;
+                    if ($ihtCalculation['net_estate_value'] > $taperThreshold) {
+                        $excess = $ihtCalculation['net_estate_value'] - $taperThreshold;
+                        $reduction = $excess * $taperRate;
+                        $rnrbTaperAmount = $reduction;
+                        $rnrb = max(0, $fullRNRB - $reduction);
+                        $rnrbTapered = true;
+                    }
+
+                    // Split 50/50 between individual and spouse
+                    $rnrbIndividual = $rnrb / 2;
+                    $rnrbFromSpouse = $rnrb / 2;
                 }
 
                 // Calculate estate projection (now vs death)
@@ -572,9 +595,16 @@ class IHTController extends Controller
                         'gross_estate_value' => $currentAssets,
                         'liabilities' => $currentTotalLiabilities,
                         'net_estate_value' => $currentNetEstate,
+                        'nrb' => $ihtConfig['nil_rate_band'],
+                        'nrb_from_spouse' => $ihtConfig['nil_rate_band'],
                         'total_nrb' => $totalNRB,
                         'rnrb' => $rnrb,
+                        'rnrb_individual' => $rnrbIndividual,
+                        'rnrb_from_spouse' => $rnrbFromSpouse,
                         'rnrb_eligible' => $rnrbEligible,
+                        'rnrb_tapered' => $rnrbTapered,
+                        'rnrb_taper_amount' => $rnrbTaperAmount,
+                        'rnrb_taper_threshold' => $ihtConfig['rnrb_taper_threshold'] ?? 2000000,
                         'taxable_estate' => $currentTaxableEstate,
                         'iht_liability' => $currentIHTLiability,
                     ],
@@ -582,9 +612,16 @@ class IHTController extends Controller
                         'gross_estate_value' => $projectedAssets,
                         'liabilities' => $projectedLiabilitiesTotal,
                         'net_estate_value' => $projectedNetEstate,
+                        'nrb' => $ihtConfig['nil_rate_band'],
+                        'nrb_from_spouse' => $ihtConfig['nil_rate_band'],
                         'total_nrb' => $totalNRB,
                         'rnrb' => $rnrb,
+                        'rnrb_individual' => $rnrbIndividual,
+                        'rnrb_from_spouse' => $rnrbFromSpouse,
                         'rnrb_eligible' => $rnrbEligible,
+                        'rnrb_tapered' => $rnrbTapered,
+                        'rnrb_taper_amount' => $rnrbTaperAmount,
+                        'rnrb_taper_threshold' => $ihtConfig['rnrb_taper_threshold'] ?? 2000000,
                         'taxable_estate' => $projectedTaxableEstate,
                         'iht_liability' => $projectedIHTLiability,
                     ],

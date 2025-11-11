@@ -194,6 +194,17 @@ const actions = {
         }
     },
 
+    async fetchAccount({ commit }, id) {
+        try {
+            const response = await savingsService.getAccount(id);
+            return response.data || response;
+        } catch (error) {
+            const errorMessage = error.message || 'Failed to fetch account';
+            commit('setError', errorMessage);
+            throw error;
+        }
+    },
+
     async updateAccount({ commit }, { id, accountData }) {
         commit('setLoading', true);
         commit('setError', null);
