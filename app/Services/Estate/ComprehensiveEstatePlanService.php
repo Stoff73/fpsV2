@@ -69,6 +69,15 @@ class ComprehensiveEstatePlanService
         // Extract projected IHT liability from the calculation result
         $projectedIHTLiability = $ihtAnalysis['projected_iht_liability'] ?? null;
 
+        // For methods that still expect old structure, create a compatibility object
+        $secondDeathAnalysis = [
+            'current_iht_calculation' => [
+                'iht_liability' => $currentIHTLiability,
+                'taxable_estate' => $ihtAnalysis['taxable_estate'] ?? 0,
+                'net_estate' => $ihtAnalysis['total_net_estate'] ?? 0,
+            ],
+        ];
+
         // Calculate years until death (life expectancy)
         $yearsUntilDeath = $this->calculateYearsUntilDeath($user);
 
@@ -264,8 +273,8 @@ class ComprehensiveEstatePlanService
 
         return [
             'total_assets' => $assets->sum('current_value'),
-            'total_liabilities' => $ihtAnalysis['liabilities'] ?? 0,
-            'net_estate' => $ihtAnalysis['net_estate_value'] ?? 0,
+            'total_liabilities' => $ihtAnalysis['total_liabilities'] ?? 0,
+            'net_estate' => $ihtAnalysis['total_net_estate'] ?? 0,
             'asset_count' => $assets->count(),
             'breakdown' => $breakdown,
             'detailed_assets' => $detailedAssets,
@@ -517,14 +526,14 @@ class ComprehensiveEstatePlanService
 
         return [
             'has_projection' => false,
-            'gross_estate' => $ihtAnalysis['net_estate_value'] ?? 0,
+            'gross_estate' => $ihtAnalysis['total_net_estate'] ?? 0,
             'available_nrb' => $profile->available_nrb ?? $ihtConfig['nil_rate_band'],
-            'rnrb' => $ihtAnalysis['rnrb'] ?? 0,
-            'total_allowances' => $ihtAnalysis['total_allowance'] ?? $ihtConfig['nil_rate_band'],
+            'rnrb' => $ihtAnalysis['rnrb_available'] ?? 0,
+            'total_allowances' => $ihtAnalysis['total_allowances'] ?? $ihtConfig['nil_rate_band'],
             'taxable_estate' => $ihtAnalysis['taxable_estate'] ?? 0,
             'iht_liability' => $ihtAnalysis['iht_liability'] ?? 0,
-            'effective_rate' => $ihtAnalysis['net_estate_value'] > 0
-                ? ($ihtAnalysis['iht_liability'] / $ihtAnalysis['net_estate_value']) * 100
+            'effective_rate' => ($ihtAnalysis['total_net_estate'] ?? 0) > 0
+                ? ($ihtAnalysis['iht_liability'] / $ihtAnalysis['total_net_estate']) * 100
                 : 0,
         ];
     }
@@ -723,7 +732,7 @@ class ComprehensiveEstatePlanService
         return [
             'title' => 'Estate Planning Report for '.$user->name,
             'current_position' => [
-                'net_estate' => $ihtAnalysis['net_estate_value'] ?? 0,
+                'net_estate' => $ihtAnalysis['total_net_estate'] ?? 0,
                 'iht_liability' => $currentIHTLiability, // Current IHT liability (NOW)
             ],
             'iht_liabilities' => [

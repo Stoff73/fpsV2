@@ -49,14 +49,13 @@ class EstateAssetAggregatorService
         // Properties
         $properties = Property::where('user_id', $user->id)->get();
         $propertyAssets = $properties->map(function ($property) use ($user) {
-            $ownershipPercentage = $property->ownership_percentage ?? 100;
-            $userValue = $property->current_value * ($ownershipPercentage / 100);
-
+            // Database already stores the user's share of the value
+            // Do NOT apply ownership_percentage calculation here
             return (object) [
                 'user_id' => $user->id,
                 'asset_type' => 'property',
                 'asset_name' => $property->address_line_1 ?: 'Property',
-                'current_value' => $userValue,
+                'current_value' => $property->current_value,
                 'ownership_type' => $property->ownership_type ?? 'individual',
                 'property_type' => $property->property_type ?? 'unknown', // Include property type for RNRB eligibility
                 'is_iht_exempt' => false,
@@ -151,22 +150,23 @@ class EstateAssetAggregatorService
      */
     public function calculateUserLiabilities(User $user): float
     {
-        // Get liabilities and apply 50/50 split for joint ownership
+        // Get liabilities - database already stores the user's share
         $liabilitiesCollection = Liability::where('user_id', $user->id)->get();
         $liabilities = $liabilitiesCollection->sum(function ($liability) {
             $isJoint = ($liability->ownership_type ?? 'individual') === 'joint';
-            $value = $isJoint ? $liability->current_balance / 2 : $liability->current_balance;
+            // Database already stores the user's share - do NOT divide by 2
+            $value = $liability->current_balance;
             \Log::info('Liability: ' . ($liability->institution ?? 'Unknown') . ' | Type: ' . ($liability->type ?? 'Unknown') . ' | Joint: ' . ($isJoint ? 'YES' : 'NO') . ' | Value: £' . $value);
             return $value;
         });
 
-        // Get mortgages and apply 50/50 split for joint ownership
-        // IMPORTANT: Check the PROPERTY ownership_type, not the mortgage ownership_type
+        // Get mortgages - database already stores the user's share
         $mortgagesCollection = Mortgage::where('user_id', $user->id)->get();
         $mortgages = $mortgagesCollection->sum(function ($mortgage) {
             $property = $mortgage->property;
             $isJoint = $property && ($property->ownership_type ?? 'individual') === 'joint';
-            $value = $isJoint ? $mortgage->outstanding_balance / 2 : $mortgage->outstanding_balance;
+            // Database already stores the user's share - do NOT divide by 2
+            $value = $mortgage->outstanding_balance;
             \Log::info('Mortgage: ' . ($property->address_line_1 ?? 'Unknown') . ' | Property Joint: ' . ($isJoint ? 'YES' : 'NO') . ' | Value: £' . $value);
             return $value;
         });

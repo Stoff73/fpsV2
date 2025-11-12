@@ -44,7 +44,11 @@ const getters = {
 
     // IHT liability from analysis
     ihtLiability: (state) => {
-        // For married users with second death analysis, use CURRENT (now) IHT liability
+        // NEW: For unified IHT calculation with iht_summary structure
+        if (state.secondDeathPlanning?.iht_summary?.current?.iht_liability !== undefined) {
+            return state.secondDeathPlanning.iht_summary.current.iht_liability;
+        }
+        // OLD: For married users with second death analysis, use CURRENT (now) IHT liability
         if (state.secondDeathPlanning?.second_death_analysis?.current_iht_calculation?.iht_liability !== undefined) {
             return state.secondDeathPlanning.second_death_analysis.current_iht_calculation.iht_liability;
         }
@@ -134,7 +138,11 @@ const getters = {
     // Taxable estate value (AFTER allowances - NRB/RNRB)
     // This is what's actually subject to IHT at 40%
     taxableEstate: (state, getters) => {
-        // For married users with second death analysis, use CURRENT (now) taxable estate
+        // NEW: For unified IHT calculation with iht_summary structure
+        if (state.secondDeathPlanning?.iht_summary?.current?.taxable_estate !== undefined) {
+            return state.secondDeathPlanning.iht_summary.current.taxable_estate;
+        }
+        // OLD: For married users with second death analysis, use CURRENT (now) taxable estate
         if (state.secondDeathPlanning?.second_death_analysis?.current_iht_calculation?.taxable_estate !== undefined) {
             return state.secondDeathPlanning.second_death_analysis.current_iht_calculation.taxable_estate;
         }

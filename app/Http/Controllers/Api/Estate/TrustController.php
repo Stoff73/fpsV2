@@ -10,6 +10,7 @@ use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Liability;
 use App\Models\Estate\Trust;
+use App\Models\Estate\Will;
 use App\Services\Estate\IHTCalculationService;
 use App\Services\Estate\TrustService;
 use App\Services\TaxConfigService;

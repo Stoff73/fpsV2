@@ -424,9 +424,18 @@ export default {
     async loadNetEstateValue() {
       try {
         const response = await api.post('/estate/calculate-iht');
-        this.netEstateValue = response.data.data.net_estate_value || 0;
+        // NEW: Use iht_summary.current.net_estate from unified structure
+        if (response.data?.iht_summary?.current?.net_estate !== undefined) {
+          this.netEstateValue = response.data.iht_summary.current.net_estate;
+        } else if (response.data?.data?.net_estate_value !== undefined) {
+          // OLD: Fallback for old structure
+          this.netEstateValue = response.data.data.net_estate_value;
+        } else {
+          this.netEstateValue = 0;
+        }
       } catch (error) {
         console.error('Failed to load estate value:', error);
+        this.netEstateValue = 0;
       }
     },
 

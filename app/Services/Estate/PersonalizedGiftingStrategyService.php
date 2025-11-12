@@ -115,15 +115,7 @@ class PersonalizedGiftingStrategyService
             }
         }
 
-        // 5. Gifting from income (if user has surplus income)
-        if ($user->annual_employment_income || $user->annual_self_employment_income) {
-            $incomeStrategy = $this->buildGiftingFromIncomeStrategy($user, $yearsUntilDeath, $ihtRate);
-
-            if ($incomeStrategy && $incomeStrategy['can_afford']) {
-                $strategies[] = $incomeStrategy;
-                $remainingIHTLiability -= $incomeStrategy['iht_saved'];
-            }
-        }
+        // Gifting from income strategy removed - creates unrealistic priority 5 with inflated figures
 
         // Calculate totals
         $totalIHTSaved = array_sum(array_column(array_filter($strategies, fn ($s) => isset($s['iht_saved'])), 'iht_saved'));

@@ -51,19 +51,18 @@ class LifePolicyController extends Controller
                     ], 500);
                 }
 
-                // Extract second death data
-                $secondDeathAnalysis = $ihtPlanningData['second_death_analysis'] ?? null;
-                if (! $secondDeathAnalysis) {
+                // Extract IHT summary data (new unified structure)
+                $ihtSummary = $ihtPlanningData['iht_summary'] ?? null;
+                if (! $ihtSummary) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Second death analysis not available',
+                        'message' => 'IHT summary not available',
                     ], 500);
                 }
 
-                // Use second death (survivor) data
-                $survivorData = $secondDeathAnalysis['second_death'];
-                $ihtLiability = $secondDeathAnalysis['iht_calculation']['iht_liability'];
-                $yearsUntilDeath = (int) $survivorData['years_until_death'];
+                // Use CURRENT IHT liability (not projected - life insurance covers today's liability)
+                $ihtLiability = $ihtSummary['current']['iht_liability'];
+                $yearsUntilDeath = (int) $ihtSummary['projected']['years_to_death'];
                 $currentAge = \Carbon\Carbon::parse($user->date_of_birth)->age;
 
                 // Get spouse data for joint policy calculation
@@ -83,18 +82,19 @@ class LifePolicyController extends Controller
                     ], 500);
                 }
 
-                // Extract projection data
-                $projection = $ihtData['projection'] ?? null;
-                if (! $projection) {
+                // Extract IHT summary data (new unified structure)
+                $ihtSummary = $ihtData['iht_summary'] ?? null;
+                if (! $ihtSummary) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Life expectancy projection not available',
+                        'message' => 'IHT summary not available',
                     ], 500);
                 }
 
-                $ihtLiability = $projection['at_death']['iht_liability'];
-                $yearsUntilDeath = (int) $projection['life_expectancy']['years_remaining'];
-                $currentAge = $projection['life_expectancy']['current_age'];
+                // Use CURRENT IHT liability (not projected - life insurance covers today's liability)
+                $ihtLiability = $ihtSummary['current']['iht_liability'];
+                $yearsUntilDeath = (int) $ihtSummary['projected']['years_to_death'];
+                $currentAge = \Carbon\Carbon::parse($user->date_of_birth)->age;
 
                 $spouseAge = null;
                 $spouseGender = null;

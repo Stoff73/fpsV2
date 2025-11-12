@@ -564,11 +564,8 @@ Route::middleware('auth:sanctum')->prefix('investment')->group(function () {
 
 // Estate Planning module routes
 Route::middleware('auth:sanctum')->prefix('estate')->group(function () {
-    // Main estate data and analysis
+    // Main estate data
     Route::get('/', [EstateController::class, 'index']);
-    Route::post('/analyze', [EstateController::class, 'analyze']);
-    Route::get('/recommendations', [EstateController::class, 'recommendations']);
-    Route::post('/scenarios', [EstateController::class, 'scenarios']);
 
     // IHT calculation and net worth
     Route::post('/calculate-iht', [IHTController::class, 'calculateIHT']);

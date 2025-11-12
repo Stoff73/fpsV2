@@ -76,17 +76,25 @@ class PropertyController extends Controller
             $validated['ownership_percentage'] = 50.00;
         }
 
+        // Split the current_value based on ownership percentage
+        $totalValue = $validated['current_value'];
+        $userOwnershipPercentage = $validated['ownership_percentage'];
+        $validated['current_value'] = $totalValue * ($userOwnershipPercentage / 100);
+
         $property = Property::create($validated);
 
         // If outstanding_mortgage provided, auto-create a basic mortgage record
         if (isset($validated['outstanding_mortgage']) && $validated['outstanding_mortgage'] > 0) {
+            // Split mortgage amount based on ownership percentage (same as property value)
+            $userMortgageAmount = $validated['outstanding_mortgage'] * ($userOwnershipPercentage / 100);
+
             \App\Models\Mortgage::create([
                 'property_id' => $property->id,
                 'user_id' => $user->id,
                 'lender_name' => 'To be completed',
                 'mortgage_type' => 'repayment',
-                'original_loan_amount' => $validated['outstanding_mortgage'],
-                'outstanding_balance' => $validated['outstanding_mortgage'],
+                'original_loan_amount' => $userMortgageAmount,
+                'outstanding_balance' => $userMortgageAmount,
                 'interest_rate' => 0.0000,
                 'rate_type' => 'fixed',
                 'monthly_payment' => 0.00,
@@ -98,7 +106,8 @@ class PropertyController extends Controller
 
         // If joint ownership, create reciprocal property for joint owner
         if ($validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
-            $this->createJointProperty($property, $validated['joint_owner_id'], $validated['ownership_percentage']);
+            $totalMortgage = $validated['outstanding_mortgage'] ?? 0;
+            $this->createJointProperty($property, $validated['joint_owner_id'], $validated['ownership_percentage'], $totalValue, $totalMortgage);
         }
 
         // Sync rental income to user table
@@ -263,7 +272,7 @@ class PropertyController extends Controller
     /**
      * Create a reciprocal property record for joint owner
      */
-    private function createJointProperty(Property $originalProperty, int $jointOwnerId, float $ownershipPercentage): void
+    private function createJointProperty(Property $originalProperty, int $jointOwnerId, float $ownershipPercentage, float $totalValue, float $totalMortgage = 0): void
     {
         // Calculate the reciprocal ownership percentage
         $reciprocalPercentage = 100.00 - $ownershipPercentage;
@@ -283,7 +292,30 @@ class PropertyController extends Controller
         $jointPropertyData['ownership_percentage'] = $reciprocalPercentage;
         $jointPropertyData['joint_owner_id'] = $originalProperty->user_id;
 
+        // Calculate joint owner's share of the total value
+        $jointPropertyData['current_value'] = $totalValue * ($reciprocalPercentage / 100);
+
         $jointProperty = Property::create($jointPropertyData);
+
+        // If there's a mortgage, create joint owner's share
+        if ($totalMortgage > 0) {
+            $jointMortgageAmount = $totalMortgage * ($reciprocalPercentage / 100);
+
+            \App\Models\Mortgage::create([
+                'property_id' => $jointProperty->id,
+                'user_id' => $jointOwnerId,
+                'lender_name' => 'To be completed',
+                'mortgage_type' => 'repayment',
+                'original_loan_amount' => $jointMortgageAmount,
+                'outstanding_balance' => $jointMortgageAmount,
+                'interest_rate' => 0.0000,
+                'rate_type' => 'fixed',
+                'monthly_payment' => 0.00,
+                'start_date' => now(),
+                'maturity_date' => now()->addYears(25),
+                'remaining_term_months' => 300,
+            ]);
+        }
 
         // Update original property with joint_owner_id pointing to the reciprocal record
         $originalProperty->update(['joint_owner_id' => $jointOwnerId]);

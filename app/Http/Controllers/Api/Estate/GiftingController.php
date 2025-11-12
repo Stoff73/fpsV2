@@ -59,17 +59,18 @@ class GiftingController extends Controller
                 ], 500);
             }
 
-            // Extract the projection data (has current and at_death IHT liability)
-            $projection = $ihtPlanningData['projection'];
-            $lifeExpectancy = $projection['life_expectancy'];
-            $yearsUntilDeath = (int) $lifeExpectancy['years_remaining'];
+            // Extract the IHT summary data (new unified structure)
+            $ihtSummary = $ihtPlanningData['iht_summary'];
+            $assetsBreakdown = $ihtPlanningData['assets_breakdown'];
+            $liabilitiesBreakdown = $ihtPlanningData['liabilities_breakdown'];
+            $yearsUntilDeath = (int) $ihtSummary['projected']['years_to_death'];
 
             // Current IHT liability
-            $currentIHTLiability = $projection['current']['iht_liability'];
+            $currentIHTLiability = $ihtSummary['current']['iht_liability'];
 
             // Projected IHT liability at death
-            $projectedIHTLiability = $projection['at_death']['iht_liability'];
-            $projectedEstateValue = $projection['at_death']['net_estate'];
+            $projectedIHTLiability = $ihtSummary['projected']['iht_liability'];
+            $projectedEstateValue = $ihtSummary['projected']['net_estate'];
 
             // Get IHT profile
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
@@ -165,21 +166,21 @@ class GiftingController extends Controller
                 'data' => [
                     'life_expectancy_analysis' => [
                         'current_age' => $currentAge,
-                        'life_expectancy_years' => $lifeExpectancy['years_remaining'],
-                        'estimated_age_at_death' => $lifeExpectancy['death_age'],
+                        'life_expectancy_years' => $yearsUntilDeath,
+                        'estimated_age_at_death' => $estimatedAgeAtDeath,
                         'estimated_date_of_death' => $estimatedDateOfDeath->format('Y-m-d'),
                         'years_until_expected_death' => $yearsUntilDeath,
                         'complete_7_year_pet_cycles' => $complete7YearCycles,
                     ],
                     'current_estate' => [
-                        'total_assets' => round($projection['current']['assets'], 2),
-                        'total_liabilities' => round($projection['current']['mortgages'] + $projection['current']['liabilities'], 2),
-                        'net_worth' => round($projection['current']['net_estate'], 2),
+                        'total_assets' => round($assetsBreakdown['user']['total'] + ($assetsBreakdown['spouse']['total'] ?? 0), 2),
+                        'total_liabilities' => round($liabilitiesBreakdown['user']['total'] + ($liabilitiesBreakdown['spouse']['total'] ?? 0), 2),
+                        'net_worth' => round($ihtSummary['current']['net_estate'], 2),
                         'iht_liability' => round($currentIHTLiability, 2),
                     ],
                     'projected_estate_at_death' => [
-                        'total_assets' => round($projection['at_death']['assets'], 2),
-                        'total_liabilities' => round($projection['at_death']['mortgages'] + $projection['at_death']['liabilities'], 2),
+                        'total_assets' => round($projectedEstateValue + ($currentIHTLiability / 0.40), 2), // Approximate gross estate
+                        'total_liabilities' => round($liabilitiesBreakdown['user']['total'] + ($liabilitiesBreakdown['spouse']['total'] ?? 0), 2),
                         'net_estate' => round($projectedEstateValue, 2),
                         'iht_liability' => round($projectedIHTLiability, 2),
                         'years_from_now' => $yearsUntilDeath,
@@ -256,13 +257,12 @@ class GiftingController extends Controller
                 ], 500);
             }
 
-            // Extract projection data
-            $projection = $ihtPlanningData['projection'];
-            $lifeExpectancy = $projection['life_expectancy'];
-            $yearsUntilDeath = (int) $lifeExpectancy['years_remaining'];
+            // Extract IHT summary data (new unified structure)
+            $ihtSummary = $ihtPlanningData['iht_summary'];
+            $yearsUntilDeath = (int) $ihtSummary['projected']['years_to_death'];
 
-            // Use projected IHT liability at death (this is what we want to reduce)
-            $currentIHTLiability = $projection['at_death']['iht_liability'];
+            // Use CURRENT IHT liability (not projected - that includes decades of unrealistic growth)
+            $currentIHTLiability = $ihtSummary['current']['iht_liability'];
 
             // Get IHT profile
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
@@ -349,10 +349,10 @@ class GiftingController extends Controller
                 ], 500);
             }
 
-            // Extract projection data
-            $projection = $ihtPlanningData['projection'];
-            $yearsUntilDeath = (int) $projection['life_expectancy']['years_remaining'];
-            $currentIHTLiability = $projection['current']['iht_liability'];
+            // Extract IHT summary data (new unified structure)
+            $ihtSummary = $ihtPlanningData['iht_summary'];
+            $yearsUntilDeath = (int) $ihtSummary['projected']['years_to_death'];
+            $currentIHTLiability = $ihtSummary['current']['iht_liability'];
 
             // Get or create IHT profile
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();

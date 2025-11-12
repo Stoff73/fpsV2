@@ -112,12 +112,6 @@
 
           <!-- Trust Planning Tab -->
           <TrustPlanning v-else-if="activeTab === 'trusts'" />
-
-          <!-- Recommendations Tab -->
-          <Recommendations v-else-if="activeTab === 'recommendations'" />
-
-          <!-- What-If Scenarios Tab -->
-          <WhatIfScenarios v-else-if="activeTab === 'scenarios'" />
         </div>
       </div>
       </div>
@@ -133,8 +127,6 @@ import GiftingStrategy from '@/components/Estate/GiftingStrategy.vue';
 import LifePolicyStrategy from '@/components/Estate/LifePolicyStrategy.vue';
 import TrustPlanning from '@/components/Estate/TrustPlanning.vue';
 import WillPlanning from '@/components/Estate/WillPlanning.vue';
-import Recommendations from '@/components/Estate/Recommendations.vue';
-import WhatIfScenarios from '@/components/Estate/WhatIfScenarios.vue';
 import ProfileCompletenessAlert from '@/components/Shared/ProfileCompletenessAlert.vue';
 import api from '@/services/api';
 
@@ -148,8 +140,6 @@ export default {
     LifePolicyStrategy,
     TrustPlanning,
     WillPlanning,
-    Recommendations,
-    WhatIfScenarios,
     ProfileCompletenessAlert,
   },
 
@@ -163,8 +153,6 @@ export default {
         { id: 'gifting', label: 'Gifting Strategy' },
         { id: 'life-policy', label: 'Life Policy Strategy' },
         { id: 'trusts', label: 'Trust Strategy' },
-        { id: 'recommendations', label: 'Recommendations' },
-        { id: 'scenarios', label: 'What-If Scenarios' },
       ],
       profileCompleteness: null,
       loadingCompleteness: false,

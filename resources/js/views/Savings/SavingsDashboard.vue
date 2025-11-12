@@ -103,9 +103,6 @@
           <!-- Recommendations Tab -->
           <Recommendations v-else-if="activeTab === 'recommendations'" />
 
-          <!-- What-If Scenarios Tab -->
-          <WhatIfScenarios v-else-if="activeTab === 'scenarios'" />
-
           <!-- Account Details Tab -->
           <AccountDetails v-else-if="activeTab === 'details'" />
         </div>
@@ -122,7 +119,6 @@ import CurrentSituation from '@/components/Savings/CurrentSituation.vue';
 import EmergencyFund from '@/components/Savings/EmergencyFund.vue';
 import SavingsGoals from '@/components/Savings/SavingsGoals.vue';
 import Recommendations from '@/components/Savings/Recommendations.vue';
-import WhatIfScenarios from '@/components/Savings/WhatIfScenarios.vue';
 import AccountDetails from '@/components/Savings/AccountDetails.vue';
 
 export default {
@@ -134,7 +130,6 @@ export default {
     EmergencyFund,
     SavingsGoals,
     Recommendations,
-    WhatIfScenarios,
     AccountDetails,
   },
 
@@ -146,7 +141,6 @@ export default {
         { id: 'emergency', label: 'Emergency Fund' },
         { id: 'goals', label: 'Savings Goals' },
         { id: 'recommendations', label: 'Strategy' },
-        { id: 'scenarios', label: 'What-If Scenarios' },
         { id: 'details', label: 'Account Details' },
       ],
     };

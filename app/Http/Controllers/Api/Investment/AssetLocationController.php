@@ -325,7 +325,7 @@ class AssetLocationController extends Controller
     {
         $annualIncome = $user->gross_annual_income ?? 50000;
         $age = $user->date_of_birth
-            ? (new \DateTime)->diff(new \DateTime($user->date_of_birth))->y
+            ? \Carbon\Carbon::parse($user->date_of_birth)->age
             : 45;
 
         return [

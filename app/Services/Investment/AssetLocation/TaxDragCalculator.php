@@ -33,11 +33,15 @@ class TaxDragCalculator
      */
     public function calculateCurrentTaxDrag(Holding $holding, array $userTaxProfile): array
     {
-        $account = $holding->investmentAccount;
+        // Use polymorphic relationship to get the account
+        $account = $holding->holdable;
+
+        // Get account type - handle both InvestmentAccount and DCPension
+        $accountType = $account->account_type ?? 'sipp'; // DCPension defaults to SIPP
 
         return $this->calculateTaxDragByAccountType(
             $holding,
-            $account->account_type,
+            $accountType,
             $userTaxProfile
         );
     }
@@ -222,7 +226,8 @@ class TaxDragCalculator
         }
 
         // Calculate potential savings
-        $currentAccountType = $holding->investmentAccount->account_type;
+        $account = $holding->holdable;
+        $currentAccountType = $account->account_type ?? 'sipp';
         $currentTax = $comparison[$currentAccountType]['tax_amount'] ?? $comparison['gia']['tax_amount'];
 
         // Find best account type (lowest tax)

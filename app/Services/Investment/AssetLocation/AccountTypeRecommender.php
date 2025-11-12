@@ -92,17 +92,20 @@ class AccountTypeRecommender
      */
     private function analyzeHoldingPlacement(Holding $holding, array $userTaxProfile): array
     {
-        $currentAccount = $holding->investmentAccount;
+        // Use polymorphic relationship
+        $currentAccount = $holding->holdable;
+        $currentAccountType = $currentAccount->account_type ?? 'sipp';
+
         $comparison = $this->taxDragCalculator->compareAccountTypes($holding, $userTaxProfile);
 
         // Determine recommended account type
         $recommendedType = $this->determineOptimalAccountType($holding, $userTaxProfile);
 
         // Calculate tax efficiency score (0-100)
-        $taxEfficiencyScore = $this->calculateTaxEfficiencyScore($holding, $currentAccount->account_type);
+        $taxEfficiencyScore = $this->calculateTaxEfficiencyScore($holding, $currentAccountType);
 
         // Generate rationale
-        $rationale = $this->generateRationale($holding, $currentAccount->account_type, $recommendedType);
+        $rationale = $this->generateRationale($holding, $currentAccountType, $recommendedType);
 
         // Determine priority
         $priority = $this->determinePriority(
@@ -142,7 +145,8 @@ class AccountTypeRecommender
     private function determineOptimalAccountType(Holding $holding, array $userTaxProfile): string
     {
         // ISA is always best for tax purposes, but consider practical constraints
-        $currentType = $holding->investmentAccount->account_type;
+        $account = $holding->holdable;
+        $currentType = $account->account_type ?? 'sipp';
 
         // If already in ISA, keep it there
         if (in_array($currentType, ['isa', 'stocks_shares_isa', 'lifetime_isa'])) {

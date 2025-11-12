@@ -187,7 +187,7 @@ class FeeAnalyzer
                 'current_value' => $holding->current_value,
                 'ocf' => round($ocf * 100, 3),
                 'annual_fee' => round($annualFee, 2),
-                'account_name' => $holding->investmentAccount->account_name ?? 'Unknown',
+                'account_name' => $holding->holdable->account_name ?? 'Unknown',
             ];
         }
 

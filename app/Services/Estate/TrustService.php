@@ -145,7 +145,16 @@ class TrustService
     {
         $recommendations = [];
         $trustsConfig = $this->taxConfig->getTrusts();
-        $trustTypes = $trustsConfig['types'];
+        $trustTypes = $trustsConfig['types'] ?? [];
+
+        // Default descriptions if not in database
+        $defaultDescriptions = [
+            'life_insurance' => 'Life insurance policy written in trust to pay IHT liability',
+            'discounted_gift' => 'Gift assets to trust while retaining income rights',
+            'loan' => 'Loan assets to trust, freezing estate value',
+            'bare' => 'Simple trust giving child absolute entitlement at age 18',
+            'discretionary' => 'Flexible trust allowing trustees to decide distributions',
+        ];
 
         // If significant IHT liability
         if ($ihtLiability > 50000) {
@@ -154,7 +163,7 @@ class TrustService
                 'trust_type' => 'life_insurance',
                 'priority' => 'high',
                 'reason' => 'Cover IHT liability of £'.number_format($ihtLiability, 0).' without depleting estate assets',
-                'description' => $trustTypes['life_insurance']['description'],
+                'description' => $trustTypes['life_insurance']['description'] ?? $defaultDescriptions['life_insurance'],
                 'benefits' => [
                     'Policy proceeds paid outside estate',
                     'Provides liquid funds to pay IHT',
@@ -168,7 +177,7 @@ class TrustService
                     'trust_type' => 'discounted_gift',
                     'priority' => 'high',
                     'reason' => 'Reduce estate value while retaining income',
-                    'description' => $trustTypes['discounted_gift']['description'],
+                    'description' => $trustTypes['discounted_gift']['description'] ?? $defaultDescriptions['discounted_gift'],
                     'benefits' => [
                         'Immediate IHT reduction (30-60% discount typical)',
                         'Retain regular income stream',
@@ -182,7 +191,7 @@ class TrustService
                 'trust_type' => 'loan',
                 'priority' => 'medium',
                 'reason' => 'Freeze estate value while maintaining access',
-                'description' => $trustTypes['loan']['description'],
+                'description' => $trustTypes['loan']['description'] ?? $defaultDescriptions['loan'],
                 'benefits' => [
                     'No 7-year wait for original loan',
                     'Growth accrues outside estate immediately',
@@ -197,7 +206,7 @@ class TrustService
                 'trust_type' => 'bare',
                 'priority' => 'medium',
                 'reason' => 'Pass assets to children with certainty',
-                'description' => $trustTypes['bare']['description'],
+                'description' => $trustTypes['bare']['description'] ?? $defaultDescriptions['bare'],
                 'benefits' => [
                     'Simple and low-cost',
                     'PET treatment (7-year rule)',
@@ -212,7 +221,7 @@ class TrustService
                 'trust_type' => 'discretionary',
                 'priority' => 'medium',
                 'reason' => 'Maximum flexibility for trustees',
-                'description' => $trustTypes['discretionary']['description'],
+                'description' => $trustTypes['discretionary']['description'] ?? $defaultDescriptions['discretionary'],
                 'benefits' => [
                     'Trustees decide distributions',
                     'Protect vulnerable beneficiaries',

@@ -100,7 +100,7 @@ class AssetLocationOptimizer
 
         // Years to retirement (for pension tax drag calculation)
         $age = $user->date_of_birth
-            ? (new \DateTime)->diff(new \DateTime($user->date_of_birth))->y
+            ? \Carbon\Carbon::parse($user->date_of_birth)->age
             : 45;
         $yearsToRetirement = max(0, 67 - $age);
 
