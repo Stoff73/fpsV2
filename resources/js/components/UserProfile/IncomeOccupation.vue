@@ -257,6 +257,28 @@
             </div>
           </div>
 
+          <!-- Annual Interest Income -->
+          <div>
+            <label for="annual_interest_income" class="block text-body-sm font-medium text-gray-700 mb-1">
+              Interest Income
+            </label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">£</span>
+              </div>
+              <input
+                id="annual_interest_income"
+                v-model.number="form.annual_interest_income"
+                type="number"
+                step="0.01"
+                min="0"
+                class="input-field pl-7"
+                :disabled="!isEditing"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
           <!-- Annual Other Income -->
           <div>
             <label for="annual_other_income" class="block text-body-sm font-medium text-gray-700 mb-1">
@@ -411,6 +433,7 @@ export default {
       annual_self_employment_income: 0,
       annual_rental_income: 0,
       annual_dividend_income: 0,
+      annual_interest_income: 0,
       annual_other_income: 0,
     });
 
@@ -424,6 +447,7 @@ export default {
         (form.value.annual_self_employment_income || 0) +
         (form.value.annual_rental_income || 0) +
         (form.value.annual_dividend_income || 0) +
+        (form.value.annual_interest_income || 0) +
         (form.value.annual_other_income || 0);
 
       return new Intl.NumberFormat('en-GB', {
@@ -471,6 +495,7 @@ export default {
           annual_self_employment_income: Number(incomeOccupation.value.annual_self_employment_income) || 0,
           annual_rental_income: Number(incomeOccupation.value.annual_rental_income) || 0,
           annual_dividend_income: Number(incomeOccupation.value.annual_dividend_income) || 0,
+          annual_interest_income: Number(incomeOccupation.value.annual_interest_income) || 0,
           annual_other_income: Number(incomeOccupation.value.annual_other_income) || 0,
         };
       }

@@ -45,6 +45,7 @@ class StoreDCPensionRequest extends FormRequest
             'employee_contribution_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'employer_contribution_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'monthly_contribution_amount' => ['nullable', 'numeric', 'min:0'],
+            'lump_sum_contribution' => ['nullable', 'numeric', 'min:0'],
             'investment_strategy' => ['nullable', 'string', 'max:255'],
             'platform_fee_percent' => ['nullable', 'numeric', 'min:0', 'max:10'],
             'retirement_age' => ['nullable', 'integer', 'min:55', 'max:75'],

@@ -137,7 +137,7 @@ export default {
     return {
       activeTab: 'current',
       tabs: [
-        { id: 'current', label: 'Current Situation' },
+        { id: 'current', label: 'Cash Overview' },
         { id: 'emergency', label: 'Emergency Fund' },
         { id: 'goals', label: 'Savings Goals' },
         { id: 'recommendations', label: 'Strategy' },

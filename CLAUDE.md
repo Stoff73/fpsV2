@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Development guidelines for Claude Code when working with the TenGo financial planning application.
 
 ---
 
-## ⚠️ CRITICAL INSTRUCTIONS
+## ⚠️ CRITICAL RULES
 
 ### 1. MAINTAIN APPLICATION FUNCTIONALITY
 
@@ -43,241 +43,98 @@ Available Skills:
 
 **FAILURE TO USE AVAILABLE SKILLS IS UNACCEPTABLE.**
 
-### 4. UNIFIED FORM COMPONENTS - CRITICAL RULE
+### 4. UNIFIED FORM COMPONENTS
 
 **⚠️ THE APPLICATION USES ONE FORM FOR ALL INPUTS ACROSS ALL AREAS**
 
 **CRITICAL**: All data input forms MUST be reusable across the entire application:
 - ✅ The SAME form component is used whether adding data during onboarding, from the module dashboard, or editing existing data
-- ✅ Forms are located in module-specific component folders (e.g., `components/Protection/PolicyFormModal.vue`, `components/Estate/LiabilityForm.vue`)
-- ✅ Forms accept a data prop (e.g., `:policy`, `:property`, `:account`) and a mode/isEditing prop
+- ✅ Forms are located in module-specific component folders (e.g., `components/Protection/PolicyFormModal.vue`)
+- ✅ Forms accept a data prop and a mode/isEditing prop
 - ✅ Forms emit `@save` and `@close` events (NEVER use `@submit` which causes double submission)
-
-**Examples of Unified Forms:**
-- `Protection/PolicyFormModal.vue` - Used in onboarding, protection dashboard, and policy editing
-- `NetWorth/Property/PropertyForm.vue` - Used in onboarding, net worth module, and estate planning
-- `Investment/AccountForm.vue` - Used in onboarding and investment dashboard
-- `Savings/SaveAccountModal.vue` - Used in onboarding and savings dashboard
-- `Estate/LiabilityForm.vue` - Used in onboarding and estate planning
 
 **Pattern to Follow:**
 ```vue
-<!-- Parent Component (Onboarding Step or Dashboard) -->
-<template>
-  <button @click="showForm = true">Add Item</button>
-
-  <ItemForm
-    v-if="showForm"
-    :item="editingItem"
-    :is-editing="!!editingItem"
-    @save="handleItemSaved"
-    @close="closeForm"
-  />
-</template>
-
-<script>
-async function handleItemSaved(data) {
-  if (editingItem.value) {
-    await service.updateItem(editingItem.value.id, data);
-  } else {
-    await service.createItem(data);
-  }
-  closeForm();
-  await loadItems(); // Refresh list
-}
-</script>
+<!-- Parent Component -->
+<ItemForm
+  v-if="showForm"
+  :item="editingItem"
+  :is-editing="!!editingItem"
+  @save="handleItemSaved"
+  @close="closeForm"
+/>
 ```
 
 **DO NOT:**
 - ❌ Create separate forms for onboarding vs. dashboard
 - ❌ Duplicate form logic across components
 - ❌ Use `@submit` event name (causes double submission bug)
-- ❌ Create inline forms without extracting to reusable components
 
-**VIOLATION OF THIS RULE REQUIRES IMMEDIATE REFACTORING.**
-
-### 5. ENVIRONMENT VARIABLE CONTAMINATION - CRITICAL WARNING
+### 5. ENVIRONMENT VARIABLE CONTAMINATION
 
 **⚠️ THE #1 CAUSE OF DEVELOPMENT ENVIRONMENT FAILURES IS ENVIRONMENT VARIABLE POLLUTION**
 
 **NEVER** export production environment variables in development sessions:
 - ❌ **NEVER** run: `export $(cat .env.production | xargs)`
 - ❌ **NEVER** run: `source .env.production`
-- ❌ **NEVER** manually export production values like `export APP_URL=https://csjones.co/tengo`
 
-**WHY THIS BREAKS EVERYTHING:**
-- Environment variables **override** `.env` file values in Laravel/Vite
-- Production URLs get compiled into JavaScript by Vite
-- Production database credentials cause "Access denied" errors
-- Frontend calls production API instead of localhost (CORS errors)
-- Cache driver mismatches cause "This cache store does not support tagging" errors
-
-**DIAGNOSIS - Check for contamination FIRST when debugging:**
-```bash
-# Check for production environment variables
-printenv | grep -E "^APP_|^DB_|^VITE_|^CACHE_"
-
-# If you see production values (csjones.co, production DB names), you have contamination
-```
-
-**SOLUTION - Always start development servers with correct environment:**
-
-**Recommended: Use the startup script:**
+**SOLUTION - Always use the startup script:**
 ```bash
 ./dev.sh
 ```
-This script automatically:
-- Kills existing server processes
-- Exports correct local environment variables
-- Clears Laravel and Vite caches
-- Verifies MySQL connection and database existence
-- Starts both Laravel and Vite in correct sequence
-- Displays process IDs and helpful information
 
-**Manual alternative** (if needed):
+**DIAGNOSIS - Check for contamination:**
 ```bash
-export APP_ENV=local && \
-export APP_URL=http://localhost:8000 && \
-export VITE_API_BASE_URL=http://localhost:8000 && \
-export DB_CONNECTION=mysql && \
-export DB_HOST=localhost && \
-export DB_DATABASE=laravel && \
-export DB_USERNAME=root && \
-export DB_PASSWORD="" && \
-export CACHE_DRIVER=array && \
-php artisan serve &
-sleep 2
-npm run dev
+printenv | grep -E "^APP_|^DB_|^VITE_|^CACHE_"
 ```
 
-**CRITICAL**: Both Laravel AND Vite MUST start in the SAME bash session with these exports.
-
 **COMMON SYMPTOMS:**
-1. CORS errors: `Access to XMLHttpRequest at 'https://csjones.co/tengo/api/...' from origin 'http://localhost:8000' has been blocked`
-2. Database errors: `Access denied for user 'uixybijdvk3yv'@'localhost'` (production DB user)
-3. Cache errors: `This cache store does not support tagging`
-4. Vite output shows wrong URL: `APP_URL: https://csjones.co/tengo` (should be `http://localhost:8000`)
-5. 500 errors on API calls with database or cache issues in Laravel logs
-
-**REFERENCE:**
-- See `DEV_ENVIRONMENT_TROUBLESHOOTING.md` for comprehensive debugging guide
-- See `.env` for local development configuration
-- See `.env.production.example` for production template (NEVER rename until deployment)
-
-**PREVENTION:**
-- Keep production config in `.env.production.example` only
-- Never work in same terminal session used for deployment preparation
-- Always use `./dev.sh` script for local development
-- Clear terminal session before deployment: open fresh terminal, don't reuse dev terminal
+1. CORS errors from production URL
+2. Database errors with production DB user
+3. Cache errors: "This cache store does not support tagging"
+4. Vite shows wrong URL in output
 
 ### 6. CANONICAL DATA TYPES - ONE SOURCE OF TRUTH
 
 **⚠️ ALL ASSET/LIABILITY/PROPERTY TYPES MUST USE CANONICAL VALUES DEFINED BY DATABASE MIGRATIONS**
 
-**CRITICAL PRINCIPLE**: Each entity type has ONE canonical set of values. NEVER introduce variations, synonyms, or alternative spellings.
-
 #### Property Types (ONLY THREE ALLOWED)
 
-**Canonical Values** (from `database/migrations/2025_10_17_142814_create_properties_table.php`):
 ```php
 'main_residence'         → "Main Residence"
 'secondary_residence'    → "Secondary Residence"
 'buy_to_let'            → "Buy to Let"
 ```
 
-**❌ FORBIDDEN VALUES - DO NOT USE:**
-- `second_home` (use `secondary_residence` instead)
-- `commercial` (removed from canonical list)
-- `land` (removed from canonical list)
-
-**Files to Update When Adding Property Types:**
-- Frontend: `PropertyForm.vue`, `PropertyCard.vue`, `PropertyList.vue`, `PropertyDetail.vue`, `PropertyTaxCalculator.vue`
-- Backend: `StorePropertyRequest.php`, `UpdatePropertyRequest.php`, `PropertyController.php`
-- Services: `PropertyTaxService.php`
-
-#### Investment Account Types
-
-**Canonical Values** (from `database/migrations/2025_10_14_091658_create_investment_accounts_table.php`):
-```php
-'isa'              → "ISA (Stocks & Shares)"
-'gia'              → "General Investment Account"
-'nsi'              → "NS&I (National Savings & Investments)"
-'onshore_bond'     → "Onshore Bond"
-'offshore_bond'    → "Offshore Bond"
-'vct'              → "VCT"
-'eis'              → "EIS"
-```
+**❌ FORBIDDEN**: `second_home`, `commercial`, `land`
 
 #### Ownership Types (ALL MODULES)
 
-**Canonical Values** (used across Properties, Assets, Investments, Savings):
 ```php
-'individual'       → "Individual" / "Sole Owner"
-'joint'           → "Joint Owner"
-'trust'           → "Trust" / "Held in Trust"
+'individual'       → "Individual"
+'joint'           → "Joint"
+'trust'           → "Trust"
 ```
 
 **❌ FORBIDDEN**: Never use `sole` - always use `individual`
 
-#### Liability Types
+#### Other Canonical Types
 
-**Canonical Values** (from `database/migrations/2025_10_14_075637_create_liabilities_table.php`):
-```php
-'mortgage'        → "Mortgage"
-'loan'           → "Loan"
-'credit_card'    → "Credit Card"
-'other'          → "Other"
-```
+**Investment Account Types**: `isa`, `gia`, `nsi`, `onshore_bond`, `offshore_bond`, `vct`, `eis`
 
-#### Life Insurance Policy Types
+**Liability Types**: `mortgage`, `loan`, `credit_card`, `other`
 
-**Canonical Values** (from `database/migrations/2025_10_13_131230_create_life_insurance_policies_table.php`):
-```php
-'term'                    → "Term"
-'whole_of_life'          → "Whole of Life"
-'decreasing_term'        → "Decreasing Term"
-'family_income_benefit'  → "Family Income Benefit"
-'level_term'             → "Level Term"
-```
+**Life Insurance Types**: `term`, `whole_of_life`, `decreasing_term`, `family_income_benefit`, `level_term`
 
-#### Critical Illness Policy Types
+**Critical Illness Types**: `standalone`, `accelerated`, `additional`
 
-**Canonical Values** (from `database/migrations/2025_10_13_131230_create_critical_illness_policies_table.php`):
-```php
-'standalone'     → "Standalone"
-'accelerated'    → "Accelerated"
-'additional'     → "Additional"
-```
-
-#### Estate Asset Types
-
-**Canonical Values** (from `database/migrations/2025_10_14_075637_create_assets_table.php`):
-```php
-'property'       → "Property"
-'pension'        → "Pension"
-'investment'     → "Investment"
-'business'       → "Business"
-'other'          → "Other"
-```
-
-#### Savings Account Access Types
-
-**Canonical Values** (from `database/migrations/2025_10_14_075511_create_savings_accounts_table.php`):
-```php
-'immediate'      → "Immediate Access"
-'notice'         → "Notice Period"
-'fixed'          → "Fixed Term"
-```
+**Savings Access Types**: `immediate`, `notice`, `fixed`
 
 **ENFORCEMENT RULES:**
 1. **Database is Source of Truth**: Always check migration files first
-2. **No Variations**: If migration says `secondary_residence`, NEVER use `second_home` or `second residence`
-3. **Consistent Labels**: Display labels can vary, but underlying values MUST match database exactly
-4. **Backend Validation**: All Form Requests must validate against canonical values only
-5. **Frontend Forms**: All `<select>` options must use canonical values exactly
-6. **Display Components**: All label mapping objects must use canonical values as keys
-
-**VIOLATION OF THIS RULE CREATES DATA INCONSISTENCIES AND BUGS.**
+2. **No Variations**: If migration says `secondary_residence`, NEVER use `second_home`
+3. **Backend Validation**: All Form Requests must validate against canonical values only
+4. **Frontend Forms**: All `<select>` options must use canonical values exactly
 
 ---
 
@@ -285,9 +142,9 @@ npm run dev
 
 **TenGo** - UK-focused comprehensive financial planning application covering five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
-**Current Version**: v0.2.5
+**Current Version**: v0.2.6 (Beta - Production Ready)
 **Tech Stack**: Laravel 10.x (PHP 8.2+) + Vue.js 3 + MySQL 8.0+ + Memcached
-**Status**: Active Development - Core modules complete with advanced portfolio optimization
+**Status**: All core modules complete, 95% advanced features complete
 
 ---
 
@@ -296,56 +153,27 @@ npm run dev
 ### Agent-Based System
 
 Each module has an **Agent** that orchestrates analysis:
-- **BaseAgent**: Abstract class with common utilities (analyze, generateRecommendations, buildScenarios)
 - **ProtectionAgent**: Life/CI/IP coverage analysis
 - **SavingsAgent**: Emergency fund & ISA tracking
 - **InvestmentAgent**: Portfolio analysis & Monte Carlo simulations
 - **RetirementAgent**: Pension projections & readiness scoring
-- **EstateAgent**: IHT calculations & net worth tracking
 - **CoordinatingAgent**: Cross-module holistic planning
+
+**Note**: Estate module uses direct service architecture (EstateAgent deprecated in favor of IHTCalculationService).
 
 ### Three-Tier Architecture
 
 ```
-┌─────────────────────────────────────┐
-│ Vue.js 3 Frontend (150+ components) │
-│ Vuex stores + ApexCharts + Tailwind │
-└────────────────┬────────────────────┘
-                 │ REST API (Sanctum auth)
-                 ↓
-┌─────────────────────────────────────┐
-│ Laravel 10.x Application Layer      │
-│ 7 Agents + 50+ Services + 39 Models │
-└────────────────┬────────────────────┘
-                 │ Eloquent ORM
-                 ↓
-┌─────────────────────────────────────┐
-│ MySQL 8.0+ (40+ tables)             │
-│ Memcached (expensive calculations)  │
-└─────────────────────────────────────┘
-```
-
-### Request Flow Pattern
-
-```
-Vue Component → JS Service → API Call → Controller → Agent → Services → Models → Database
-                                                        ↓
-Response ← Store Mutation ← Component ← JSON ← Controller ← Calculation Results
+Vue.js 3 Frontend (150+ components)
+        ↓ REST API (80+ endpoints)
+Laravel 10.x Application Layer (6 Agents + 40+ Services)
+        ↓ Eloquent ORM
+MySQL 8.0+ (45+ tables) + Memcached
 ```
 
 ---
 
 ## Essential Development Commands
-
-### First-Time Setup
-
-```bash
-composer install && npm install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan db:seed --class=TaxConfigurationSeeder
-```
 
 ### Running Development Servers
 
@@ -356,7 +184,7 @@ php artisan db:seed --class=TaxConfigurationSeeder
 ./dev.sh
 ```
 
-**Manual (3 separate terminals):**
+**Manual:**
 ```bash
 # Terminal 1 - Laravel Backend (REQUIRED)
 php artisan serve
@@ -368,12 +196,6 @@ npm run dev
 php artisan queue:work database
 ```
 
-**Why both servers?**
-- Laravel (port 8000): Serves backend API and pages
-- Vite (port 5173): Serves frontend assets with HMR
-- Without Laravel: "unable to reach" errors
-- Without Vite: Frontend assets won't load
-
 ### Testing
 
 ```bash
@@ -382,13 +204,6 @@ php artisan queue:work database
 
 # Run specific test suite
 ./vendor/bin/pest --testsuite=Unit
-./vendor/bin/pest --testsuite=Feature
-
-# Run specific test file
-./vendor/bin/pest tests/Unit/Services/Protection/AdequacyScorerTest.php
-
-# Run in parallel (faster)
-./vendor/bin/pest --parallel
 ```
 
 ### Code Formatting
@@ -396,9 +211,6 @@ php artisan queue:work database
 ```bash
 # Run Laravel Pint (PSR-12 formatter)
 ./vendor/bin/pint
-
-# Check without fixing
-./vendor/bin/pint --test
 ```
 
 ---
@@ -408,8 +220,6 @@ php artisan queue:work database
 ### 1. Centralized Tax Configuration (DATABASE-DRIVEN)
 
 **CRITICAL**: All UK tax values are stored in `tax_configurations` table, NOT hardcoded.
-
-**Location**: `app/Services/TaxConfigService.php`
 
 **Usage Pattern**:
 ```php
@@ -421,14 +231,8 @@ class MyService
 
     public function calculate()
     {
-        // Get specific values
         $personalAllowance = $this->taxConfig->getIncomeTax()['personal_allowance'];
         $isaAllowance = $this->taxConfig->getISAAllowances()['annual_allowance'];
-
-        // Get entire sections
-        $incomeTax = $this->taxConfig->getIncomeTax();
-        $iht = $this->taxConfig->getInheritanceTax();
-        $pension = $this->taxConfig->getPensionAllowances();
     }
 }
 ```
@@ -447,14 +251,10 @@ class MyService
 **DO NOT**:
 - ❌ Use `config('uk_tax_config')` - DEPRECATED
 - ❌ Hardcode tax values in services
-- ❌ Access database directly for tax values
 
 **DO**:
 - ✅ Inject TaxConfigService via constructor
 - ✅ Mock TaxConfigService in unit tests
-- ✅ Use specific getter methods
-
-**Admin Panel**: Tax Settings page allows switching between tax years (2021/22 - 2025/26)
 
 ### 2. ISA Allowance Tracking (Cross-Module)
 
@@ -464,12 +264,6 @@ class MyService
 - Aggregates Cash ISAs from Savings module
 - Aggregates S&S ISAs from Investment module
 - Warns when approaching or exceeding limit
-
-**Usage**:
-```php
-$isaUsage = $isaTracker->calculateAllowanceUsage($userId, '2025/26');
-// Returns: ['used' => 15000, 'remaining' => 5000, 'limit' => 20000, 'warning' => false]
-```
 
 ### 3. Asset Ownership Patterns
 
@@ -489,9 +283,9 @@ $table->foreignId('trust_id')->nullable();
 
 ### 4. Spouse Account Management
 
-**Auto-Creation**: New email → creates account with random password, sends welcome email
-**Account Linking**: Existing email → links accounts bidirectionally, sets `marital_status = 'married'`
-**Permissions**: Granular view/edit permissions via `spouse_permissions` table
+- **Auto-Creation**: New email → creates account with random password, sends welcome email
+- **Account Linking**: Existing email → links accounts bidirectionally, sets `marital_status = 'married'`
+- **Permissions**: Granular view/edit permissions via `spouse_permissions` table
 
 ### 5. Polymorphic Holdings System
 
@@ -529,159 +323,30 @@ This enables shared portfolio optimization services across Investment and Retire
 <FormModal @save="handleSubmit" @close="closeModal" />
 ```
 
-**Why**: The `@submit` event conflicts with native form submission, triggering twice. Always use `@save` for custom form modals.
+### 2. Date Field Formatting
 
-### 2. Date Field Formatting - CRITICAL
-
-**⚠️ HTML5 date inputs REQUIRE yyyy-MM-DD format, but Laravel returns ISO 8601 dates**
+**⚠️ HTML5 date inputs REQUIRE yyyy-MM-DD format**
 
 **ALWAYS add a formatDateForInput() helper to components with date fields:**
 
 ```javascript
 formatDateForInput(date) {
   if (!date) return '';
-  try {
-    // If it's already in YYYY-MM-DD format, return it
-    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return date;
-    }
-    // Parse and format the date
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) return '';
-    const year = dateObj.getFullYear();
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  } catch (e) {
-    return '';
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return date;
   }
+  const dateObj = new Date(date);
+  if (isNaN(dateObj.getTime())) return '';
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 ```
 
-**Apply when loading data:**
-```javascript
-// When populating form from database
-this.formData.start_date = this.formatDateForInput(policy.start_date);
-```
+### 3. Currency Formatting
 
-**Files requiring date formatting:**
-- All forms with `type="date"` inputs
-- Onboarding steps loading existing data
-- Edit modals for policies, properties, assets, etc.
-
-**Components already fixed:**
-- PolicyFormModal.vue
-- AssetForm.vue
-- GiftForm.vue
-- TrustForm.vue
-- StatePensionForm.vue
-- WillInfoStep.vue
-- PersonalInfoStep.vue
-- FamilyMemberFormModal.vue
-- PropertyForm.vue
-- DomicileInformationStep.vue
-
-### 3. Dashboard Card Layout Pattern
-
-**Dashboard Grid**: 3-column responsive grid (1 col mobile, 2 cols tablet, 3 cols desktop)
-
-**Card Order** (Dashboard.vue):
-1. Net Worth
-2. Estate Planning
-3. Protection
-4. Trusts
-5. Plans (spans 2 columns)
-6. UK Taxes & Allowances (Admin only)
-
-**Plans Card Special Layout**:
-- **Outer container**: Spans 2 columns on the dashboard grid using `<div class="sm:col-span-2">`
-- **Inner content**: Plan buttons displayed in 2-column grid using `grid grid-cols-2 gap-3`
-- **Card height**: Must use `h-full` class to match height of adjacent cards in the same row
-
-**Pattern**:
-```vue
-<!-- Dashboard.vue -->
-<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-  <!-- Regular cards (1 column each) -->
-  <NetWorthOverviewCard />
-  <EstateOverviewCard />
-  <ProtectionOverviewCard />
-  <TrustsOverviewCard />
-
-  <!-- Plans card spans 2 columns -->
-  <div class="sm:col-span-2">
-    <QuickActions />
-  </div>
-</div>
-
-<!-- QuickActions.vue (Plans card) -->
-<div class="card hover:shadow-lg transition-shadow h-full">
-  <!-- Card header -->
-  <div class="flex items-start justify-between mb-4">...</div>
-
-  <!-- Plan buttons in 2-column grid -->
-  <div class="grid grid-cols-2 gap-3">
-    <button>Protection Plan</button>
-    <button>Estate Plan</button>
-    <button>Investment & Savings Plan</button>
-    <!-- More plan buttons... -->
-  </div>
-</div>
-```
-
-**CRITICAL**:
-- ✅ Plans card spans 2 dashboard columns (using wrapper div with `sm:col-span-2`)
-- ✅ Plan buttons inside arranged in 2 columns (using `grid grid-cols-2`)
-- ✅ Plans card uses `h-full` to match height of Trusts card in same row
-- ❌ DO NOT make all dashboard cards span 2 columns
-- ❌ DO NOT display plan buttons in single column when card spans 2 columns
-
----
-
-## Coding Standards
-
-### PHP (PSR-12 Compliant)
-
-**Naming**:
-- Classes: `PascalCase` (e.g., `ProtectionAgent`, `IHTCalculator`)
-- Methods/Properties: `camelCase` (e.g., `calculateGap()`, `$annualIncome`)
-- Database: `snake_case` (e.g., `user_id`, `sum_assured`)
-
-**Key Rules**:
-- Always use `declare(strict_types=1);`
-- 4 spaces indentation (no tabs)
-- Type hints for parameters and return types
-- Visibility declared for all properties/methods
-
-### MySQL Standards
-
-**Naming**:
-- Tables: `snake_case` (e.g., `life_insurance_policies`, `dc_pensions`)
-- Columns: `snake_case` (e.g., `user_id`, `sum_assured`)
-- Primary keys: `id` (BIGINT UNSIGNED AUTO_INCREMENT)
-- Foreign keys: `{table}_id` (e.g., `user_id`, `investment_account_id`)
-
-**Data Types**:
-- IDs: `BIGINT UNSIGNED`
-- Currency: `DECIMAL(15,2)`
-- Percentages/rates: `DECIMAL(5,4)`
-- Dates: `DATE`, `TIMESTAMP` for timestamps
-
-### Vue.js 3 Standards
-
-**Component Naming**:
-- Multi-word names (e.g., `AssetForm.vue`, `IHTPlanning.vue`)
-- PascalCase in SFC, kebab-case in templates
-
-**Key Rules**:
-- Always use `:key` with `v-for`
-- Never use `v-if` with `v-for` on same element
-- Use shorthand syntax (`:` for `v-bind`, `@` for `v-on`)
-
-**Currency Formatting**:
-- **ALWAYS** use the `formatCurrency()` method for displaying currency values
-- **NEVER** use `.toLocaleString()` or manual string concatenation
-- Standard implementation:
+**ALWAYS** use the `formatCurrency()` method:
 
 ```javascript
 formatCurrency(value) {
@@ -700,15 +365,68 @@ formatCurrency(value) {
 <!-- CORRECT -->
 <p>Total: {{ formatCurrency(totalValue) }}</p>
 
-<!-- WRONG - DO NOT USE -->
+<!-- WRONG -->
 <p>Total: £{{ totalValue.toLocaleString() }}</p>
 ```
 
-**Benefits**:
-- Consistent formatting across the entire application
-- Proper handling of null/undefined values
-- UK-specific currency format (£ symbol, comma separators)
-- No decimal places for whole pound amounts
+### 4. British vs. American Spelling
+
+**CRITICAL RULE**: British English for users, American English for code
+
+#### User-Facing Text (Use British Spelling)
+
+- ✅ Headings: `<h1>Portfolio Optimisation</h1>`
+- ✅ Button labels: `<button>Customise</button>`
+- ✅ Form placeholders: `placeholder="Analyse your data"`
+
+#### Code Syntax (Use American Spelling - DO NOT CHANGE)
+
+- ❌ CSS classes: `class="items-center"` (Tailwind convention)
+- ❌ API routes: `/api/retirement/analyze` (Laravel convention)
+- ❌ Variable names: `optimizationResult`, `colorScheme`
+- ❌ Method names: `analyzePortfolio()`, `optimizeAllocation()`
+
+---
+
+## Coding Standards
+
+### PHP (PSR-12 Compliant)
+
+**Naming**:
+- Classes: `PascalCase` (e.g., `ProtectionAgent`)
+- Methods/Properties: `camelCase` (e.g., `calculateGap()`)
+- Database: `snake_case` (e.g., `user_id`, `sum_assured`)
+
+**Key Rules**:
+- Always use `declare(strict_types=1);`
+- 4 spaces indentation (no tabs)
+- Type hints for parameters and return types
+- Visibility declared for all properties/methods
+
+### MySQL Standards
+
+**Naming**:
+- Tables: `snake_case` (e.g., `life_insurance_policies`)
+- Columns: `snake_case` (e.g., `user_id`, `sum_assured`)
+- Primary keys: `id` (BIGINT UNSIGNED AUTO_INCREMENT)
+- Foreign keys: `{table}_id` (e.g., `user_id`)
+
+**Data Types**:
+- IDs: `BIGINT UNSIGNED`
+- Currency: `DECIMAL(15,2)` or `DOUBLE` for computed values
+- Percentages/rates: `DECIMAL(5,4)`
+- Dates: `DATE`, `TIMESTAMP` for timestamps
+
+### Vue.js 3 Standards
+
+**Component Naming**:
+- Multi-word names (e.g., `AssetForm.vue`, `IHTPlanning.vue`)
+- PascalCase in SFC, kebab-case in templates
+
+**Key Rules**:
+- Always use `:key` with `v-for`
+- Never use `v-if` with `v-for` on same element
+- Use shorthand syntax (`:` for `v-bind`, `@` for `v-on`)
 
 ---
 
@@ -717,19 +435,13 @@ formatCurrency(value) {
 **Active Tax Year**: 2025/26 (configurable via admin panel)
 **Historical Years Available**: 2021/22, 2022/23, 2023/24, 2024/25
 
-**Key Values (2025/26 Example)**:
+**Key Values (2025/26)**:
 - **IHT Rate**: 40% on estate above nil rate band
 - **NRB**: £325,000 (transferable to spouse)
 - **RNRB**: £175,000 (residence nil rate band, transferable)
 - **Pension Annual Allowance**: £60,000 (tapered for high earners)
 - **ISA Annual Allowance**: £20,000 (April 6 - April 5)
 - **Tax Year Period**: April 6 to April 5
-
-**Admin Panel Workflow** (Annual Tax Update):
-1. Before April 6: Duplicate current year, update all tax values
-2. On April 6: Activate new tax year via admin panel
-3. System automatically deactivates previous year
-4. All calculations now use new tax year values
 
 ---
 
@@ -744,7 +456,7 @@ formatCurrency(value) {
 **Pattern**:
 ```php
 Cache::remember("estate_analysis_{$userId}", 3600, function() {
-    return $this->agent->analyze($userId);
+    return $this->service->analyze($userId);
 });
 ```
 
@@ -760,7 +472,7 @@ Cache::forget("estate_analysis_{$userId}");
 ### Unit Test (Pest)
 
 ```php
-use App\Services\Estate\IHTCalculator;
+use App\Services\Estate\IHTCalculationService;
 
 test('calculates IHT liability correctly for single person', function () {
     $user = User::factory()->create();
@@ -771,8 +483,8 @@ test('calculates IHT liability correctly for single person', function () {
 
     $assets = collect([(object)['current_value' => 500000]]);
 
-    $calculator = new IHTCalculator();
-    $result = $calculator->calculateIHTLiability($assets, $profile);
+    $service = new IHTCalculationService($taxConfig);
+    $result = $service->calculateIHTLiability($assets, collect(), $profile);
 
     // Estate: £500k - NRB: £325k = £175k taxable
     // IHT: £175k × 40% = £70k
@@ -793,7 +505,6 @@ test('calculates tax correctly', function () {
             'personal_allowance' => 12570,
             'bands' => [
                 ['name' => 'Basic Rate', 'threshold' => 0, 'rate' => 0.20],
-                ['name' => 'Higher Rate', 'threshold' => 37700, 'rate' => 0.40],
             ],
         ]);
 
@@ -829,19 +540,12 @@ resources/js/
 └── store/modules/[module].js        # Vuex store
 ```
 
-**Tab Structure** (Dashboard):
-1. Current Situation - Data entry forms
-2. Analysis - Charts, calculations, metrics
-3. Recommendations - Generated advice from agent
-4. What-If Scenarios - Scenario modeling
-5. Details - Additional information
-
 ---
 
 ## Key Development Principles
 
 1. **UK-Specific**: Follow UK tax rules, tax year April 6 - April 5
-2. **Agent Pattern**: Encapsulate module logic in Agent classes
+2. **Agent Pattern**: Encapsulate module logic in Agent classes (except Estate)
 3. **Centralized Config**: Never hardcode tax rates; use TaxConfigService
 4. **Data Isolation**: Users only access their own data; always filter by `user_id`
 5. **Caching**: Cache expensive calculations with appropriate TTLs
@@ -849,344 +553,11 @@ resources/js/
 
 ---
 
-## Recent Fixes (November 2025)
-
-### November 10, 2025 - Estate & Investment Bug Fixes ✅
-
-**Summary**: 11 critical bug fixes across Estate, Investment, Protection, and Net Worth modules
-
-**Commit Range**: 135b7f6 → f94fa73 (merge commit)
-
-**Key Fixes**:
-1. **Estate Plan API Field Naming** - Fixed `optimised_recommendation` → `optimized_recommendation` (API uses American spelling)
-2. **Investment Plan Polymorphic Relationships** - Fixed Holdings queries to use `holdable_type`/`holdable_id` instead of non-existent `investment_account_id`
-3. **Property Type Standardisation** - Enforced ONE SOURCE OF TRUTH, removed all `second_home` fallbacks
-4. **Estate Life Policy Strategy** - Added complete `second_death_analysis` structure when spouse data unavailable
-5. **Estate Trust Strategy** - Fixed TrustController to pass all 7 required parameters to calculateIHTLiability()
-6. **Estate Overview Data Loading** - Fixed Dashboard to call appropriate IHT calculation based on marital status
-7. **Estate IHT Math for Married Couples** - Implemented correct second death scenario: combined NRB (£650k), combined RNRB (£350k), no spouse exemption
-8. **Dashboard Estate Values** - Fixed store getters to display current IHT values instead of projected values
-9. **Protection Card Icon** - Changed from document to shield-check icon
-10. **Life Insurance "In Trust" Checkbox** - Added checkbox for policies held in trust (works in onboarding and protection module)
-11. **Git Branch Merge** - Successfully merged feature/investment-financial-planning into main
-
-**Files Modified**: 11 files across backend (Laravel) and frontend (Vue.js)
-
-**Status**: ✅ Complete - All fixes deployed to main branch
-
-**See**: `NOVEMBER_10_2025_FIXES.md` for detailed breakdown of each fix
-
-### November 10, 2025 (Evening) - v0.2.5 Bug Fixes & Help System ✅
-
-**Summary**: 6 critical bug fixes and comprehensive help documentation added
-
-**Version Update**: v0.2.1 → v0.2.5
-
-**Bug Fixes**:
-
-1. **Estate Will Tab Display Fix**
-   - **Issue**: Executor name and date not displaying correctly after data entry
-   - **Root Cause**: Database schema mismatch (missing `executor_name` field, `last_reviewed_date` vs `will_last_updated`)
-   - **Fix**: Created migration to add `executor_name` and rename `last_reviewed_date` to `will_last_updated`, updated WillController validation
-   - **Files**: `database/migrations/2025_11_10_200000_add_executor_name_and_rename_will_date.php`, `app/Http/Controllers/Api/Estate/WillController.php`
-
-2. **Estate Spouse Gifting Timeline Fix**
-   - **Issue**: "Enable data sharing" message showing despite spouse accounts being linked
-   - **Root Cause**: Missing `spouse_permissions` records AND backend checking both `dataSharingEnabled && spouseGifts`
-   - **Fix**: Created spouse permission records for linked accounts, changed condition to just `dataSharingEnabled`
-   - **Files**: `app/Http/Controllers/Api/Estate/IHTController.php`, `app/Services/Estate/GiftingTimelineService.php`
-
-3. **Protection Policies Detection Fix**
-   - **Issue**: Gap Analysis showing "No Protection Policies Added" despite policies entered during onboarding
-   - **Root Cause**: Property naming mismatch - Vuex store uses camelCase but component checked snake_case
-   - **Fix**: Updated `GapAnalysis.vue` to use correct camelCase property names (life, criticalIllness, etc.)
-   - **Files**: `resources/js/components/Protection/GapAnalysis.vue`
-
-4. **Protection Tab Reorganisation**
-   - Renamed "Recommendations" tab to "Strategy"
-   - Removed "What-If Scenarios" tab for cleaner UX
-   - **Files**: `resources/js/views/Protection/ProtectionDashboard.vue`
-
-5. **Spouse Income in Gap Analysis - ARCHITECTURAL FIX**
-   - **Issue**: Spouse income not being included in human capital calculation
-   - **Root Cause**: Spouse income stored in `family_members` table but NOT synced to spouse user's `annual_employment_income` field
-   - **Proper Fix**: Enhanced `FamilyMembersController` to populate spouse user account with income during:
-     - Account creation (new spouse)
-     - Account linking (existing spouse)
-     - Family member updates
-   - **Removed**: Fallback logic checking family_members table (violates single source of truth)
-   - **Files**: `app/Http/Controllers/Api/FamilyMembersController.php`, `app/Services/Protection/CoverageGapAnalyzer.php`
-   - **Database Update**: Backfilled existing spouse user (Ang Jones) with £80,000 income
-   - **Impact**: Maintains single source of truth in users table based on user_id
-
-6. **Education Level Data Flow Fix**
-   - **Issue**: Duplicate education level fields (Personal Information and Health tabs), onboarding data not syncing
-   - **Root Cause**: `processPersonalInfo()` not saving `health_status`, `smoking_status`, `education_level` to users table
-   - **Fix**:
-     - Removed education level field from Personal Information tab
-     - Updated `OnboardingService.processPersonalInfo()` to save all health fields
-     - Backfilled existing user data
-   - **Files**: `resources/js/components/UserProfile/PersonalInformation.vue`, `app/Services/Onboarding/OnboardingService.php`
-
-**New Features**:
-
-7. **Comprehensive Help Documentation System**
-   - Created extensive help page with 12 sections covering all modules
-   - Real-time search functionality across titles, keywords, and content
-   - Sticky sidebar table of contents with smooth scrolling
-   - Active section highlighting
-   - 10 FAQs and comprehensive troubleshooting guide
-   - Contact support information
-   - **Files**: `resources/js/views/Help.vue`, `resources/js/components/Footer.vue`, `resources/js/router/index.js`
-   - **Access**: Footer "Help" link → `/help`
-
-8. **Version Update to v0.2.5**
-   - Updated footer version display
-   - Updated version page with all November 10 bug fixes
-   - Added v0.2.1 to version history
-   - **Files**: `resources/js/components/Footer.vue`, `resources/js/views/Version.vue`
-
-**Technical Improvements**:
-- Database schema improvements (will information, income/expenditure DECIMAL → DOUBLE)
-- Spouse account management enhancements (proper income population)
-- Onboarding service enhancement (health data sync)
-- UI/UX improvements (button placement standardisation)
-- Protection module refinements (Vuex naming, cache invalidation)
-
-**Files Modified**: 9 files across backend and frontend
-
-**Status**: ✅ Complete - Ready for commit
-
-### November 9, 2025 - Data Type and UI Improvements ✅
-
-**Expenditure Data Type Fix**:
-- Changed database columns from `DECIMAL(15,2)` to `DOUBLE` for all income and expenditure fields
-- Updated Eloquent model casts from `'decimal:2'` to `'float'` in User model
-- Migration: `2025_11_09_133324_change_expenditure_columns_to_double.php`
-- **Impact**: All monetary values now serialize as numbers instead of strings, preventing NaN issues
-
-**User Profile UI Improvements**:
-- Moved "Edit Information" button from bottom to top right in all User Profile tabs
-- Affected components: PersonalInformation.vue, IncomeOccupation.vue, DomicileInformation.vue, HealthInformation.vue
-- **Benefit**: Improved UX with consistent button placement
-
-**British Spelling Conversion**:
-- Converted all user-facing text from American to British English spelling
-- **Files Modified**: 252 Vue and JavaScript files
-- **Verification**: Fixed 233 instances of `transition-colours` → `transition-colors`, corrected API endpoint `/analyse` → `/analyze`
-
-**CRITICAL RULE**: British English for users, American English for code
-
-#### User-Facing Text (Use British Spelling)
-
-All text that users see in the interface must use British English:
-
-**Common Conversions**:
-- `-ize` → `-ise` (organise, analyse, optimise, realise, recognise, customise)
-- `-or` → `-our` (colour, behaviour, favour, neighbour)
-- `-er` → `-re` (centre, fibre, theatre)
-- Additional: travelling, cancelled, defence, offence
-
-**Where to Apply British Spelling**:
-- ✅ Headings: `<h1>`, `<h2>`, `<h3>`, etc.
-- ✅ Body text: `<p>`, `<span>`, `<li>`, `<div>` text content
-- ✅ Labels: `<label>` text
-- ✅ Button text: `<button>` content
-- ✅ Form inputs: `placeholder=""` attributes
-- ✅ HTML attributes: `title=""`, `aria-label=""` (user-facing only)
-- ✅ Tab labels: `{ id: 'tab', label: 'Portfolio Optimisation' }`
-- ✅ Dropdown options: `<option>` text content
-- ✅ Error/success messages displayed to users
-- ✅ Tooltips and help text
-
-**Example**:
-```vue
-<!-- CORRECT -->
-<h2>Portfolio Optimisation</h2>
-<p>Analyse your portfolio and optimise returns</p>
-<button>Customise Settings</button>
-<label>Colour Scheme</label>
-<option>From Portfolio Optimisation</option>
-```
-
-#### Code Syntax (Use American Spelling - DO NOT CHANGE)
-
-All code-related text must remain in American English:
-
-**NEVER Change These**:
-- ❌ CSS class names: `items-center`, `justify-center`, `text-center`, `transition-colors` (Tailwind convention)
-- ❌ JavaScript properties: `behavior: 'smooth'`, `color: '#fff'` (ECMAScript standard)
-- ❌ API route endpoints: `/api/retirement/analyze`, `/optimization` (Laravel routing convention)
-- ❌ Variable names: `optimizationResult`, `centerPoint`, `colorScheme`
-- ❌ Object keys: `{ id: 'optimization', value: 123 }`
-- ❌ Router parameters: `to="/investment?tab=optimization"`
-- ❌ Component file names: `PortfolioOptimization.vue`, `ColorPicker.vue` (coding convention)
-- ❌ Import statements: `import { analyze } from './analyzer'`
-- ❌ Method names: `analyzePortfolio()`, `optimizeAllocation()`
-- ❌ CSS/SCSS property names: `text-align: center`, `background-color`
-- ❌ JavaScript comparisons: `if (activeTab === 'optimization')`
-- ❌ Computed properties: `computed: { optimization() { ... } }`
-
-**Example**:
-```vue
-<!-- CORRECT - Code syntax in American English -->
-<template>
-  <div class="flex items-center justify-center">
-    <router-link to="/investment?tab=optimization">
-      View Optimisation
-    </router-link>
-  </div>
-</template>
-
-<script>
-export default {
-  data() {
-    return {
-      optimizationResult: null, // Variable name (code)
-    };
-  },
-  methods: {
-    analyzeData() { // Method name (code)
-      // User message (British)
-      this.message = 'Analysing your portfolio optimisation';
-    }
-  }
-}
-</script>
-
-<style>
-.center-text { /* Class name (code) */
-  text-align: center; /* CSS property (code) */
-  color: blue; /* CSS property (code) */
-}
-</style>
-```
-
-#### Quick Reference
-
-| Context | Spelling | Example |
-|---------|----------|---------|
-| HTML text content | **British** | `<h1>Portfolio Optimisation</h1>` |
-| Button labels | **British** | `<button>Customise</button>` |
-| CSS classes | **American** | `class="items-center"` |
-| JavaScript variables | **American** | `const optimizationResult = ...` |
-| API routes | **American** | `/api/retirement/analyze` |
-| Tab labels (user-facing) | **British** | `label: 'Optimisation'` |
-| Router links (code) | **American** | `to="/investment?tab=optimization"` |
-
-**Files Modified**: 252 Vue and JavaScript files (user-facing text only)
-
-**Verification**:
-- 21 instances of "optimization" → "optimisation" in user-facing text
-- 178 Vue files with CSS class corrections
-- 233 instances of `transition-colours` → `transition-colors` fixed
-- API endpoint fixed: `/analyse` → `/analyze` (code convention)
-
-## Recent Fixes (November 2025)
-
-### November 12, 2025 - Estate Module Refactor & Investment/Retirement Cleanup ✅
-
-**Summary**: Major refactor of Estate module architecture, removal of deprecated agent pattern, and comprehensive fixes across Investment and Retirement modules
-
-**Commit**: d4089bc - "refactor: Major Estate module cleanup and Investment/Retirement fixes"
-
-**Estate Module Refactor**:
-
-1. **Removed Deprecated Agent Pattern**
-   - Deleted `EstateAgent.php` - agent pattern deprecated in favor of direct service usage
-   - Removed old IHT calculation services: `GiftingStrategy.php`, `IHTCalculator.php`, `SecondDeathIHTCalculator.php`
-   - Added new `IHTCalculationService.php` with database persistence
-   - **Impact**: Cleaner architecture, single source of truth for IHT calculations
-
-2. **New Database-Driven IHT Calculations**
-   - Added `ActuarialLifeTable` model and seeder (ONS 2020-2022 life expectancy data)
-   - Added `IHTCalculation` model for storing projected IHT liabilities
-   - Migrations:
-     - `2025_11_11_213041_create_actuarial_life_tables_table.php`
-     - `2025_11_11_213138_create_iht_calculations_table.php`
-     - `2025_11_11_213929_add_projected_values_to_iht_calculations_table.php`
-   - Seeder: `ActuarialLifeTablesSeeder.php`
-
-3. **Removed Legacy Estate Components**
-   - Deleted `Recommendations.vue`, `WhatIfScenarios.vue`, `SurvivingSpouseIHTPlanning.vue`
-   - Simplified `EstateDashboard.vue` to use new IHT calculation structure
-   - Updated `WillPlanning.vue` to use new data structure
-   - **Benefit**: Cleaner UI, less confusing for users
-
-4. **Controller Updates**
-   - `GiftingController.php` - Updated to use new IHT calculation structure
-   - `LifePolicyController.php` - Updated to use new IHT data keys
-   - `TrustController.php` - Fixed to pass all 7 required parameters to calculateIHTLiability()
-   - `EstateController.php` - Updated to use new IHTCalculationService
-   - `PropertyController.php` - Consistency updates
-
-**Investment Module Fixes**:
-
-5. **DateTime/Carbon Type Issues**
-   - **Issue**: Carbon objects passed to DateTime constructor (type error)
-   - **Files Fixed**:
-     - `AssetLocationOptimizer.php:103` - Changed `new \DateTime($user->date_of_birth)` to `\Carbon\Carbon::parse($user->date_of_birth)->age`
-     - `AssetLocationController.php:328` - Same fix
-   - **Root Cause**: Laravel automatically casts `date_of_birth` to Carbon, can't pass to DateTime constructor
-
-6. **Polymorphic Relationship Fixes**
-   - **Issue**: Code accessing `investmentAccount` directly instead of polymorphic `holdable` relationship
-   - **Error**: "Column not found: 1054 Unknown column 'holdable_type' in 'where clause'"
-   - **Files Fixed**:
-     - `TaxDragCalculator.php:36, 229` - Changed `$holding->investmentAccount` to `$holding->holdable`
-     - `AccountTypeRecommender.php:95, 148` - Same fix with fallback `$account->account_type ?? 'sipp'`
-     - `FeeAnalyzer.php:190` - Same fix
-   - **Pattern**: `$account = $holding->holdable; $accountType = $account->account_type ?? 'sipp';`
-
-7. **American/British Spelling Consistency**
-   - **Issue**: `[vuex] unknown action type: retirement/analyzeInvestment`
-   - **Fix**: `InvestmentDashboard.vue:251` - Changed `analyzeInvestment` to `analyseInvestment` (British spelling)
-
-**Retirement Module Cleanup**:
-
-8. **Removed Readiness Metrics**
-   - Removed readiness score, income gap, retirement gauge, and readiness breakdown from `RetirementReadiness.vue`
-   - Simplified to show only Years to Retirement and Projected Income placeholders
-   - **Reason**: Metrics were confusing and not providing value to users
-
-**Savings Module Cleanup**:
-
-9. **Removed What-If Scenarios**
-   - Removed What-If Scenarios tab from `SavingsDashboard.vue`
-   - **Reason**: Feature not fully implemented and confusing for users
-
-**Documentation Cleanup**:
-
-10. **Organized Deployment Docs**
-    - Moved all deployment-related markdown files to `deployment/` folder
-    - Removed obsolete session summaries and fix tracking docs
-    - Kept deployment guides and approval documentation organized
-
-**Technical Debt Resolved**:
-- Fixed polymorphic relationship access pattern across Investment services (5 locations)
-- Fixed DateTime/Carbon type issues (2 locations)
-- Fixed American/British spelling inconsistencies in method calls
-- Removed deprecated agent pattern in Estate module
-- Consolidated IHT calculation logic into single service with database persistence
-- Removed 14,985 lines of code, added 2,492 lines (net -12,493 lines)
-
-**Files Modified**: 71 files
-- 17 files deleted (legacy docs and obsolete services)
-- 7 new files added (models, migrations, seeders)
-- 47 files modified (controllers, services, views)
-
-**Status**: ✅ Complete - Pushed to main
-
----
-
 ## Known Issues
 
 **Status**: ✅ No known issues at this time.
 
-All core modules are fully functional. Previously tracked issues have been resolved:
-- ✅ **Protection Policies Onboarding** - Fixed (response structure parsing corrected)
-
-If you encounter any bugs, please use the `systematic-debugging` skill to investigate before implementing fixes.
+All core modules are fully functional. If you encounter any bugs, please use the `systematic-debugging` skill to investigate before implementing fixes.
 
 ---
 
@@ -1197,9 +568,9 @@ If you encounter any bugs, please use the `systematic-debugging` skill to invest
 
 ---
 
-**Current Version**: v0.2.5 (Beta)
-**Last Updated**: November 10, 2025
-**Status**: 🚀 Active Development - Core Modules Complete
+**Current Version**: v0.2.6 (Beta - Production Ready)
+**Last Updated**: November 12, 2025
+**Status**: 🚀 Active Development - All Core Features Complete
 
 ---
 

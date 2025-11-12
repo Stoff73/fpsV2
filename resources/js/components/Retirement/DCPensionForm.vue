@@ -183,6 +183,25 @@
             <p class="text-xs text-gray-500 mt-1">Fixed monthly contribution amount</p>
           </div>
 
+          <!-- Personal/SIPP: Lump Sum Contribution (Carry Forward) -->
+          <div v-if="isPersonalPension">
+            <label for="lump_sum_contribution" class="block text-sm font-medium text-gray-700 mb-2">
+              Lump Sum Contribution (£) <span class="text-gray-500 text-xs">(Optional)</span>
+            </label>
+            <input
+              id="lump_sum_contribution"
+              v-model.number="formData.lump_sum_contribution"
+              type="number"
+              step="0.01"
+              min="0"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="e.g., 10000.00"
+            />
+            <p class="text-xs text-gray-500 mt-1">
+              One-off lump sum payment to take advantage of carry forward allowances
+            </p>
+          </div>
+
           <!-- Expected Return and Retirement Age -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -295,6 +314,7 @@ export default {
         employee_contribution_percent: null,
         employer_contribution_percent: null,
         monthly_contribution_amount: null,
+        lump_sum_contribution: null,
         expected_return_percent: 5.0,
         retirement_age: null, // Will be populated from user profile
         salary_sacrifice: false,

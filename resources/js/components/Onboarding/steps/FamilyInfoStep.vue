@@ -310,6 +310,9 @@ export default {
           },
         });
 
+        // Refresh user data to ensure it's available when navigating back
+        await store.dispatch('auth/fetchUser');
+
         emit('next');
       } catch (err) {
         error.value = 'Failed to save family information. Please try again.';
@@ -327,7 +330,20 @@ export default {
     };
 
     onMounted(async () => {
+      // Ensure we have latest user data from backend
+      try {
+        await store.dispatch('auth/fetchUser');
+      } catch (err) {
+        console.error('Failed to fetch current user:', err);
+      }
+
       await loadFamilyMembers();
+
+      // Load existing charitable bequest value from user profile
+      const user = store.state.auth.user;
+      if (user && user.charitable_bequest !== undefined) {
+        charitableBequest.value = user.charitable_bequest;
+      }
     });
 
     return {

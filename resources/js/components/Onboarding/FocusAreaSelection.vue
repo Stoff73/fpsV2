@@ -28,7 +28,7 @@
             <svg class="w-5 h-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
-            <span><strong>Retirement Planning:</strong> Project pension pots and ensure retirement readiness</span>
+            <span><strong>Retirement Planning:</strong> Manage your pensions, track your retirement goals, optimise your retirement income</span>
           </li>
           <li class="flex items-start">
             <svg class="w-5 h-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,6 +41,12 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
             <span><strong>Tax Optimisation:</strong> Optimise your tax in line with your current financial situation</span>
+          </li>
+          <li class="flex items-start">
+            <svg class="w-5 h-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span><strong>Document Repository:</strong> Upload key financial documents for secure organisation and access for key individuals</span>
           </li>
         </ul>
       </div>

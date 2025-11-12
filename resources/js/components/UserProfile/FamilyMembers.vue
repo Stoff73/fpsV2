@@ -132,6 +132,22 @@
       </button>
     </div>
 
+    <!-- Charitable Bequest -->
+    <div class="card p-6 mt-6">
+      <h3 class="text-h5 font-semibold text-gray-900 mb-4">Charitable Bequest</h3>
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-body text-gray-700 mb-1">Do you wish to leave anything to charity?</p>
+          <p class="text-body-sm text-gray-500">
+            Leaving 10% or more to charity can reduce your IHT rate from 40% to 36%
+          </p>
+        </div>
+        <div class="text-body font-medium" :class="charitableBequest ? 'text-green-600' : 'text-gray-600'">
+          {{ charitableBequest ? 'Yes' : charitableBequest === false ? 'No' : 'Not set' }}
+        </div>
+      </div>
+    </div>
+
     <!-- Family Member Form Modal -->
     <FamilyMemberFormModal
       v-if="showModal"
@@ -191,6 +207,7 @@ export default {
     const temporaryPassword = ref(null);
 
     const familyMembers = computed(() => store.getters['userProfile/familyMembers']);
+    const charitableBequest = computed(() => store.state.auth.user?.charitable_bequest);
 
     const formatDate = (dateString) => {
       if (!dateString) return 'N/A';
@@ -342,6 +359,7 @@ export default {
 
     return {
       familyMembers,
+      charitableBequest,
       showModal,
       selectedMember,
       successMessage,

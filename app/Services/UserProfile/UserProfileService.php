@@ -83,12 +83,14 @@ class UserProfileService
                     'annual_self_employment_income' => $user->annual_self_employment_income,
                     'annual_rental_income' => $this->calculateAnnualRentalIncome($user),
                     'annual_dividend_income' => $user->annual_dividend_income,
+                    'annual_interest_income' => $user->annual_interest_income,
                     'annual_other_income' => $user->annual_other_income,
                     'total_annual_income' => (
                         ($user->annual_employment_income ?? 0) +
                         ($user->annual_self_employment_income ?? 0) +
                         $this->calculateAnnualRentalIncome($user) +
                         ($user->annual_dividend_income ?? 0) +
+                        ($user->annual_interest_income ?? 0) +
                         ($user->annual_other_income ?? 0)
                     ),
                 ],
@@ -97,6 +99,7 @@ class UserProfileService
                     (float) ($user->annual_self_employment_income ?? 0),
                     (float) $this->calculateAnnualRentalIncome($user),
                     (float) ($user->annual_dividend_income ?? 0),
+                    (float) ($user->annual_interest_income ?? 0),
                     (float) ($user->annual_other_income ?? 0)
                 )
             ),

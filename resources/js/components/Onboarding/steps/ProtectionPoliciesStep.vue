@@ -55,6 +55,13 @@
                 <span class="text-body-sm px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
                   {{ policy.provider }}
                 </span>
+                <!-- Life Policy Type Tag (only for life insurance) -->
+                <span
+                  v-if="isLifeInsurancePolicy(policy) && policy.life_policy_type"
+                  class="text-body-sm px-2 py-0.5 bg-green-100 text-green-700 rounded"
+                >
+                  {{ getLifePolicyTypeLabel(policy.life_policy_type) }}
+                </span>
               </div>
               <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
                 <div>
@@ -158,6 +165,20 @@ export default {
       return labels[type] || type;
     };
 
+    const isLifeInsurancePolicy = (policy) => {
+      const type = policy.policyType || policy.policy_type;
+      return type === 'life';
+    };
+
+    const getLifePolicyTypeLabel = (lifePolicyType) => {
+      const labels = {
+        decreasing_term: 'Decreasing Term',
+        level_term: 'Level Term',
+        whole_of_life: 'Whole of Life',
+      };
+      return labels[lifePolicyType] || lifePolicyType;
+    };
+
     onMounted(async () => {
       await loadPolicies();
     });
@@ -179,7 +200,12 @@ export default {
         // API returns snake_case keys: life_insurance, critical_illness, etc.
         if (policyData?.life_insurance && Array.isArray(policyData.life_insurance)) {
           console.log('Adding life policies:', policyData.life_insurance.length);
-          allPolicies.push(...policyData.life_insurance.map(p => ({ ...p, policyType: 'life', policy_type: 'life' })));
+          allPolicies.push(...policyData.life_insurance.map(p => ({
+            ...p,
+            policyType: 'life',
+            life_policy_type: p.policy_type, // Preserve the actual life policy type
+            policy_type: 'life' // Override for general policy type
+          })));
         }
         if (policyData?.critical_illness && Array.isArray(policyData.critical_illness)) {
           console.log('Adding CI policies:', policyData.critical_illness.length);
@@ -361,6 +387,8 @@ export default {
       error,
       hasNoPolicies,
       getPolicyTypeLabel,
+      isLifeInsurancePolicy,
+      getLifePolicyTypeLabel,
       editPolicy,
       deletePolicy,
       closeForm,

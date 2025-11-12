@@ -58,6 +58,23 @@
               </select>
             </div>
 
+            <!-- Life Policy Type (appears when Life Insurance is selected) -->
+            <div v-if="showLifePolicyType">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Life Policy Type <span class="text-red-500">*</span>
+              </label>
+              <select
+                v-model="formData.life_policy_type"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select life policy type...</option>
+                <option value="decreasing_term">Decreasing Life Policy</option>
+                <option value="level_term">Level Term Life Policy</option>
+                <option value="whole_of_life">Whole of Life Policy</option>
+              </select>
+            </div>
+
             <!-- Provider -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -104,6 +121,52 @@
               </div>
             </div>
 
+            <!-- Decreasing Policy Fields -->
+            <div v-if="showDecreasingFields" class="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p class="text-sm text-blue-800 font-medium">Decreasing Policy Details</p>
+
+              <!-- Start Value -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Start Value <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2.5 text-gray-500">£</span>
+                  <input
+                    v-model.number="formData.start_value"
+                    type="number"
+                    step="1000"
+                    required
+                    min="1000"
+                    class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g., 500000"
+                  />
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Initial coverage amount at policy start</p>
+              </div>
+
+              <!-- Decreasing Rate -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Decreasing Rate (Annual %) <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <input
+                    v-model.number="formData.decreasing_rate"
+                    type="number"
+                    step="0.01"
+                    required
+                    min="0"
+                    max="100"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g., 5.0"
+                  />
+                  <span class="absolute right-3 top-2.5 text-gray-500">%</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Annual percentage rate at which coverage decreases</p>
+              </div>
+            </div>
+
             <!-- Premium Amount -->
             <div class="grid grid-cols-2 gap-4">
               <div>
@@ -139,34 +202,36 @@
               </div>
             </div>
 
-            <!-- Start Date -->
-            <div>
+            <!-- Start Date (conditional for life insurance) -->
+            <div v-if="showStartDate">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Start Date
+                Start Date <span v-if="showDecreasingFields" class="text-red-500">*</span>
               </label>
               <input
                 v-model="formData.start_date"
                 type="date"
+                :required="showDecreasingFields"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
             <!-- Term Years (for Life and Critical Illness) -->
-            <div v-if="showTermYears">
+            <div v-if="isLifeInsurance ? showTermYearsForLifePolicy : showTermYears">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Policy Term (years)
+                Policy Term (years) <span v-if="showDecreasingFields" class="text-red-500">*</span>
               </label>
               <input
                 v-model.number="formData.term_years"
                 type="number"
                 min="1"
+                :required="showDecreasingFields"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="e.g., 20"
               />
             </div>
 
             <!-- Calculated End Date (for Life and Critical Illness) -->
-            <div v-if="showTermYears && calculatedEndDate">
+            <div v-if="(isLifeInsurance ? showTermYearsForLifePolicy : showTermYears) && calculatedEndDate">
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Policy End Date (Calculated)
               </label>
@@ -196,6 +261,108 @@
               </div>
               <p class="text-xs text-gray-500 mt-1 ml-6">
                 Policies held in trust can help reduce inheritance tax liability
+              </p>
+            </div>
+
+            <!-- Beneficiaries (for Life Insurance) -->
+            <div v-if="isLifeInsurance" class="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p class="text-sm text-blue-800 font-medium">Beneficiary Details</p>
+
+              <!-- Beneficiary Selection -->
+              <div>
+                <label for="beneficiary_selection" class="block text-sm font-medium text-gray-700 mb-1">
+                  Beneficiary <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="beneficiary_selection"
+                  v-model="beneficiarySelection"
+                  @change="handleBeneficiarySelection"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select beneficiary...</option>
+                  <option v-if="spouseOption" :value="'linked_' + spouseOption.id">
+                    {{ spouseOption.name }} (Spouse - Linked Account)
+                  </option>
+                  <option value="other">Add Beneficiary</option>
+                </select>
+              </div>
+
+              <!-- Free Text Beneficiary Name (when "Add Beneficiary" selected) -->
+              <div v-if="beneficiarySelection === 'other'">
+                <label for="beneficiary_name" class="block text-sm font-medium text-gray-700 mb-1">
+                  Beneficiary Name <span class="text-red-500">*</span>
+                </label>
+                <input
+                  id="beneficiary_name"
+                  v-model="formData.beneficiary_name"
+                  type="text"
+                  required
+                  placeholder="Enter beneficiary's full name"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p class="text-xs text-gray-500 mt-1">
+                  Note: This person doesn't have an account in the system.
+                </p>
+              </div>
+
+              <!-- Beneficiary Percentage (shows when beneficiary selected) -->
+              <div v-if="beneficiarySelection">
+                <label for="beneficiary_percentage" class="block text-sm font-medium text-gray-700 mb-1">
+                  Beneficiary Share (%) <span class="text-red-500">*</span>
+                </label>
+                <input
+                  id="beneficiary_percentage"
+                  v-model.number="formData.beneficiary_percentage"
+                  type="number"
+                  min="1"
+                  max="100"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p class="text-xs text-gray-500 mt-1">
+                  Enter the percentage share for this beneficiary (1-100%).
+                </p>
+              </div>
+
+              <!-- Percentage Split Display -->
+              <div v-if="beneficiarySelection" class="bg-white p-3 rounded border border-blue-300">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="text-sm font-medium text-gray-700">Primary Beneficiary</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ formData.beneficiary_percentage || 0 }}%</p>
+                  </div>
+                  <div v-if="remainingBeneficiaryPercentage > 0" class="text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                  </div>
+                  <div v-if="remainingBeneficiaryPercentage > 0" class="text-right">
+                    <p class="text-sm font-medium text-gray-700">Remaining</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ remainingBeneficiaryPercentage }}%</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Additional Beneficiaries (only shows when percentage < 100%) -->
+              <div v-if="showAdditionalBeneficiaries">
+                <label for="additional_beneficiaries" class="block text-sm font-medium text-gray-700 mb-1">
+                  Additional Beneficiaries
+                </label>
+                <textarea
+                  id="additional_beneficiaries"
+                  v-model="formData.additional_beneficiaries"
+                  rows="2"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Children: 30% split, Charity: 10%"
+                ></textarea>
+                <p class="text-xs text-gray-500 mt-1">
+                  Specify additional beneficiaries and their share of the remaining {{ remainingBeneficiaryPercentage }}%.
+                </p>
+              </div>
+
+              <p class="text-xs text-gray-500">
+                Linked accounts will be notified and benefits will appear in their accounts.
               </p>
             </div>
 
@@ -311,16 +478,24 @@ export default {
   data() {
     return {
       submitting: false,
+      familyMembers: [],
+      beneficiarySelection: '',
       formData: {
         policyType: '',
+        life_policy_type: '',
         provider: '',
         policy_number: '',
         coverage_amount: 0,
+        start_value: 0,
+        decreasing_rate: 0,
         premium_amount: 0,
         premium_frequency: 'monthly',
         start_date: '',
         term_years: null,
         in_trust: false,
+        beneficiary_name: '',
+        beneficiary_percentage: 100,
+        additional_beneficiaries: '',
         benefit_frequency: 'monthly',
         deferred_period_weeks: null,
         benefit_period_months: null,
@@ -364,6 +539,51 @@ export default {
       return type === 'disability';
     },
 
+    isLifeInsurance() {
+      const type = this.formData.policyType || this.policy?.policy_type;
+      return type === 'life';
+    },
+
+    showLifePolicyType() {
+      return this.isLifeInsurance;
+    },
+
+    showDecreasingFields() {
+      return this.isLifeInsurance && this.formData.life_policy_type === 'decreasing_term';
+    },
+
+    showStartDate() {
+      if (!this.isLifeInsurance) return true; // Other policies always show start date
+      const lifeType = this.formData.life_policy_type;
+      // Show for decreasing_term and term, hide for whole_of_life
+      return lifeType === 'decreasing_term' || lifeType === 'term' || lifeType === 'level_term';
+    },
+
+    showTermYearsForLifePolicy() {
+      if (!this.isLifeInsurance) return false;
+      const lifeType = this.formData.life_policy_type;
+      // Show for all except whole_of_life
+      return lifeType !== 'whole_of_life';
+    },
+
+    spouseOption() {
+      if (!Array.isArray(this.familyMembers)) {
+        return null;
+      }
+      const spouse = this.familyMembers.find(m => m.relationship === 'spouse');
+      return spouse ? { id: spouse.id, name: `${spouse.first_name} ${spouse.last_name}` } : null;
+    },
+
+    remainingBeneficiaryPercentage() {
+      return 100 - (this.formData.beneficiary_percentage || 0);
+    },
+
+    showAdditionalBeneficiaries() {
+      return this.isLifeInsurance &&
+             this.beneficiarySelection &&
+             this.formData.beneficiary_percentage < 100;
+    },
+
     calculatedEndDate() {
       if (!this.formData.start_date || !this.formData.term_years) {
         return null;
@@ -390,13 +610,35 @@ export default {
     },
   },
 
-  mounted() {
+  async mounted() {
+    await this.loadFamilyMembers();
     if (this.isEditing && this.policy) {
       this.loadPolicyData();
     }
   },
 
   methods: {
+    async loadFamilyMembers() {
+      try {
+        const familyMembersService = (await import('@/services/familyMembersService')).default;
+        const response = await familyMembersService.getFamilyMembers();
+        this.familyMembers = response.data?.family_members || [];
+      } catch (error) {
+        console.error('Error loading family members:', error);
+        this.familyMembers = [];
+      }
+    },
+
+    handleBeneficiarySelection() {
+      // When user selects a linked spouse, populate the name
+      if (this.beneficiarySelection.startsWith('linked_') && this.spouseOption) {
+        this.formData.beneficiary_name = this.spouseOption.name;
+      } else if (this.beneficiarySelection === 'other') {
+        // Clear the name so user can enter their own
+        this.formData.beneficiary_name = '';
+      }
+    },
+
     formatDateForInput(date) {
       if (!date) return '';
       try {
@@ -419,14 +661,19 @@ export default {
     loadPolicyData() {
       this.formData = {
         policyType: this.policy.policy_type,
+        life_policy_type: this.policy.life_policy_type || '',
         provider: this.policy.provider || '',
         policy_number: this.policy.policy_number || '',
         coverage_amount: this.policy.sum_assured || this.policy.benefit_amount || 0,
+        start_value: this.policy.start_value || 0,
+        decreasing_rate: this.policy.decreasing_rate || 0,
         premium_amount: this.policy.premium_amount || 0,
         premium_frequency: this.policy.premium_frequency || 'monthly',
-        start_date: this.formatDateForInput(this.policy.start_date),
-        term_years: this.policy.term_years || null,
+        start_date: this.formatDateForInput(this.policy.start_date || this.policy.policy_start_date),
+        term_years: this.policy.term_years || this.policy.policy_term_years || null,
         in_trust: this.policy.in_trust || false,
+        beneficiaries: this.policy.beneficiaries || '',
+        additional_beneficiaries: '',
         benefit_frequency: this.policy.benefit_frequency || 'monthly',
         deferred_period_weeks: this.policy.deferred_period_weeks || null,
         benefit_period_months: this.policy.benefit_period_months || null,
@@ -460,12 +707,40 @@ export default {
 
       // Add coverage amount with correct field name
       if (type === 'life') {
-        data.policy_type = 'term'; // Default to term life insurance
+        data.policy_type = this.formData.life_policy_type || 'term'; // Use selected life policy type
         data.sum_assured = this.formData.coverage_amount;
-        data.policy_term_years = this.formData.term_years || 20; // Default to 20 years if not provided
-        data.policy_start_date = this.formData.start_date || new Date().toISOString().split('T')[0];
+
+        // Add decreasing policy fields
+        if (this.formData.life_policy_type === 'decreasing_term') {
+          data.start_value = this.formData.start_value;
+          // Convert percentage to decimal (e.g., 5% becomes 0.05)
+          data.decreasing_rate = this.formData.decreasing_rate / 100;
+        }
+
+        // Add dates and term based on policy type
+        if (this.formData.life_policy_type === 'whole_of_life') {
+          // Whole of life policies: use start date or today, and set term to 50 years (max allowed, represents lifetime coverage)
+          data.policy_start_date = this.formData.start_date || new Date().toISOString().split('T')[0];
+          data.policy_term_years = 50; // Max allowed value representing lifetime coverage
+        } else {
+          // Term-based policies
+          data.policy_start_date = this.formData.start_date || new Date().toISOString().split('T')[0];
+          data.policy_term_years = this.formData.term_years || 20; // Default to 20 years if not provided
+        }
+
         data.in_trust = this.formData.in_trust || false;
-        data.beneficiaries = this.formData.notes || null;
+
+        // Build beneficiaries string
+        let beneficiaries = '';
+        if (this.formData.beneficiary_name) {
+          beneficiaries = `${this.formData.beneficiary_name}: ${this.formData.beneficiary_percentage}%`;
+        }
+        if (this.formData.additional_beneficiaries) {
+          beneficiaries = beneficiaries
+            ? `${beneficiaries}, ${this.formData.additional_beneficiaries}`
+            : this.formData.additional_beneficiaries;
+        }
+        data.beneficiaries = beneficiaries || null;
       } else if (type === 'criticalIllness') {
         data.policy_type = 'standalone'; // Default to standalone critical illness
         data.sum_assured = this.formData.coverage_amount;

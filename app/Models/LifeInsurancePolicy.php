@@ -23,6 +23,8 @@ class LifeInsurancePolicy extends Model
         'provider',
         'policy_number',
         'sum_assured',
+        'start_value',
+        'decreasing_rate',
         'premium_amount',
         'premium_frequency',
         'policy_start_date',
@@ -39,6 +41,8 @@ class LifeInsurancePolicy extends Model
      */
     protected $casts = [
         'sum_assured' => 'decimal:2',
+        'start_value' => 'decimal:2',
+        'decreasing_rate' => 'decimal:4',
         'premium_amount' => 'decimal:2',
         'indexation_rate' => 'decimal:4',
         'policy_start_date' => 'date',

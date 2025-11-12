@@ -30,6 +30,7 @@ class UKTaxCalculator
      * @param  float  $selfEmploymentIncome  Self-employment income
      * @param  float  $rentalIncome  Rental income (property)
      * @param  float  $dividendIncome  Dividend income
+     * @param  float  $interestIncome  Interest income (savings)
      * @param  float  $otherIncome  Other taxable income
      * @return array Net income breakdown with tax and NI details
      */
@@ -38,13 +39,14 @@ class UKTaxCalculator
         float $selfEmploymentIncome = 0,
         float $rentalIncome = 0,
         float $dividendIncome = 0,
+        float $interestIncome = 0,
         float $otherIncome = 0
     ): array {
-        $grossIncome = $employmentIncome + $selfEmploymentIncome + $rentalIncome + $dividendIncome + $otherIncome;
+        $grossIncome = $employmentIncome + $selfEmploymentIncome + $rentalIncome + $dividendIncome + $interestIncome + $otherIncome;
 
-        // Calculate Income Tax (non-dividend income)
-        $nonDividendIncome = $employmentIncome + $selfEmploymentIncome + $rentalIncome + $otherIncome;
-        $incomeTax = $this->calculateIncomeTax($nonDividendIncome, $dividendIncome);
+        // Calculate Income Tax (including interest and dividend income)
+        $nonDividendNonInterestIncome = $employmentIncome + $selfEmploymentIncome + $rentalIncome + $otherIncome;
+        $incomeTax = $this->calculateIncomeTax($nonDividendNonInterestIncome, $interestIncome, $dividendIncome);
 
         // Calculate National Insurance
         $class1NI = $this->calculateClass1NI($employmentIncome); // Employees
@@ -66,6 +68,7 @@ class UKTaxCalculator
                 'self_employment_income' => round($selfEmploymentIncome, 2),
                 'rental_income' => round($rentalIncome, 2),
                 'dividend_income' => round($dividendIncome, 2),
+                'interest_income' => round($interestIncome, 2),
                 'other_income' => round($otherIncome, 2),
                 'class_1_ni' => round($class1NI, 2),
                 'class_4_ni' => round($class4NI, 2),
@@ -78,9 +81,10 @@ class UKTaxCalculator
      * Supports:
      * - Income tax bands (basic, higher, additional)
      * - Personal allowance
+     * - Personal Savings Allowance (£1,000 basic rate, £500 higher rate, £0 additional rate)
      * - Dividend allowance and dividend-specific rates
      */
-    private function calculateIncomeTax(float $nonDividendIncome, float $dividendIncome): float
+    private function calculateIncomeTax(float $nonDividendNonInterestIncome, float $interestIncome, float $dividendIncome): float
     {
         // Get tax configuration from service
         $incomeTax = $this->taxConfig->getIncomeTax();
@@ -110,9 +114,12 @@ class UKTaxCalculator
 
         $tax = 0;
 
-        // Calculate tax on non-dividend income
-        if ($nonDividendIncome > $personalAllowance) {
-            $taxableIncome = $nonDividendIncome - $personalAllowance;
+        // Total income to determine tax bands
+        $totalIncome = $nonDividendNonInterestIncome + $interestIncome + $dividendIncome;
+
+        // Step 1: Calculate tax on non-dividend, non-interest income (employment, self-employment, rental, other)
+        if ($nonDividendNonInterestIncome > $personalAllowance) {
+            $taxableIncome = $nonDividendNonInterestIncome - $personalAllowance;
 
             // Basic rate
             if ($taxableIncome > 0) {
@@ -136,25 +143,88 @@ class UKTaxCalculator
             }
         }
 
-        // Calculate dividend tax
+        // Step 2: Calculate tax on interest income with Personal Savings Allowance
+        // PSA: £1,000 for basic rate taxpayers, £500 for higher rate, £0 for additional rate
+        if ($interestIncome > 0) {
+            // Determine PSA based on total income
+            $personalSavingsAllowance = 0;
+            if ($totalIncome <= $basicRateLimit) {
+                $personalSavingsAllowance = 1000; // Basic rate taxpayer
+            } elseif ($totalIncome <= $higherRateLimit) {
+                $personalSavingsAllowance = 500;  // Higher rate taxpayer
+            } else {
+                $personalSavingsAllowance = 0;    // Additional rate taxpayer
+            }
+
+            $taxableInterest = max(0, $interestIncome - $personalSavingsAllowance);
+
+            if ($taxableInterest > 0) {
+                // Interest is taxed at standard income tax rates based on total income
+                $incomeBeforeInterest = $nonDividendNonInterestIncome;
+
+                // Tax interest at appropriate rate(s)
+                if ($incomeBeforeInterest + $taxableInterest <= $basicRateLimit) {
+                    // All interest in basic rate band
+                    $tax += $taxableInterest * $basicRate;
+                } elseif ($incomeBeforeInterest >= $basicRateLimit && $incomeBeforeInterest + $taxableInterest <= $higherRateLimit) {
+                    // All interest in higher rate band
+                    $tax += $taxableInterest * $higherRate;
+                } elseif ($incomeBeforeInterest >= $higherRateLimit) {
+                    // All interest in additional rate band
+                    $tax += $taxableInterest * $additionalRate;
+                } else {
+                    // Interest spans multiple bands
+                    $remaining = $taxableInterest;
+
+                    // Basic rate portion
+                    if ($incomeBeforeInterest < $basicRateLimit) {
+                        $basicPortion = min($remaining, $basicRateLimit - $incomeBeforeInterest);
+                        $tax += $basicPortion * $basicRate;
+                        $remaining -= $basicPortion;
+                        $incomeBeforeInterest += $basicPortion;
+                    }
+
+                    // Higher rate portion
+                    if ($remaining > 0 && $incomeBeforeInterest < $higherRateLimit) {
+                        $higherPortion = min($remaining, $higherRateLimit - $incomeBeforeInterest);
+                        $tax += $higherPortion * $higherRate;
+                        $remaining -= $higherPortion;
+                        $incomeBeforeInterest += $higherPortion;
+                    }
+
+                    // Additional rate portion
+                    if ($remaining > 0) {
+                        $tax += $remaining * $additionalRate;
+                    }
+                }
+            }
+        }
+
+        // Step 3: Calculate dividend tax
         if ($dividendIncome > $dividendAllowance) {
             $taxableDividends = $dividendIncome - $dividendAllowance;
-            $totalIncome = $nonDividendIncome + $dividendIncome;
+            $incomeBeforeDividends = $nonDividendNonInterestIncome + $interestIncome;
 
             // Determine dividend tax rate based on total income band
             if ($totalIncome <= $basicRateLimit) {
                 // Basic rate dividend tax
                 $tax += $taxableDividends * $basicDividendRate;
             } elseif ($totalIncome <= $higherRateLimit) {
-                // Some in basic, some in higher
-                $basicRateDividends = max(0, $basicRateLimit - $nonDividendIncome);
+                // Dividends may span basic and higher rate
+                $basicRateDividends = max(0, $basicRateLimit - $incomeBeforeDividends);
                 $higherRateDividends = $taxableDividends - $basicRateDividends;
 
                 $tax += $basicRateDividends * $basicDividendRate;
-                $tax += $higherRateDividends * $higherDividendRate;
+                $tax += max(0, $higherRateDividends) * $higherDividendRate;
             } else {
-                // Additional rate
-                $tax += $taxableDividends * $additionalDividendRate;
+                // Dividends may span all three bands
+                $basicRateDividends = max(0, $basicRateLimit - $incomeBeforeDividends);
+                $higherRateDividends = max(0, min($taxableDividends - $basicRateDividends, $higherRateLimit - max($incomeBeforeDividends, $basicRateLimit)));
+                $additionalRateDividends = $taxableDividends - $basicRateDividends - $higherRateDividends;
+
+                $tax += $basicRateDividends * $basicDividendRate;
+                $tax += $higherRateDividends * $higherDividendRate;
+                $tax += max(0, $additionalRateDividends) * $additionalDividendRate;
             }
         }
 

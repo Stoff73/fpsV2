@@ -212,11 +212,18 @@ class OnboardingService
      */
     protected function processFamilyInfo(int $userId, array $data): void
     {
+        $user = User::findOrFail($userId);
+
+        // Save charitable bequest preference
+        if (isset($data['charitable_bequest'])) {
+            $user->update([
+                'charitable_bequest' => $data['charitable_bequest'],
+            ]);
+        }
+
         if (! isset($data['family_members']) || ! is_array($data['family_members'])) {
             return;
         }
-
-        $user = User::findOrFail($userId);
 
         // Get existing family members added during onboarding
         $existingMembers = \App\Models\FamilyMember::where('user_id', $userId)
@@ -414,6 +421,7 @@ class OnboardingService
             'annual_employment_income' => $data['annual_employment_income'] ?? 0,
             'annual_self_employment_income' => $data['annual_self_employment_income'] ?? 0,
             'annual_dividend_income' => $data['annual_dividend_income'] ?? 0,
+            'annual_interest_income' => $data['annual_interest_income'] ?? 0,
             'annual_other_income' => $data['annual_other_income'] ?? 0,
         ]);
 
@@ -695,25 +703,39 @@ class OnboardingService
         $startDate = ! empty($data['start_date']) ? $data['start_date'] : now()->toDateString();
         $endDate = ! empty($data['end_date']) ? $data['end_date'] : null;
 
-        // Calculate term years if end date provided
-        $termYears = 25; // Default
+        // Calculate term years if end date provided or use provided term_years
+        $termYears = $data['term_years'] ?? 25; // Default
         if ($endDate) {
             $start = \Carbon\Carbon::parse($startDate);
             $end = \Carbon\Carbon::parse($endDate);
             $termYears = $start->diffInYears($end);
         }
 
-        \App\Models\LifeInsurancePolicy::create([
+        // Get policy type from data (use policy_type if provided, otherwise default to term)
+        $policyType = $data['policy_type'] ?? 'term';
+
+        // Build the policy data
+        $policyData = [
             'user_id' => $userId,
-            'policy_type' => 'term', // Default to term for onboarding
+            'policy_type' => $policyType,
             'provider' => $data['provider'],
             'policy_number' => $data['policy_number'] ?? null,
-            'sum_assured' => $data['coverage_amount'],
+            'sum_assured' => $data['sum_assured'] ?? $data['coverage_amount'],
             'premium_amount' => $data['premium_amount'],
             'premium_frequency' => $data['premium_frequency'] === 'annual' ? 'annually' : 'monthly',
             'policy_start_date' => $startDate,
             'policy_term_years' => $termYears,
-        ]);
+            'in_trust' => $data['in_trust'] ?? false,
+            'beneficiaries' => $data['beneficiaries'] ?? null,
+        ];
+
+        // Add decreasing policy specific fields if policy type is decreasing_term
+        if ($policyType === 'decreasing_term') {
+            $policyData['start_value'] = $data['start_value'] ?? null;
+            $policyData['decreasing_rate'] = $data['decreasing_rate'] ?? null;
+        }
+
+        \App\Models\LifeInsurancePolicy::create($policyData);
     }
 
     /**
@@ -1006,6 +1028,7 @@ class OnboardingService
             'annual_self_employment_income' => $user->annual_self_employment_income,
             'annual_rental_income' => $user->annual_rental_income,
             'annual_dividend_income' => $user->annual_dividend_income,
+            'annual_interest_income' => $user->annual_interest_income,
             'annual_other_income' => $user->annual_other_income,
         ];
 
