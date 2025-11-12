@@ -134,14 +134,29 @@ class IHTController extends Controller
 
     /**
      * Format assets breakdown for response
+     *
+     * For married couples, projects to SECOND DEATH (whoever lives longer)
+     * to match IHTCalculationService logic
      */
     private function formatAssetsBreakdown($userAssets, $spouseAssets = null, bool $includeSpouse = false, ?User $user = null, ?User $spouse = null): array
     {
-        $estateGrowthRate = 0.045;
+        $estateGrowthRate = 0.047; // Must match IHTCalculationService (4.7%)
 
-        // Calculate years to project based on user's age
-        $userAge = $user && $user->date_of_birth ? \Carbon\Carbon::parse($user->date_of_birth)->age : 50;
-        $yearsToProject = max(0, 85 - $userAge); // Project to age 85
+        // For married couples, calculate projection years to SECOND DEATH
+        // This ensures breakdown subtotals match the service calculation
+        if ($includeSpouse && $spouse && $spouse->date_of_birth && $spouse->gender) {
+            // Calculate both life expectancies using actuarial tables
+            $userYearsToProject = $this->calculateLifeExpectancyForProjection($user);
+            $spouseYearsToProject = $this->calculateLifeExpectancyForProjection($spouse);
+
+            // Use the LONGER life expectancy (second death)
+            $yearsToProject = max($userYearsToProject, $spouseYearsToProject);
+        } else {
+            // Single person - use their own life expectancy or fallback
+            $yearsToProject = $user && $user->date_of_birth
+                ? $this->calculateLifeExpectancyForProjection($user)
+                : 25;
+        }
 
         $userAssetsForIHT = [
             'investment' => [],
@@ -191,9 +206,8 @@ class IHTController extends Controller
 
         // Add spouse assets if applicable
         if ($includeSpouse && $spouseAssets && $spouseAssets->isNotEmpty()) {
-            // Calculate years to project for spouse based on their age
-            $spouseAge = $spouse && $spouse->date_of_birth ? \Carbon\Carbon::parse($spouse->date_of_birth)->age : 50;
-            $spouseYearsToProject = max(0, 85 - $spouseAge); // Project to age 85
+            // Use SAME projection years as user (second death scenario)
+            // This ensures both spouses' assets project to the same future point
 
             $spouseAssetsForIHT = [
                 'investment' => [],
@@ -214,7 +228,7 @@ class IHTController extends Controller
                     $isJoint = ($asset->ownership_type ?? 'individual') === 'joint';
                     // Database already stores the spouse's share - do NOT divide by 2
                     $displayValue = $asset->current_value;
-                    $projectedValue = $displayValue * pow(1 + $estateGrowthRate, $spouseYearsToProject);
+                    $projectedValue = $displayValue * pow(1 + $estateGrowthRate, $yearsToProject);
 
                     $spouseAssetsForIHT[$asset->asset_type][] = [
                         'name' => $asset->asset_name,
@@ -416,6 +430,34 @@ class IHTController extends Controller
             'success' => true,
             'message' => 'IHT calculation cache cleared',
         ]);
+    }
+
+    /**
+     * Calculate life expectancy for projection using actuarial tables
+     * Matches logic in IHTCalculationService
+     */
+    private function calculateLifeExpectancyForProjection(User $user): int
+    {
+        if (! $user->date_of_birth || ! $user->gender) {
+            return 25; // Default fallback
+        }
+
+        $currentAge = \Carbon\Carbon::parse($user->date_of_birth)->age;
+
+        // Query actuarial table for life expectancy
+        $lifeExpectancy = \DB::table('actuarial_life_tables')
+            ->where('age', '<=', $currentAge)
+            ->where('gender', $user->gender)
+            ->where('table_year', '2020-2022')
+            ->orderBy('age', 'desc')
+            ->first();
+
+        if ($lifeExpectancy) {
+            return (int) round((float) $lifeExpectancy->life_expectancy_years);
+        }
+
+        // Fallback if no actuarial data
+        return max(1, 85 - $currentAge);
     }
 
     /**
