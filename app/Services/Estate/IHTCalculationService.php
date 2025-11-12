@@ -48,8 +48,8 @@ class IHTCalculationService
             : collect();
 
         // Filter out IHT-exempt assets (DC pensions, etc.)
-        $userTaxableAssets = $userAssets->reject(fn($asset) => $asset->is_iht_exempt ?? false);
-        $spouseTaxableAssets = $spouseAssets->reject(fn($asset) => $asset->is_iht_exempt ?? false);
+        $userTaxableAssets = $userAssets->reject(fn ($asset) => $asset->is_iht_exempt ?? false);
+        $spouseTaxableAssets = $spouseAssets->reject(fn ($asset) => $asset->is_iht_exempt ?? false);
 
         $userGrossAssets = $userTaxableAssets->sum('current_value');
         $spouseGrossAssets = $spouseTaxableAssets->sum('current_value');
@@ -143,6 +143,9 @@ class IHTCalculationService
 
     /**
      * Calculate projected values at death using actuarial tables and 4.7% growth
+     *
+     * For married couples, projects to SECOND DEATH (whoever lives longer)
+     * to accurately calculate combined IHT liability
      */
     private function calculateProjectedValues(
         User $user,
@@ -156,31 +159,30 @@ class IHTCalculationService
         // Get years to death from actuarial table
         $yearsToGrowth = 4.7; // 4.7% annual growth rate
 
-        if (! $user->date_of_birth || ! $user->gender) {
+        // For married couples, calculate BOTH life expectancies and use the longer one (second death)
+        if ($isMarried && $spouse && $spouse->date_of_birth && $spouse->gender) {
+            $userYearsUntilDeath = $this->calculateLifeExpectancy($user);
+            $spouseYearsUntilDeath = $this->calculateLifeExpectancy($spouse);
+
+            // Use the LONGER life expectancy (second death scenario)
+            $yearsUntilDeath = max($userYearsUntilDeath, $spouseYearsUntilDeath);
+
+            // Determine who dies second and use their estimated age
+            if ($spouseYearsUntilDeath > $userYearsUntilDeath) {
+                $estimatedAgeAtDeath = \Carbon\Carbon::parse($spouse->date_of_birth)->age + $spouseYearsUntilDeath;
+            } else {
+                $estimatedAgeAtDeath = \Carbon\Carbon::parse($user->date_of_birth)->age + $userYearsUntilDeath;
+            }
+        } elseif (! $user->date_of_birth || ! $user->gender) {
             // No DOB/gender - assume 25 years
             $yearsUntilDeath = 25;
             $estimatedAgeAtDeath = $user->date_of_birth
                 ? \Carbon\Carbon::parse($user->date_of_birth)->age + $yearsUntilDeath
                 : 80;
         } else {
-            $currentAge = \Carbon\Carbon::parse($user->date_of_birth)->age;
-
-            // Query actuarial table for life expectancy
-            $lifeExpectancy = \DB::table('actuarial_life_tables')
-                ->where('age', '<=', $currentAge)
-                ->where('gender', $user->gender)
-                ->where('table_year', '2020-2022')
-                ->orderBy('age', 'desc')
-                ->first();
-
-            if ($lifeExpectancy) {
-                $yearsUntilDeath = (int) round((float) $lifeExpectancy->life_expectancy_years);
-                $estimatedAgeAtDeath = $currentAge + $yearsUntilDeath;
-            } else {
-                // Fallback if no data
-                $yearsUntilDeath = max(1, 85 - $currentAge);
-                $estimatedAgeAtDeath = 85;
-            }
+            // Single person - use their own life expectancy
+            $yearsUntilDeath = $this->calculateLifeExpectancy($user);
+            $estimatedAgeAtDeath = \Carbon\Carbon::parse($user->date_of_birth)->age + $yearsUntilDeath;
         }
 
         // Calculate projected assets using compound growth: FV = PV × (1 + r)^n
@@ -267,6 +269,33 @@ class IHTCalculationService
             'rnrb_status' => 'tapered',
             'rnrb_message' => 'Residence Nil Rate Band fully tapered away. Your estate of £'.number_format($totalNetEstate).' exceeds the taper threshold of £'.number_format($taperThreshold).' by £'.number_format($excess).', eliminating all RNRB of £'.number_format($fullRNRB).'.',
         ];
+    }
+
+    /**
+     * Calculate life expectancy for a user using actuarial tables
+     */
+    private function calculateLifeExpectancy(User $user): int
+    {
+        if (! $user->date_of_birth || ! $user->gender) {
+            return 25; // Default fallback
+        }
+
+        $currentAge = \Carbon\Carbon::parse($user->date_of_birth)->age;
+
+        // Query actuarial table for life expectancy
+        $lifeExpectancy = \DB::table('actuarial_life_tables')
+            ->where('age', '<=', $currentAge)
+            ->where('gender', $user->gender)
+            ->where('table_year', '2020-2022')
+            ->orderBy('age', 'desc')
+            ->first();
+
+        if ($lifeExpectancy) {
+            return (int) round((float) $lifeExpectancy->life_expectancy_years);
+        }
+
+        // Fallback if no actuarial data
+        return max(1, 85 - $currentAge);
     }
 
     /**
