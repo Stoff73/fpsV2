@@ -352,10 +352,10 @@ export default {
       }
     };
 
-    // Disabled auto-fetch to prevent infinite loop
-    // onMounted(async () => {
-    //   await store.dispatch('userProfile/fetchFamilyMembers');
-    // });
+    // Fetch family members when component mounts
+    onMounted(async () => {
+      await store.dispatch('userProfile/fetchFamilyMembers');
+    });
 
     return {
       familyMembers,

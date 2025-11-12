@@ -25,6 +25,12 @@ class FamilyMembersController extends Controller
     {
         $user = $request->user();
 
+        \Log::info('FamilyMembers::index called', [
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'spouse_id' => $user->spouse_id,
+        ]);
+
         $familyMembers = FamilyMember::where('user_id', $user->id)
             ->orderBy('relationship')
             ->orderBy('date_of_birth')
@@ -96,6 +102,16 @@ class FamilyMembersController extends Controller
 
         // Merge user's family members with spouse's shared records
         $allMembers = $familyMembers->concat($sharedFromSpouse);
+
+        \Log::info('FamilyMembers::index result', [
+            'own_members_count' => $familyMembers->count(),
+            'spouse_members_count' => $spouseFamilyMembers->count(),
+            'shared_from_spouse_count' => $sharedFromSpouse->count(),
+            'total_members' => $allMembers->count(),
+            'members' => $allMembers->map(function($m) {
+                return ['name' => $m['name'], 'relationship' => $m['relationship'], 'is_shared' => $m['is_shared']];
+            })->toArray(),
+        ]);
 
         return response()->json([
             'success' => true,
