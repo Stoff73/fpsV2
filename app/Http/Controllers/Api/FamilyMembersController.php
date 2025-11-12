@@ -30,11 +30,12 @@ class FamilyMembersController extends Controller
             ->orderBy('date_of_birth')
             ->get();
 
-        // If user has a linked spouse, also get spouse's children
-        $spouseChildren = collect();
+        // If user has a linked spouse, also get spouse's family members (children and spouse record)
+        $spouseFamilyMembers = collect();
         if ($user->spouse_id) {
-            $spouseChildren = FamilyMember::where('user_id', $user->spouse_id)
-                ->where('relationship', 'child')
+            $spouseFamilyMembers = FamilyMember::where('user_id', $user->spouse_id)
+                ->whereIn('relationship', ['child', 'spouse'])
+                ->orderBy('relationship')
                 ->orderBy('date_of_birth')
                 ->get();
         }
@@ -54,11 +55,29 @@ class FamilyMembersController extends Controller
             return $memberArray;
         });
 
-        // Add spouse's children with shared flag
-        $spouseChildren = $spouseChildren->map(function ($member) use ($familyMembers) {
+        // Process spouse's family members with shared flag
+        $sharedFromSpouse = $spouseFamilyMembers->map(function ($member) use ($familyMembers) {
             $memberArray = $member->toArray();
 
-            // Check if this child already exists in user's family members (duplicate)
+            // For spouse record, always include it (this is the reverse link - the spouse's record of the current user)
+            if ($member->relationship === 'spouse') {
+                // This is the spouse's family member record that represents the current user
+                // Only include if current user doesn't already have their own spouse record
+                $hasOwnSpouseRecord = $familyMembers->contains(function ($fm) {
+                    return $fm['relationship'] === 'spouse';
+                });
+
+                if (! $hasOwnSpouseRecord) {
+                    $memberArray['is_shared'] = true;
+                    $memberArray['owner'] = 'spouse';
+
+                    return $memberArray;
+                }
+
+                return null;
+            }
+
+            // For children, check if this child already exists in user's family members (duplicate)
             $isDuplicate = $familyMembers->contains(function ($fm) use ($member) {
                 return $fm['relationship'] === 'child' &&
                        $fm['name'] === $member->name &&
@@ -75,8 +94,8 @@ class FamilyMembersController extends Controller
             return null;
         })->filter(); // Remove nulls
 
-        // Merge user's family members with spouse's children
-        $allMembers = $familyMembers->concat($spouseChildren);
+        // Merge user's family members with spouse's shared records
+        $allMembers = $familyMembers->concat($sharedFromSpouse);
 
         return response()->json([
             'success' => true,
