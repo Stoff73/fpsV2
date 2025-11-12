@@ -44,6 +44,7 @@ A comprehensive financial planning web application designed for UK individuals a
 - ✅ **Advanced Features**: 95% (Portfolio optimization, Monte Carlo simulations, IHT planning)
 - ✅ **User Management**: 100% (Spouse accounts, joint ownership, data sharing)
 - ✅ **Admin Panel**: 100% (User management, backups, tax configuration)
+- ✅ **UI/UX**: Enhanced (Policy detail views, Dashboard Plans card, life policy type tags)
 
 ---
 
@@ -60,14 +61,22 @@ A comprehensive financial planning web application designed for UK individuals a
 - **Email Notifications**: Welcome emails and account linking notifications
 - **Password Security**: First-time login password change requirement
 
-### 🎯 Holistic Planning (Coordinating Agent)
+### 🎯 Dashboard
 
-- **Cross-Module Analysis**: Unified view across all financial planning areas
-- **Conflict Resolution**: Automatic detection and resolution of conflicting recommendations
-- **Priority Ranking**: Recommendations ranked by urgency × impact × ease
-- **20-Year Projections**: Net worth and cash flow projections
-- **Financial Health Score**: Overall score based on all modules
-- **Recommendation Tracking**: Track status (pending → in progress → completed)
+The main dashboard provides a unified view of your financial planning:
+
+- **Net Worth Overview**: Real-time tracking of assets and liabilities
+- **Estate Planning Summary**: IHT liability and probate readiness
+- **Protection Overview**: Coverage adequacy score and gaps
+- **Trusts Overview**: Trust portfolio summary
+- **Plans Card**: Quick access to all planning modules
+  - ✅ Protection Plan (active)
+  - ✅ Estate Plan (active)
+  - ✅ Investment & Savings Plan (active)
+  - 🔒 Retirement Plan (coming soon)
+  - 🔒 Tax Plan (coming soon)
+  - 🔒 Financial Plan (coming soon)
+- **UK Taxes & Allowances** (Admin only): Current tax year configuration
 
 ### 📊 Tax Configuration System
 
@@ -105,15 +114,31 @@ Four comprehensive tabs:
 **Purpose**: Analyze life insurance, critical illness, and income protection coverage
 
 **Features**:
-- **Policy Management**: Track life insurance, critical illness, and income protection policies
+- **Policy Portfolio View**: Enhanced card-based display with filtering and sorting
+  - Filter by policy type (Life, Critical Illness, Income Protection, etc.)
+  - Sort by coverage amount, policy type, or provider
+  - Coverage summary tags showing total coverage per type
+  - Add new policies directly from portfolio view
+- **Policy Detail Pages**: Comprehensive individual policy views
+  - Overview tab with key metrics and policy details
+  - Coverage details with start date, term, and amounts
+  - Premium information with annual cost calculation
+  - Life policy type tags (Decreasing Term, Level Term, Whole of Life, etc.)
+  - Edit and delete functionality
 - **Coverage Gap Analysis**: Compare recommended coverage vs. current coverage
 - **Adequacy Scoring**: Overall protection score (0-100) based on 8 metrics
 - **Human Capital Calculation**: Lifetime earning potential based on age, income, education
 - **Premium Affordability**: Check if premiums exceed 10% of income
-- **Scenario Modeling**: Impact analysis for death, critical illness, disability
 - **Professional Reports**: Generate comprehensive Protection Plan with executive summary
 - **Policy Timeline**: Visual representation of policy coverage periods
 - **Strategy Tab**: Prioritized recommendations with cost estimates
+
+**Life Insurance Policy Types**:
+- **Decreasing Term**: Coverage reduces over time (typically for repayment mortgages)
+- **Level Term**: Fixed coverage amount for specified term
+- **Whole of Life**: Coverage for entire lifetime
+- **Term**: Standard term assurance
+- **Family Income Benefit**: Regular income payments instead of lump sum
 
 **Calculations**:
 - Life insurance coverage: 10-12x annual income + debts
@@ -178,7 +203,6 @@ Four comprehensive tabs:
 - **Advanced Risk Analytics**: Alpha, Beta, Sharpe Ratio for DC pension portfolios
 - **Fee Analysis**: Platform fees and fund OCFs breakdown
 - **Monte Carlo Integration**: Pension projections with scenario modeling
-- **Retirement Readiness**: Multi-factor analysis of preparedness
 - **Income Projection**: Stacked area charts showing DC, DB, State pension income
 - **Contribution Optimization**: Tax relief calculations and carry forward
 - **Annual Allowance Tracking**: £60,000 limit + 3-year carry forward
@@ -248,6 +272,7 @@ Four comprehensive tabs:
 - **CSS**: Tailwind CSS 3.x (utility-first)
 - **HTTP Client**: Axios
 - **Components**: 150+ Vue components
+- **Routing**: Vue Router with nested routes
 
 ### Architecture
 
@@ -614,6 +639,67 @@ For issues, questions, or contributions:
 
 - **Documentation**: See `CLAUDE.md` and `/docs` folder
 - **Issues**: Create an issue in the repository
+
+---
+
+## 📋 Recent Updates (November 2025)
+
+### November 12, 2025 - UI Enhancements
+
+**Protection Module Improvements**:
+- ✅ Enhanced policy portfolio view with card-based layout
+- ✅ Added filtering by policy type (All, Life, Critical Illness, etc.)
+- ✅ Added sorting options (coverage amount, type, provider)
+- ✅ Coverage summary tags for quick overview
+- ✅ New dedicated policy detail pages with comprehensive information
+- ✅ Life policy type tags (Decreasing Term, Level Term, Whole of Life, etc.)
+- ✅ Click-to-view navigation from policy cards to detail pages
+- ✅ Renamed "Current Situation" tab to "Policy Overview"
+
+**Dashboard Improvements**:
+- ✅ Removed deprecated QuickActions component
+- ✅ Inlined Plans card directly in Dashboard.vue
+- ✅ Added Retirement Plan as greyed out option ("Coming soon")
+- ✅ Greyed out Tax Plan and Financial Plan options
+- ✅ Maintained all existing active plans (Protection, Estate, Investment & Savings)
+
+**Files Modified**: 9 files
+- Deleted: `QuickActions.vue`
+- Added: `PolicyDetail.vue`
+- Updated: Dashboard, Protection components, router, Vuex store
+
+### November 12, 2025 - Critical Bug Fixes (Ownership & Spouse Data)
+
+**PERMANENT FIX: Spouse Data Sharing in Estate Module**:
+- ✅ Fixed persistent bug where spouse assets/liabilities never displayed
+- ✅ Root cause: `hasAcceptedSpousePermission()` required separate permission record that was never created during onboarding
+- ✅ Solution: Method now returns `true` automatically when both accounts are linked and married
+- ✅ Impact: Estate module now correctly displays spouse data for second-death IHT calculations
+
+**Property Equity Double-Division Bug Fix**:
+- ✅ Fixed property equity showing half of correct value (£125k instead of £250k)
+- ✅ Root cause: Database stores user's share, but services were multiplying by ownership_percentage again
+- ✅ Fixed in: PropertyService, CrossModuleAssetAggregator, Property model, PropertyCard component
+- ✅ Pattern established: Database value = user's share. NO multiplication needed.
+
+**Joint Ownership Value Storage Fix**:
+- ✅ Fixed joint investment/savings accounts storing full value in both user records
+- ✅ Example: Joint GIA now stores £425k per user instead of £850k each
+- ✅ Applied value division at creation time for consistency with properties
+- ✅ Fixed in: InvestmentController, OnboardingService (investments & savings)
+- ✅ Updated existing database records for joint accounts
+
+**Cross-Module Asset Aggregation Fixes**:
+- ✅ Fixed business and chattel value calculations (removed duplicate ownership_percentage multiplication)
+- ✅ Fixed investment aggregation methods
+- ✅ Ensures consistent calculation logic across all asset types
+
+**Files Modified**: 8 files
+- User.php, Property.php, PropertyService.php, PropertyCard.vue
+- CrossModuleAssetAggregator.php, NetWorthService.php
+- InvestmentController.php, OnboardingService.php
+
+**Database Updates**: Fixed existing joint GIA accounts and holdings
 
 ---
 
