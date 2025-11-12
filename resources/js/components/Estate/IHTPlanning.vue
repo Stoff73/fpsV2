@@ -580,7 +580,7 @@
             <tr class="bg-blue-100">
               <td class="px-4 py-2 text-sm font-semibold text-blue-900 pl-8">Assets Subtotal</td>
               <td class="px-4 py-2 text-sm text-right font-semibold text-blue-900">{{ formatCurrency(secondDeathData.assets_breakdown.user.total) }}</td>
-              <td class="px-4 py-2 text-sm text-right font-semibold text-blue-900">{{ formatCurrency(secondDeathData.assets_breakdown.user.total) }}</td>
+              <td class="px-4 py-2 text-sm text-right font-semibold text-blue-900">{{ formatCurrency(secondDeathData.assets_breakdown.user.projected_total) }}</td>
             </tr>
 
             <!-- Spouse Assets Section (if married with data sharing) -->
@@ -645,7 +645,7 @@
               <tr class="bg-green-100">
                 <td class="px-4 py-2 text-sm font-semibold text-green-900 pl-8">Assets Subtotal</td>
                 <td class="px-4 py-2 text-sm text-right font-semibold text-green-900">{{ formatCurrency(secondDeathData.assets_breakdown.spouse.total) }}</td>
-                <td class="px-4 py-2 text-sm text-right font-semibold text-green-900">{{ formatCurrency(secondDeathData.assets_breakdown.spouse.total) }}</td>
+                <td class="px-4 py-2 text-sm text-right font-semibold text-green-900">{{ formatCurrency(secondDeathData.assets_breakdown.spouse.projected_total) }}</td>
               </tr>
             </template>
 
@@ -686,7 +686,7 @@
               <tr v-if="secondDeathData.liabilities_breakdown.user.total > 0" class="bg-red-100">
                 <td class="px-4 py-2 text-sm font-semibold text-red-900 pl-8">Liabilities Subtotal</td>
                 <td class="px-4 py-2 text-sm text-right font-semibold text-red-900">-{{ formatCurrency(secondDeathData.liabilities_breakdown.user.total) }}</td>
-                <td class="px-4 py-2 text-sm text-right font-semibold text-red-900">-{{ formatCurrency(userLiabilitiesProjectedTotal) }}</td>
+                <td class="px-4 py-2 text-sm text-right font-semibold text-red-900">-{{ formatCurrency(secondDeathData.liabilities_breakdown.user.projected_total) }}</td>
               </tr>
             </template>
 
@@ -720,7 +720,7 @@
               <tr v-if="secondDeathData.liabilities_breakdown.spouse.total > 0" class="bg-orange-100">
                 <td class="px-4 py-2 text-sm font-semibold text-orange-900 pl-8">Liabilities Subtotal</td>
                 <td class="px-4 py-2 text-sm text-right font-semibold text-orange-900">-{{ formatCurrency(secondDeathData.liabilities_breakdown.spouse.total) }}</td>
-                <td class="px-4 py-2 text-sm text-right font-semibold text-orange-900">-{{ formatCurrency(spouseLiabilitiesProjectedTotal) }}</td>
+                <td class="px-4 py-2 text-sm text-right font-semibold text-orange-900">-{{ formatCurrency(secondDeathData.liabilities_breakdown.spouse.projected_total) }}</td>
               </tr>
             </template>
 

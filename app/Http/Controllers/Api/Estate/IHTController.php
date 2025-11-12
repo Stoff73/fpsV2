@@ -75,6 +75,15 @@ class IHTController extends Controller
             $calculation['total_liabilities'] = $totalLiabilities;
             $calculation['projected_liabilities'] = $projectedLiabilities;
 
+            // Recalculate projected net estate using correct projected liabilities
+            // (Service assumes liabilities stay constant, but mortgages are paid off by age 70)
+            $calculation['projected_net_estate'] = $calculation['projected_gross_assets'] - $projectedLiabilities;
+
+            // Recalculate projected taxable estate and IHT with corrected net estate
+            $totalAllowances = $calculation['nrb_available'] + $calculation['rnrb_available'];
+            $calculation['projected_taxable_estate'] = max(0, $calculation['projected_net_estate'] - $totalAllowances);
+            $calculation['projected_iht_liability'] = $calculation['projected_taxable_estate'] * 0.40;
+
             // Format response for frontend compatibility
             $response = [
                 'success' => true,
@@ -220,6 +229,7 @@ class IHTController extends Controller
             }
 
             $spouseName = $spouse ? (trim(($spouse->first_name ?? '').' '.($spouse->last_name ?? '')) ?: $spouse->name) : 'Spouse';
+
             $breakdown['spouse'] = [
                 'name' => $spouseName,
                 'assets' => $spouseAssetsForIHT,
