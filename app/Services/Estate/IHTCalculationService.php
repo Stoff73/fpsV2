@@ -41,14 +41,18 @@ class IHTCalculationService
         $ihtConfig = $this->taxConfig->getInheritanceTax();
         $isMarried = in_array($user->marital_status, ['married']) && $spouse !== null;
 
-        // 3. Fetch and sum assets
+        // 3. Fetch and sum assets (exclude IHT-exempt assets like pensions)
         $userAssets = $this->aggregator->gatherUserAssets($user);
         $spouseAssets = ($isMarried && $dataSharingEnabled)
             ? $this->aggregator->gatherUserAssets($spouse)
             : collect();
 
-        $userGrossAssets = $userAssets->sum('current_value');
-        $spouseGrossAssets = $spouseAssets->sum('current_value');
+        // Filter out IHT-exempt assets (DC pensions, etc.)
+        $userTaxableAssets = $userAssets->reject(fn($asset) => $asset->is_iht_exempt ?? false);
+        $spouseTaxableAssets = $spouseAssets->reject(fn($asset) => $asset->is_iht_exempt ?? false);
+
+        $userGrossAssets = $userTaxableAssets->sum('current_value');
+        $spouseGrossAssets = $spouseTaxableAssets->sum('current_value');
         $totalGrossAssets = $userGrossAssets + $spouseGrossAssets;
 
         // 4. Fetch and sum liabilities
