@@ -644,6 +644,41 @@ For issues, questions, or contributions:
 
 ## 📋 Recent Updates (November 2025)
 
+### November 12, 2025 - Estate IHT Planning Projected Values Fix
+
+**Issue**: IHT breakdown table showed incorrect projected values in subtotal rows
+- Asset subtotals displayed current total in both Current and Projected columns
+- Liability subtotals used computed properties instead of backend-calculated values
+- Projected net estate didn't account for mortgages being paid off by age 70
+
+**Root Cause**:
+1. Frontend had duplicate subtotal rows - one correct set (lines 266-271, 332-339) and one buggy set (lines 579-583, 644-648) that was actually being rendered
+2. Buggy rows displayed `.total` in both columns instead of `.total` and `.projected_total`
+3. Backend service assumed constant liabilities, but controller correctly calculated projected liabilities (mortgages = £0 if age >= 70)
+4. Projected net estate wasn't recalculated after getting correct projected liabilities
+
+**Solution**:
+- **Frontend** (IHTPlanning.vue): Fixed 4 subtotal rows to use correct data properties:
+  - User assets: `.projected_total` instead of `.total` (line 583)
+  - Spouse assets: `.projected_total` instead of `.total` (line 648)
+  - User liabilities: `.projected_total` instead of `userLiabilitiesProjectedTotal` (line 689)
+  - Spouse liabilities: `.projected_total` instead of `spouseLiabilitiesProjectedTotal` (line 723)
+
+- **Backend** (IHTController.php): Recalculate projected values after getting correct liabilities:
+  - Recalculate `projected_net_estate` = projected assets - projected liabilities (mortgages + persistent liabilities)
+  - Recalculate `projected_taxable_estate` and `projected_iht_liability` using corrected net estate
+  - Ensures mortgages paid off by age 70 are reflected (£0), while other liabilities persist
+
+**Result**:
+- ✅ Current column shows current values
+- ✅ Projected column shows projected values at estimated death age
+- ✅ Projected net estate correctly accounts for mortgages being paid off
+- ✅ Persistent liabilities (loans, credit cards) correctly remain at current value in projections
+
+**Files Modified**: 2 files
+- `resources/js/components/Estate/IHTPlanning.vue`
+- `app/Http/Controllers/Api/Estate/IHTController.php`
+
 ### November 12, 2025 - UI Enhancements
 
 **Protection Module Improvements**:
