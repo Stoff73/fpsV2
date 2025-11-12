@@ -561,15 +561,29 @@ class OnboardingService
                 ];
 
                 $accountType = $accountTypeMap[$investmentData['account_type']] ?? 'gia';
+                $ownershipType = $investmentData['ownership_type'] ?? 'individual';
+
+                // IMPORTANT: For joint ownership, divide values by 2 to store each user's share
+                // This ensures consistency with properties and all other joint assets
+                $currentValue = $investmentData['current_value'];
+                $isaAllowanceUsed = $investmentData['isa_allowance_used'] ?? 0;
+                $ownershipPercentage = 100.00;
+
+                if ($ownershipType === 'joint') {
+                    $currentValue = $currentValue / 2;
+                    $isaAllowanceUsed = $isaAllowanceUsed / 2;
+                    $ownershipPercentage = 50.00;
+                }
 
                 \App\Models\Investment\InvestmentAccount::create([
                     'user_id' => $userId,
                     'provider' => $investmentData['institution'],
                     'account_type' => $accountType,
                     'country' => $investmentData['country'] ?? 'United Kingdom',
-                    'current_value' => $investmentData['current_value'],
-                    'ownership_type' => $investmentData['ownership_type'] ?? 'individual',
-                    'isa_subscription_current_year' => $investmentData['isa_allowance_used'] ?? 0,
+                    'current_value' => $currentValue,
+                    'ownership_type' => $ownershipType,
+                    'ownership_percentage' => $ownershipPercentage,
+                    'isa_subscription_current_year' => $isaAllowanceUsed,
                     'tax_year' => '2025/26',
                     'isa_type' => $accountType === 'isa' ? 'stocks_and_shares' : null,
                 ]);
@@ -580,19 +594,29 @@ class OnboardingService
         if (isset($data['cash']) && is_array($data['cash'])) {
             foreach ($data['cash'] as $cashData) {
                 $isCashISA = $cashData['account_type'] === 'cash_isa';
+                $ownershipType = $cashData['ownership_type'] ?? 'individual';
+
+                // IMPORTANT: For joint ownership, divide values by 2 to store each user's share
+                $currentBalance = $cashData['current_balance'];
+                $isaAllowanceUsed = $cashData['isa_allowance_used'] ?? 0;
+
+                if ($ownershipType === 'joint') {
+                    $currentBalance = $currentBalance / 2;
+                    $isaAllowanceUsed = $isaAllowanceUsed / 2;
+                }
 
                 \App\Models\SavingsAccount::create([
                     'user_id' => $userId,
                     'institution' => $cashData['institution'],
                     'account_type' => $cashData['account_type'],
                     'country' => $cashData['country'] ?? 'United Kingdom',
-                    'current_balance' => $cashData['current_balance'],
+                    'current_balance' => $currentBalance,
                     'interest_rate' => isset($cashData['interest_rate']) ? $cashData['interest_rate'] / 100 : 0,
-                    'ownership_type' => $cashData['ownership_type'] ?? 'individual',
+                    'ownership_type' => $ownershipType,
                     'is_isa' => $isCashISA,
                     'isa_type' => $isCashISA ? 'cash' : null,
                     'isa_subscription_year' => $isCashISA ? '2025/26' : null,
-                    'isa_subscription_amount' => $isCashISA ? ($cashData['isa_allowance_used'] ?? 0) : null,
+                    'isa_subscription_amount' => $isCashISA ? $isaAllowanceUsed : null,
                     'access_type' => $this->mapAccessType($cashData['account_type']),
                 ]);
             }

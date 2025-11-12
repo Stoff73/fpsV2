@@ -52,18 +52,18 @@ class CrossModuleAssetAggregator
     }
 
     /**
-     * Get property assets with ownership percentage applied
+     * Get property assets
+     *
+     * IMPORTANT: current_value is ALREADY stored as the user's share in the database
+     * (divided by ownership_percentage when saving). No need to multiply again.
      */
     public function getPropertyAssets(int $userId): Collection
     {
         return Property::where('user_id', $userId)->get()->map(function ($property) {
-            $ownershipPercentage = $property->ownership_percentage ?? 100;
-            $userValue = $property->current_value * ($ownershipPercentage / 100);
-
             return (object) [
                 'asset_type' => 'property',
                 'asset_name' => $property->address_line_1 ?: 'Property',
-                'current_value' => $userValue,
+                'current_value' => (float) $property->current_value,
                 'is_iht_exempt' => false,
                 'source_id' => $property->id,
                 'source_model' => 'Property',
@@ -72,21 +72,21 @@ class CrossModuleAssetAggregator
     }
 
     /**
-     * Get investment account assets with ownership percentage applied
+     * Get investment account assets
+     *
+     * IMPORTANT: current_value is ALREADY stored as the user's share in the database
+     * (divided by ownership_percentage when saving). No need to multiply again.
      */
     public function getInvestmentAssets(int $userId): Collection
     {
         return InvestmentAccount::where('user_id', $userId)->get()->map(function ($account) {
-            $ownershipPercentage = $account->ownership_percentage ?? 100;
-            $userValue = $account->current_value * ($ownershipPercentage / 100);
-
             // Determine if ISA (ISAs are NOT IHT-exempt - only exempt from income/CGT)
             $isISA = in_array($account->account_type, ['isa', 'stocks_and_shares_isa', 'lifetime_isa']);
 
             return (object) [
                 'asset_type' => 'investment',
                 'asset_name' => $account->provider.' - '.strtoupper($account->account_type),
-                'current_value' => $userValue,
+                'current_value' => (float) $account->current_value,
                 'is_iht_exempt' => false, // ISAs are IHT taxable
                 'account_type' => $account->account_type,
                 'source_id' => $account->id,
@@ -127,31 +127,28 @@ class CrossModuleAssetAggregator
     }
 
     /**
-     * Calculate total property value (with ownership percentage)
+     * Calculate total property value
+     *
+     * IMPORTANT: current_value is ALREADY stored as the user's share in the database
+     * (divided by ownership_percentage when saving). Therefore, we do NOT multiply
+     * by ownership_percentage here - that would divide the value in half again.
      */
     public function calculatePropertyTotal(int $userId): float
     {
-        return Property::where('user_id', $userId)
-            ->get()
-            ->sum(function ($property) {
-                $ownershipPercentage = $property->ownership_percentage ?? 100;
-
-                return $property->current_value * ($ownershipPercentage / 100);
-            });
+        return (float) Property::where('user_id', $userId)
+            ->sum('current_value');
     }
 
     /**
-     * Calculate total investment value (with ownership percentage)
+     * Calculate total investment value
+     *
+     * IMPORTANT: current_value is ALREADY stored as the user's share in the database
+     * (divided by ownership_percentage when saving). No need to multiply again.
      */
     public function calculateInvestmentTotal(int $userId): float
     {
-        return InvestmentAccount::where('user_id', $userId)
-            ->get()
-            ->sum(function ($account) {
-                $ownershipPercentage = $account->ownership_percentage ?? 100;
-
-                return $account->current_value * ($ownershipPercentage / 100);
-            });
+        return (float) InvestmentAccount::where('user_id', $userId)
+            ->sum('current_value');
     }
 
     /**

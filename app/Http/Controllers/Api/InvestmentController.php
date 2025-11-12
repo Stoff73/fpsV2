@@ -262,6 +262,17 @@ class InvestmentController extends Controller
             ], 422);
         }
 
+        // IMPORTANT: For joint ownership, divide the current_value by 2 and store each user's share
+        // This ensures consistency with properties and other assets
+        if ($validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
+            $validated['ownership_percentage'] = 50.00;
+            $validated['current_value'] = $validated['current_value'] / 2;
+            $validated['contributions_ytd'] = ($validated['contributions_ytd'] ?? 0) / 2;
+            $validated['isa_subscription_current_year'] = ($validated['isa_subscription_current_year'] ?? 0) / 2;
+        } else {
+            $validated['ownership_percentage'] = $validated['ownership_percentage'] ?? 100.00;
+        }
+
         $account = InvestmentAccount::create($validated);
 
         // Automatically create a Cash holding for 100% of the account value
@@ -628,13 +639,16 @@ class InvestmentController extends Controller
 
     /**
      * Create a reciprocal investment account record for joint owner
+     *
+     * IMPORTANT: The originalAccount should already have current_value divided by 2 (each user's share)
+     * and ownership_percentage set to 50. We just copy these values to the joint owner's record.
      */
     private function createJointInvestmentAccount(InvestmentAccount $originalAccount, int $jointOwnerId): void
     {
         // Get joint owner
         $jointOwner = \App\Models\User::findOrFail($jointOwnerId);
 
-        // Create the reciprocal account
+        // Create the reciprocal account (values already divided in original account)
         $jointAccountData = $originalAccount->toArray();
 
         // Remove auto-generated fields
@@ -644,6 +658,7 @@ class InvestmentController extends Controller
         $jointAccountData['user_id'] = $jointOwnerId;
         $jointAccountData['joint_owner_id'] = $originalAccount->user_id;
 
+        // Values are already divided and ownership_percentage is already 50 from original account
         $jointAccount = InvestmentAccount::create($jointAccountData);
 
         // Create cash holding for the joint account (mirror of original)

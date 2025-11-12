@@ -68,18 +68,27 @@ export default {
     },
 
     hasMortgage() {
+      // Check if property has mortgages relationship loaded
+      if (this.property.mortgages && this.property.mortgages.length > 0) {
+        return this.property.mortgages.some(m => m.outstanding_balance > 0);
+      }
       return this.property.outstanding_mortgage > 0;
     },
 
     mortgageAmount() {
+      // Get mortgage from mortgages relationship (already user's share)
+      if (this.property.mortgages && this.property.mortgages.length > 0) {
+        return this.property.mortgages.reduce((total, m) => total + (m.outstanding_balance || 0), 0);
+      }
       return this.property.outstanding_mortgage || 0;
     },
 
     equity() {
+      // Both current_value and mortgage are already the user's share from database
+      // No need to multiply by ownership percentage
       const value = this.property.current_value || 0;
       const mortgage = this.mortgageAmount;
-      const ownershipPercent = this.property.ownership_percentage || 100;
-      return (value - mortgage) * (ownershipPercent / 100);
+      return value - mortgage;
     },
   },
 

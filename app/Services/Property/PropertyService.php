@@ -24,11 +24,12 @@ class PropertyService
             $mortgageBalance = $property->outstanding_mortgage;
         }
 
-        // Apply ownership percentage
-        $userShare = $currentValue * ($property->ownership_percentage / 100);
-        $mortgageShare = $mortgageBalance * ($property->ownership_percentage / 100);
-
-        return max(0, $userShare - $mortgageShare);
+        // IMPORTANT: Both current_value and mortgageBalance are ALREADY stored as the user's share
+        // in the database (divided by ownership_percentage when saving). Therefore, we do NOT
+        // multiply by ownership_percentage here - that would divide the equity in half again.
+        //
+        // Equity = current_value - mortgage_balance (both already user's share from database)
+        return max(0, $currentValue - $mortgageBalance);
     }
 
     /**

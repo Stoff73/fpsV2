@@ -76,31 +76,27 @@ class NetWorthService
     }
 
     /**
-     * Calculate total business value (with ownership percentage)
+     * Calculate total business value
+     *
+     * IMPORTANT: current_valuation is ALREADY stored as the user's share in the database
+     * (divided by ownership_percentage when saving). No need to multiply again.
      */
     private function calculateBusinessValue(int $userId): float
     {
-        return BusinessInterest::where('user_id', $userId)
-            ->get()
-            ->sum(function ($business) {
-                $ownershipPercentage = $business->ownership_percentage ?? 100;
-
-                return $business->current_valuation * ($ownershipPercentage / 100);
-            });
+        return (float) BusinessInterest::where('user_id', $userId)
+            ->sum('current_valuation');
     }
 
     /**
-     * Calculate total chattel value (with ownership percentage)
+     * Calculate total chattel value
+     *
+     * IMPORTANT: current_value is ALREADY stored as the user's share in the database
+     * (divided by ownership_percentage when saving). No need to multiply again.
      */
     private function calculateChattelValue(int $userId): float
     {
-        return Chattel::where('user_id', $userId)
-            ->get()
-            ->sum(function ($chattel) {
-                $ownershipPercentage = $chattel->ownership_percentage ?? 100;
-
-                return $chattel->current_value * ($ownershipPercentage / 100);
-            });
+        return (float) Chattel::where('user_id', $userId)
+            ->sum('current_value');
     }
 
     /**

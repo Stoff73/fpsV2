@@ -86,6 +86,13 @@ class Property extends Model
     ];
 
     /**
+     * Accessors to append to model's array form.
+     */
+    protected $appends = [
+        'equity',
+    ];
+
+    /**
      * Get the user that owns this property.
      */
     public function user(): BelongsTo
@@ -186,5 +193,29 @@ class Property extends Model
         }
 
         return $description;
+    }
+
+    /**
+     * Calculate equity for this property.
+     *
+     * IMPORTANT: Both current_value and mortgage balances are already stored as the user's share
+     * in the database (divided by ownership_percentage when saving). Therefore, we do NOT
+     * multiply by ownership_percentage here - that would divide the equity in half again.
+     *
+     * Equity = current_value - sum(all mortgages for this property)
+     */
+    public function getEquityAttribute(): float
+    {
+        $currentValue = (float) ($this->current_value ?? 0);
+
+        // Sum all mortgages for this property (already user's share from database)
+        $totalMortgages = (float) $this->mortgages->sum('outstanding_balance');
+
+        // Fallback to outstanding_mortgage field if mortgages relationship not loaded
+        if ($totalMortgages === 0.0 && $this->outstanding_mortgage) {
+            $totalMortgages = (float) $this->outstanding_mortgage;
+        }
+
+        return $currentValue - $totalMortgages;
     }
 }

@@ -359,13 +359,28 @@ class User extends Authenticatable
 
     /**
      * Check if user has accepted permission to share data with spouse
+     *
+     * IMPORTANT: If spouse accounts are linked (spouse_id is set) and both users
+     * are married, data sharing is automatically enabled. No separate permission
+     * record required. This fixes the persistent issue where spouse data doesn't
+     * display in the Estate module even though accounts are linked during onboarding.
      */
     public function hasAcceptedSpousePermission(): bool
     {
+        // No spouse linked
         if (! $this->spouse_id) {
             return false;
         }
 
+        // If both users are married and linked, enable data sharing automatically
+        if ($this->marital_status === 'married') {
+            $spouse = User::find($this->spouse_id);
+            if ($spouse && $spouse->marital_status === 'married' && $spouse->spouse_id === $this->id) {
+                return true;
+            }
+        }
+
+        // Fallback: Check for explicit permission record (legacy/optional)
         $permission = SpousePermission::where(function ($query) {
             $query->where('user_id', $this->id)
                 ->where('spouse_id', $this->spouse_id);
