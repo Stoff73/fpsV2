@@ -43,6 +43,12 @@
             <h4 class="font-semibold text-gray-900">{{ account.institution }}</h4>
             <p class="text-sm text-gray-600">{{ formatAccountType(account.account_type) }}</p>
             <div class="flex gap-2 mt-1">
+              <span
+                :class="getOwnershipBadgeClass(account.ownership_type)"
+                class="inline-block px-2 py-1 text-xs rounded"
+              >
+                {{ formatOwnershipType(account.ownership_type) }}
+              </span>
               <span v-if="account.is_emergency_fund" class="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
                 Emergency Fund
               </span>
@@ -115,6 +121,24 @@ export default {
         fixed: 'Fixed Term',
       };
       return types[type] || type;
+    },
+
+    formatOwnershipType(type) {
+      const types = {
+        individual: 'Individual',
+        joint: 'Joint',
+        trust: 'Trust',
+      };
+      return types[type] || 'Individual';
+    },
+
+    getOwnershipBadgeClass(type) {
+      const classes = {
+        individual: 'bg-gray-100 text-gray-800',
+        joint: 'bg-purple-100 text-purple-800',
+        trust: 'bg-amber-100 text-amber-800',
+      };
+      return classes[type] || 'bg-gray-100 text-gray-800';
     },
   },
 };
