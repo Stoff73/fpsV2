@@ -107,17 +107,7 @@ class UserProfileService
                 'monthly_expenditure' => $user->monthly_expenditure,
                 'annual_expenditure' => $user->annual_expenditure,
             ],
-            'family_members' => $user->familyMembers->map(function ($member) use ($user) {
-                $memberArray = $member->toArray();
-
-                // If this is a spouse and user has a spouse_id, get the spouse's email
-                if ($member->relationship === 'spouse' && $user->spouse_id) {
-                    $spouse = User::find($user->spouse_id);
-                    $memberArray['email'] = $spouse ? $spouse->email : null;
-                }
-
-                return $memberArray;
-            }),
+            'family_members' => $this->getFamilyMembersWithSharing($user),
             'domicile_info' => $user->getDomicileInfo(),
             'assets_summary' => $assetsSummary,
             'liabilities_summary' => $liabilitiesSummary,
@@ -321,5 +311,79 @@ class UserProfileService
             ],
             'total' => $mortgagesTotal + $otherLiabilitiesTotal,
         ];
+    }
+
+    /**
+     * Get family members including shared members from linked spouse
+     */
+    private function getFamilyMembersWithSharing(User $user): array
+    {
+        // Get user's own family members
+        $familyMembers = $user->familyMembers->map(function ($member) use ($user) {
+            $memberArray = $member->toArray();
+            $memberArray['is_shared'] = false;
+            $memberArray['owner'] = 'self';
+
+            // If this is a spouse and user has a spouse_id, get the spouse's email
+            if ($member->relationship === 'spouse' && $user->spouse_id) {
+                $spouse = User::find($user->spouse_id);
+                $memberArray['email'] = $spouse ? $spouse->email : null;
+            }
+
+            return $memberArray;
+        });
+
+        // If user has a linked spouse, also get spouse's family members (spouse + children)
+        if ($user->spouse_id) {
+            $spouseFamilyMembers = \App\Models\FamilyMember::where('user_id', $user->spouse_id)
+                ->whereIn('relationship', ['child', 'spouse'])
+                ->orderBy('relationship')
+                ->orderBy('date_of_birth')
+                ->get();
+
+            // Process spouse's family members with shared flag
+            $sharedFromSpouse = $spouseFamilyMembers->map(function ($member) use ($familyMembers) {
+                $memberArray = $member->toArray();
+
+                // For spouse record, only include if current user doesn't have their own spouse record
+                if ($member->relationship === 'spouse') {
+                    $hasOwnSpouseRecord = $familyMembers->contains(function ($fm) {
+                        return $fm['relationship'] === 'spouse';
+                    });
+
+                    if (! $hasOwnSpouseRecord) {
+                        $memberArray['is_shared'] = true;
+                        $memberArray['owner'] = 'spouse';
+
+                        return $memberArray;
+                    }
+
+                    return null;
+                }
+
+                // For children, check if this child already exists in user's family members (duplicate)
+                $isDuplicate = $familyMembers->contains(function ($fm) use ($member) {
+                    return $fm['relationship'] === 'child' &&
+                           $fm['name'] === $member->name &&
+                           $fm['date_of_birth'] === $member->date_of_birth;
+                });
+
+                if (! $isDuplicate) {
+                    $memberArray['is_shared'] = true;
+                    $memberArray['owner'] = 'spouse';
+
+                    return $memberArray;
+                }
+
+                return null;
+            })->filter(); // Remove nulls
+
+            // Merge user's family members with spouse's shared records
+            $allMembers = $familyMembers->concat($sharedFromSpouse);
+
+            return $allMembers->values()->toArray();
+        }
+
+        return $familyMembers->toArray();
     }
 }
