@@ -18,7 +18,7 @@
               <p class="mt-1 text-body-sm text-gray-600">Latest release information</p>
             </div>
             <div class="text-right">
-              <div class="text-3xl font-bold text-primary-600">v0.2.5</div>
+              <div class="text-3xl font-bold text-primary-600">v0.2.6</div>
               <div class="text-body-sm text-gray-500 mt-1">Beta Release</div>
             </div>
           </div>
@@ -28,7 +28,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <h3 class="text-body-sm font-semibold text-gray-700 mb-2">Release Date</h3>
-              <p class="text-body-base text-gray-900">10 November 2025</p>
+              <p class="text-body-base text-gray-900">12 November 2025</p>
             </div>
             <div>
               <h3 class="text-body-sm font-semibold text-gray-700 mb-2">Status</h3>
@@ -39,6 +39,100 @@
           </div>
 
           <!-- What's New -->
+          <div class="mb-6">
+            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">🏗️ Refactoring & Cleanup in v0.2.6</h3>
+            <ul class="space-y-2">
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>Estate Module Refactor:</strong> Removed deprecated EstateAgent.php and old IHT calculation services (GiftingStrategy, IHTCalculator, SecondDeathIHTCalculator). Added new IHTCalculationService with database persistence. Removed 14,985 lines of legacy code.</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>Database-Driven IHT Calculations:</strong> Added ActuarialLifeTable model with ONS 2020-2022 life expectancy data. Added IHTCalculation model for storing projected IHT liabilities. Includes 3 new migrations and seeder.</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>Investment Module Fixes:</strong> Fixed DateTime/Carbon type issues (2 files). Fixed polymorphic relationship access pattern - changed investmentAccount to holdable across 5 Investment service files. Fixed American/British spelling inconsistency in InvestmentDashboard.vue.</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>Retirement Module Cleanup:</strong> Removed confusing readiness score, income gap, retirement gauge, and readiness breakdown from RetirementReadiness.vue. Simplified to show only Years to Retirement and Projected Income placeholders.</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>Estate & Savings UI Cleanup:</strong> Removed legacy Estate components (Recommendations.vue, WhatIfScenarios.vue, SurvivingSpouseIHTPlanning.vue). Removed What-If Scenarios tab from Savings module. Simplified UI and removed confusing elements.</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>Documentation Cleanup:</strong> Moved all deployment-related markdown files to deployment/ folder. Removed obsolete session summaries and fix tracking docs. Organised deployment guides and approval documentation.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Technical Debt -->
+          <div class="mb-6">
+            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">🔧 Technical Debt Resolved in v0.2.6</h3>
+            <ul class="space-y-2">
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700">Fixed polymorphic relationship access pattern across 5 Investment service files (TaxDragCalculator, AccountTypeRecommender, FeeAnalyzer)</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700">Fixed DateTime/Carbon type issues in 2 Investment service files (Carbon objects can't be passed to DateTime constructor)</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700">Fixed American/British spelling inconsistencies in method calls (analyzeInvestment → analyseInvestment)</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700">Removed deprecated agent pattern in Estate module (EstateAgent.php deleted)</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700">Consolidated IHT calculation logic into single service with database persistence (IHTCalculationService)</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-body-base text-gray-700"><strong>Code Reduction:</strong> Removed 14,985 lines of code, added 2,492 lines (net -12,493 lines). 71 files modified: 17 deleted, 7 added, 47 updated.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Version History Divider -->
+        <div class="border-t border-gray-200 my-8"></div>
+
+        <!-- Previous Version: v0.2.5 -->
+        <div class="mb-8">
+          <h2 class="text-h3 font-display text-gray-900 mb-4">Previous Release: v0.2.5</h2>
+          <p class="text-body-sm text-gray-600 mb-4">Released: 10 November 2025</p>
+
           <div class="mb-6">
             <h3 class="text-body-lg font-semibold text-gray-900 mb-4">🐛 Bug Fixes in v0.2.5</h3>
             <ul class="space-y-2">

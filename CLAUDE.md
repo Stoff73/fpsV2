@@ -1082,6 +1082,103 @@ export default {
 - 233 instances of `transition-colours` → `transition-colors` fixed
 - API endpoint fixed: `/analyse` → `/analyze` (code convention)
 
+## Recent Fixes (November 2025)
+
+### November 12, 2025 - Estate Module Refactor & Investment/Retirement Cleanup ✅
+
+**Summary**: Major refactor of Estate module architecture, removal of deprecated agent pattern, and comprehensive fixes across Investment and Retirement modules
+
+**Commit**: d4089bc - "refactor: Major Estate module cleanup and Investment/Retirement fixes"
+
+**Estate Module Refactor**:
+
+1. **Removed Deprecated Agent Pattern**
+   - Deleted `EstateAgent.php` - agent pattern deprecated in favor of direct service usage
+   - Removed old IHT calculation services: `GiftingStrategy.php`, `IHTCalculator.php`, `SecondDeathIHTCalculator.php`
+   - Added new `IHTCalculationService.php` with database persistence
+   - **Impact**: Cleaner architecture, single source of truth for IHT calculations
+
+2. **New Database-Driven IHT Calculations**
+   - Added `ActuarialLifeTable` model and seeder (ONS 2020-2022 life expectancy data)
+   - Added `IHTCalculation` model for storing projected IHT liabilities
+   - Migrations:
+     - `2025_11_11_213041_create_actuarial_life_tables_table.php`
+     - `2025_11_11_213138_create_iht_calculations_table.php`
+     - `2025_11_11_213929_add_projected_values_to_iht_calculations_table.php`
+   - Seeder: `ActuarialLifeTablesSeeder.php`
+
+3. **Removed Legacy Estate Components**
+   - Deleted `Recommendations.vue`, `WhatIfScenarios.vue`, `SurvivingSpouseIHTPlanning.vue`
+   - Simplified `EstateDashboard.vue` to use new IHT calculation structure
+   - Updated `WillPlanning.vue` to use new data structure
+   - **Benefit**: Cleaner UI, less confusing for users
+
+4. **Controller Updates**
+   - `GiftingController.php` - Updated to use new IHT calculation structure
+   - `LifePolicyController.php` - Updated to use new IHT data keys
+   - `TrustController.php` - Fixed to pass all 7 required parameters to calculateIHTLiability()
+   - `EstateController.php` - Updated to use new IHTCalculationService
+   - `PropertyController.php` - Consistency updates
+
+**Investment Module Fixes**:
+
+5. **DateTime/Carbon Type Issues**
+   - **Issue**: Carbon objects passed to DateTime constructor (type error)
+   - **Files Fixed**:
+     - `AssetLocationOptimizer.php:103` - Changed `new \DateTime($user->date_of_birth)` to `\Carbon\Carbon::parse($user->date_of_birth)->age`
+     - `AssetLocationController.php:328` - Same fix
+   - **Root Cause**: Laravel automatically casts `date_of_birth` to Carbon, can't pass to DateTime constructor
+
+6. **Polymorphic Relationship Fixes**
+   - **Issue**: Code accessing `investmentAccount` directly instead of polymorphic `holdable` relationship
+   - **Error**: "Column not found: 1054 Unknown column 'holdable_type' in 'where clause'"
+   - **Files Fixed**:
+     - `TaxDragCalculator.php:36, 229` - Changed `$holding->investmentAccount` to `$holding->holdable`
+     - `AccountTypeRecommender.php:95, 148` - Same fix with fallback `$account->account_type ?? 'sipp'`
+     - `FeeAnalyzer.php:190` - Same fix
+   - **Pattern**: `$account = $holding->holdable; $accountType = $account->account_type ?? 'sipp';`
+
+7. **American/British Spelling Consistency**
+   - **Issue**: `[vuex] unknown action type: retirement/analyzeInvestment`
+   - **Fix**: `InvestmentDashboard.vue:251` - Changed `analyzeInvestment` to `analyseInvestment` (British spelling)
+
+**Retirement Module Cleanup**:
+
+8. **Removed Readiness Metrics**
+   - Removed readiness score, income gap, retirement gauge, and readiness breakdown from `RetirementReadiness.vue`
+   - Simplified to show only Years to Retirement and Projected Income placeholders
+   - **Reason**: Metrics were confusing and not providing value to users
+
+**Savings Module Cleanup**:
+
+9. **Removed What-If Scenarios**
+   - Removed What-If Scenarios tab from `SavingsDashboard.vue`
+   - **Reason**: Feature not fully implemented and confusing for users
+
+**Documentation Cleanup**:
+
+10. **Organized Deployment Docs**
+    - Moved all deployment-related markdown files to `deployment/` folder
+    - Removed obsolete session summaries and fix tracking docs
+    - Kept deployment guides and approval documentation organized
+
+**Technical Debt Resolved**:
+- Fixed polymorphic relationship access pattern across Investment services (5 locations)
+- Fixed DateTime/Carbon type issues (2 locations)
+- Fixed American/British spelling inconsistencies in method calls
+- Removed deprecated agent pattern in Estate module
+- Consolidated IHT calculation logic into single service with database persistence
+- Removed 14,985 lines of code, added 2,492 lines (net -12,493 lines)
+
+**Files Modified**: 71 files
+- 17 files deleted (legacy docs and obsolete services)
+- 7 new files added (models, migrations, seeders)
+- 47 files modified (controllers, services, views)
+
+**Status**: ✅ Complete - Pushed to main
+
+---
+
 ## Known Issues
 
 **Status**: ✅ No known issues at this time.
