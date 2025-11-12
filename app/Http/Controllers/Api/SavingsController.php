@@ -30,34 +30,18 @@ class SavingsController extends Controller
 
     /**
      * Get all savings data for authenticated user
-     * Includes spouse's accounts if married and linked
+     *
+     * Note: Joint accounts are already handled via reciprocal records.
+     * Each spouse has their own record with their share, so we only
+     * need to fetch the user's own accounts.
      */
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
 
-        // Get user's own accounts
+        // Get user's own accounts (includes their joint account records)
         $accounts = SavingsAccount::where('user_id', $user->id)->get();
 
-        // Add owner flag to user's accounts
-        $accounts = $accounts->map(function ($account) {
-            $account->owner = 'self';
-
-            return $account;
-        });
-
-        // If user has a linked spouse, also include spouse's accounts
-        if ($user->spouse_id) {
-            $spouseAccounts = SavingsAccount::where('user_id', $user->spouse_id)->get();
-
-            $spouseAccounts = $spouseAccounts->map(function ($account) {
-                $account->owner = 'spouse';
-
-                return $account;
-            });
-
-            $accounts = $accounts->concat($spouseAccounts);
-        }
         $goals = SavingsGoal::where('user_id', $user->id)->get();
 
         // Build expenditure profile from user data
