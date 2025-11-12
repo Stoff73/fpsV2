@@ -6,15 +6,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Admin\DatabaseMetricsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
+    public function __construct(private DatabaseMetricsService $databaseMetrics) {}
+
     /**
      * Get admin dashboard statistics
      */
@@ -26,7 +28,7 @@ class AdminController extends Controller
                 'admin_users' => User::where('is_admin', true)->count(),
                 'linked_spouses' => User::whereNotNull('spouse_id')->count() / 2, // Divided by 2 since it's bidirectional
                 'recent_users' => User::latest()->take(5)->get(['id', 'name', 'email', 'created_at']),
-                'database_size' => $this->getDatabaseSize(),
+                'database_size' => $this->databaseMetrics->getDatabaseSize(),
                 'last_backup' => $this->getLastBackupTime(),
             ];
 
@@ -269,7 +271,7 @@ class AdminController extends Controller
                 'data' => [
                     'filename' => $filename,
                     'path' => $fullPath,
-                    'size' => $this->formatBytes($fileSize),
+                    'size' => $this->databaseMetrics->formatBytes($fileSize),
                     'created_at' => date('Y-m-d H:i:s'),
                 ],
             ]);
@@ -304,7 +306,7 @@ class AdminController extends Controller
                     $fullPath = $path.'/'.$file;
                     $backups[] = [
                         'filename' => $file,
-                        'size' => $this->formatBytes(filesize($fullPath)),
+                        'size' => $this->databaseMetrics->formatBytes(filesize($fullPath)),
                         'created_at' => date('Y-m-d H:i:s', filemtime($fullPath)),
                         'path' => $fullPath,
                     ];
@@ -449,21 +451,6 @@ class AdminController extends Controller
     }
 
     /**
-     * Helper: Get database size
-     */
-    private function getDatabaseSize(): string
-    {
-        try {
-            $dbName = config('database.connections.'.config('database.default').'.database');
-            $result = DB::select('SELECT SUM(data_length + index_length) as size FROM information_schema.TABLES WHERE table_schema = ?', [$dbName]);
-
-            return $this->formatBytes($result[0]->size ?? 0);
-        } catch (\Exception $e) {
-            return 'Unknown';
-        }
-    }
-
-    /**
      * Helper: Get last backup time
      */
     private function getLastBackupTime(): ?string
@@ -491,19 +478,5 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return null;
         }
-    }
-
-    /**
-     * Helper: Format bytes to human readable
-     */
-    private function formatBytes($bytes, $precision = 2): string
-    {
-        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-
-        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
-            $bytes /= 1024;
-        }
-
-        return round($bytes, $precision).' '.$units[$i];
     }
 }

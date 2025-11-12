@@ -10,7 +10,6 @@ use App\Models\Estate\Gift;
 use App\Models\Estate\IHTProfile;
 use App\Models\Estate\Liability;
 use App\Models\Estate\Trust;
-use App\Models\Estate\Will;
 use App\Models\Investment\InvestmentAccount;
 use App\Services\Estate\CashFlowProjector;
 use App\Services\Estate\NetWorthAnalyzer;

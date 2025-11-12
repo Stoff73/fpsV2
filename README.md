@@ -36,7 +36,7 @@ A comprehensive financial planning web application designed for UK individuals a
 
 ### Current Status
 
-**Version**: v0.2.6 (Beta - Production Ready)
+**Version**: v0.2.7 (Beta - Production Ready)
 
 **Completion Status**:
 - ✅ **Foundation**: 100% (Authentication, routing, testing framework)
@@ -643,6 +643,82 @@ For issues, questions, or contributions:
 ---
 
 ## 📋 Recent Updates (November 2025)
+
+### November 12, 2025 - Critical Estate & Savings Fixes (Part 2)
+
+**Estate IHT Calculation Fixes**:
+
+1. **IHT-Exempt Assets (DC Pensions) Fix**:
+   - ✅ Fixed Total Gross Assets including DC pensions (£500k) that should be IHT-exempt
+   - ✅ Root cause: IHTCalculationService summed ALL assets without checking `is_iht_exempt` flag
+   - ✅ Solution: Filter out `is_iht_exempt=true` assets before calculating gross estate
+   - ✅ Result: Chris Jones now shows £1,839,000 (correct) instead of £2,339,000
+   - ✅ Pattern: DC/DB pensions with nominated beneficiaries are outside estate for IHT
+
+2. **Second Death Projection Fix**:
+   - ✅ Fixed married couples projecting to different ages depending on who views the page
+   - ✅ Root cause: IHTCalculationService only used primary user's life expectancy
+   - ✅ Solution: Calculate BOTH life expectancies, use max() for second death scenario
+   - ✅ Result: Both Chris (36 years) and Ang (44 years) now project to 44 years (Ang's death)
+   - ✅ UK IHT context: First death = spouse exemption (no IHT), second death = full combined estate taxed
+
+3. **Breakdown Projection Alignment Fix**:
+   - ✅ Fixed inconsistent projected values between service (£20.4M) and breakdown subtotals (£16.7M)
+   - ✅ Root cause: IHTController used 4.5% growth to age 85 per spouse, service used 4.7% to second death
+   - ✅ Solution: Aligned both to use 4.7% growth to second death (44 years for both spouses)
+   - ✅ Result: Service and breakdown now show identical £20,476,882 projected value
+
+4. **Cache Invalidation**:
+   - ✅ Cleared stale IHT calculation cache that showed pre-fix values
+   - ✅ All calculations now use updated filtering and projection logic
+
+**Family Members & User Profile Fixes**:
+
+5. **Spouse Family Members Sharing**:
+   - ✅ Fixed spouse seeing empty family section when account created during onboarding
+   - ✅ Root cause: UserProfileService only returned user's own family members
+   - ✅ Solution: Added `getFamilyMembersWithSharing()` to include spouse's records
+   - ✅ Pattern: Same sharing logic as FamilyMembersController (spouse + children)
+
+6. **Password Requirements Guidance**:
+   - ✅ Added password requirements hint to ChangePasswordModal and Register forms
+   - ✅ Requirements: 8+ chars, 1 uppercase, 1 lowercase, 1 number, 1 special character
+   - ✅ Prevents user confusion when password validation fails
+
+**Savings Module Fixes**:
+
+7. **Joint Savings Accounts 50/50 Split**:
+   - ✅ Fixed joint savings showing full balance in one account, nothing in spouse's
+   - ✅ Root cause: SavingsController didn't split balance before creating reciprocal records
+   - ✅ Solution: Split balance 50/50, set ownership_percentage, create two records
+   - ✅ Pattern: Now matches Property module (two records, each with their share)
+   - ✅ Result: £45k joint account now shows £22.5k for Chris, £22.5k for Ang
+
+8. **Duplicate Accounts in Savings View**:
+   - ✅ Fixed Ang seeing 3 accounts instead of 1 (her joint + Chris's joint + Chris's individual)
+   - ✅ Root cause: index() method included ALL spouse accounts, but joint accounts already use reciprocal records
+   - ✅ Solution: Reverted to only fetch user's own accounts (joint records already exist per user)
+
+9. **Ownership Tags on Savings Cards**:
+   - ✅ Added ownership badge (Individual/Joint/Trust) to savings account cards
+   - ✅ Badge colors: Gray (individual), Purple (joint), Amber (trust)
+   - ✅ Consistent with Property and Investment module styling
+
+**Files Modified**: 7 files
+- `app/Services/Estate/IHTCalculationService.php`
+- `app/Http/Controllers/Api/Estate/IHTController.php`
+- `app/Services/UserProfile/UserProfileService.php`
+- `app/Http/Controllers/Api/FamilyMembersController.php`
+- `resources/js/components/Auth/ChangePasswordModal.vue`
+- `resources/js/views/Register.vue`
+- `app/Http/Controllers/Api/SavingsController.php`
+- `resources/js/components/Savings/CurrentSituation.vue`
+
+**Database Updates**: Fixed existing joint savings account (Chris £22.5k, Ang £22.5k)
+
+**Impact**: All married couples now see consistent IHT calculations, joint accounts properly split, and family members correctly shared.
+
+---
 
 ### November 12, 2025 - Estate IHT Planning Projected Values Fix
 

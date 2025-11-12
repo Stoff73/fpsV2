@@ -39,7 +39,8 @@ class CovarianceMatrixCalculator
 
         foreach ($holdings as $holding) {
             $labels[] = $holding->asset_name ?? $holding->ticker_symbol ?? 'Unknown';
-            $returnsData[] = $holding->historical_returns ?? $this->generateMockReturns(); // TODO: Replace with real data
+            // Note: Using mock returns until historical data API integration implemented
+            $returnsData[] = $holding->historical_returns ?? $this->generateMockReturns();
         }
 
         $n = count($returnsData);

@@ -6,6 +6,7 @@ namespace App\Services\Investment\AssetLocation;
 
 use App\Models\Investment\InvestmentAccount;
 use App\Models\User;
+use App\Services\TaxConfigService;
 
 /**
  * Asset Location Optimizer
@@ -18,7 +19,8 @@ class AssetLocationOptimizer
 {
     public function __construct(
         private TaxDragCalculator $taxDragCalculator,
-        private AccountTypeRecommender $recommender
+        private AccountTypeRecommender $recommender,
+        private TaxConfigService $taxConfig
     ) {}
 
     /**
@@ -95,8 +97,9 @@ class AssetLocationOptimizer
         $cgtRate = $annualIncome <= 50270 ? 0.10 : 0.20;
 
         // ISA allowance
+        $isaAllowance = $this->taxConfig->getISAAllowances()['annual_allowance'];
         $isaAllowanceUsed = $options['isa_allowance_used'] ?? 0;
-        $isaAllowanceRemaining = max(0, 20000 - $isaAllowanceUsed);
+        $isaAllowanceRemaining = max(0, $isaAllowance - $isaAllowanceUsed);
 
         // Years to retirement (for pension tax drag calculation)
         $age = $user->date_of_birth

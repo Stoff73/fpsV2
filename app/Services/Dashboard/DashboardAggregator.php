@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Dashboard;
 
-use App\Agents\EstateAgent;
 use App\Agents\InvestmentAgent;
 use App\Agents\ProtectionAgent;
 use App\Agents\RetirementAgent;
@@ -16,8 +15,7 @@ class DashboardAggregator
         private ProtectionAgent $protectionAgent,
         private SavingsAgent $savingsAgent,
         private InvestmentAgent $investmentAgent,
-        private RetirementAgent $retirementAgent,
-        private EstateAgent $estateAgent
+        private RetirementAgent $retirementAgent
     ) {}
 
     /**

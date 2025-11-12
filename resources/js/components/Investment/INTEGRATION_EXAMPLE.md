@@ -322,7 +322,7 @@ If you prefer to show accounts in the Portfolio Overview instead of a separate t
     <AccountForm
       :show="showAccountForm"
       :account="selectedAccount"
-      @submit="handleAccountSubmit"
+      @save="handleAccountSubmit"
       @close="showAccountForm = false"
     />
   </div>

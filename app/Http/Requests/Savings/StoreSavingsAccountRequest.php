@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Savings;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreSavingsAccountRequest extends FormRequest
 {
@@ -30,6 +31,11 @@ class StoreSavingsAccountRequest extends FormRequest
             'isa_type' => 'nullable|required_if:is_isa,true|in:cash,stocks_shares,LISA',
             'isa_subscription_year' => 'nullable|required_if:is_isa,true|string',
             'isa_subscription_amount' => 'nullable|required_if:is_isa,true|numeric|min:0',
+
+            // Ownership
+            'ownership_type' => ['required', Rule::in(['individual', 'joint', 'trust'])],
+            'joint_owner_id' => ['nullable', 'required_if:ownership_type,joint', 'exists:users,id'],
+            'trust_id' => ['nullable', 'required_if:ownership_type,trust', 'exists:trusts,id'],
         ];
     }
 

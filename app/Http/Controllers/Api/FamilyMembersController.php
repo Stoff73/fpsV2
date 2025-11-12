@@ -108,7 +108,7 @@ class FamilyMembersController extends Controller
             'spouse_members_count' => $spouseFamilyMembers->count(),
             'shared_from_spouse_count' => $sharedFromSpouse->count(),
             'total_members' => $allMembers->count(),
-            'members' => $allMembers->map(function($m) {
+            'members' => $allMembers->map(function ($m) {
                 return ['name' => $m['name'], 'relationship' => $m['relationship'], 'is_shared' => $m['is_shared']];
             })->toArray(),
         ]);

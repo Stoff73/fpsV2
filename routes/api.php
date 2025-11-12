@@ -20,7 +20,9 @@ use App\Http\Controllers\Api\Investment\InvestmentRecommendationController;
 use App\Http\Controllers\Api\Investment\InvestmentScenarioController;
 use App\Http\Controllers\Api\Investment\ModelPortfolioController;
 use App\Http\Controllers\Api\Investment\PerformanceAttributionController;
-use App\Http\Controllers\Api\Investment\RebalancingController;
+use App\Http\Controllers\Api\Investment\RebalancingActionsController;
+use App\Http\Controllers\Api\Investment\RebalancingCalculationController;
+use App\Http\Controllers\Api\Investment\RebalancingStrategiesController;
 use App\Http\Controllers\Api\Investment\RiskProfileController;
 use App\Http\Controllers\Api\Investment\TaxOptimizationController;
 use App\Http\Controllers\Api\InvestmentController;
@@ -309,28 +311,28 @@ Route::middleware('auth:sanctum')->prefix('investment')->group(function () {
     // Portfolio Rebalancing with CGT Optimization
     Route::prefix('rebalancing')->group(function () {
         // Calculate rebalancing actions
-        Route::post('/calculate', [RebalancingController::class, 'calculateRebalancing']);
-        Route::post('/from-optimization', [RebalancingController::class, 'calculateFromOptimization']);
+        Route::post('/calculate', [RebalancingCalculationController::class, 'calculateRebalancing']);
+        Route::post('/from-optimization', [RebalancingCalculationController::class, 'calculateFromOptimization']);
 
         // CGT-aware rebalancing
-        Route::post('/compare-cgt', [RebalancingController::class, 'compareCGTStrategies']);
-        Route::post('/within-cgt-allowance', [RebalancingController::class, 'rebalanceWithinCGTAllowance']);
+        Route::post('/compare-cgt', [RebalancingCalculationController::class, 'compareCGTStrategies']);
+        Route::post('/within-cgt-allowance', [RebalancingCalculationController::class, 'rebalanceWithinCGTAllowance']);
 
         // Drift analysis (Phase 3.4)
-        Route::post('/analyze-drift', [RebalancingController::class, 'analyzeDrift']);
+        Route::post('/analyze-drift', [RebalancingCalculationController::class, 'analyzeDrift']);
 
         // Rebalancing strategies (Phase 3.4)
-        Route::post('/evaluate-strategies', [RebalancingController::class, 'evaluateStrategies']);
-        Route::post('/threshold-strategy', [RebalancingController::class, 'evaluateThresholdStrategy']);
-        Route::post('/calendar-strategy', [RebalancingController::class, 'evaluateCalendarStrategy']);
-        Route::post('/opportunistic-strategy', [RebalancingController::class, 'evaluateOpportunisticStrategy']);
-        Route::post('/recommend-frequency', [RebalancingController::class, 'recommendFrequency']);
+        Route::post('/evaluate-strategies', [RebalancingStrategiesController::class, 'evaluateStrategies']);
+        Route::post('/threshold-strategy', [RebalancingStrategiesController::class, 'evaluateThresholdStrategy']);
+        Route::post('/calendar-strategy', [RebalancingStrategiesController::class, 'evaluateCalendarStrategy']);
+        Route::post('/opportunistic-strategy', [RebalancingStrategiesController::class, 'evaluateOpportunisticStrategy']);
+        Route::post('/recommend-frequency', [RebalancingStrategiesController::class, 'recommendFrequency']);
 
         // Manage rebalancing actions
-        Route::get('/actions', [RebalancingController::class, 'getRebalancingActions']);
-        Route::post('/save', [RebalancingController::class, 'saveRebalancingActions']);
-        Route::put('/actions/{id}', [RebalancingController::class, 'updateRebalancingAction']);
-        Route::delete('/actions/{id}', [RebalancingController::class, 'deleteRebalancingAction']);
+        Route::get('/actions', [RebalancingActionsController::class, 'getRebalancingActions']);
+        Route::post('/save', [RebalancingActionsController::class, 'saveRebalancingActions']);
+        Route::put('/actions/{id}', [RebalancingActionsController::class, 'updateRebalancingAction']);
+        Route::delete('/actions/{id}', [RebalancingActionsController::class, 'deleteRebalancingAction']);
     });
 
     // Contribution Planning & Optimization (Phase 2.1)

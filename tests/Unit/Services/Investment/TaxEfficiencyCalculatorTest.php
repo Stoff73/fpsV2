@@ -5,9 +5,11 @@ declare(strict_types=1);
 use App\Models\Investment\Holding;
 use App\Models\Investment\InvestmentAccount;
 use App\Services\Investment\TaxEfficiencyCalculator;
+use App\Services\TaxConfigService;
 
 beforeEach(function () {
-    $this->taxCalculator = new TaxEfficiencyCalculator;
+    $this->taxConfig = Mockery::mock(TaxConfigService::class);
+    $this->taxCalculator = new TaxEfficiencyCalculator($this->taxConfig);
 
     // Mock UK tax config
     config([

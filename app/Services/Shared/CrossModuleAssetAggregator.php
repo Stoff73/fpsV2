@@ -52,18 +52,22 @@ class CrossModuleAssetAggregator
     }
 
     /**
-     * Get property assets
+     * Get property assets applying ownership percentage
      *
-     * IMPORTANT: current_value is ALREADY stored as the user's share in the database
-     * (divided by ownership_percentage when saving). No need to multiply again.
+     * Properties store the FULL property value. Ownership percentage indicates
+     * the user's share (e.g., 50% of a jointly owned property).
      */
     public function getPropertyAssets(int $userId): Collection
     {
         return Property::where('user_id', $userId)->get()->map(function ($property) {
+            // Apply ownership percentage (default 100 if not set)
+            $ownershipPercentage = $property->ownership_percentage ?? 100;
+            $userShare = ($property->current_value * $ownershipPercentage) / 100;
+
             return (object) [
                 'asset_type' => 'property',
                 'asset_name' => $property->address_line_1 ?: 'Property',
-                'current_value' => (float) $property->current_value,
+                'current_value' => (float) $userShare,
                 'is_iht_exempt' => false,
                 'source_id' => $property->id,
                 'source_model' => 'Property',
@@ -127,16 +131,19 @@ class CrossModuleAssetAggregator
     }
 
     /**
-     * Calculate total property value
+     * Calculate total property value applying ownership percentage
      *
-     * IMPORTANT: current_value is ALREADY stored as the user's share in the database
-     * (divided by ownership_percentage when saving). Therefore, we do NOT multiply
-     * by ownership_percentage here - that would divide the value in half again.
+     * Properties store the FULL property value. We calculate the user's share
+     * by applying their ownership_percentage.
      */
     public function calculatePropertyTotal(int $userId): float
     {
         return (float) Property::where('user_id', $userId)
-            ->sum('current_value');
+            ->get()
+            ->sum(function ($property) {
+                $ownershipPercentage = $property->ownership_percentage ?? 100;
+                return ($property->current_value * $ownershipPercentage) / 100;
+            });
     }
 
     /**

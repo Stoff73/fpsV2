@@ -156,7 +156,8 @@ class EstateAssetAggregatorService
             $isJoint = ($liability->ownership_type ?? 'individual') === 'joint';
             // Database already stores the user's share - do NOT divide by 2
             $value = $liability->current_balance;
-            \Log::info('Liability: ' . ($liability->institution ?? 'Unknown') . ' | Type: ' . ($liability->type ?? 'Unknown') . ' | Joint: ' . ($isJoint ? 'YES' : 'NO') . ' | Value: £' . $value);
+            \Log::info('Liability: '.($liability->institution ?? 'Unknown').' | Type: '.($liability->type ?? 'Unknown').' | Joint: '.($isJoint ? 'YES' : 'NO').' | Value: £'.$value);
+
             return $value;
         });
 
@@ -167,12 +168,13 @@ class EstateAssetAggregatorService
             $isJoint = $property && ($property->ownership_type ?? 'individual') === 'joint';
             // Database already stores the user's share - do NOT divide by 2
             $value = $mortgage->outstanding_balance;
-            \Log::info('Mortgage: ' . ($property->address_line_1 ?? 'Unknown') . ' | Property Joint: ' . ($isJoint ? 'YES' : 'NO') . ' | Value: £' . $value);
+            \Log::info('Mortgage: '.($property->address_line_1 ?? 'Unknown').' | Property Joint: '.($isJoint ? 'YES' : 'NO').' | Value: £'.$value);
+
             return $value;
         });
 
         $total = $liabilities + $mortgages;
-        \Log::info('=== USER ' . $user->name . ' TOTAL LIABILITIES: £' . $total . ' ===');
+        \Log::info('=== USER '.$user->name.' TOTAL LIABILITIES: £'.$total.' ===');
 
         return $total;
     }

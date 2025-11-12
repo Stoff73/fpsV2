@@ -99,7 +99,7 @@ A modal form component for creating and editing investment accounts.
 <AccountForm
   :show="showModal"
   :account="selectedAccount"
-  @submit="handleSubmit"
+  @save="handleSubmit"
   @close="closeModal"
 />
 ```

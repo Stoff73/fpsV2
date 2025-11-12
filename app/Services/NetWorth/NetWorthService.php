@@ -282,8 +282,9 @@ class NetWorthService
                 ];
             });
 
-        // Get joint savings accounts (savings_accounts table doesn't have ownership_type, so skip for now)
-        // TODO: Add ownership_type to savings_accounts table if joint accounts needed
+        // Get joint savings accounts
+        // Note: ownership_type validation added to StoreSavingsAccountRequest
+        // Implementation pending: Query SavingsAccount model with ownership_type filter
         $cashAccounts = collect([]);
 
         // Get joint businesses
