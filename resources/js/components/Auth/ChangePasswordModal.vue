@@ -21,7 +21,7 @@
 
           <!-- Error Message -->
           <div v-if="error" class="mb-4 rounded-md bg-error-50 p-3">
-            <p class="text-sm font-medium text-error-800">{{ error }}</p>
+            <p class="text-sm font-medium text-error-800 whitespace-pre-line">{{ error }}</p>
           </div>
 
           <!-- Success Message -->
@@ -60,7 +60,7 @@
                 :disabled="submitting"
               />
               <p class="mt-1 text-xs text-gray-500">
-                Must be at least 8 characters long
+                Must be at least 8 characters with one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)
               </p>
             </div>
 
@@ -169,7 +169,16 @@ export default {
         }
       } catch (err) {
         console.error('Password change error:', err);
-        error.value = err.response?.data?.message || 'An error occurred while changing password';
+        console.error('Validation errors:', err.response?.data?.errors);
+
+        // Display validation errors if available
+        if (err.response?.data?.errors) {
+          const errors = err.response.data.errors;
+          const errorMessages = Object.values(errors).flat();
+          error.value = errorMessages.join('\n');
+        } else {
+          error.value = err.response?.data?.message || 'An error occurred while changing password';
+        }
       } finally {
         submitting.value = false;
       }

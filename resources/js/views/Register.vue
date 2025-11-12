@@ -71,6 +71,9 @@
               :class="{ 'border-error-600': errors.password }"
               placeholder="••••••••"
             >
+            <p v-if="!errors.password" class="mt-1 text-xs text-gray-500">
+              Must be at least 8 characters with one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)
+            </p>
             <p v-if="errors.password" class="mt-1 text-body-sm text-error-600">
               {{ errors.password[0] }}
             </p>
