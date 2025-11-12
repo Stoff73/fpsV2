@@ -267,7 +267,7 @@
               <tr class="bg-blue-100">
                 <td class="px-4 py-2 text-sm font-semibold text-blue-900 pl-8">Subtotal</td>
                 <td class="px-4 py-2 text-sm text-right font-semibold text-blue-900">{{ formatCurrency(secondDeathData.assets_breakdown.user.total) }}</td>
-                <td class="px-4 py-2 text-sm text-right font-semibold text-blue-900">{{ formatCurrency(userAssetsProjectedTotal) }}</td>
+                <td class="px-4 py-2 text-sm text-right font-semibold text-blue-900">{{ formatCurrency(secondDeathData.assets_breakdown.user.projected_total) }}</td>
               </tr>
             </template>
 
@@ -333,7 +333,7 @@
               <tr class="bg-purple-100">
                 <td class="px-4 py-2 text-sm font-semibold text-purple-900 pl-8">Subtotal</td>
                 <td class="px-4 py-2 text-sm text-right font-semibold text-purple-900">{{ formatCurrency(secondDeathData.assets_breakdown.spouse.total) }}</td>
-                <td class="px-4 py-2 text-sm text-right font-semibold text-purple-900">{{ formatCurrency(spouseAssetsProjectedTotal) }}</td>
+                <td class="px-4 py-2 text-sm text-right font-semibold text-purple-900">{{ formatCurrency(secondDeathData.assets_breakdown.spouse.projected_total) }}</td>
               </tr>
             </template>
 
@@ -665,28 +665,28 @@
               </tr>
 
               <!-- User Mortgages -->
-              <tr v-for="(mortgage, index) in secondDeathData.liabilities_breakdown.user.mortgages" :key="'user-mortgage-' + index">
+              <tr v-for="(mortgage, index) in secondDeathData.liabilities_breakdown.user.liabilities?.mortgages" :key="'user-mortgage-2-' + index">
                 <td class="px-4 py-2 text-sm text-gray-700 pl-8">
-                  <span class="text-xs text-red-500">Mortgage:</span> {{ mortgage.property }}
+                  <span class="text-xs text-red-500">Mortgage:</span> {{ mortgage.property_address }}
                 </td>
-                <td class="px-4 py-2 text-sm text-right text-red-600">-{{ formatCurrency(mortgage.balance) }}</td>
-                <td class="px-4 py-2 text-sm text-right text-red-600">-{{ formatCurrency(mortgage.balance) }}</td>
+                <td class="px-4 py-2 text-sm text-right text-red-600">-{{ formatCurrency(mortgage.outstanding_balance) }}</td>
+                <td class="px-4 py-2 text-sm text-right text-red-600">-{{ formatCurrency(mortgage.projected_balance) }}</td>
               </tr>
 
               <!-- User Other Liabilities -->
-              <tr v-for="(liability, index) in secondDeathData.liabilities_breakdown.user.liabilities" :key="'user-liability-' + index">
+              <tr v-for="(liability, index) in secondDeathData.liabilities_breakdown.user.liabilities?.other_liabilities" :key="'user-liability-2-' + index">
                 <td class="px-4 py-2 text-sm text-gray-700 pl-8">
-                  <span class="text-xs text-red-500">{{ liability.type }}:</span> {{ liability.amount }}
+                  <span class="text-xs text-red-500">{{ liability.type }}:</span> {{ liability.institution }}
                 </td>
-                <td class="px-4 py-2 text-sm text-right text-red-600">-{{ formatCurrency(liability.amount) }}</td>
-                <td class="px-4 py-2 text-sm text-right text-red-600">-{{ formatCurrency(liability.amount) }}</td>
+                <td class="px-4 py-2 text-sm text-right text-red-600">-{{ formatCurrency(liability.current_balance) }}</td>
+                <td class="px-4 py-2 text-sm text-right text-red-600">-{{ formatCurrency(liability.projected_balance) }}</td>
               </tr>
 
               <!-- User Liabilities Subtotal -->
               <tr v-if="secondDeathData.liabilities_breakdown.user.total > 0" class="bg-red-100">
                 <td class="px-4 py-2 text-sm font-semibold text-red-900 pl-8">Liabilities Subtotal</td>
                 <td class="px-4 py-2 text-sm text-right font-semibold text-red-900">-{{ formatCurrency(secondDeathData.liabilities_breakdown.user.total) }}</td>
-                <td class="px-4 py-2 text-sm text-right font-semibold text-red-900">-{{ formatCurrency(secondDeathData.liabilities_breakdown.user.total) }}</td>
+                <td class="px-4 py-2 text-sm text-right font-semibold text-red-900">-{{ formatCurrency(userLiabilitiesProjectedTotal) }}</td>
               </tr>
             </template>
 
@@ -699,28 +699,28 @@
               </tr>
 
               <!-- Spouse Mortgages -->
-              <tr v-for="(mortgage, index) in secondDeathData.liabilities_breakdown.spouse.mortgages" :key="'spouse-mortgage-' + index">
+              <tr v-for="(mortgage, index) in secondDeathData.liabilities_breakdown.spouse.liabilities?.mortgages" :key="'spouse-mortgage-2-' + index">
                 <td class="px-4 py-2 text-sm text-gray-700 pl-8">
-                  <span class="text-xs text-orange-500">Mortgage:</span> {{ mortgage.property }}
+                  <span class="text-xs text-orange-500">Mortgage:</span> {{ mortgage.property_address }}
                 </td>
-                <td class="px-4 py-2 text-sm text-right text-orange-600">-{{ formatCurrency(mortgage.balance) }}</td>
-                <td class="px-4 py-2 text-sm text-right text-orange-600">-{{ formatCurrency(mortgage.balance) }}</td>
+                <td class="px-4 py-2 text-sm text-right text-orange-600">-{{ formatCurrency(mortgage.outstanding_balance) }}</td>
+                <td class="px-4 py-2 text-sm text-right text-orange-600">-{{ formatCurrency(mortgage.projected_balance) }}</td>
               </tr>
 
               <!-- Spouse Other Liabilities -->
-              <tr v-for="(liability, index) in secondDeathData.liabilities_breakdown.spouse.liabilities" :key="'spouse-liability-' + index">
+              <tr v-for="(liability, index) in secondDeathData.liabilities_breakdown.spouse.liabilities?.other_liabilities" :key="'spouse-liability-2-' + index">
                 <td class="px-4 py-2 text-sm text-gray-700 pl-8">
-                  <span class="text-xs text-orange-500">{{ liability.type }}:</span> {{ liability.amount }}
+                  <span class="text-xs text-orange-500">{{ liability.type }}:</span> {{ liability.institution }}
                 </td>
-                <td class="px-4 py-2 text-sm text-right text-orange-600">-{{ formatCurrency(liability.amount) }}</td>
-                <td class="px-4 py-2 text-sm text-right text-orange-600">-{{ formatCurrency(liability.amount) }}</td>
+                <td class="px-4 py-2 text-sm text-right text-orange-600">-{{ formatCurrency(liability.current_balance) }}</td>
+                <td class="px-4 py-2 text-sm text-right text-orange-600">-{{ formatCurrency(liability.projected_balance) }}</td>
               </tr>
 
               <!-- Spouse Liabilities Subtotal -->
               <tr v-if="secondDeathData.liabilities_breakdown.spouse.total > 0" class="bg-orange-100">
                 <td class="px-4 py-2 text-sm font-semibold text-orange-900 pl-8">Liabilities Subtotal</td>
                 <td class="px-4 py-2 text-sm text-right font-semibold text-orange-900">-{{ formatCurrency(secondDeathData.liabilities_breakdown.spouse.total) }}</td>
-                <td class="px-4 py-2 text-sm text-right font-semibold text-orange-900">-{{ formatCurrency(secondDeathData.liabilities_breakdown.spouse.total) }}</td>
+                <td class="px-4 py-2 text-sm text-right font-semibold text-orange-900">-{{ formatCurrency(spouseLiabilitiesProjectedTotal) }}</td>
               </tr>
             </template>
 

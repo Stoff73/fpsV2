@@ -62,6 +62,19 @@ class IHTController extends Controller
                 $dataSharingEnabled
             );
 
+            // Calculate total liabilities (current and projected)
+            $totalLiabilities = $liabilitiesBreakdown['user']['total'];
+            $projectedLiabilities = $liabilitiesBreakdown['user']['projected_total'];
+
+            if ($dataSharingEnabled && isset($liabilitiesBreakdown['spouse'])) {
+                $totalLiabilities += $liabilitiesBreakdown['spouse']['total'];
+                $projectedLiabilities += $liabilitiesBreakdown['spouse']['projected_total'];
+            }
+
+            // Add liabilities to calculation object
+            $calculation['total_liabilities'] = $totalLiabilities;
+            $calculation['projected_liabilities'] = $projectedLiabilities;
+
             // Format response for frontend compatibility
             $response = [
                 'success' => true,
@@ -116,7 +129,10 @@ class IHTController extends Controller
     private function formatAssetsBreakdown($userAssets, $spouseAssets = null, bool $includeSpouse = false, ?User $user = null, ?User $spouse = null): array
     {
         $estateGrowthRate = 0.045;
-        $yearsToProject = 20; // Default projection
+
+        // Calculate years to project based on user's age
+        $userAge = $user && $user->date_of_birth ? \Carbon\Carbon::parse($user->date_of_birth)->age : 50;
+        $yearsToProject = max(0, 85 - $userAge); // Project to age 85
 
         $userAssetsForIHT = [
             'investment' => [],
@@ -126,6 +142,7 @@ class IHTController extends Controller
             'chattel' => [],
         ];
         $userAssetsTotal = 0;
+        $userAssetsProjectedTotal = 0;
 
         // Process user assets
         foreach ($userAssets as $asset) {
@@ -147,6 +164,7 @@ class IHTController extends Controller
                     'ownership_type' => $asset->ownership_type,
                 ];
                 $userAssetsTotal += $displayValue;
+                $userAssetsProjectedTotal += $projectedValue;
             }
         }
 
@@ -157,12 +175,17 @@ class IHTController extends Controller
                 'name' => $userName,
                 'assets' => $userAssetsForIHT,
                 'total' => $userAssetsTotal,
+                'projected_total' => $userAssetsProjectedTotal,
             ],
             'spouse' => null,
         ];
 
         // Add spouse assets if applicable
         if ($includeSpouse && $spouseAssets && $spouseAssets->isNotEmpty()) {
+            // Calculate years to project for spouse based on their age
+            $spouseAge = $spouse && $spouse->date_of_birth ? \Carbon\Carbon::parse($spouse->date_of_birth)->age : 50;
+            $spouseYearsToProject = max(0, 85 - $spouseAge); // Project to age 85
+
             $spouseAssetsForIHT = [
                 'investment' => [],
                 'property' => [],
@@ -171,6 +194,7 @@ class IHTController extends Controller
                 'chattel' => [],
             ];
             $spouseAssetsTotal = 0;
+            $spouseAssetsProjectedTotal = 0;
 
             foreach ($spouseAssets as $asset) {
                 if ($asset->is_iht_exempt || $asset->current_value <= 0) {
@@ -181,7 +205,7 @@ class IHTController extends Controller
                     $isJoint = ($asset->ownership_type ?? 'individual') === 'joint';
                     // Database already stores the spouse's share - do NOT divide by 2
                     $displayValue = $asset->current_value;
-                    $projectedValue = $displayValue * pow(1 + $estateGrowthRate, $yearsToProject);
+                    $projectedValue = $displayValue * pow(1 + $estateGrowthRate, $spouseYearsToProject);
 
                     $spouseAssetsForIHT[$asset->asset_type][] = [
                         'name' => $asset->asset_name,
@@ -191,6 +215,7 @@ class IHTController extends Controller
                         'ownership_type' => $asset->ownership_type,
                     ];
                     $spouseAssetsTotal += $displayValue;
+                    $spouseAssetsProjectedTotal += $projectedValue;
                 }
             }
 
@@ -199,6 +224,7 @@ class IHTController extends Controller
                 'name' => $spouseName,
                 'assets' => $spouseAssetsForIHT,
                 'total' => $spouseAssetsTotal,
+                'projected_total' => $spouseAssetsProjectedTotal,
             ];
         }
 
@@ -207,6 +233,8 @@ class IHTController extends Controller
 
     /**
      * Format liabilities breakdown for response
+     *
+     * IMPORTANT: Mortgages are assumed to be paid off by age 70
      */
     private function formatLiabilitiesBreakdown(User $user, ?User $spouse = null, bool $includeSpouse = false): array
     {
@@ -217,36 +245,60 @@ class IHTController extends Controller
         $userLiabilitiesFormatted = [];
         $userMortgagesTotal = 0;
         $userLiabilitiesTotal = 0;
+        $userMortgagesProjectedTotal = 0;
+        $userLiabilitiesProjectedTotal = 0;
+
+        // Calculate user age at death for mortgage projections
+        $userAge = $user->date_of_birth ? \Carbon\Carbon::parse($user->date_of_birth)->age : 50;
+        $yearsToProjectedDeath = max(0, 85 - $userAge); // Assume life expectancy of 85
+        $userAgeAtDeath = $userAge + $yearsToProjectedDeath;
 
         foreach ($userMortgages as $mortgage) {
             if ($mortgage->outstanding_balance > 0) {
                 $propertyName = $mortgage->property ? $mortgage->property->address_line_1 : 'Unknown Property';
+                $isJoint = $mortgage->property && $mortgage->property->ownership_type === 'joint';
+
+                // Mortgages are assumed to be paid off by age 70
+                $projectedBalance = ($userAgeAtDeath >= 70) ? 0 : $mortgage->outstanding_balance;
+
                 $userMortgagesFormatted[] = [
-                    'property' => $propertyName,
-                    'balance' => $mortgage->outstanding_balance,
+                    'property_address' => $propertyName,
+                    'outstanding_balance' => $mortgage->outstanding_balance,
+                    'projected_balance' => $projectedBalance,
+                    'mortgage_type' => $mortgage->mortgage_type ?? 'repayment',
+                    'is_joint' => $isJoint,
                 ];
                 $userMortgagesTotal += $mortgage->outstanding_balance;
+                $userMortgagesProjectedTotal += $projectedBalance;
             }
         }
 
         foreach ($userLiabilities as $liability) {
             if ($liability->amount > 0) {
+                // Other liabilities persist at current value
                 $userLiabilitiesFormatted[] = [
                     'type' => ucwords(str_replace('_', ' ', $liability->liability_type)),
-                    'amount' => $liability->amount,
+                    'institution' => $liability->description ?? ucwords(str_replace('_', ' ', $liability->liability_type)),
+                    'current_balance' => $liability->amount,
+                    'projected_balance' => $liability->amount,
+                    'is_joint' => ($liability->ownership_type ?? 'individual') === 'joint',
                 ];
                 $userLiabilitiesTotal += $liability->amount;
+                $userLiabilitiesProjectedTotal += $liability->amount;
             }
         }
 
         $breakdown = [
             'user' => [
                 'name' => trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: $user->name,
-                'mortgages' => $userMortgagesFormatted,
+                'liabilities' => [
+                    'mortgages' => $userMortgagesFormatted,
+                    'other_liabilities' => $userLiabilitiesFormatted,
+                ],
                 'mortgages_total' => $userMortgagesTotal,
-                'liabilities' => $userLiabilitiesFormatted,
                 'liabilities_total' => $userLiabilitiesTotal,
                 'total' => $userMortgagesTotal + $userLiabilitiesTotal,
+                'projected_total' => $userMortgagesProjectedTotal + $userLiabilitiesProjectedTotal,
             ],
             'spouse' => null,
         ];
@@ -259,35 +311,59 @@ class IHTController extends Controller
             $spouseLiabilitiesFormatted = [];
             $spouseMortgagesTotal = 0;
             $spouseLiabilitiesTotal = 0;
+            $spouseMortgagesProjectedTotal = 0;
+            $spouseLiabilitiesProjectedTotal = 0;
+
+            // Calculate spouse age at death for mortgage projections
+            $spouseAge = $spouse->date_of_birth ? \Carbon\Carbon::parse($spouse->date_of_birth)->age : 50;
+            $spouseYearsToProjectedDeath = max(0, 85 - $spouseAge);
+            $spouseAgeAtDeath = $spouseAge + $spouseYearsToProjectedDeath;
 
             foreach ($spouseMortgages as $mortgage) {
                 if ($mortgage->outstanding_balance > 0) {
                     $propertyName = $mortgage->property ? $mortgage->property->address_line_1 : 'Unknown Property';
+                    $isJoint = $mortgage->property && $mortgage->property->ownership_type === 'joint';
+
+                    // Mortgages are assumed to be paid off by age 70
+                    $projectedBalance = ($spouseAgeAtDeath >= 70) ? 0 : $mortgage->outstanding_balance;
+
                     $spouseMortgagesFormatted[] = [
-                        'property' => $propertyName,
-                        'balance' => $mortgage->outstanding_balance,
+                        'property_address' => $propertyName,
+                        'outstanding_balance' => $mortgage->outstanding_balance,
+                        'projected_balance' => $projectedBalance,
+                        'mortgage_type' => $mortgage->mortgage_type ?? 'repayment',
+                        'is_joint' => $isJoint,
                     ];
                     $spouseMortgagesTotal += $mortgage->outstanding_balance;
+                    $spouseMortgagesProjectedTotal += $projectedBalance;
                 }
             }
 
             foreach ($spouseLiabilities as $liability) {
                 if ($liability->amount > 0) {
+                    // Other liabilities persist at current value
                     $spouseLiabilitiesFormatted[] = [
                         'type' => ucwords(str_replace('_', ' ', $liability->liability_type)),
-                        'amount' => $liability->amount,
+                        'institution' => $liability->description ?? ucwords(str_replace('_', ' ', $liability->liability_type)),
+                        'current_balance' => $liability->amount,
+                        'projected_balance' => $liability->amount,
+                        'is_joint' => ($liability->ownership_type ?? 'individual') === 'joint',
                     ];
                     $spouseLiabilitiesTotal += $liability->amount;
+                    $spouseLiabilitiesProjectedTotal += $liability->amount;
                 }
             }
 
             $breakdown['spouse'] = [
                 'name' => trim(($spouse->first_name ?? '').' '.($spouse->last_name ?? '')) ?: $spouse->name,
-                'mortgages' => $spouseMortgagesFormatted,
+                'liabilities' => [
+                    'mortgages' => $spouseMortgagesFormatted,
+                    'other_liabilities' => $spouseLiabilitiesFormatted,
+                ],
                 'mortgages_total' => $spouseMortgagesTotal,
-                'liabilities' => $spouseLiabilitiesFormatted,
                 'liabilities_total' => $spouseLiabilitiesTotal,
                 'total' => $spouseMortgagesTotal + $spouseLiabilitiesTotal,
+                'projected_total' => $spouseMortgagesProjectedTotal + $spouseLiabilitiesProjectedTotal,
             ];
         }
 
