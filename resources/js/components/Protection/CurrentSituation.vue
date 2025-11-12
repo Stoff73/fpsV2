@@ -63,21 +63,90 @@
       </div>
     </div>
 
-    <!-- Coverage Summary Cards -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <div
-        v-for="(coverage, key) in coverageSummary"
-        :key="key"
-        class="bg-gray-50 rounded-lg p-6 border border-gray-200"
-      >
-        <h3 class="text-sm font-medium text-gray-600 mb-2">{{ coverage.label }}</h3>
-        <p class="text-2xl font-bold text-gray-900 mb-1">
-          {{ formatCurrency(coverage.total) }}
-        </p>
-        <p class="text-xs text-gray-500">
-          {{ coverage.policyCount }} {{ coverage.policyCount === 1 ? 'policy' : 'policies' }}
-        </p>
+    <!-- Header with Add Button and Filters -->
+    <div v-else class="mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">Policy Portfolio</h3>
+          <p class="text-sm text-gray-600 mt-1">
+            {{ totalPolicyCount }} {{ totalPolicyCount === 1 ? 'policy' : 'policies' }}
+          </p>
+        </div>
+
+        <button
+          @click="$emit('add-policy')"
+          class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Add New Policy
+        </button>
       </div>
+
+      <!-- Filter and Sort Controls -->
+      <div class="flex flex-col sm:flex-row gap-3 mb-6">
+        <select v-model="filterType" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <option value="all">All Policies</option>
+          <option value="life">Life Insurance</option>
+          <option value="criticalIllness">Critical Illness</option>
+          <option value="incomeProtection">Income Protection</option>
+          <option value="disability">Disability</option>
+          <option value="sicknessIllness">Sickness/Illness</option>
+        </select>
+        <select v-model="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <option value="coverage_desc">Coverage (High to Low)</option>
+          <option value="coverage_asc">Coverage (Low to High)</option>
+          <option value="type">Policy Type</option>
+          <option value="provider">Provider</option>
+        </select>
+      </div>
+
+      <!-- Coverage Summary Tags -->
+      <div class="flex flex-wrap gap-3 mb-6">
+        <div
+          v-for="(coverage, key) in coverageSummary"
+          :key="key"
+          class="px-4 py-2 bg-gray-100 rounded-full flex items-center gap-2"
+        >
+          <span class="text-sm font-medium text-gray-700">{{ coverage.label }}:</span>
+          <span class="text-sm font-bold text-gray-900">{{ formatCurrency(coverage.total) }}</span>
+          <span class="text-xs text-gray-500">({{ coverage.policyCount }})</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Policy Cards Grid -->
+    <div v-if="filteredPolicies.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <PolicyCard
+        v-for="policy in filteredPolicies"
+        :key="`${policy.policy_type}-${policy.id}`"
+        :policy="policy"
+        @edit="handleEditPolicy"
+        @delete="handleDeletePolicy"
+      />
+    </div>
+
+    <!-- Empty State for Filtered View -->
+    <div v-else-if="!hasNoPolicies && filteredPolicies.length === 0" class="text-center py-12 bg-white rounded-lg border border-gray-200 mb-8">
+      <p class="text-gray-500">No policies match the selected filter</p>
+      <button
+        @click="filterType = 'all'"
+        class="mt-4 px-4 py-2 text-blue-600 hover:text-blue-700 font-medium"
+      >
+        Clear Filter
+      </button>
     </div>
 
     <!-- Charts Row -->
@@ -135,6 +204,7 @@
 import { mapState, mapGetters } from 'vuex';
 import PremiumBreakdownChart from './PremiumBreakdownChart.vue';
 import CoverageTimelineChart from './CoverageTimelineChart.vue';
+import PolicyCard from './PolicyCard.vue';
 import protectionService from '@/services/protectionService';
 
 export default {
@@ -143,11 +213,14 @@ export default {
   components: {
     PremiumBreakdownChart,
     CoverageTimelineChart,
+    PolicyCard,
   },
 
   data() {
     return {
       hasNoPoliciesChecked: false,
+      filterType: 'all',
+      sortBy: 'coverage_desc',
     };
   },
 
@@ -225,6 +298,40 @@ export default {
       if (this.coverageRatio >= 75) return 'text-amber-600';
       return 'text-red-600';
     },
+
+    totalPolicyCount() {
+      return this.allPolicies?.length || 0;
+    },
+
+    filteredPolicies() {
+      let filtered = [...(this.allPolicies || [])];
+
+      // Apply filter
+      if (this.filterType !== 'all') {
+        filtered = filtered.filter(p => p.policy_type === this.filterType);
+      }
+
+      // Apply sort
+      if (this.sortBy === 'coverage_desc') {
+        filtered.sort((a, b) => {
+          const aValue = a.sum_assured || a.benefit_amount || 0;
+          const bValue = b.sum_assured || b.benefit_amount || 0;
+          return bValue - aValue;
+        });
+      } else if (this.sortBy === 'coverage_asc') {
+        filtered.sort((a, b) => {
+          const aValue = a.sum_assured || a.benefit_amount || 0;
+          const bValue = b.sum_assured || b.benefit_amount || 0;
+          return aValue - bValue;
+        });
+      } else if (this.sortBy === 'type') {
+        filtered.sort((a, b) => a.policy_type.localeCompare(b.policy_type));
+      } else if (this.sortBy === 'provider') {
+        filtered.sort((a, b) => (a.provider || '').localeCompare(b.provider || ''));
+      }
+
+      return filtered;
+    },
   },
 
   watch: {
@@ -279,6 +386,14 @@ export default {
         // Revert checkbox on error
         this.hasNoPoliciesChecked = !this.hasNoPoliciesChecked;
       }
+    },
+
+    handleEditPolicy(policy) {
+      this.$emit('edit-policy', policy);
+    },
+
+    handleDeletePolicy(policy) {
+      this.$emit('delete-policy', policy);
     },
 
     formatCurrency(value) {

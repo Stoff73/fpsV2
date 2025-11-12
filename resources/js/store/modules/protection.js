@@ -66,10 +66,19 @@ const getters = {
 
         Object.entries(state.policies).forEach(([type, policies]) => {
             policies.forEach(policy => {
-                allPolicies.push({
-                    ...policy,
-                    policy_type: type,
-                });
+                // For life insurance, preserve the original policy_type as policy_subtype
+                if (type === 'life') {
+                    allPolicies.push({
+                        ...policy,
+                        policy_subtype: policy.policy_type, // Preserve life policy type (e.g., decreasing_term, level_term)
+                        policy_type: type, // Set general type to 'life'
+                    });
+                } else {
+                    allPolicies.push({
+                        ...policy,
+                        policy_type: type,
+                    });
+                }
             });
         });
 

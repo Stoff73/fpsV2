@@ -24,6 +24,7 @@ const PropertyDetail = () => import('@/components/NetWorth/Property/PropertyDeta
 const BusinessInterestsList = () => import('@/components/NetWorth/BusinessInterestsList.vue');
 const ChattelsList = () => import('@/components/NetWorth/ChattelsList.vue');
 const ProtectionDashboard = () => import('@/views/Protection/ProtectionDashboard.vue');
+const PolicyDetail = () => import('@/components/Protection/PolicyDetail.vue');
 const ComprehensiveProtectionPlan = () => import('@/views/Protection/ComprehensiveProtectionPlan.vue');
 const SavingsDashboard = () => import('@/views/Savings/SavingsDashboard.vue');
 const SavingsAccountDetail = () => import('@/views/Savings/SavingsAccountDetail.vue');
@@ -177,6 +178,19 @@ const routes = [
       breadcrumb: [
         { label: 'Home', path: '/dashboard' },
         { label: 'Protection', path: '/protection' },
+      ],
+    },
+  },
+  {
+    path: '/protection/policy/:policyType/:id',
+    name: 'PolicyDetail',
+    component: PolicyDetail,
+    meta: {
+      requiresAuth: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Protection', path: '/protection' },
+        { label: 'Policy Details', path: '' },
       ],
     },
   },

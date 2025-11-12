@@ -99,7 +99,12 @@
         <!-- Tab Content -->
         <div class="p-6">
           <!-- Current Situation Tab -->
-          <CurrentSituation v-if="activeTab === 'current'" />
+          <CurrentSituation
+            v-if="activeTab === 'current'"
+            @add-policy="handleAddPolicy"
+            @edit-policy="handleEditPolicy"
+            @delete-policy="handleDeletePolicy"
+          />
 
           <!-- Gap Analysis Tab -->
           <GapAnalysis
@@ -109,13 +114,6 @@
 
           <!-- Strategy Tab -->
           <Recommendations v-else-if="activeTab === 'recommendations'" />
-
-          <!-- Policy Details Tab -->
-          <PolicyDetails
-            v-else-if="activeTab === 'details'"
-            :show-modal="showAddPolicyModal"
-            @modal-closed="showAddPolicyModal = false"
-          />
         </div>
       </div>
       </div>
@@ -129,7 +127,6 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import CurrentSituation from '@/components/Protection/CurrentSituation.vue';
 import GapAnalysis from '@/components/Protection/GapAnalysis.vue';
 import Recommendations from '@/components/Protection/Recommendations.vue';
-import PolicyDetails from '@/components/Protection/PolicyDetails.vue';
 import ProfileCompletenessAlert from '@/components/Shared/ProfileCompletenessAlert.vue';
 import api from '@/services/api';
 
@@ -141,7 +138,6 @@ export default {
     CurrentSituation,
     GapAnalysis,
     Recommendations,
-    PolicyDetails,
     ProfileCompletenessAlert,
   },
 
@@ -149,12 +145,10 @@ export default {
     return {
       activeTab: 'current',
       tabs: [
-        { id: 'current', label: 'Current Situation' },
+        { id: 'current', label: 'Policy Overview' },
         { id: 'gaps', label: 'Gap Analysis' },
         { id: 'recommendations', label: 'Strategy' },
-        { id: 'details', label: 'Policy Details' },
       ],
-      showAddPolicyModal: false,
       profileCompleteness: null,
       loadingCompleteness: false,
     };
@@ -193,12 +187,15 @@ export default {
     },
 
     handleAddPolicy() {
-      // Switch to Policy Details tab and open the add modal
-      this.activeTab = 'details';
-      // Use nextTick to ensure the PolicyDetails component is mounted
-      this.$nextTick(() => {
-        this.showAddPolicyModal = true;
-      });
+      // CurrentSituation component handles this internally
+    },
+
+    handleEditPolicy(policy) {
+      // CurrentSituation component handles this internally
+    },
+
+    handleDeletePolicy(policy) {
+      // CurrentSituation component handles this internally
     },
   },
 };

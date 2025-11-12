@@ -659,6 +659,44 @@ export default {
     },
 
     loadPolicyData() {
+      // Parse beneficiaries string (format: "Name: 60%, Additional text")
+      let beneficiary_name = '';
+      let beneficiary_percentage = 100;
+      let additional_beneficiaries = '';
+
+      if (this.policy.beneficiaries) {
+        const beneficiariesStr = this.policy.beneficiaries;
+
+        // Split by first comma to separate primary beneficiary from additional
+        const parts = beneficiariesStr.split(',');
+
+        if (parts.length > 0 && parts[0].includes(':')) {
+          // Parse primary beneficiary (format: "Name: 60%")
+          const primaryParts = parts[0].split(':');
+          beneficiary_name = primaryParts[0].trim();
+
+          // Extract percentage
+          if (primaryParts[1]) {
+            const percentMatch = primaryParts[1].match(/(\d+)%/);
+            if (percentMatch) {
+              beneficiary_percentage = parseInt(percentMatch[1], 10);
+            }
+          }
+        }
+
+        // If there are additional parts, combine them as additional beneficiaries
+        if (parts.length > 1) {
+          additional_beneficiaries = parts.slice(1).join(',').trim();
+        }
+      }
+
+      // Check if beneficiary matches a linked spouse
+      if (beneficiary_name && this.spouseOption && beneficiary_name === this.spouseOption.name) {
+        this.beneficiarySelection = `linked_${this.spouseOption.id}`;
+      } else if (beneficiary_name) {
+        this.beneficiarySelection = 'other';
+      }
+
       this.formData = {
         policyType: this.policy.policy_type,
         life_policy_type: this.policy.life_policy_type || '',
@@ -666,14 +704,15 @@ export default {
         policy_number: this.policy.policy_number || '',
         coverage_amount: this.policy.sum_assured || this.policy.benefit_amount || 0,
         start_value: this.policy.start_value || 0,
-        decreasing_rate: this.policy.decreasing_rate || 0,
+        decreasing_rate: this.policy.decreasing_rate ? this.policy.decreasing_rate * 100 : 0, // Convert decimal to percentage
         premium_amount: this.policy.premium_amount || 0,
         premium_frequency: this.policy.premium_frequency || 'monthly',
         start_date: this.formatDateForInput(this.policy.start_date || this.policy.policy_start_date),
         term_years: this.policy.term_years || this.policy.policy_term_years || null,
         in_trust: this.policy.in_trust || false,
-        beneficiaries: this.policy.beneficiaries || '',
-        additional_beneficiaries: '',
+        beneficiary_name: beneficiary_name,
+        beneficiary_percentage: beneficiary_percentage,
+        additional_beneficiaries: additional_beneficiaries,
         benefit_frequency: this.policy.benefit_frequency || 'monthly',
         deferred_period_weeks: this.policy.deferred_period_weeks || null,
         benefit_period_months: this.policy.benefit_period_months || null,
