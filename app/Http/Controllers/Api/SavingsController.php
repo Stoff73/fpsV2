@@ -30,12 +30,34 @@ class SavingsController extends Controller
 
     /**
      * Get all savings data for authenticated user
+     * Includes spouse's accounts if married and linked
      */
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
 
+        // Get user's own accounts
         $accounts = SavingsAccount::where('user_id', $user->id)->get();
+
+        // Add owner flag to user's accounts
+        $accounts = $accounts->map(function ($account) {
+            $account->owner = 'self';
+
+            return $account;
+        });
+
+        // If user has a linked spouse, also include spouse's accounts
+        if ($user->spouse_id) {
+            $spouseAccounts = SavingsAccount::where('user_id', $user->spouse_id)->get();
+
+            $spouseAccounts = $spouseAccounts->map(function ($account) {
+                $account->owner = 'spouse';
+
+                return $account;
+            });
+
+            $accounts = $accounts->concat($spouseAccounts);
+        }
         $goals = SavingsGoal::where('user_id', $user->id)->get();
 
         // Build expenditure profile from user data
@@ -181,11 +203,21 @@ class SavingsController extends Controller
             // Set default ownership type if not provided
             $data['ownership_type'] = $data['ownership_type'] ?? 'individual';
 
+            // For joint ownership, default to 50/50 split if not specified
+            if ($data['ownership_type'] === 'joint' && $data['ownership_percentage'] == 100.00) {
+                $data['ownership_percentage'] = 50.00;
+            }
+
+            // Split the current_balance based on ownership percentage
+            $totalBalance = $data['current_balance'];
+            $userOwnershipPercentage = $data['ownership_percentage'];
+            $data['current_balance'] = $totalBalance * ($userOwnershipPercentage / 100);
+
             $account = SavingsAccount::create($data);
 
             // If joint ownership, create reciprocal account for joint owner
             if (isset($data['ownership_type']) && $data['ownership_type'] === 'joint' && isset($data['joint_owner_id'])) {
-                $this->createJointSavingsAccount($account, $data['joint_owner_id']);
+                $this->createJointSavingsAccount($account, $data['joint_owner_id'], $userOwnershipPercentage, $totalBalance);
             }
 
             // Invalidate cache
@@ -460,9 +492,13 @@ class SavingsController extends Controller
 
     /**
      * Create a reciprocal savings account record for joint owner
+     * Follows the same pattern as Property joint ownership
      */
-    private function createJointSavingsAccount(SavingsAccount $originalAccount, int $jointOwnerId): void
+    private function createJointSavingsAccount(SavingsAccount $originalAccount, int $jointOwnerId, float $ownershipPercentage, float $totalBalance): void
     {
+        // Calculate the reciprocal ownership percentage
+        $reciprocalPercentage = 100.00 - $ownershipPercentage;
+
         // Get joint owner
         $jointOwner = \App\Models\User::findOrFail($jointOwnerId);
 
@@ -475,6 +511,10 @@ class SavingsController extends Controller
         // Update fields for joint owner
         $jointAccountData['user_id'] = $jointOwnerId;
         $jointAccountData['joint_owner_id'] = $originalAccount->user_id;
+        $jointAccountData['ownership_percentage'] = $reciprocalPercentage;
+
+        // Calculate joint owner's share of the total balance
+        $jointAccountData['current_balance'] = $totalBalance * ($reciprocalPercentage / 100);
 
         $jointAccount = SavingsAccount::create($jointAccountData);
 
@@ -483,5 +523,6 @@ class SavingsController extends Controller
 
         // Invalidate cache for joint owner
         Cache::forget("savings_analysis_{$jointOwnerId}");
+        $this->netWorthService->invalidateCache($jointOwnerId);
     }
 }
