@@ -567,11 +567,9 @@ export default {
     },
 
     spouseOption() {
-      if (!Array.isArray(this.familyMembers)) {
-        return null;
-      }
-      const spouse = this.familyMembers.find(m => m.relationship === 'spouse');
-      return spouse ? { id: spouse.id, name: `${spouse.first_name} ${spouse.last_name}` } : null;
+      // Use the same pattern as PropertyForm - get spouse from store
+      const spouse = this.$store.getters['userProfile/spouse'];
+      return spouse ? { id: spouse.id, name: spouse.name } : null;
     },
 
     remainingBeneficiaryPercentage() {
