@@ -473,46 +473,99 @@ rm .htaccess  # Delete if it exists
 - Storage files potentially accessible
 - Sensitive configuration files exposed
 
-#### Production .htaccess - RECOMMENDED
+#### Production .htaccess - SITEGROUND COMPATIBILITY ISSUE
 
 **Location**: `.htaccess.production`
 
-**Status**: ✅ **PRODUCTION READY - USE THIS FILE**
+**Status**: ⚠️ **NOT COMPATIBLE WITH SITEGROUND SHARED HOSTING**
 
-**Features**:
-- ✅ Contains `RewriteBase /tengo/` for subdirectory routing
-- ✅ Blocks `/tengo/storage/` with correct absolute path
-- ✅ Protects sensitive files (.env, .git, composer files)
-- ✅ Security headers configured
-- ✅ Compression and caching enabled
-- ✅ 266 lines of production-hardened configuration
+**⚠️ CRITICAL ISSUE DISCOVERED DURING DEPLOYMENT**:
 
-**Deployment Instructions**:
+The `.htaccess.production` file contains `<DirectoryMatch>` directives which are **NOT allowed in .htaccess files on SiteGround shared hosting**. These directives can only be used in Apache's main configuration, not in .htaccess.
+
+**Error When Using .htaccess.production**:
+```
+[apache][core:alert] .htaccess: <DirectoryMatch not allowed here
+```
+
+**Impact**: Application returns HTTP 500 errors
+
+#### SiteGround-Compatible .htaccess - USE THIS INSTEAD
+
+**You MUST create a simplified .htaccess without DirectoryMatch directives:**
+
 ```bash
 # On SiteGround via SSH
-cd ~/tengo-app
+cd ~/www/csjones.co/tengo-app
 
-# Deploy production .htaccess (REQUIRED)
-cp .htaccess.production public/.htaccess
+# Backup current .htaccess
+cp public/.htaccess public/.htaccess.backup
 
-# Clean up - remove production template
-rm .htaccess.production
+# Create SiteGround-compatible .htaccess
+cat > public/.htaccess << 'EOF'
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+    RewriteBase /tengo/
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Block access to sensitive files
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "(composer\.json|composer\.lock|package\.json|package-lock\.json|\.env)$">
+    Require all denied
+</FilesMatch>
+EOF
+
+# Remove .htaccess.production template
+rm .htaccess.production 2>/dev/null || true
 
 # Remove root .htaccess if it exists (CRITICAL)
 rm .htaccess 2>/dev/null || true
-
-# Verify correct .htaccess is in place
-cat public/.htaccess | grep "RewriteBase"
-# Should output: RewriteBase /tengo/
 
 # Set correct permissions
 chmod 644 public/.htaccess
 ```
 
+**Verify .htaccess Configuration**:
+```bash
+# Check RewriteBase is set correctly
+cat public/.htaccess | grep "RewriteBase"
+# Should output: RewriteBase /tengo/
+
+# Verify no DirectoryMatch directives (not allowed on SiteGround)
+cat public/.htaccess | grep -i "DirectoryMatch"
+# Should output nothing (no matches)
+
+# Check permissions
+ls -la public/.htaccess
+# Should show: -rw-r--r-- (644)
+```
+
 **Verification Checklist**:
-- [ ] Root `.htaccess` does NOT exist in `~/tengo-app/`
-- [ ] Production `.htaccess` copied to `~/tengo-app/public/.htaccess`
+- [ ] Root `.htaccess` does NOT exist in `~/www/csjones.co/tengo-app/`
+- [ ] SiteGround-compatible `.htaccess` created in `~/www/csjones.co/tengo-app/public/.htaccess`
 - [ ] File contains `RewriteBase /tengo/`
+- [ ] File does NOT contain `<DirectoryMatch>` (not allowed on SiteGround)
 - [ ] File permissions set to 644
 - [ ] `.htaccess.production` template removed from root
 
@@ -1046,6 +1099,59 @@ php -m | grep memcached
 
 ```env
 CACHE_DRIVER=file
+```
+
+### 5.3 Create Sessions Table (CRITICAL)
+
+**⚠️ CRITICAL**: If `SESSION_DRIVER=database` in your `.env` (which is recommended for reliability), you MUST create the sessions table.
+
+**Problem**: The sessions table is NOT included in standard Laravel migrations. Without it, the application will fail with:
+```
+SQLSTATE[42S02]: Base table or view not found: 1146 Table 'sessions' doesn't exist
+```
+
+**Solution**:
+
+```bash
+# Via SSH
+cd ~/www/csjones.co/tengo-app
+
+# Generate sessions table migration
+php artisan session:table
+
+# Run the migration
+php artisan migrate --force
+
+# Verify table was created
+php artisan db:show --table=sessions
+```
+
+**Expected Output**:
+```
+INFO  Running migrations.
+
+2025_11_13_095953_create_sessions_table .......... DONE
+```
+
+**Verification**:
+```bash
+# Check migration ran successfully
+php artisan migrate:status | grep sessions
+
+# Should show:
+# Ran  2025_11_13_095953_create_sessions_table
+```
+
+**Why This Is Required**:
+- Laravel's session middleware requires this table for database-driven sessions
+- Without it, ALL web requests will fail with HTTP 500 errors
+- The table stores user sessions, CSRF tokens, and flash data
+- This is a one-time setup step
+
+**Alternative - Use File Sessions** (NOT recommended for production):
+```env
+# In .env - change to file-based sessions (less reliable)
+SESSION_DRIVER=file
 ```
 
 ---
