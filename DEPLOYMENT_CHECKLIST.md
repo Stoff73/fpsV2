@@ -19,15 +19,33 @@
   git branch --show-current
   ```
 
+- [ ] **Fix Vite Manifest Location** (CRITICAL - prevents 500 errors)
+  ```bash
+  # Check current config
+  cat vite.config.js | grep -A 10 "build:"
+
+  # Must show: manifest: 'manifest.json'
+  # NOT: manifest: true
+  ```
+  - [ ] vite.config.js has `manifest: 'manifest.json'` (not `manifest: true`)
+  - [ ] Stop any running dev servers: `pkill -f "vite"`
+  - [ ] Remove hot file: `rm -f public/hot`
+
 - [ ] **Production Build Test**
   - [ ] Clean previous builds: `rm -rf public/build/*`
   - [ ] Run production build: `NODE_ENV=production npm run build`
   - [ ] Build completes successfully (~15-20 seconds)
-  - [ ] `public/build/manifest.json` exists
+  - [ ] `public/build/manifest.json` exists **at build root** (NOT in .vite/ subdirectory)
   - [ ] `public/build/assets/` contains 100+ files
   ```bash
   ls -lh public/build/manifest.json
+  # Must succeed (manifest at root)
+
+  ls -lh public/build/.vite/manifest.json 2>/dev/null && echo "❌ WRONG LOCATION" || echo "✅ Correct"
+  # Should show "✅ Correct" (manifest NOT in .vite/)
+
   ls public/build/assets/ | wc -l
+  # Should show 100+
   ```
 
 - [ ] **Migration Review**
