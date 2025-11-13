@@ -215,6 +215,30 @@
   - [ ] Symlink created successfully
   - [ ] Points to correct directory
 
+- [ ] **Create Required Storage Directories** (CRITICAL - prevents 500 errors)
+  ```bash
+  ssh [username]@csjones.co -p18765
+  cd ~/www/csjones.co/tengo-app
+
+  # Create all required storage subdirectories
+  mkdir -p storage/framework/cache
+  mkdir -p storage/framework/sessions
+  mkdir -p storage/framework/views
+  mkdir -p storage/framework/cache/data
+
+  # Set writable permissions
+  chmod -R 775 storage/framework
+
+  # Verify structure
+  ls -la storage/framework/
+  exit
+  ```
+  - [ ] `storage/framework/cache/` directory created
+  - [ ] `storage/framework/sessions/` directory created
+  - [ ] `storage/framework/views/` directory created
+  - [ ] `storage/framework/cache/data/` directory created
+  - [ ] All storage/framework directories have 775 permissions
+
 - [ ] **Set File Permissions**
   ```bash
   ssh [username]@csjones.co -p18765

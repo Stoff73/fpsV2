@@ -611,7 +611,63 @@ ls -la tengo/index.php
 
 ---
 
-### 4.6 File & Directory Permissions
+### 4.6 Create Required Storage Directories
+
+**⚠️ CRITICAL: Laravel requires specific storage subdirectories to function. Missing directories cause HTTP 500 errors.**
+
+The deployment package includes empty storage directories, but tar extraction may not create all nested directories. You must create them manually.
+
+#### Create Storage Framework Directories
+
+```bash
+cd ~/www/csjones.co/tengo-app
+
+# Create all required storage subdirectories
+mkdir -p storage/framework/cache
+mkdir -p storage/framework/sessions
+mkdir -p storage/framework/views
+
+# Create cache data subdirectory
+mkdir -p storage/framework/cache/data
+
+# Verify structure
+ls -la storage/framework/
+```
+
+**Expected output**:
+```
+drwxrwxr-x cache/
+drwxrwxr-x sessions/
+drwxrwxr-x testing/
+drwxrwxr-x views/
+```
+
+#### Set Storage Permissions
+
+```bash
+# Set writable permissions for Laravel
+chmod -R 775 storage/framework
+
+# Verify permissions
+ls -la storage/framework/ | head -10
+```
+
+**Why These Directories Are Required**:
+- `storage/framework/cache/` - Application cache storage
+- `storage/framework/cache/data/` - Cache data files
+- `storage/framework/sessions/` - Session data (when using database or file sessions)
+- `storage/framework/views/` - Compiled Blade templates
+- `storage/logs/` - Application logs (should already exist)
+
+**Symptoms of Missing Directories**:
+- ❌ HTTP 500 errors
+- ❌ "View path not found" errors
+- ❌ Session errors
+- ❌ Cache write failures
+
+---
+
+### 4.7 File & Directory Permissions
 
 **⚠️ CRITICAL: Incorrect permissions are a common cause of 403 Forbidden and 500 Internal Server errors**
 

@@ -320,7 +320,15 @@ Demo Account:
 
 **500 Internal Server Error**:
 ```bash
-chmod -R 775 ~/tengo-app/storage ~/tengo-app/bootstrap/cache
+# First, create required storage directories (common cause of 500 errors)
+cd ~/www/csjones.co/tengo-app
+mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views
+mkdir -p storage/framework/cache/data
+
+# Then set permissions
+chmod -R 775 storage bootstrap/cache
+
+# Finally, clear caches
 php artisan key:generate
 php artisan config:clear
 ```
