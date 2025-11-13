@@ -187,7 +187,12 @@ class SavingsController extends Controller
             // Set default ownership type if not provided
             $data['ownership_type'] = $data['ownership_type'] ?? 'individual';
 
-            // For joint ownership, default to 50/50 split if not specified
+            // Set default ownership percentage if not provided
+            if (! isset($data['ownership_percentage'])) {
+                $data['ownership_percentage'] = 100.00;
+            }
+
+            // For joint ownership, default to 50/50 split if not specified or 100
             if ($data['ownership_type'] === 'joint' && $data['ownership_percentage'] == 100.00) {
                 $data['ownership_percentage'] = 50.00;
             }
