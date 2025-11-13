@@ -45,7 +45,79 @@ php -v
 cat composer.json | grep '"php"'
 ```
 
-### 1.2 Production Build Test
+### 1.2 Fix Vite Manifest Location (CRITICAL)
+
+**⚠️ CRITICAL: Vite 5.x places manifest.json in `.vite/` subdirectory by default, but Laravel expects it at build root.**
+
+Without this fix, the application will return **HTTP 500 errors** because Laravel cannot find the Vite manifest.
+
+#### Verify Current Configuration
+
+```bash
+# Check your vite.config.js
+cat vite.config.js | grep -A 10 "build:"
+```
+
+**If you see**:
+```javascript
+build: {
+    manifest: true,  // ❌ WRONG - causes manifest to be placed in .vite/ subdirectory
+```
+
+**You need to fix it to**:
+```javascript
+build: {
+    manifest: 'manifest.json',  // ✅ CORRECT - places manifest at build root
+```
+
+#### Apply the Fix
+
+Open `vite.config.js` and update the build section:
+
+```javascript
+export default defineConfig({
+    base: process.env.NODE_ENV === 'production' ? '/tengo/build/' : '/',
+    // ... other config ...
+    build: {
+        manifest: 'manifest.json', // ← Change from 'true' to 'manifest.json'
+        outDir: 'public/build',
+        rollupOptions: {
+            input: {
+                app: 'resources/js/app.js',
+                css: 'resources/css/app.css',
+            },
+        },
+    },
+});
+```
+
+#### Verify the Fix
+
+```bash
+# Stop any running dev servers
+pkill -f "vite"
+
+# Remove any hot files
+rm -f public/hot
+
+# Clean build directory
+rm -rf public/build/*
+
+# Run production build
+NODE_ENV=production npm run build
+
+# CRITICAL: Verify manifest is at build root (NOT in .vite subdirectory)
+ls -la public/build/manifest.json
+
+# Should show: public/build/manifest.json exists
+# Should NOT require: public/build/.vite/manifest.json
+```
+
+**If the manifest is still in `.vite/` subdirectory**, the vite.config.js wasn't updated correctly. Double-check the change and rebuild.
+
+---
+
+### 1.3 Production Build Test
 
 **Test the build locally to catch any issues BEFORE deployment:**
 
@@ -65,11 +137,17 @@ ls public/build/assets/ | wc -l
 
 **Build Success Indicators**:
 - ✅ Build completes in ~15-20 seconds
-- ✅ `public/build/manifest.json` created
+- ✅ `public/build/manifest.json` created **at build root** (not in .vite/ subdirectory)
 - ✅ `public/build/assets/` contains ~100+ JS/CSS files
 - ✅ Warning about chunk size is NORMAL (large InvestmentDashboard component)
 
-### 1.3 Database Migration Review
+**If manifest.json is missing or in wrong location**:
+- Check vite.config.js has `manifest: 'manifest.json'` (not `manifest: true`)
+- Stop all Vite dev servers: `pkill -f "vite"`
+- Remove hot file: `rm -f public/hot`
+- Rebuild: `rm -rf public/build/* && NODE_ENV=production npm run build`
+
+### 1.4 Database Migration Review
 
 **Review all pending migrations to ensure they're safe for production:**
 
@@ -91,7 +169,7 @@ ls -la database/migrations/
 - ✅ `addColumn()` with `->nullable()` - Non-breaking additions
 - ✅ Enum additions with default values
 
-### 1.4 Create Deployment Package
+### 1.5 Create Deployment Package
 
 **Create a clean, secure deployment archive:**
 
@@ -177,7 +255,60 @@ tar -tzf tengo-v0.2.7-deployment.tar.gz | grep "public/.htaccess"
 - ✅ Archive size: ~2-3 MB
 - ✅ Only `.env.example` and `.env.production.example` present
 - ✅ Production `.htaccess` included (with RewriteBase /tengo/)
-- ✅ Built assets in `public/build/` directory
+- ✅ Built assets in `public/build/` directory with manifest.json at root
+
+### 1.6 Upload Build Assets Separately
+
+**⚠️ IMPORTANT**: The deployment package created in step 1.5 includes built assets. However, if you need to update just the frontend assets (after fixing the manifest location or making frontend changes), you can upload them separately.
+
+#### Create Build Assets Archive
+
+```bash
+# From project root
+cd /Users/Chris/Desktop/fpsApp/tengo
+
+# Create archive of just the build directory
+tar -czf tengo-build-assets.tar.gz public/build/
+
+# Verify archive size (~650-700 KB)
+ls -lh tengo-build-assets.tar.gz
+```
+
+#### Upload to SiteGround
+
+**Via SFTP** (recommended):
+```bash
+# Upload using SFTP/SCP
+scp -P 18765 tengo-build-assets.tar.gz [username]@csjones.co:~/www/csjones.co/
+```
+
+**Or via File Manager**:
+1. Go to Site Tools > File Manager
+2. Navigate to `~/www/csjones.co/`
+3. Upload `tengo-build-assets.tar.gz`
+
+#### Extract on Server
+
+```bash
+# Via SSH
+cd ~/www/csjones.co/tengo-app
+
+# Extract (will overwrite existing build directory)
+tar -xzf ~/www/csjones.co/tengo-build-assets.tar.gz
+
+# CRITICAL: Verify manifest.json location
+ls -la public/build/manifest.json
+# Must show: public/build/manifest.json (NOT public/build/.vite/manifest.json)
+
+# Clean up
+rm ~/www/csjones.co/tengo-build-assets.tar.gz
+```
+
+**When to Use This**:
+- After fixing vite.config.js manifest location
+- After making frontend-only changes
+- After rebuilding with corrected configuration
+- When 500 errors indicate missing manifest.json
 
 ---
 

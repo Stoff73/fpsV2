@@ -25,7 +25,7 @@ export default defineConfig({
         },
     },
     build: {
-        manifest: true,
+        manifest: 'manifest.json', // Place manifest.json at build root, not .vite subdirectory
         outDir: 'public/build',
         rollupOptions: {
             input: {
