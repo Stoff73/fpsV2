@@ -386,76 +386,231 @@ chmod 644 public/.htaccess
 
 ---
 
-### 4.2 Upload via File Manager (Recommended for First Deployment)
+### 4.2 CRITICAL: SiteGround Directory Structure
 
-**Option A: Upload Archive**
+**⚠️ IMPORTANT**: SiteGround uses a different directory structure than standard hosting!
 
-1. Go to **Site Tools > File Manager**
-2. Navigate to your home directory (usually `/home/customer/www/csjones.co/`)
-3. Click **Upload** and select your `tengo-v0.2.7-deployment.tar.gz`
-4. Wait for upload to complete
-5. Right-click the archive → **Extract**
-6. Rename extracted folder to `tengo-app`
+#### SiteGround Actual Directory Structure
 
-**Option B: Upload via FTP/SFTP** (For larger files or future updates)
+**Home Directory**: `/home/u163-ptanegf9edny/` (your actual username will differ)
 
-```bash
-# Get FTP credentials from Site Tools > Devs > FTP Accounts
-# Use an FTP client (FileZilla, Cyberduck, etc.)
-
-Host: ftp.csjones.co (or provided by SiteGround)
-Username: [from SiteGround]
-Password: [from SiteGround]
-Port: 21 (FTP) or 22 (SFTP)
-
-# Upload to: /home/customer/www/csjones.co/tengo-app/
+**Full Path Structure**:
+```
+/home/u163-ptanegf9edny/
+└── www/
+    └── csjones.co/
+        ├── tengo-app/                    # ← Application root (create here)
+        │   ├── app/
+        │   ├── config/
+        │   ├── database/
+        │   ├── public/                   # ← Laravel's public directory
+        │   │   ├── index.php
+        │   │   ├── .htaccess
+        │   │   └── build/
+        │   ├── storage/
+        │   └── ...
+        └── public_html/                  # ← Web-accessible directory
+            ├── tengo -> ../tengo-app/public  # ← Symlink (relative path)
+            └── other-sites/
 ```
 
-**⚠️ CRITICAL POST-UPLOAD STEP**:
+**Path Aliases (SSH shortcuts)**:
+- `~` = `/home/u163-ptanegf9edny/`
+- `~/www/csjones.co/` = Full path to your domain directory
+- `~/www/csjones.co/public_html/` = Web-accessible directory
+- `~/www/csjones.co/tengo-app/` = Application root (where you'll extract)
+
+#### Key Differences from Standard Hosting
+
+**Standard Hosting** (documented in many guides):
+```
+~/
+├── public_html/
+└── tengo-app/
+```
+
+**SiteGround** (actual structure):
+```
+~/
+└── www/
+    └── csjones.co/
+        ├── public_html/
+        └── tengo-app/
+```
+
+**Why This Matters**:
+- ✅ All paths in this guide must include `~/www/csjones.co/`
+- ✅ Symlinks must be relative (`../tengo-app/public`) not absolute
+- ✅ File uploads go to `~/www/csjones.co/public_html/`
+- ✅ Application extracts to `~/www/csjones.co/tengo-app/`
+
+#### Verification Commands
+
+**Before proceeding, verify your directory structure**:
+
 ```bash
-# After uploading, immediately deploy production .htaccess via SSH
-ssh [username]@csjones.co -p18765
-cd ~/tengo-app
-cp .htaccess.production public/.htaccess
-rm .htaccess 2>/dev/null || true
-rm .htaccess.production
+# Check your home directory
+pwd
+# Should show something like: /home/u163-ptanegf9edny/www/csjones.co
+
+# List domain directory
+ls -la ~/www/csjones.co/
+# Should show: public_html/ and any other directories
+
+# Check if tengo-app already exists
+ls -la ~/www/csjones.co/ | grep tengo
+# If tengo-app exists, it's from a previous deployment
+
+# Check public_html contents
+ls -la ~/www/csjones.co/public_html/ | grep tengo
+# May show existing symlink or deployment package
 ```
 
 ---
 
-### 4.3 Create Symlink for Public Directory
+### 4.3 Upload Deployment Package
 
-**SiteGround File Manager Method:**
+**Option A: Upload via File Manager** (Easiest)
 
-1. Navigate to `/home/customer/www/csjones.co/public_html/`
-2. You cannot create symlinks via File Manager directly
-3. **You MUST use SSH for this step** (see below)
+1. Go to **Site Tools > File Manager**
+2. Navigate to `~/www/csjones.co/public_html/`
+3. Click **Upload** and select your `tengo-v0.2.7-deployment.tar.gz`
+4. Wait for upload to complete (2.2 MB should take ~10-30 seconds)
+5. **Do NOT extract here** - we'll extract via SSH for proper structure
 
-**SSH Method (REQUIRED):**
+**Option B: Upload via SFTP** (Recommended for reliability)
 
 ```bash
-# Connect via SSH (from Site Tools > Devs > SSH Keys)
+# Get SFTP credentials from Site Tools > Devs > SSH Keys Manager
+# Use an SFTP client (FileZilla, Cyberduck, Transmit, etc.)
+
+Host: csjones.co
+Username: u163-ptanegf9edny (your actual username)
+Password: [your SSH password or use SSH key]
+Port: 18765 (SiteGround SSH port)
+
+# Upload to: /www/csjones.co/public_html/
+# File: tengo-v0.2.7-deployment.tar.gz
+```
+
+**Upload Verification**:
+```bash
+# Via SSH, verify upload
+ssh [username]@csjones.co -p18765
+cd ~/www/csjones.co/public_html
+ls -lh tengo-v0.2.7-deployment.tar.gz
+# Should show: 2.2M file size
+```
+
+---
+
+### 4.4 Extract Deployment Package & Create Structure
+
+**⚠️ CRITICAL**: Extract to correct location for security and proper structure!
+
+**Step 1: Navigate to Domain Directory**
+
+```bash
+# Connect via SSH
 ssh [username]@csjones.co -p18765
 
+# Navigate to domain directory (NOT public_html)
+cd ~/www/csjones.co
+
+# Verify location
+pwd
+# Should show: /home/u163-ptanegf9edny/www/csjones.co
+```
+
+**Step 2: Create Application Directory**
+
+```bash
+# Create tengo-app directory
+mkdir -p tengo-app
+
+# Navigate into it
+cd tengo-app
+
+# Extract deployment package here
+tar -xzf ../public_html/tengo-v0.2.7-deployment.tar.gz
+
+# Verify extraction
+ls -la | head -20
+# Should show: app/, bootstrap/, config/, database/, public/, etc.
+```
+
+**Step 3: Deploy Production .htaccess**
+
+```bash
+# Still in ~/www/csjones.co/tengo-app/
+
+# Deploy production .htaccess (CRITICAL!)
+cp .htaccess.production public/.htaccess
+
+# Remove root .htaccess if exists
+rm .htaccess 2>/dev/null || true
+
+# Clean up production template
+rm .htaccess.production
+
+# Verify RewriteBase is set
+cat public/.htaccess | grep "RewriteBase"
+# Should output: RewriteBase /tengo/
+
+# Set correct permissions
+chmod 644 public/.htaccess
+```
+
+---
+
+### 4.5 Create Symlink for Public Directory
+
+**⚠️ CRITICAL**: Use relative path for symlink (not absolute)!
+
+**SSH Method** (REQUIRED):
+
+```bash
 # Navigate to public_html
-cd ~/public_html
+cd ~/www/csjones.co/public_html
 
-# Create symlink (IMPORTANT: Use absolute paths)
-ln -s ~/tengo-app/public tengo
+# Remove old broken symlink if exists
+rm tengo 2>/dev/null || true
 
-# Verify symlink created
+# Create symlink using RELATIVE path
+ln -s ../tengo-app/public tengo
+
+# Verify symlink created correctly
 ls -la | grep tengo
-# Should show: tengo -> /home/customer/www/csjones.co/tengo-app/public
+# Should show: tengo -> ../tengo-app/public
 
-# Exit SSH
-exit
+# Test symlink works
+ls tengo/
+# Should show Laravel's public directory: index.php, .htaccess, build/, robots.txt
+```
+
+**Why Relative Path (`../tengo-app/public`)?**
+- ✅ Works regardless of absolute path changes
+- ✅ More portable and maintainable
+- ✅ Standard practice for symlinks
+
+**Verification**:
+```bash
+# Check symlink target exists
+readlink tengo
+# Output: ../tengo-app/public
+
+# Verify target is accessible
+ls -la tengo/index.php
+# Should show Laravel's entry point file
 ```
 
 **If SSH is not available:**
 - Contact SiteGround support to enable SSH access
 - OR manually copy contents of `tengo-app/public/` to `public_html/tengo/` (less ideal, requires copying on every update)
 
-### 4.4 File & Directory Permissions
+---
+
+### 4.6 File & Directory Permissions
 
 **⚠️ CRITICAL: Incorrect permissions are a common cause of 403 Forbidden and 500 Internal Server errors**
 
@@ -468,7 +623,7 @@ All regular files should be readable by the web server but not writable:
 ```bash
 # Connect via SSH
 ssh [username]@csjones.co -p18765
-cd ~/tengo-app
+cd ~/www/csjones.co/tengo-app
 
 # Set all files to 644 (rw-r--r--)
 find . -type f -exec chmod 644 {} \;
@@ -526,7 +681,7 @@ chmod 775 storage/framework/cache storage/framework/sessions storage/framework/v
 #!/bin/bash
 # TenGo - Production Permission Setup
 
-cd ~/tengo-app
+cd ~/www/csjones.co/tengo-app
 
 echo "Setting standard file permissions (644)..."
 find . -type f -exec chmod 644 {} \;
