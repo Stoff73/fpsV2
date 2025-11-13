@@ -697,7 +697,7 @@ export default {
 
       this.formData = {
         policyType: this.policy.policy_type,
-        life_policy_type: this.policy.life_policy_type || '',
+        life_policy_type: this.policy.policy_subtype || this.policy.life_policy_type || '',
         provider: this.policy.provider || '',
         policy_number: this.policy.policy_number || '',
         coverage_amount: this.policy.sum_assured || this.policy.benefit_amount || 0,

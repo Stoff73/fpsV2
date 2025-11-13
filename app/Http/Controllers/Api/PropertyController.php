@@ -85,23 +85,33 @@ class PropertyController extends Controller
 
         // If outstanding_mortgage provided, auto-create a basic mortgage record
         if (isset($validated['outstanding_mortgage']) && $validated['outstanding_mortgage'] > 0) {
-            // Split mortgage amount based on ownership percentage (same as property value)
-            $userMortgageAmount = $validated['outstanding_mortgage'] * ($userOwnershipPercentage / 100);
+            // Split outstanding balance based on ownership percentage
+            $userMortgageBalance = $validated['outstanding_mortgage'] * ($userOwnershipPercentage / 100);
 
-            \App\Models\Mortgage::create([
+            $mortgageData = [
                 'property_id' => $property->id,
                 'user_id' => $user->id,
                 'lender_name' => 'To be completed',
                 'mortgage_type' => 'repayment',
-                'original_loan_amount' => $userMortgageAmount,
-                'outstanding_balance' => $userMortgageAmount,
+                'original_loan_amount' => 0.00,  // Not provided in property form
+                'outstanding_balance' => $userMortgageBalance,  // User's share
                 'interest_rate' => 0.0000,
                 'rate_type' => 'fixed',
                 'monthly_payment' => 0.00,
                 'start_date' => now(),
                 'maturity_date' => now()->addYears(25),
                 'remaining_term_months' => 300,
-            ]);
+                'ownership_type' => $validated['ownership_type'],
+            ];
+
+            // Add joint ownership fields if applicable
+            if ($validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
+                $jointOwner = \App\Models\User::find($validated['joint_owner_id']);
+                $mortgageData['joint_owner_id'] = $validated['joint_owner_id'];
+                $mortgageData['joint_owner_name'] = $jointOwner ? $jointOwner->name : null;
+            }
+
+            \App\Models\Mortgage::create($mortgageData);
         }
 
         // If joint ownership, create reciprocal property for joint owner
@@ -154,6 +164,20 @@ class PropertyController extends Controller
             ->firstOrFail();
 
         $property->update($request->validated());
+
+        // If this is a joint property, also update the reciprocal property
+        if ($property->joint_owner_id) {
+            $reciprocalProperty = Property::where('user_id', $property->joint_owner_id)
+                ->where('joint_owner_id', $user->id)
+                ->where('address_line_1', $property->address_line_1)
+                ->where('postcode', $property->postcode)
+                ->first();
+
+            if ($reciprocalProperty) {
+                $reciprocalProperty->update($request->validated());
+            }
+        }
+
         $property->load(['mortgages', 'household', 'trust']);
 
         // Sync rental income to user table
@@ -182,6 +206,19 @@ class PropertyController extends Controller
         $property = Property::where('id', $id)
             ->where('user_id', $user->id)
             ->firstOrFail();
+
+        // If this is a joint property, also delete the reciprocal property
+        if ($property->joint_owner_id) {
+            $reciprocalProperty = Property::where('user_id', $property->joint_owner_id)
+                ->where('joint_owner_id', $user->id)
+                ->where('address_line_1', $property->address_line_1)
+                ->where('postcode', $property->postcode)
+                ->first();
+
+            if ($reciprocalProperty) {
+                $reciprocalProperty->delete();
+            }
+        }
 
         $property->delete();
 
@@ -299,21 +336,24 @@ class PropertyController extends Controller
 
         // If there's a mortgage, create joint owner's share
         if ($totalMortgage > 0) {
-            $jointMortgageAmount = $totalMortgage * ($reciprocalPercentage / 100);
+            $jointMortgageBalance = $totalMortgage * ($reciprocalPercentage / 100);
 
             \App\Models\Mortgage::create([
                 'property_id' => $jointProperty->id,
                 'user_id' => $jointOwnerId,
                 'lender_name' => 'To be completed',
                 'mortgage_type' => 'repayment',
-                'original_loan_amount' => $jointMortgageAmount,
-                'outstanding_balance' => $jointMortgageAmount,
+                'original_loan_amount' => 0.00,  // Not provided in property form
+                'outstanding_balance' => $jointMortgageBalance,  // Joint owner's share
                 'interest_rate' => 0.0000,
                 'rate_type' => 'fixed',
                 'monthly_payment' => 0.00,
                 'start_date' => now(),
                 'maturity_date' => now()->addYears(25),
                 'remaining_term_months' => 300,
+                'ownership_type' => 'joint',
+                'joint_owner_id' => $originalProperty->user_id,
+                'joint_owner_name' => \App\Models\User::find($originalProperty->user_id)->name ?? null,
             ]);
         }
 

@@ -291,6 +291,7 @@
     <PolicyFormModal
       v-if="showEditModal"
       :policy="policy"
+      :is-editing="true"
       @save="handlePolicyUpdate"
       @close="showEditModal = false"
     />
@@ -532,12 +533,11 @@ export default {
 
     async handlePolicyUpdate(updatedPolicy) {
       try {
-        // Update policy via API
-        const endpoint = this.getApiEndpoint(this.policyType);
+        // Update policy via store (uses correct parameter names)
         await this.$store.dispatch('protection/updatePolicy', {
-          endpoint,
-          policyId: this.policyId,
-          data: updatedPolicy,
+          policyType: this.policyType,
+          id: this.policyId,
+          policyData: updatedPolicy,
         });
 
         this.showEditModal = false;

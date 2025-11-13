@@ -333,35 +333,48 @@ class UserProfileService
             return $memberArray;
         });
 
-        // If user has a linked spouse, also get spouse's family members (spouse + children)
+        // If user has a linked spouse but no spouse family_member record, add spouse from User record
+        $hasOwnSpouseRecord = $familyMembers->contains(function ($fm) {
+            return $fm['relationship'] === 'spouse';
+        });
+
+        if ($user->spouse_id && ! $hasOwnSpouseRecord) {
+            $spouseUser = User::find($user->spouse_id);
+            if ($spouseUser) {
+                // Create a virtual spouse family member from the User record
+                $familyMembers->push([
+                    'id' => null,  // Virtual record, no ID
+                    'user_id' => $user->id,
+                    'household_id' => $user->household_id,
+                    'relationship' => 'spouse',
+                    'name' => $spouseUser->name,
+                    'date_of_birth' => $spouseUser->date_of_birth?->format('Y-m-d'),
+                    'gender' => $spouseUser->gender,
+                    'national_insurance_number' => $spouseUser->national_insurance_number,
+                    'annual_income' => $spouseUser->annual_employment_income,
+                    'is_dependent' => false,
+                    'notes' => null,
+                    'email' => $spouseUser->email,
+                    'is_shared' => false,
+                    'owner' => 'self',
+                    'created_at' => null,
+                    'updated_at' => null,
+                ]);
+            }
+        }
+
+        // If user has a linked spouse, get spouse's children (NOT the spouse record itself)
         if ($user->spouse_id) {
             $spouseFamilyMembers = \App\Models\FamilyMember::where('user_id', $user->spouse_id)
-                ->whereIn('relationship', ['child', 'spouse'])
-                ->orderBy('relationship')
+                ->where('relationship', 'child')  // Only children, not spouse record
                 ->orderBy('date_of_birth')
                 ->get();
 
-            // Process spouse's family members with shared flag
+            // Process spouse's children (mark as shared if not duplicate)
             $sharedFromSpouse = $spouseFamilyMembers->map(function ($member) use ($familyMembers) {
                 $memberArray = $member->toArray();
 
-                // For spouse record, only include if current user doesn't have their own spouse record
-                if ($member->relationship === 'spouse') {
-                    $hasOwnSpouseRecord = $familyMembers->contains(function ($fm) {
-                        return $fm['relationship'] === 'spouse';
-                    });
-
-                    if (! $hasOwnSpouseRecord) {
-                        $memberArray['is_shared'] = true;
-                        $memberArray['owner'] = 'spouse';
-
-                        return $memberArray;
-                    }
-
-                    return null;
-                }
-
-                // For children, check if this child already exists in user's family members (duplicate)
+                // Check if this child already exists in user's family members (duplicate)
                 $isDuplicate = $familyMembers->contains(function ($fm) use ($member) {
                     return $fm['relationship'] === 'child' &&
                            $fm['name'] === $member->name &&

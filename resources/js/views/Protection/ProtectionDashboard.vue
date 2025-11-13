@@ -117,6 +117,15 @@
         </div>
       </div>
       </div>
+
+      <!-- Policy Form Modal -->
+      <PolicyFormModal
+        v-if="showForm"
+        :policy="editingPolicy"
+        :is-editing="!!editingPolicy"
+        @close="closeForm"
+        @save="handlePolicySaved"
+      />
     </div>
   </AppLayout>
 </template>
@@ -128,6 +137,8 @@ import CurrentSituation from '@/components/Protection/CurrentSituation.vue';
 import GapAnalysis from '@/components/Protection/GapAnalysis.vue';
 import Recommendations from '@/components/Protection/Recommendations.vue';
 import ProfileCompletenessAlert from '@/components/Shared/ProfileCompletenessAlert.vue';
+import PolicyFormModal from '@/components/Protection/PolicyFormModal.vue';
+import protectionService from '@/services/protectionService';
 import api from '@/services/api';
 
 export default {
@@ -139,6 +150,7 @@ export default {
     GapAnalysis,
     Recommendations,
     ProfileCompletenessAlert,
+    PolicyFormModal,
   },
 
   data() {
@@ -151,6 +163,8 @@ export default {
       ],
       profileCompleteness: null,
       loadingCompleteness: false,
+      showForm: false,
+      editingPolicy: null,
     };
   },
 
@@ -187,15 +201,74 @@ export default {
     },
 
     handleAddPolicy() {
-      // CurrentSituation component handles this internally
+      this.editingPolicy = null;
+      this.showForm = true;
     },
 
     handleEditPolicy(policy) {
-      // CurrentSituation component handles this internally
+      this.editingPolicy = policy;
+      this.showForm = true;
     },
 
     handleDeletePolicy(policy) {
-      // CurrentSituation component handles this internally
+      // CurrentSituation component handles this internally (navigates to PolicyDetail)
+    },
+
+    closeForm() {
+      this.showForm = false;
+      this.editingPolicy = null;
+    },
+
+    async handlePolicySaved(policyData) {
+      try {
+        const { policyType, ...actualPolicyData } = policyData;
+
+        // Call the appropriate API endpoint based on policy type
+        switch (policyType) {
+          case 'life':
+            if (this.editingPolicy) {
+              await protectionService.updateLifePolicy(this.editingPolicy.id, actualPolicyData);
+            } else {
+              await protectionService.createLifePolicy(actualPolicyData);
+            }
+            break;
+          case 'criticalIllness':
+            if (this.editingPolicy) {
+              await protectionService.updateCriticalIllnessPolicy(this.editingPolicy.id, actualPolicyData);
+            } else {
+              await protectionService.createCriticalIllnessPolicy(actualPolicyData);
+            }
+            break;
+          case 'incomeProtection':
+            if (this.editingPolicy) {
+              await protectionService.updateIncomeProtectionPolicy(this.editingPolicy.id, actualPolicyData);
+            } else {
+              await protectionService.createIncomeProtectionPolicy(actualPolicyData);
+            }
+            break;
+          case 'disability':
+            if (this.editingPolicy) {
+              await protectionService.updateDisabilityPolicy(this.editingPolicy.id, actualPolicyData);
+            } else {
+              await protectionService.createDisabilityPolicy(actualPolicyData);
+            }
+            break;
+          case 'sicknessIllness':
+            if (this.editingPolicy) {
+              await protectionService.updateSicknessIllnessPolicy(this.editingPolicy.id, actualPolicyData);
+            } else {
+              await protectionService.createSicknessIllnessPolicy(actualPolicyData);
+            }
+            break;
+        }
+
+        // Reload protection data to show the new/updated policy
+        await this.fetchProtectionData();
+        this.closeForm();
+      } catch (error) {
+        console.error('Failed to save policy:', error);
+        alert('Failed to save policy. Please try again.');
+      }
     },
   },
 };

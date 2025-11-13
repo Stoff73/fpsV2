@@ -329,6 +329,21 @@ class InvestmentController extends Controller
 
         $account->update($validated);
 
+        // If this is a joint account, also update the reciprocal account
+        if ($account->joint_owner_id) {
+            $reciprocalAccount = InvestmentAccount::where('user_id', $account->joint_owner_id)
+                ->where('joint_owner_id', $user->id)
+                ->where('provider', $account->provider)
+                ->where('current_value', $account->current_value)
+                ->first();
+
+            if ($reciprocalAccount) {
+                $reciprocalAccount->update($validated);
+                // Clear cache for joint owner
+                $this->investmentAgent->clearCache($account->joint_owner_id);
+            }
+        }
+
         // Clear cache
         $this->investmentAgent->clearCache($user->id);
 
@@ -345,6 +360,21 @@ class InvestmentController extends Controller
     {
         $user = $request->user();
         $account = InvestmentAccount::where('user_id', $user->id)->findOrFail($id);
+
+        // If this is a joint account, also delete the reciprocal account
+        if ($account->joint_owner_id) {
+            $reciprocalAccount = InvestmentAccount::where('user_id', $account->joint_owner_id)
+                ->where('joint_owner_id', $user->id)
+                ->where('provider', $account->provider)
+                ->where('current_value', $account->current_value)
+                ->first();
+
+            if ($reciprocalAccount) {
+                $reciprocalAccount->delete();
+                // Clear cache for joint owner
+                $this->investmentAgent->clearCache($account->joint_owner_id);
+            }
+        }
 
         $account->delete();
 

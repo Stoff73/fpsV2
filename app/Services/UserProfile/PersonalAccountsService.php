@@ -206,74 +206,96 @@ class PersonalAccountsService
             'chattels',
             'dcPensions',
             'mortgages',
+            'liabilities',
         ]);
 
-        // Calculate assets - use SavingsAccount model directly (no ownership_percentage on this table)
-        $cashTotal = SavingsAccount::where('user_id', $user->id)->sum('current_balance');
+        $assets = [];
 
-        $investmentsTotal = $user->investmentAccounts->sum(function ($account) {
-            return $account->current_value * ($account->ownership_percentage / 100);
-        });
+        // Cash accounts - individual line items
+        $cashAccounts = SavingsAccount::where('user_id', $user->id)->get();
+        foreach ($cashAccounts as $account) {
+            $assets[] = [
+                'line_item' => $account->institution ? "{$account->institution} - {$account->account_type}" : $account->account_type,
+                'category' => 'cash',
+                'amount' => $account->current_balance,
+            ];
+        }
 
-        $propertiesTotal = $user->properties->sum(function ($property) {
-            return $property->current_value * ($property->ownership_percentage / 100);
-        });
+        // Investment accounts - individual line items
+        foreach ($user->investmentAccounts as $account) {
+            $userShare = $account->current_value * ($account->ownership_percentage / 100);
+            $assets[] = [
+                'line_item' => $account->provider ? "{$account->provider} - {$account->account_type}" : $account->account_type,
+                'category' => 'investment',
+                'amount' => $userShare,
+            ];
+        }
 
-        $businessTotal = $user->businessInterests->sum(function ($business) {
-            return $business->current_valuation * ($business->ownership_percentage / 100);
-        });
+        // Properties - individual line items
+        foreach ($user->properties as $property) {
+            $userShare = $property->current_value * ($property->ownership_percentage / 100);
+            $propertyLabel = $property->address_line_1;
+            if ($property->property_type) {
+                $propertyLabel .= ' ('.str_replace('_', ' ', ucwords($property->property_type, '_')).')';
+            }
+            $assets[] = [
+                'line_item' => $propertyLabel,
+                'category' => 'property',
+                'amount' => $userShare,
+            ];
+        }
 
-        $chattelsTotal = $user->chattels->sum(function ($chattel) {
-            return $chattel->current_value * ($chattel->ownership_percentage / 100);
-        });
+        // Business interests - individual line items
+        foreach ($user->businessInterests as $business) {
+            $userShare = $business->current_valuation * ($business->ownership_percentage / 100);
+            $assets[] = [
+                'line_item' => $business->business_name ?? 'Business Interest',
+                'category' => 'business',
+                'amount' => $userShare,
+            ];
+        }
 
-        $pensionsTotal = $user->dcPensions->sum('current_fund_value');
+        // Chattels - individual line items
+        foreach ($user->chattels as $chattel) {
+            $userShare = $chattel->current_value * ($chattel->ownership_percentage / 100);
+            $assets[] = [
+                'line_item' => $chattel->description ?? 'Chattel',
+                'category' => 'chattel',
+                'amount' => $userShare,
+            ];
+        }
 
-        $assets = [
-            [
-                'line_item' => 'Cash & Cash Equivalents',
-                'category' => 'asset',
-                'amount' => $cashTotal,
-            ],
-            [
-                'line_item' => 'Investments',
-                'category' => 'asset',
-                'amount' => $investmentsTotal,
-            ],
-            [
-                'line_item' => 'Properties',
-                'category' => 'asset',
-                'amount' => $propertiesTotal,
-            ],
-            [
-                'line_item' => 'Business Interests',
-                'category' => 'asset',
-                'amount' => $businessTotal,
-            ],
-            [
-                'line_item' => 'Chattels',
-                'category' => 'asset',
-                'amount' => $chattelsTotal,
-            ],
-            [
-                'line_item' => 'Pension Funds',
-                'category' => 'asset',
-                'amount' => $pensionsTotal,
-            ],
-        ];
+        // Pensions - individual line items
+        foreach ($user->dcPensions as $pension) {
+            $assets[] = [
+                'line_item' => $pension->provider ? "{$pension->provider} - DC Pension" : 'DC Pension',
+                'category' => 'pension',
+                'amount' => $pension->current_fund_value,
+            ];
+        }
 
         $totalAssets = collect($assets)->sum('amount');
 
-        // Calculate liabilities
-        $mortgagesTotal = $user->mortgages->sum('outstanding_balance');
+        $liabilities = [];
 
-        $liabilities = [
-            [
-                'line_item' => 'Mortgages',
+        // Mortgages - individual line items
+        foreach ($user->mortgages as $mortgage) {
+            $liabilities[] = [
+                'line_item' => $mortgage->lender_name ? "{$mortgage->lender_name} - Mortgage" : 'Mortgage',
+                'category' => 'mortgage',
+                'amount' => $mortgage->outstanding_balance,
+            ];
+        }
+
+        // Other liabilities - individual line items
+        foreach ($user->liabilities as $liability) {
+            $typeLabel = str_replace('_', ' ', ucwords($liability->liability_type, '_'));
+            $liabilities[] = [
+                'line_item' => $liability->liability_name ?? $typeLabel,
                 'category' => 'liability',
-                'amount' => $mortgagesTotal,
-            ],
-        ];
+                'amount' => $liability->current_balance,
+            ];
+        }
 
         $totalLiabilities = collect($liabilities)->sum('amount');
 

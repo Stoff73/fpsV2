@@ -28,6 +28,9 @@ class Mortgage extends Model
         'start_date',
         'maturity_date',
         'remaining_term_months',
+        'ownership_type',
+        'joint_owner_id',
+        'joint_owner_name',
         'notes',
     ];
 

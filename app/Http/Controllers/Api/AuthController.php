@@ -58,6 +58,12 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->email)->firstOrFail();
+
+        // Load spouse relationship if spouse_id exists
+        if ($user->spouse_id) {
+            $user->load('spouse');
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

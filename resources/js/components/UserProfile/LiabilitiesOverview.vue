@@ -150,8 +150,8 @@ export default {
     };
 
     const formatInterestRate = (rate) => {
-      // Convert decimal to percentage (e.g., 0.27 -> 27.00)
-      return (Number(rate) * 100).toFixed(2);
+      // Rate is already stored as percentage (e.g., 27.00), just format it
+      return Number(rate).toFixed(2);
     };
 
     return {

@@ -23,12 +23,12 @@ class StoreMortgageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'lender_name' => ['nullable', 'string', 'max:255'],
+            'lender_name' => ['required', 'string', 'max:255'],
             'mortgage_account_number' => ['nullable', 'string', 'max:50'],
-            'mortgage_type' => ['nullable', Rule::in(['repayment', 'interest_only'])],
+            'mortgage_type' => ['required', Rule::in(['repayment', 'interest_only'])],
             'country' => ['nullable', 'string', 'max:255'],
 
-            // Loan details - only outstanding_balance and monthly_payment are truly required
+            // Loan details - outstanding_balance and monthly_payment required
             'original_loan_amount' => ['nullable', 'numeric', 'min:0'],
             'outstanding_balance' => ['required', 'numeric', 'min:0'],
 

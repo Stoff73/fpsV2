@@ -269,6 +269,22 @@ class SavingsController extends Controller
 
             $account->update($request->validated());
 
+            // If this is a joint account, also update the reciprocal account
+            if ($account->joint_owner_id) {
+                $reciprocalAccount = SavingsAccount::where('user_id', $account->joint_owner_id)
+                    ->where('joint_owner_id', $user->id)
+                    ->where('institution', $account->institution)
+                    ->where('current_balance', $account->current_balance)
+                    ->first();
+
+                if ($reciprocalAccount) {
+                    $reciprocalAccount->update($request->validated());
+                    // Invalidate cache for joint owner
+                    Cache::forget("savings_analysis_{$account->joint_owner_id}");
+                    $this->netWorthService->invalidateCache($account->joint_owner_id);
+                }
+            }
+
             // Invalidate cache
             Cache::forget("savings_analysis_{$user->id}");
             $this->netWorthService->invalidateCache($user->id);
@@ -302,6 +318,22 @@ class SavingsController extends Controller
             $account = SavingsAccount::where('id', $id)
                 ->where('user_id', $user->id)
                 ->firstOrFail();
+
+            // If this is a joint account, also delete the reciprocal account
+            if ($account->joint_owner_id) {
+                $reciprocalAccount = SavingsAccount::where('user_id', $account->joint_owner_id)
+                    ->where('joint_owner_id', $user->id)
+                    ->where('institution', $account->institution)
+                    ->where('current_balance', $account->current_balance)
+                    ->first();
+
+                if ($reciprocalAccount) {
+                    $reciprocalAccount->delete();
+                    // Invalidate cache for joint owner
+                    Cache::forget("savings_analysis_{$account->joint_owner_id}");
+                    $this->netWorthService->invalidateCache($account->joint_owner_id);
+                }
+            }
 
             $account->delete();
 

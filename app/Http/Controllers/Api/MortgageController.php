@@ -93,6 +93,11 @@ class MortgageController extends Controller
             $validated['remaining_term_months'] = $validated['remaining_term_months'] ?? 300; // 25 years default
         }
 
+        // For joint ownership, split the outstanding balance 50/50 BEFORE creating any records
+        if (isset($validated['ownership_type']) && $validated['ownership_type'] === 'joint') {
+            $validated['outstanding_balance'] = $validated['outstanding_balance'] / 2;
+        }
+
         $mortgage = Mortgage::create([
             'property_id' => $propertyId,
             'user_id' => $user->id,
@@ -160,6 +165,19 @@ class MortgageController extends Controller
 
         $mortgage->update($validated);
 
+        // If this is a joint mortgage, update the reciprocal mortgage
+        if ($mortgage->joint_owner_id) {
+            $reciprocalMortgage = Mortgage::where('user_id', $mortgage->joint_owner_id)
+                ->where('joint_owner_id', $user->id)
+                ->where('lender_name', $mortgage->lender_name)
+                ->where('outstanding_balance', $mortgage->outstanding_balance)
+                ->first();
+
+            if ($reciprocalMortgage) {
+                $reciprocalMortgage->update($validated);
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Mortgage updated successfully',
@@ -176,11 +194,45 @@ class MortgageController extends Controller
      */
     public function destroy(Request $request, int $id): JsonResponse
     {
+        \Log::info('=== MORTGAGE DESTROY METHOD CALLED ===', ['mortgage_id' => $id]);
+
         $user = $request->user();
 
         $mortgage = Mortgage::where('id', $id)
             ->where('user_id', $user->id)
             ->firstOrFail();
+
+        // If this is a joint mortgage, also delete the reciprocal mortgage
+        if ($mortgage->joint_owner_id) {
+            \Log::info('Deleting joint mortgage', [
+                'mortgage_id' => $mortgage->id,
+                'user_id' => $user->id,
+                'joint_owner_id' => $mortgage->joint_owner_id,
+                'lender_name' => $mortgage->lender_name,
+                'outstanding_balance' => $mortgage->outstanding_balance,
+            ]);
+
+            // Find the reciprocal mortgage - match on user IDs AND lender + balance to ensure correct mortgage
+            $reciprocalMortgage = Mortgage::where('user_id', $mortgage->joint_owner_id)
+                ->where('joint_owner_id', $user->id)
+                ->where('lender_name', $mortgage->lender_name)
+                ->where('outstanding_balance', $mortgage->outstanding_balance)
+                ->first();
+
+            if ($reciprocalMortgage) {
+                \Log::info('Found reciprocal mortgage, deleting', ['reciprocal_id' => $reciprocalMortgage->id]);
+                $reciprocalMortgage->delete();
+            } else {
+                \Log::warning('Reciprocal mortgage not found', [
+                    'searched_for' => [
+                        'user_id' => $mortgage->joint_owner_id,
+                        'joint_owner_id' => $user->id,
+                        'lender_name' => $mortgage->lender_name,
+                        'outstanding_balance' => $mortgage->outstanding_balance,
+                    ],
+                ]);
+            }
+        }
 
         $mortgage->delete();
 
@@ -271,12 +323,13 @@ class MortgageController extends Controller
         }
 
         // Create the reciprocal mortgage
+        // Note: outstanding_balance is already split 50/50 in the original mortgage
         $jointMortgageData = $originalMortgage->toArray();
 
         // Remove auto-generated fields
         unset($jointMortgageData['id'], $jointMortgageData['created_at'], $jointMortgageData['updated_at']);
 
-        // Update fields for joint owner
+        // Update fields for joint owner (balance already split, just copy it)
         $jointMortgageData['user_id'] = $jointOwnerId;
         $jointMortgageData['property_id'] = $jointProperty->id;
         $jointMortgageData['joint_owner_id'] = $originalMortgage->user_id;

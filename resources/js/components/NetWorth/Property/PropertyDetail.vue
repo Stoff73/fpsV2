@@ -188,7 +188,7 @@
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-semibold text-gray-800">Mortgages</h3>
               <button
-                @click="showMortgageModal = true"
+                @click="showEditModal = true"
                 class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
                 Add Mortgage
@@ -364,14 +364,6 @@
       @close="showEditModal = false"
     />
 
-    <MortgageForm
-      v-if="showMortgageModal"
-      :property-id="propertyId"
-      :mortgage="selectedMortgage"
-      @save="handleMortgageSave"
-      @close="closeMortgageModal"
-    />
-
     <ConfirmationModal
       v-if="showDeleteConfirm"
       title="Delete Property"
@@ -395,7 +387,6 @@
 import { mapState, mapActions } from 'vuex';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PropertyForm from './PropertyForm.vue';
-import MortgageForm from './MortgageForm.vue';
 import PropertyFinancials from './PropertyFinancials.vue';
 import PropertyTaxCalculator from './PropertyTaxCalculator.vue';
 import ConfirmationModal from '../../Common/ConfirmationModal.vue';
@@ -406,7 +397,6 @@ export default {
   components: {
     AppLayout,
     PropertyForm,
-    MortgageForm,
     PropertyFinancials,
     PropertyTaxCalculator,
     ConfirmationModal,
@@ -423,10 +413,8 @@ export default {
         { id: 'taxes', label: 'Taxes' },
       ],
       showEditModal: false,
-      showMortgageModal: false,
       showDeleteConfirm: false,
       showDeleteMortgageConfirm: false,
-      selectedMortgage: null,
       mortgageToDelete: null,
     };
   },
@@ -504,7 +492,32 @@ export default {
 
     async handlePropertyUpdate(data) {
       try {
+        // Update property
         await this.updateProperty({ id: this.propertyId, data: data.property });
+
+        // If mortgage data is included, create/update mortgage
+        if (data.mortgage && data.mortgage.outstanding_balance) {
+          try {
+            // Check if this property already has a mortgage (we'll update first one if exists)
+            if (this.mortgages && this.mortgages.length > 0) {
+              await this.updateMortgage({
+                id: this.mortgages[0].id,
+                data: data.mortgage,
+                propertyId: this.propertyId,
+              });
+            } else {
+              // Create new mortgage
+              await this.createMortgage({
+                propertyId: this.propertyId,
+                data: data.mortgage,
+              });
+            }
+          } catch (mortgageError) {
+            console.error('Failed to save mortgage:', mortgageError);
+            // Don't throw - property was saved successfully
+          }
+        }
+
         this.showEditModal = false;
         // Refresh property data
         await this.loadProperty();
@@ -532,46 +545,13 @@ export default {
       try {
         await this.deleteProperty(this.propertyId);
         this.showDeleteConfirm = false;
-        // Navigate back to net worth page
-        this.$router.push('/net-worth');
+        // Navigate back to net worth property list
+        this.$router.push({ name: 'NetWorthProperty' });
       } catch (error) {
         console.error('Failed to delete property:', error);
       }
     },
 
-    editMortgage(mortgage) {
-      this.selectedMortgage = mortgage;
-      this.showMortgageModal = true;
-    },
-
-    closeMortgageModal() {
-      this.showMortgageModal = false;
-      this.selectedMortgage = null;
-    },
-
-    async handleMortgageSave(mortgageData) {
-      try {
-        if (this.selectedMortgage) {
-          // Update existing mortgage
-          await this.updateMortgage({
-            id: this.selectedMortgage.id,
-            data: mortgageData,
-            propertyId: this.propertyId,
-          });
-        } else {
-          // Create new mortgage
-          await this.createMortgage({
-            propertyId: this.propertyId,
-            data: mortgageData,
-          });
-        }
-        this.closeMortgageModal();
-        // Refresh data
-        await this.loadProperty();
-      } catch (error) {
-        console.error('Failed to save mortgage:', error);
-      }
-    },
 
     deleteMortgageConfirm(mortgageId) {
       this.mortgageToDelete = mortgageId;
