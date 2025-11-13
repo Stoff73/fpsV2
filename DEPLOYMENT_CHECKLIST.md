@@ -65,7 +65,8 @@
   rm -f tengo-v0.2.7-deployment.tar.gz
 
   # Create secure deployment package
-  tar -czf tengo-v0.2.7-deployment.tar.gz \
+  # COPYFILE_DISABLE=1 prevents macOS extended attribute files (._* files)
+  COPYFILE_DISABLE=1 tar -czf tengo-v0.2.7-deployment.tar.gz \
     --exclude='tengo-v0.2.7-deployment.tar.gz' \
     --exclude='node_modules' \
     --exclude='vendor' \

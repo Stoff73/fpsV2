@@ -114,7 +114,8 @@ ls -lh *.tar.gz 2>/dev/null || echo "No tar.gz files found - good!"
 cd /Users/Chris/Desktop/fpsApp/tengo
 
 # Create secure deployment package
-tar -czf tengo-v0.2.7-deployment.tar.gz \
+# COPYFILE_DISABLE=1 prevents macOS extended attribute files (._* files) from being included
+COPYFILE_DISABLE=1 tar -czf tengo-v0.2.7-deployment.tar.gz \
   --exclude='tengo-v0.2.7-deployment.tar.gz' \
   --exclude='node_modules' \
   --exclude='vendor' \
