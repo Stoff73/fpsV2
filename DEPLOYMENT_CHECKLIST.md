@@ -273,26 +273,51 @@
 
 ## ⚠️ CRITICAL: .htaccess Configuration
 
-**Based on Security Audit - November 13, 2025**
+**Based on Security Audit & Deployment Testing - November 13, 2025**
 
-- [ ] **Deploy Production .htaccess** (CRITICAL - prevents 403/404 errors)
+**⚠️ CRITICAL FINDING**: The `.htaccess.production` file contains `<DirectoryMatch>` directives which are NOT allowed on SiteGround shared hosting!
+
+- [ ] **Create SiteGround-Compatible .htaccess** (CRITICAL - prevents 500 errors)
   ```bash
   ssh [username]@csjones.co -p18765
-  cd ~/tengo-app
+  cd ~/www/csjones.co/tengo-app
 
-  # Deploy production .htaccess
-  cp .htaccess.production public/.htaccess
+  # Create SiteGround-compatible .htaccess (NO DirectoryMatch directives)
+  cat > public/.htaccess << 'EOF'
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+    RewriteEngine On
+    RewriteBase /tengo/
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+<FilesMatch "(composer\.json|composer\.lock|package\.json|package-lock\.json|\.env)$">
+    Require all denied
+</FilesMatch>
+EOF
+
+  # Remove .htaccess.production template (not compatible with SiteGround)
+  rm .htaccess.production 2>/dev/null || true
 
   # Remove root .htaccess (MUST NOT EXIST)
   rm .htaccess 2>/dev/null || true
 
-  # Clean up production template
-  rm .htaccess.production
-
   # Set correct permissions
   chmod 644 public/.htaccess
   ```
-  - [ ] Production .htaccess copied to `public/.htaccess`
+  - [ ] SiteGround-compatible .htaccess created
+  - [ ] NO `<DirectoryMatch>` directives (causes HTTP 500 on SiteGround)
   - [ ] Root `.htaccess` deleted (verified doesn't exist)
   - [ ] `.htaccess.production` template removed
   - [ ] Permissions set to 644
