@@ -56,12 +56,11 @@ This deployment package contains everything needed to deploy TenGo to SiteGround
    - Security checklist included
    - **USE THIS**: Copy to .env on server and populate with actual values
 
-7. **.htaccess.production** (10 KB)
-   - Optimized Apache configuration for subdirectory deployment
-   - Security headers configured
-   - Compression and caching enabled
-   - Subdirectory routing configured
-   - **USE THIS**: Replace public/.htaccess on server
+7. **.htaccess.production** (10 KB) - ⚠️ **NOT COMPATIBLE WITH SITEGROUND**
+   - Contains `<DirectoryMatch>` directives not allowed on shared hosting
+   - Provided for reference only (use on VPS/dedicated servers)
+   - **DO NOT USE**: Will cause HTTP 500 errors on SiteGround
+   - **USE INSTEAD**: SiteGround-compatible .htaccess (see Critical Findings below)
 
 ### Application Files
 
@@ -85,7 +84,7 @@ This deployment package contains everything needed to deploy TenGo to SiteGround
 ## ⚠️ CRITICAL: .htaccess Security Audit Results
 
 **Audit Date**: November 13, 2025
-**Status**: 2 Critical Issues Identified & Resolved
+**Status**: 3 Critical Issues Identified & Resolved During Deployment
 
 ### Critical Findings
 
@@ -105,31 +104,60 @@ cd /Users/Chris/Desktop/fpsApp/tengo
 
 **File**: `public/.htaccess`
 **Problem**: Missing `RewriteBase /tengo/` - will cause **ALL routes to fail** in subdirectory
-**Solution**: Replace with `.htaccess.production` (already created)
+**Solution**: Use SiteGround-compatible .htaccess (see Issue #3)
 
-### ✅ Recommended Solution
+#### 🔴 Issue #3: .htaccess.production Incompatible with SiteGround (DISCOVERED DURING DEPLOYMENT)
 
-**Use `.htaccess.production`** (266 lines, production-ready):
-- Contains `RewriteBase /tengo/` for subdirectory routing
-- Blocks `/tengo/storage/` with correct absolute path
-- Protects sensitive files (.env, .git, composer files)
-- Includes security headers and optimization
+**File**: `.htaccess.production`
+**Problem**: Contains `<DirectoryMatch>` directives which are **NOT ALLOWED** in .htaccess on SiteGround shared hosting
+**Apache Error**: `[apache][core:alert] .htaccess: <DirectoryMatch not allowed here`
+**Impact**: HTTP 500 Internal Server Error - application completely broken
+**Root Cause**: `<DirectoryMatch>` directives can only be used in Apache's main configuration, not in .htaccess files on shared hosting
 
-**Deployment Command** (via SSH on SiteGround):
+### ✅ Solution: SiteGround-Compatible .htaccess
+
+**You MUST use a simplified .htaccess without DirectoryMatch directives:**
+
 ```bash
-cd ~/tengo-app
-cp .htaccess.production public/.htaccess
-rm .htaccess .htaccess.production
+# On SiteGround via SSH
+cd ~/www/csjones.co/tengo-app
+
+cat > public/.htaccess << 'EOF'
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+    RewriteEngine On
+    RewriteBase /tengo/
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+<FilesMatch "(composer\.json|composer\.lock|package\.json|package-lock\.json|\.env)$">
+    Require all denied
+</FilesMatch>
+EOF
+
 chmod 644 public/.htaccess
+rm .htaccess .htaccess.production 2>/dev/null || true
 ```
 
-### 403 Error Prevention
+### Security & Error Prevention
 
-The audit identified and resolved all potential 403 Forbidden error triggers:
-- ✅ Correct `RewriteBase` for subdirectory deployment
-- ✅ Proper storage directory blocking
-- ✅ Sensitive file protection configured
+The deployment testing identified and resolved:
+- ✅ Correct `RewriteBase /tengo/` for subdirectory deployment
+- ✅ Simplified file blocking using `<FilesMatch>` (compatible with shared hosting)
+- ✅ Sensitive file protection configured (.env, composer files)
 - ✅ File permissions documented (644 files, 755 dirs, 775 writable)
+- ✅ Removed `<DirectoryMatch>` directives (not allowed on SiteGround)
 
 **Post-Deployment Testing**: Section 7.2 includes comprehensive 403 testing suite
 
@@ -449,7 +477,7 @@ DEPLOYMENT_SUMMARY.md           (this)  Package overview
 **Configuration** (18 KB total):
 ```
 .env.production.example            8 KB  Production environment template
-.htaccess.production              10 KB  Apache configuration
+.htaccess.production              10 KB  Apache configuration (NOT for SiteGround - reference only)
 ```
 
 **Application** (~15 MB):
@@ -473,11 +501,12 @@ public/build/                     ~5 MB  Built frontend assets (uncompressed)
 - [ ] HTTPS enabled (SiteGround provides free Let's Encrypt)
 - [ ] File permissions: 775 for storage, 644 for .env
 
-**Security Headers** (configured in .htaccess.production):
+**Security Headers** (configure via SiteGround control panel or Apache config):
 - X-Content-Type-Options: nosniff
 - X-Frame-Options: SAMEORIGIN
 - X-XSS-Protection: 1; mode=block
 - Referrer-Policy: strict-origin-when-cross-origin
+- **Note**: SiteGround-compatible .htaccess focuses on essential routing/security only
 
 ---
 
