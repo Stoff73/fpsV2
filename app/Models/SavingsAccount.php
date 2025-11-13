@@ -30,6 +30,11 @@ class SavingsAccount extends Model
         'isa_type',
         'isa_subscription_year',
         'isa_subscription_amount',
+        // Ownership fields
+        'ownership_type',
+        'ownership_percentage',
+        'joint_owner_id',
+        'trust_id',
     ];
 
     protected $casts = [

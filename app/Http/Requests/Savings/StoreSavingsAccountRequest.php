@@ -34,6 +34,7 @@ class StoreSavingsAccountRequest extends FormRequest
 
             // Ownership
             'ownership_type' => ['required', Rule::in(['individual', 'joint', 'trust'])],
+            'ownership_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
             'joint_owner_id' => ['nullable', 'required_if:ownership_type,joint', 'exists:users,id'],
             'trust_id' => ['nullable', 'required_if:ownership_type,trust', 'exists:trusts,id'],
         ];
