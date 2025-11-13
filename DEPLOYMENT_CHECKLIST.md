@@ -55,23 +55,73 @@
   - [ ] PHP version requirement met (8.1+)
 
 - [ ] **Create Deployment Package**
+
+  **⚠️ CRITICAL**: Never include `.env.production` or `.env.development` (contain credentials!)
+
   ```bash
   cd /Users/Chris/Desktop/fpsApp/tengo
+
+  # Remove old archive first
+  rm -f tengo-v0.2.7-deployment.tar.gz
+
+  # Create secure deployment package
   tar -czf tengo-v0.2.7-deployment.tar.gz \
+    --exclude='tengo-v0.2.7-deployment.tar.gz' \
     --exclude='node_modules' \
     --exclude='vendor' \
     --exclude='.git' \
     --exclude='storage/logs/*' \
     --exclude='storage/framework/cache/*' \
+    --exclude='storage/framework/sessions/*' \
+    --exclude='storage/framework/views/*' \
     --exclude='.env' \
-    --exclude='public/build' \
+    --exclude='.env.local' \
+    --exclude='.env.production' \
+    --exclude='.env.development' \
+    --exclude='public/hot' \
+    --exclude='.claude' \
+    --exclude='*.old' \
+    --exclude='*.log' \
+    --exclude='.DS_Store' \
+    --exclude='public/.htaccess.laravel-default' \
     .
   ```
+
+  - [ ] Old archive removed before creating new one
   - [ ] Archive created successfully
-  - [ ] Archive size reasonable (~10-30 MB)
+  - [ ] Archive size reasonable (~2-3 MB)
+
   ```bash
   ls -lh tengo-v0.2.7-deployment.tar.gz
   ```
+
+- [ ] **SECURITY CHECK: Verify No Credentials in Archive**
+  ```bash
+  # Check .env files in archive
+  tar -tzf tengo-v0.2.7-deployment.tar.gz | grep "\.env"
+
+  # Should ONLY show:
+  # ./.env.example
+  # ./.env.production.example
+  ```
+
+  - [ ] Only `.env.example` and `.env.production.example` present
+  - [ ] **CRITICAL**: NO `.env.production` or `.env.development` in archive
+  - [ ] If credentials found: STOP and recreate archive
+
+- [ ] **Verify Archive Contents**
+  ```bash
+  # Verify production .htaccess included
+  tar -tzf tengo-v0.2.7-deployment.tar.gz | grep "public/.htaccess"
+  # Should show: ./public/.htaccess
+
+  # Verify build assets included
+  tar -tzf tengo-v0.2.7-deployment.tar.gz | grep "public/build" | head -5
+  ```
+
+  - [ ] Production `.htaccess` present (with RewriteBase /tengo/)
+  - [ ] Built assets in `public/build/` directory
+  - [ ] No `node_modules` or `vendor` directories
 
 ---
 

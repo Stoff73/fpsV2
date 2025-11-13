@@ -93,14 +93,29 @@ ls -la database/migrations/
 
 ### 1.4 Create Deployment Package
 
-**Create a clean deployment archive:**
+**Create a clean, secure deployment archive:**
+
+⚠️ **CRITICAL**: Never include credential files (`.env.production`, `.env.development`) in deployment packages!
+
+#### Step 1: Remove Any Existing Archive
+
+```bash
+# Remove old deployment archive (prevents "can't add to itself" error)
+rm -f tengo-v0.2.7-deployment.tar.gz
+
+# Verify no archives exist
+ls -lh *.tar.gz 2>/dev/null || echo "No tar.gz files found - good!"
+```
+
+#### Step 2: Create Deployment Archive
 
 ```bash
 # From project root
 cd /Users/Chris/Desktop/fpsApp/tengo
 
-# Create tarball with necessary files (excludes dev dependencies, node_modules, .git)
+# Create secure deployment package
 tar -czf tengo-v0.2.7-deployment.tar.gz \
+  --exclude='tengo-v0.2.7-deployment.tar.gz' \
   --exclude='node_modules' \
   --exclude='vendor' \
   --exclude='.git' \
@@ -109,14 +124,59 @@ tar -czf tengo-v0.2.7-deployment.tar.gz \
   --exclude='storage/framework/sessions/*' \
   --exclude='storage/framework/views/*' \
   --exclude='.env' \
+  --exclude='.env.local' \
+  --exclude='.env.production' \
+  --exclude='.env.development' \
+  --exclude='public/hot' \
+  --exclude='.claude' \
+  --exclude='*.old' \
   --exclude='*.log' \
   --exclude='.DS_Store' \
-  --exclude='public/build' \
+  --exclude='public/.htaccess.laravel-default' \
   .
-
-# Verify archive created
-ls -lh tengo-v0.2.7-deployment.tar.gz
 ```
+
+**Exclusions Explained**:
+- `node_modules/`, `vendor/` - Will be installed on server
+- `.git/` - Version control (not needed in production)
+- `storage/logs/*`, `storage/framework/*` - Server-generated files
+- `.env*` files **except** `.env.example` and `.env.production.example` - **NEVER deploy credentials!**
+- `public/hot` - Vite dev server file (dev only)
+- `.claude/`, `*.old` - Development artifacts
+- `public/.htaccess.laravel-default` - Backup file (not needed)
+
+#### Step 3: Verify Archive is Secure
+
+```bash
+# Check archive size (should be ~2-3 MB)
+ls -lh tengo-v0.2.7-deployment.tar.gz
+
+# CRITICAL: Verify only .example files are included (NO credentials!)
+tar -tzf tengo-v0.2.7-deployment.tar.gz | grep "\.env"
+
+# Expected output (ONLY these files):
+# ./.env.example
+# ./.env.production.example
+```
+
+**✅ Security Check**: If you see `.env.production` or `.env.development` in the output, **STOP!** Recreate the archive - those files contain credentials!
+
+#### Step 4: Verify Archive Contents
+
+```bash
+# List first 20 files to verify structure
+tar -tzf tengo-v0.2.7-deployment.tar.gz | head -20
+
+# Verify production .htaccess is included
+tar -tzf tengo-v0.2.7-deployment.tar.gz | grep "public/.htaccess"
+# Should show: ./public/.htaccess (production version with RewriteBase /tengo/)
+```
+
+**Expected Results**:
+- ✅ Archive size: ~2-3 MB
+- ✅ Only `.env.example` and `.env.production.example` present
+- ✅ Production `.htaccess` included (with RewriteBase /tengo/)
+- ✅ Built assets in `public/build/` directory
 
 ---
 

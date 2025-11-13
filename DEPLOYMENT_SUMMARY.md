@@ -228,8 +228,37 @@ Demo Account:
 - [ ] Local build completed successfully:
   ```bash
   NODE_ENV=production npm run build
-  ls public/build/manifest.json  # Should exist
+  ls public/build/.vite/manifest.json  # Should exist
   ```
+- [ ] **Deployment package created and verified**:
+  ```bash
+  # Create secure package (excludes credentials!)
+  tar -czf tengo-v0.2.7-deployment.tar.gz \
+    --exclude='tengo-v0.2.7-deployment.tar.gz' \
+    --exclude='node_modules' \
+    --exclude='vendor' \
+    --exclude='.git' \
+    --exclude='storage/logs/*' \
+    --exclude='storage/framework/cache/*' \
+    --exclude='storage/framework/sessions/*' \
+    --exclude='storage/framework/views/*' \
+    --exclude='.env' \
+    --exclude='.env.local' \
+    --exclude='.env.production' \
+    --exclude='.env.development' \
+    --exclude='public/hot' \
+    --exclude='.claude' \
+    --exclude='*.old' \
+    --exclude='public/.htaccess.laravel-default' \
+    .
+
+  # CRITICAL: Verify no credentials in package
+  tar -tzf tengo-v0.2.7-deployment.tar.gz | grep "\.env"
+  # Should ONLY show .env.example and .env.production.example
+  ```
+  - [ ] Package size ~2-3 MB
+  - [ ] **NO** `.env.production` or `.env.development` in archive
+  - [ ] Production `.htaccess` included with RewriteBase /tengo/
 
 ---
 
