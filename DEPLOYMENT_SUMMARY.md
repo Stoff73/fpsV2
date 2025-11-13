@@ -320,17 +320,47 @@ Demo Account:
 
 **500 Internal Server Error**:
 ```bash
-# First, create required storage directories (common cause of 500 errors)
 cd ~/www/csjones.co/tengo-app
+
+# Check 1: .htaccess compatibility (CRITICAL for SiteGround)
+# If error shows "<DirectoryMatch not allowed here", create SiteGround-compatible .htaccess
+cat > public/.htaccess << 'EOF'
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+    RewriteEngine On
+    RewriteBase /tengo/
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+<FilesMatch "(composer\.json|composer\.lock|package\.json|package-lock\.json|\.env)$">
+    Require all denied
+</FilesMatch>
+EOF
+chmod 644 public/.htaccess
+
+# Check 2: Sessions table exists (CRITICAL for database sessions)
+php artisan session:table
+php artisan migrate --force
+
+# Check 3: Storage directories exist
 mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views
 mkdir -p storage/framework/cache/data
-
-# Then set permissions
 chmod -R 775 storage bootstrap/cache
 
-# Finally, clear caches
-php artisan key:generate
+# Check 4: Clear caches
 php artisan config:clear
+php artisan key:generate
 ```
 
 **Assets Not Loading (404)**:
