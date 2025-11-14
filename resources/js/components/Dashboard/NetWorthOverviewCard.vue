@@ -34,35 +34,58 @@
         <span class="value-amount" :class="netWorthClass">{{ formattedNetWorth }}</span>
       </div>
 
-      <div class="asset-breakdown">
-        <div class="breakdown-item">
-          <span class="breakdown-label">Pensions</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.pensions || 0) }}</span>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-label">Property</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.property || 0) }}</span>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-label">Investments</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.investments || 0) }}</span>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-label">Cash</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.cash || 0) }}</span>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-label">Business</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.business || 0) }}</span>
-        </div>
-        <div class="breakdown-item">
-          <span class="breakdown-label">Chattels</span>
-          <span class="breakdown-value">{{ formatCurrency(breakdown.chattels || 0) }}</span>
+      <!-- Assets Section -->
+      <div v-if="totalAssets > 0" class="section-breakdown">
+        <div class="section-header">Assets</div>
+        <div class="asset-breakdown">
+          <div class="breakdown-item" v-if="breakdown.pensions > 0">
+            <span class="breakdown-label">Pensions</span>
+            <span class="breakdown-value breakdown-value-asset">{{ formatCurrency(breakdown.pensions) }}</span>
+          </div>
+          <div class="breakdown-item" v-if="breakdown.property > 0">
+            <span class="breakdown-label">Property</span>
+            <span class="breakdown-value breakdown-value-asset">{{ formatCurrency(breakdown.property) }}</span>
+          </div>
+          <div class="breakdown-item" v-if="breakdown.investments > 0">
+            <span class="breakdown-label">Investments</span>
+            <span class="breakdown-value breakdown-value-asset">{{ formatCurrency(breakdown.investments) }}</span>
+          </div>
+          <div class="breakdown-item" v-if="breakdown.cash > 0">
+            <span class="breakdown-label">Cash</span>
+            <span class="breakdown-value breakdown-value-asset">{{ formatCurrency(breakdown.cash) }}</span>
+          </div>
+          <div class="breakdown-item" v-if="breakdown.business > 0">
+            <span class="breakdown-label">Business</span>
+            <span class="breakdown-value breakdown-value-asset">{{ formatCurrency(breakdown.business) }}</span>
+          </div>
+          <div class="breakdown-item" v-if="breakdown.chattels > 0">
+            <span class="breakdown-label">Chattels</span>
+            <span class="breakdown-value breakdown-value-asset">{{ formatCurrency(breakdown.chattels) }}</span>
+          </div>
         </div>
       </div>
 
-      <div class="card-footer">
-        <span class="view-details">View Details →</span>
+      <!-- Liabilities Section -->
+      <div v-if="totalLiabilities > 0" class="section-breakdown">
+        <div class="section-header">Liabilities</div>
+        <div class="asset-breakdown">
+          <div class="breakdown-item" v-if="liabilitiesBreakdown.mortgages > 0">
+            <span class="breakdown-label">Mortgages</span>
+            <span class="breakdown-value breakdown-value-liability">{{ formatCurrency(liabilitiesBreakdown.mortgages) }}</span>
+          </div>
+          <div class="breakdown-item" v-if="liabilitiesBreakdown.loans > 0">
+            <span class="breakdown-label">Loans</span>
+            <span class="breakdown-value breakdown-value-liability">{{ formatCurrency(liabilitiesBreakdown.loans) }}</span>
+          </div>
+          <div class="breakdown-item" v-if="liabilitiesBreakdown.credit_cards > 0">
+            <span class="breakdown-label">Credit Cards</span>
+            <span class="breakdown-value breakdown-value-liability">{{ formatCurrency(liabilitiesBreakdown.credit_cards) }}</span>
+          </div>
+          <div class="breakdown-item" v-if="liabilitiesBreakdown.other > 0">
+            <span class="breakdown-label">Other</span>
+            <span class="breakdown-value breakdown-value-liability">{{ formatCurrency(liabilitiesBreakdown.other) }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -76,10 +99,14 @@ export default {
 
   computed: {
     ...mapState('netWorth', ['loading', 'error', 'overview']),
-    ...mapGetters('netWorth', ['formattedNetWorth', 'netWorth']),
+    ...mapGetters('netWorth', ['formattedNetWorth', 'netWorth', 'totalAssets', 'totalLiabilities']),
 
     breakdown() {
       return this.overview.breakdown || {};
+    },
+
+    liabilitiesBreakdown() {
+      return this.overview.liabilitiesBreakdown || {};
     },
 
     netWorthClass() {
@@ -197,6 +224,25 @@ export default {
   color: #ef4444;
 }
 
+.section-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-breakdown + .section-breakdown {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.section-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
 .asset-breakdown {
   display: flex;
   flex-direction: column;
@@ -220,18 +266,12 @@ export default {
   font-weight: 600;
 }
 
-.card-footer {
-  padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
+.breakdown-value-asset {
+  color: #2563eb;
 }
 
-.view-details {
-  color: #3b82f6;
-  font-size: 14px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.breakdown-value-liability {
+  color: #dc2626;
 }
 
 .loading-skeleton {

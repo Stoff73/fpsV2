@@ -27,6 +27,152 @@
       </div>
     </div>
 
+    <!-- Pensions Overview -->
+    <div class="pension-overview">
+      <div class="section-header-row">
+        <h3 class="section-title">Your Pensions</h3>
+        <button @click="addPension" class="add-pension-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="btn-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Add Pension
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="allPensions.length === 0" class="empty-state">
+        <p class="empty-message">No pensions added yet.</p>
+        <button @click="addPension" class="add-pension-button">
+          Add Your First Pension
+        </button>
+      </div>
+
+      <!-- Pensions Grid -->
+      <div v-else class="pensions-grid">
+        <!-- DC Pensions -->
+        <div
+          v-for="pension in dcPensions"
+          :key="'dc-' + pension.id"
+          @click="viewPension('dc', pension.id)"
+          class="pension-card"
+        >
+          <div class="card-header">
+            <span
+              :class="getOwnershipBadgeClass(pension.ownership_type)"
+              class="ownership-badge"
+            >
+              {{ formatOwnershipType(pension.ownership_type) }}
+            </span>
+            <span class="badge badge-dc">
+              DC Pension
+            </span>
+          </div>
+
+          <div class="card-content">
+            <h4 class="pension-provider">{{ pension.provider }}</h4>
+            <p class="pension-type">{{ pension.scheme_name || 'Defined Contribution' }}</p>
+
+            <div class="pension-details">
+              <div class="detail-row">
+                <span class="detail-label">Current Value</span>
+                <span class="detail-value">{{ formatCurrency(pension.current_fund_value) }}</span>
+              </div>
+
+              <div v-if="pension.contribution_amount" class="detail-row">
+                <span class="detail-label">Monthly Contribution</span>
+                <span class="detail-value">{{ formatCurrency(pension.contribution_amount) }}</span>
+              </div>
+
+              <div v-if="pension.projected_retirement_value" class="detail-row">
+                <span class="detail-label">Projected at {{ targetRetirementAge }}</span>
+                <span class="detail-value">{{ formatCurrency(pension.projected_retirement_value) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DB Pensions -->
+        <div
+          v-for="pension in dbPensions"
+          :key="'db-' + pension.id"
+          @click="viewPension('db', pension.id)"
+          class="pension-card"
+        >
+          <div class="card-header">
+            <span
+              :class="getOwnershipBadgeClass(pension.ownership_type)"
+              class="ownership-badge"
+            >
+              {{ formatOwnershipType(pension.ownership_type) }}
+            </span>
+            <span class="badge badge-db">
+              DB Pension
+            </span>
+          </div>
+
+          <div class="card-content">
+            <h4 class="pension-provider">{{ pension.provider }}</h4>
+            <p class="pension-type">{{ pension.scheme_name || 'Defined Benefit' }}</p>
+
+            <div class="pension-details">
+              <div class="detail-row">
+                <span class="detail-label">Annual Income</span>
+                <span class="detail-value">{{ formatCurrency(pension.annual_income) }}<span class="text-xs">/year</span></span>
+              </div>
+
+              <div v-if="pension.payment_start_age" class="detail-row">
+                <span class="detail-label">Payment Start</span>
+                <span class="detail-value">Age {{ pension.payment_start_age }}</span>
+              </div>
+
+              <div v-if="pension.revaluation_rate" class="detail-row">
+                <span class="detail-label">Revaluation</span>
+                <span class="detail-value">{{ (pension.revaluation_rate * 100).toFixed(1) }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- State Pension -->
+        <div
+          v-if="statePension"
+          @click="viewPension('state', 'state')"
+          class="pension-card"
+        >
+          <div class="card-header">
+            <span class="ownership-badge bg-gray-100 text-gray-800">
+              Individual
+            </span>
+            <span class="badge badge-state">
+              State Pension
+            </span>
+          </div>
+
+          <div class="card-content">
+            <h4 class="pension-provider">UK State Pension</h4>
+            <p class="pension-type">State Retirement Pension</p>
+
+            <div class="pension-details">
+              <div class="detail-row">
+                <span class="detail-label">Forecast</span>
+                <span class="detail-value">{{ formatCurrency(statePensionForecast) }}<span class="text-xs">/year</span></span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">NI Years</span>
+                <span class="detail-value">{{ niYears }} / 35</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Payment Age</span>
+                <span class="detail-value">{{ statePension.payment_start_age || 67 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Pension Wealth Summary -->
     <div class="bg-white rounded-lg shadow p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-6">Pension Wealth Summary</h3>
@@ -93,6 +239,54 @@ export default {
     niYears() {
       return this.statePension?.qualifying_years || 0;
     },
+
+    allPensions() {
+      const all = [...this.dcPensions, ...this.dbPensions];
+      if (this.statePension) {
+        all.push(this.statePension);
+      }
+      return all;
+    },
+  },
+
+  methods: {
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    },
+
+    formatOwnershipType(type) {
+      const types = {
+        individual: 'Individual',
+        joint: 'Joint',
+        trust: 'Trust',
+      };
+      return types[type] || 'Individual';
+    },
+
+    getOwnershipBadgeClass(type) {
+      const classes = {
+        individual: 'bg-gray-100 text-gray-800',
+        joint: 'bg-purple-100 text-purple-800',
+        trust: 'bg-amber-100 text-amber-800',
+      };
+      return classes[type] || 'bg-gray-100 text-gray-800';
+    },
+
+    addPension() {
+      // Navigate to Pensions tab
+      this.$parent.activeTab = 'inventory';
+    },
+
+    viewPension(type, id) {
+      // Navigate to Pensions tab
+      this.$parent.activeTab = 'inventory';
+    },
   },
 };
 </script>
@@ -112,5 +306,203 @@ export default {
 
 .retirement-readiness > div {
   animation: fadeIn 0.5s ease-out;
+}
+
+/* Pension Cards Styling */
+.pension-overview {
+  margin-bottom: 24px;
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.add-pension-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-pension-btn:hover {
+  background: #2563eb;
+}
+
+.btn-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.pensions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.pension-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pension-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ownership-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.badge-dc {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-db {
+  background: #e9d5ff;
+  color: #6b21a8;
+}
+
+.badge-state {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pension-provider {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.pension-type {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.pension-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 16px;
+  color: #111827;
+  font-weight: 700;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed #d1d5db;
+}
+
+.empty-message {
+  color: #6b7280;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.add-pension-button {
+  padding: 12px 24px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-pension-button:hover {
+  background: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .section-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .add-pension-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pensions-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

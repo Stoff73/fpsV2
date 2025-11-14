@@ -25,14 +25,14 @@
     <!-- Main Content -->
     <div v-else>
       <!-- Tab Navigation -->
-      <div class="bg-white rounded-lg shadow mb-6">
+      <div class="mb-6 border-b border-gray-200">
         <nav class="flex overflow-x-auto">
           <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="activeTab = tab.id"
             :class="[
-              'px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-200',
+              'px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-200 bg-transparent',
               activeTab === tab.id
                 ? 'text-indigo-600 border-b-2 border-indigo-600'
                 : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
@@ -132,6 +132,7 @@ export default {
 
   computed: {
     ...mapState('retirement', ['loading', 'error']),
+
     currentTabComponent() {
       const componentMap = {
         readiness: 'RetirementReadiness',

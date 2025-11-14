@@ -69,9 +69,9 @@
       </div>
 
       <!-- Main Content -->
-      <div v-else class="bg-white rounded-lg shadow">
+      <div v-else :class="isEmbedded ? 'investment-embedded' : 'bg-white rounded-lg shadow'">
         <!-- Tab Navigation -->
-        <div class="border-b border-gray-200">
+        <div :class="isEmbedded ? 'border-b border-gray-200' : 'border-b border-gray-200 bg-white'">
           <nav class="-mb-px flex overflow-x-auto" aria-label="Tabs">
             <button
               v-for="tab in tabs"
@@ -90,7 +90,7 @@
         </div>
 
         <!-- Tab Content -->
-        <div class="p-6">
+        <div :class="isEmbedded ? '' : 'p-6'">
           <!-- Portfolio Overview Tab -->
           <PortfolioOverview
             v-if="activeTab === 'overview'"

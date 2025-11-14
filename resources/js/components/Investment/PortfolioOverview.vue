@@ -25,87 +25,79 @@
       </div>
     </div>
 
-    <!-- Investment Accounts List -->
-    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-semibold text-gray-900">Investment Accounts</h2>
-          <button
-            @click="addAccount"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-          >
-            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Add Account
-          </button>
-        </div>
+    <!-- Investment Accounts -->
+    <div class="account-overview mb-8">
+      <div class="section-header-row">
+        <h3 class="section-title">Investment Accounts</h3>
+        <button @click="addAccount" class="add-account-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="btn-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Add Account
+        </button>
       </div>
 
       <!-- Empty State -->
-      <div v-if="!loading && accounts.length === 0" class="px-6 py-12">
-        <div class="text-center">
-          <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
-          <h3 class="mt-4 text-lg font-medium text-gray-900">No investment accounts yet</h3>
-          <p class="mt-2 text-sm text-gray-600 max-w-md mx-auto">
-            Get started by adding your first investment account. Track your portfolio performance, analyse holdings, and monitor your investment strategy.
-          </p>
-          <div class="mt-6">
-            <button
-              @click="addAccount"
-              class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-            >
-              <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Add Your First Account
-            </button>
-          </div>
-        </div>
+      <div v-if="!loading && accounts.length === 0" class="empty-state">
+        <p class="empty-message">No investment accounts added yet.</p>
+        <button @click="addAccount" class="add-account-button">
+          Add Your First Account
+        </button>
       </div>
 
-      <!-- Accounts List -->
-      <div v-else-if="!loading && accounts.length > 0" class="divide-y divide-gray-200">
+      <!-- Accounts Grid -->
+      <div v-else-if="!loading && accounts.length > 0" class="accounts-grid">
         <div
           v-for="account in accounts"
           :key="account.id"
-          class="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
           @click="viewAccount(account.id)"
+          class="account-card"
         >
-          <div class="flex items-center justify-between">
-            <div class="flex-1">
-              <div class="flex items-center space-x-3">
-                <div class="flex-shrink-0">
-                  <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <h3 class="text-base font-medium text-gray-900">{{ account.account_name }}</h3>
-                  <p class="text-sm text-gray-600">{{ account.provider }} • {{ formatAccountType(account.account_type) }}</p>
-                </div>
+          <div class="card-header">
+            <span
+              :class="getOwnershipBadgeClass(account.ownership_type)"
+              class="ownership-badge"
+            >
+              {{ formatOwnershipType(account.ownership_type) }}
+            </span>
+            <span
+              class="badge"
+              :class="accountTypeBadgeClass(account.account_type)"
+            >
+              {{ formatAccountType(account.account_type) }}
+            </span>
+          </div>
+
+          <div class="card-content">
+            <h4 class="account-institution">{{ account.provider }}</h4>
+            <p class="account-type">{{ account.account_name }}</p>
+
+            <div class="account-details">
+              <div class="detail-row">
+                <span class="detail-label">Current Value</span>
+                <span class="detail-value">{{ formatCurrency(account.current_value) }}</span>
               </div>
-            </div>
-            <div class="text-right">
-              <p class="text-lg font-semibold text-gray-900">{{ formatCurrency(account.current_value) }}</p>
-              <p class="text-sm" :class="getReturnColourClass(account.ytd_return)">
-                {{ formatReturn(account.ytd_return) }} YTD
-              </p>
+
+              <div v-if="account.ytd_return" class="detail-row">
+                <span class="detail-label">YTD Return</span>
+                <span class="detail-value" :class="getReturnColourClass(account.ytd_return)">
+                  {{ formatReturn(account.ytd_return) }}
+                </span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">{{ getPrimaryAssetClass(account).label }}</span>
+                <span class="detail-value">{{ getPrimaryAssetClass(account).percentage }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Loading State -->
-      <div v-else class="px-6 py-12">
-        <div class="flex justify-center items-center">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span class="ml-3 text-gray-600">Loading accounts...</span>
-        </div>
+      <div v-else class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-600">Loading accounts...</span>
       </div>
     </div>
 
@@ -250,18 +242,116 @@ export default {
 
     formatAccountType(type) {
       const types = {
-        'isa': 'Stocks & Shares ISA',
+        'isa': 'ISA',
         'sipp': 'SIPP',
-        'gia': 'General Investment Account',
-        'pension': 'Workplace Pension',
+        'gia': 'GIA',
+        'pension': 'Pension',
+        'nsi': 'NS&I',
+        'onshore_bond': 'Onshore Bond',
+        'offshore_bond': 'Offshore Bond',
+        'vct': 'VCT',
+        'eis': 'EIS',
         'other': 'Other',
       };
       return types[type] || type;
     },
 
+    formatOwnershipType(type) {
+      const types = {
+        individual: 'Individual',
+        joint: 'Joint',
+        trust: 'Trust',
+      };
+      return types[type] || 'Individual';
+    },
+
+    getOwnershipBadgeClass(type) {
+      const classes = {
+        individual: 'bg-gray-100 text-gray-800',
+        joint: 'bg-purple-100 text-purple-800',
+        trust: 'bg-amber-100 text-amber-800',
+      };
+      return classes[type] || 'bg-gray-100 text-gray-800';
+    },
+
+    accountTypeBadgeClass(type) {
+      const classes = {
+        isa: 'bg-green-100 text-green-800',
+        gia: 'bg-blue-100 text-blue-800',
+        sipp: 'bg-purple-100 text-purple-800',
+        pension: 'bg-purple-100 text-purple-800',
+        nsi: 'bg-indigo-100 text-indigo-800',
+        onshore_bond: 'bg-orange-100 text-orange-800',
+        offshore_bond: 'bg-orange-100 text-orange-800',
+        vct: 'bg-pink-100 text-pink-800',
+        eis: 'bg-pink-100 text-pink-800',
+        other: 'bg-gray-100 text-gray-800',
+      };
+      return classes[type] || 'bg-gray-100 text-gray-800';
+    },
+
     getReturnColourClass(value) {
       if (!value && value !== 0) return 'text-gray-600';
       return value >= 0 ? 'text-green-600' : 'text-red-600';
+    },
+
+    getPrimaryAssetClass(account) {
+      // If no holdings, default to 100% Cash
+      if (!account.holdings || account.holdings.length === 0) {
+        return {
+          label: 'Cash',
+          percentage: '(100%)',
+        };
+      }
+
+      // Calculate asset allocation from holdings
+      const assetAllocation = {};
+      let totalValue = 0;
+
+      account.holdings.forEach(holding => {
+        const value = parseFloat(holding.current_value || 0);
+        const assetType = holding.asset_type || 'other';
+
+        if (!assetAllocation[assetType]) {
+          assetAllocation[assetType] = 0;
+        }
+        assetAllocation[assetType] += value;
+        totalValue += value;
+      });
+
+      // Find the primary asset class (highest value)
+      let primaryAsset = 'Cash';
+      let primaryValue = 0;
+
+      Object.entries(assetAllocation).forEach(([assetType, value]) => {
+        if (value > primaryValue) {
+          primaryValue = value;
+          primaryAsset = assetType;
+        }
+      });
+
+      // Calculate percentage
+      const percentage = totalValue > 0
+        ? ((primaryValue / totalValue) * 100).toFixed(0)
+        : 100;
+
+      // Format asset class name
+      const assetClassNames = {
+        equity: 'Equity',
+        fixed_income: 'Fixed Income',
+        property: 'Property',
+        commodities: 'Commodities',
+        cash: 'Cash',
+        alternatives: 'Alternatives',
+        other: 'Other',
+      };
+
+      const label = assetClassNames[primaryAsset] || primaryAsset.charAt(0).toUpperCase() + primaryAsset.slice(1);
+
+      return {
+        label: label,
+        percentage: `(${percentage}%)`,
+      };
     },
 
     addAccount() {
@@ -278,3 +368,187 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.account-overview {
+  margin-bottom: 24px;
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.add-account-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-account-btn:hover {
+  background: #2563eb;
+}
+
+.btn-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.account-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.account-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ownership-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.account-institution {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.account-type {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.account-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 16px;
+  color: #111827;
+  font-weight: 700;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed #d1d5db;
+}
+
+.empty-message {
+  color: #6b7280;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.add-account-button {
+  padding: 12px 24px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-account-button:hover {
+  background: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .section-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .add-account-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .accounts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
