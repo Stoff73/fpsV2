@@ -28,6 +28,7 @@ class LifeInsurancePolicy extends Model
         'premium_amount',
         'premium_frequency',
         'policy_start_date',
+        'policy_end_date',
         'policy_term_years',
         'indexation_rate',
         'in_trust',
@@ -46,6 +47,7 @@ class LifeInsurancePolicy extends Model
         'premium_amount' => 'decimal:2',
         'indexation_rate' => 'decimal:4',
         'policy_start_date' => 'date',
+        'policy_end_date' => 'date',
         'policy_term_years' => 'integer',
         'in_trust' => 'boolean',
     ];

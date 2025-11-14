@@ -16,25 +16,26 @@
       <!-- Form -->
       <form @submit.prevent="handleSubmit" class="p-6">
         <div class="space-y-6">
-          <!-- Scheme Type -->
+          <!-- Pension Type -->
           <div>
-            <label for="scheme_type" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="pension_type" class="block text-sm font-medium text-gray-700 mb-2">
               Pension Type <span class="text-red-500">*</span>
             </label>
             <select
-              id="scheme_type"
-              v-model="formData.scheme_type"
+              id="pension_type"
+              v-model="formData.pension_type"
               required
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              @change="handleSchemeTypeChange"
+              @change="handlePensionTypeChange"
             >
               <option value="">Select pension type...</option>
-              <option value="workplace">Workplace Pension</option>
+              <option value="occupational">Occupational (Workplace)</option>
               <option value="sipp">SIPP (Self-Invested Personal Pension)</option>
               <option value="personal">Personal Pension</option>
+              <option value="stakeholder">Stakeholder Pension</option>
             </select>
             <p class="text-xs text-gray-500 mt-1">
-              Workplace: employer scheme with % contributions. SIPP/Personal: fixed £ contributions
+              Occupational: employer scheme with % contributions. SIPP/Personal/Stakeholder: fixed £ contributions
             </p>
           </div>
 
@@ -305,7 +306,8 @@ export default {
   data() {
     return {
       formData: {
-        scheme_type: '',
+        pension_type: '',
+        scheme_type: '', // Keep for backward compatibility
         scheme_name: '',
         provider: '',
         policy_number: '',
@@ -331,11 +333,11 @@ export default {
     ...mapGetters('auth', ['currentUser']),
 
     isWorkplacePension() {
-      return this.formData.scheme_type === 'workplace';
+      return this.formData.pension_type === 'occupational';
     },
 
     isPersonalPension() {
-      return this.formData.scheme_type === 'sipp' || this.formData.scheme_type === 'personal';
+      return this.formData.pension_type === 'sipp' || this.formData.pension_type === 'personal' || this.formData.pension_type === 'stakeholder';
     },
 
     calculatedEmployeeContribution() {
@@ -375,7 +377,7 @@ export default {
   },
 
   methods: {
-    handleSchemeTypeChange() {
+    handlePensionTypeChange() {
       // Clear fields that don't apply to the selected pension type
       if (this.isWorkplacePension) {
         this.formData.monthly_contribution_amount = null;
@@ -383,6 +385,13 @@ export default {
         this.formData.annual_salary = null;
         this.formData.employee_contribution_percent = null;
         this.formData.employer_contribution_percent = null;
+      }
+
+      // Set scheme_type for backward compatibility
+      if (this.formData.pension_type === 'occupational') {
+        this.formData.scheme_type = 'workplace';
+      } else {
+        this.formData.scheme_type = this.formData.pension_type;
       }
     },
 

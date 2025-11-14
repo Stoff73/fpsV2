@@ -26,6 +26,7 @@ class DCPension extends Model
         'scheme_name',
         'scheme_type',
         'provider',
+        'pension_type',
         'member_number',
         'current_fund_value',
         'annual_salary',

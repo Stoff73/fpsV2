@@ -34,6 +34,7 @@ class UpdateLifePolicyRequest extends FormRequest
             'premium_amount' => ['sometimes', 'numeric', 'min:0', 'max:9999999.99'],
             'premium_frequency' => ['sometimes', Rule::in(['monthly', 'quarterly', 'annually'])],
             'policy_start_date' => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
+            'policy_end_date' => ['sometimes', 'nullable', 'date', 'after:today'],
             'policy_term_years' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:50'],
             'indexation_rate' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:0.10'],
             'in_trust' => ['sometimes', 'boolean'],

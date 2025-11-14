@@ -39,20 +39,23 @@ class StoreLifePolicyRequest extends FormRequest
         $policyType = $this->input('policy_type');
 
         if ($policyType === 'decreasing_term') {
-            // Decreasing policies require start value, decreasing rate, start date, and term
+            // Decreasing policies require start value, decreasing rate, and end date
             $rules['start_value'] = ['required', 'numeric', 'min:1000', 'max:9999999999999.99'];
             $rules['decreasing_rate'] = ['required', 'numeric', 'min:0', 'max:1'];
-            $rules['policy_start_date'] = ['required', 'date', 'before_or_equal:today'];
-            $rules['policy_term_years'] = ['required', 'integer', 'min:1', 'max:50'];
+            $rules['policy_start_date'] = ['nullable', 'date', 'before_or_equal:today'];
+            $rules['policy_end_date'] = ['required', 'date', 'after:today'];
+            $rules['policy_term_years'] = ['nullable', 'integer', 'min:1', 'max:50'];
         } elseif ($policyType === 'term' || $policyType === 'level_term' || $policyType === 'family_income_benefit') {
-            // Term policies require start date and term, but not decreasing fields
-            $rules['policy_start_date'] = ['required', 'date', 'before_or_equal:today'];
-            $rules['policy_term_years'] = ['required', 'integer', 'min:1', 'max:50'];
+            // Term policies require end date, but start date and term are optional
+            $rules['policy_start_date'] = ['nullable', 'date', 'before_or_equal:today'];
+            $rules['policy_end_date'] = ['required', 'date', 'after:today'];
+            $rules['policy_term_years'] = ['nullable', 'integer', 'min:1', 'max:50'];
             $rules['start_value'] = ['nullable'];
             $rules['decreasing_rate'] = ['nullable'];
         } elseif ($policyType === 'whole_of_life') {
             // Whole of life policies don't require dates or term
             $rules['policy_start_date'] = ['nullable', 'date', 'before_or_equal:today'];
+            $rules['policy_end_date'] = ['nullable', 'date', 'after:today'];
             $rules['policy_term_years'] = ['nullable', 'integer', 'min:1', 'max:50'];
             $rules['start_value'] = ['nullable'];
             $rules['decreasing_rate'] = ['nullable'];
@@ -79,8 +82,8 @@ class StoreLifePolicyRequest extends FormRequest
             'sum_assured.min' => 'Sum assured must be at least £1,000.',
             'premium_amount.required' => 'Premium amount is required.',
             'premium_frequency.required' => 'Premium frequency is required.',
-            'policy_start_date.required' => 'Policy start date is required.',
-            'policy_term_years.required' => 'Policy term is required.',
+            'policy_end_date.required' => 'Policy end date is required.',
+            'policy_end_date.after' => 'Policy end date must be in the future.',
         ];
     }
 }

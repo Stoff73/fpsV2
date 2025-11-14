@@ -18,7 +18,6 @@ const Settings = () => import('@/views/Settings.vue');
 const UserProfile = () => import('@/views/UserProfile.vue');
 const NetWorthDashboard = () => import('@/views/NetWorth/NetWorthDashboard.vue');
 const NetWorthOverview = () => import('@/components/NetWorth/NetWorthOverview.vue');
-const RetirementView = () => import('@/views/NetWorth/RetirementView.vue');
 const PropertyList = () => import('@/components/NetWorth/PropertyList.vue');
 const PropertyDetail = () => import('@/components/NetWorth/Property/PropertyDetail.vue');
 const BusinessInterestsList = () => import('@/components/NetWorth/BusinessInterestsList.vue');
@@ -127,7 +126,7 @@ const routes = [
       {
         path: 'retirement',
         name: 'NetWorthRetirement',
-        component: RetirementView,
+        component: RetirementDashboard,
       },
       {
         path: 'property',
@@ -240,18 +239,6 @@ const routes = [
       breadcrumb: [
         { label: 'Home', path: '/dashboard' },
         { label: 'Investment', path: '/investment' },
-      ],
-    },
-  },
-  {
-    path: '/retirement',
-    name: 'Retirement',
-    component: RetirementDashboard,
-    meta: {
-      requiresAuth: true,
-      breadcrumb: [
-        { label: 'Home', path: '/dashboard' },
-        { label: 'Retirement Planning', path: '/retirement' },
       ],
     },
   },

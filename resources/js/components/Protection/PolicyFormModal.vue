@@ -205,12 +205,11 @@
             <!-- Start Date (conditional for life insurance) -->
             <div v-if="showStartDate">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Start Date <span v-if="showDecreasingFields" class="text-red-500">*</span>
+                Start Date
               </label>
               <input
                 v-model="formData.start_date"
                 type="date"
-                :required="showDecreasingFields"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -218,31 +217,30 @@
             <!-- Term Years (for Life and Critical Illness) -->
             <div v-if="isLifeInsurance ? showTermYearsForLifePolicy : showTermYears">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Policy Term (years) <span v-if="showDecreasingFields" class="text-red-500">*</span>
+                Policy Term (years)
               </label>
               <input
                 v-model.number="formData.term_years"
                 type="number"
                 min="1"
-                :required="showDecreasingFields"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="e.g., 20"
               />
             </div>
 
-            <!-- Calculated End Date (for Life and Critical Illness) -->
-            <div v-if="(isLifeInsurance ? showTermYearsForLifePolicy : showTermYears) && calculatedEndDate">
+            <!-- End Date (for Life and Critical Illness term policies) -->
+            <div v-if="showEndDate">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Policy End Date (Calculated)
+                Policy End Date <span class="text-red-500">*</span>
               </label>
               <input
-                :value="calculatedEndDate"
-                type="text"
-                readonly
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                v-model="formData.end_date"
+                type="date"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p class="text-xs text-gray-500 mt-1">
-                Automatically calculated from start date + term years
+                When does this policy expire?
               </p>
             </div>
 
@@ -491,6 +489,7 @@ export default {
         premium_amount: 0,
         premium_frequency: 'monthly',
         start_date: '',
+        end_date: '',
         term_years: null,
         in_trust: false,
         beneficiary_name: '',
@@ -582,29 +581,11 @@ export default {
              this.formData.beneficiary_percentage < 100;
     },
 
-    calculatedEndDate() {
-      if (!this.formData.start_date || !this.formData.term_years) {
-        return null;
-      }
-
-      try {
-        const startDate = new Date(this.formData.start_date);
-        if (isNaN(startDate.getTime())) {
-          return null;
-        }
-
-        const endDate = new Date(startDate);
-        endDate.setFullYear(endDate.getFullYear() + this.formData.term_years);
-
-        // Format as readable date
-        return endDate.toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-        });
-      } catch (error) {
-        return null;
-      }
+    showEndDate() {
+      if (!this.isLifeInsurance) return true; // Other policies always show end date
+      const lifeType = this.formData.life_policy_type;
+      // Show for decreasing_term and term, hide for whole_of_life
+      return lifeType === 'decreasing_term' || lifeType === 'term' || lifeType === 'level_term';
     },
   },
 
@@ -706,6 +687,7 @@ export default {
         premium_amount: this.policy.premium_amount || 0,
         premium_frequency: this.policy.premium_frequency || 'monthly',
         start_date: this.formatDateForInput(this.policy.start_date || this.policy.policy_start_date),
+        end_date: this.formatDateForInput(this.policy.end_date || this.policy.policy_end_date),
         term_years: this.policy.term_years || this.policy.policy_term_years || null,
         in_trust: this.policy.in_trust || false,
         beneficiary_name: beneficiary_name,
@@ -757,12 +739,14 @@ export default {
         // Add dates and term based on policy type
         if (this.formData.life_policy_type === 'whole_of_life') {
           // Whole of life policies: use start date or today, and set term to 50 years (max allowed, represents lifetime coverage)
-          data.policy_start_date = this.formData.start_date || new Date().toISOString().split('T')[0];
-          data.policy_term_years = 50; // Max allowed value representing lifetime coverage
+          data.policy_start_date = this.formData.start_date || null;
+          data.policy_end_date = this.formData.end_date || null;
+          data.policy_term_years = this.formData.term_years || null;
         } else {
-          // Term-based policies
-          data.policy_start_date = this.formData.start_date || new Date().toISOString().split('T')[0];
-          data.policy_term_years = this.formData.term_years || 20; // Default to 20 years if not provided
+          // Term-based policies require end_date
+          data.policy_start_date = this.formData.start_date || null;
+          data.policy_end_date = this.formData.end_date;
+          data.policy_term_years = this.formData.term_years || null;
         }
 
         data.in_trust = this.formData.in_trust || false;
@@ -781,14 +765,16 @@ export default {
       } else if (type === 'criticalIllness') {
         data.policy_type = 'standalone'; // Default to standalone critical illness
         data.sum_assured = this.formData.coverage_amount;
-        data.policy_term_years = this.formData.term_years || 20; // Default to 20 years if not provided
-        data.policy_start_date = this.formData.start_date || new Date().toISOString().split('T')[0];
+        data.policy_start_date = this.formData.start_date || null;
+        data.policy_end_date = this.formData.end_date;
+        data.policy_term_years = this.formData.term_years || null;
         data.conditions_covered = []; // Empty array for conditions covered
       } else {
         data.benefit_amount = this.formData.coverage_amount;
         data.benefit_frequency = this.formData.benefit_frequency;
         data.benefit_period_months = this.formData.benefit_period_months;
-        data.policy_start_date = this.formData.start_date || new Date().toISOString().split('T')[0];
+        data.policy_start_date = this.formData.start_date || null;
+        data.policy_end_date = this.formData.end_date;
       }
 
       // Add deferred period for income protection and disability

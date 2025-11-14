@@ -31,7 +31,7 @@
     <div class="pension-overview">
       <div class="section-header-row">
         <h3 class="section-title">Your Pensions</h3>
-        <button @click="addPension" class="add-pension-btn">
+        <button @click="showPensionForm = true" class="add-pension-btn">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="btn-icon">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
@@ -42,7 +42,7 @@
       <!-- Empty State -->
       <div v-if="allPensions.length === 0" class="empty-state">
         <p class="empty-message">No pensions added yet.</p>
-        <button @click="addPension" class="add-pension-button">
+        <button @click="showPensionForm = true" class="add-pension-button">
           Add Your First Pension
         </button>
       </div>
@@ -199,14 +199,37 @@
         </div>
       </div>
     </div>
+
+    <!-- Unified Pension Form Modal -->
+    <UnifiedPensionForm
+      v-if="showPensionForm"
+      :pension="selectedPension"
+      :state-pension="statePension"
+      :is-edit="isEditMode"
+      @close="closePensionForm"
+      @save="handlePensionSave"
+    />
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters } from 'vuex';
+import UnifiedPensionForm from '../../components/Retirement/UnifiedPensionForm.vue';
 
 export default {
   name: 'RetirementReadiness',
+
+  components: {
+    UnifiedPensionForm,
+  },
+
+  data() {
+    return {
+      showPensionForm: false,
+      selectedPension: null,
+      isEditMode: false,
+    };
+  },
 
   computed: {
     ...mapState('retirement', ['dcPensions', 'dbPensions', 'statePension', 'profile']),
@@ -278,14 +301,21 @@ export default {
       return classes[type] || 'bg-gray-100 text-gray-800';
     },
 
-    addPension() {
-      // Navigate to Pensions tab
-      this.$parent.activeTab = 'inventory';
+    closePensionForm() {
+      this.showPensionForm = false;
+      this.selectedPension = null;
+      this.isEditMode = false;
+    },
+
+    handlePensionSave(data) {
+      // The UnifiedPensionForm's child components handle saving
+      // This just closes the form
+      this.closePensionForm();
     },
 
     viewPension(type, id) {
-      // Navigate to Pensions tab
-      this.$parent.activeTab = 'inventory';
+      // Emit event to parent to change tab
+      this.$emit('change-tab', 'inventory');
     },
   },
 };

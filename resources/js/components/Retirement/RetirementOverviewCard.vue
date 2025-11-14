@@ -59,7 +59,7 @@ export default {
   },
   methods: {
     navigateToDashboard() {
-      this.$router.push('/retirement');
+      this.$router.push('/net-worth/retirement');
     },
   },
 };
