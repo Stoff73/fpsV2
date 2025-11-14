@@ -162,6 +162,8 @@ printenv | grep -E "^APP_|^DB_|^VITE_|^CACHE_"
 
 **Savings Access Types**: `immediate`, `notice`, `fixed`
 
+**DC Pension Types**: `occupational`, `sipp`, `personal`, `stakeholder`
+
 **ENFORCEMENT RULES:**
 1. **Database is Source of Truth**: Always check migration files first
 2. **No Variations**: If migration says `secondary_residence`, NEVER use `second_home`
@@ -401,7 +403,55 @@ formatCurrency(value) {
 <p>Total: £{{ totalValue.toLocaleString() }}</p>
 ```
 
-### 4. British vs. American Spelling
+### 4. Unified Form Pattern for Multiple Entity Types
+
+**Pattern**: When a single action can create multiple types of entities (e.g., DC/DB/State pensions), use a unified form with type selection.
+
+**Implementation**: `UnifiedPensionForm.vue`
+
+```vue
+<template>
+  <div>
+    <!-- Type Selection Modal (shows first) -->
+    <div v-if="!selectedType">
+      <button @click="selectedType = 'type_a'">Type A</button>
+      <button @click="selectedType = 'type_b'">Type B</button>
+    </div>
+
+    <!-- Specific Form Components (shown after selection) -->
+    <TypeAForm v-if="selectedType === 'type_a'" @close="handleClose" @save="handleSave" />
+    <TypeBForm v-if="selectedType === 'type_b'" @close="handleClose" @save="handleSave" />
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      selectedType: null,
+    };
+  },
+  methods: {
+    handleClose() {
+      this.selectedType = null;
+      this.$emit('close');
+    },
+    handleSave(data) {
+      this.selectedType = null;
+      this.$emit('save', data);
+    },
+  },
+};
+</script>
+```
+
+**Benefits**:
+- Single entry point for multiple entity types
+- Clear visual selection for users
+- Reuses existing individual form components
+- Maintains separation of concerns
+
+### 5. British vs. American Spelling
 
 **CRITICAL RULE**: British English for users, American English for code
 
