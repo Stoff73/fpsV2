@@ -54,11 +54,18 @@ class StorePropertyRequest extends FormRequest
             'sdlt_paid' => ['nullable', 'numeric', 'min:0'],
             'outstanding_mortgage' => ['nullable', 'numeric', 'min:0'],
 
+            // Mortgage details (when auto-creating mortgage from property form)
+            'mortgage_lender_name' => ['nullable', 'string', 'max:255'],
+            'mortgage_type' => ['nullable', Rule::in(['repayment', 'interest_only'])],
+            'mortgage_monthly_payment' => ['nullable', 'numeric', 'min:0'],
+            'mortgage_interest_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'mortgage_rate_type' => ['nullable', Rule::in(['fixed', 'variable', 'tracker', 'discount'])],
+            'mortgage_start_date' => ['nullable', 'date'],
+            'mortgage_maturity_date' => ['nullable', 'date'],
+
             // Rental (for BTL)
             'rental_income' => ['nullable', 'numeric', 'min:0'],
             'monthly_rental_income' => ['nullable', 'numeric', 'min:0'],
-            'annual_rental_income' => ['nullable', 'numeric', 'min:0'],
-            'occupancy_rate_percent' => ['nullable', 'integer', 'min:0', 'max:100'],
             'tenant_name' => ['nullable', 'string', 'max:255'],
             'tenant_email' => ['nullable', 'email', 'max:255'],
             'lease_start_date' => ['nullable', 'date'],

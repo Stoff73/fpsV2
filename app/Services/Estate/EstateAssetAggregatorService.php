@@ -162,21 +162,9 @@ class EstateAssetAggregatorService
         });
 
         // Get mortgages - database already stores the user's share
-        $mortgagesCollection = Mortgage::where('user_id', $user->id)->get();
-        $mortgages = $mortgagesCollection->sum(function ($mortgage) {
-            $property = $mortgage->property;
-            $isJoint = $property && ($property->ownership_type ?? 'individual') === 'joint';
-            // Database already stores the user's share - do NOT divide by 2
-            $value = $mortgage->outstanding_balance;
-            \Log::info('Mortgage: '.($property->address_line_1 ?? 'Unknown').' | Property Joint: '.($isJoint ? 'YES' : 'NO').' | Value: £'.$value);
+        $mortgages = Mortgage::where('user_id', $user->id)->sum('outstanding_balance');
 
-            return $value;
-        });
-
-        $total = $liabilities + $mortgages;
-        \Log::info('=== USER '.$user->name.' TOTAL LIABILITIES: £'.$total.' ===');
-
-        return $total;
+        return $liabilities + $mortgages;
     }
 
     /**

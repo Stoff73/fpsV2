@@ -118,16 +118,6 @@
         </div>
 
         <div class="flex justify-between py-2 border-b border-gray-100">
-          <dt class="text-sm text-gray-600">Occupancy Rate:</dt>
-          <dd class="text-sm font-medium text-gray-900">{{ property.occupancy_rate_percent || 100 }}%</dd>
-        </div>
-
-        <div class="flex justify-between py-2 border-b border-gray-100">
-          <dt class="text-sm text-gray-600">Actual Monthly Income:</dt>
-          <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(actualMonthlyIncome) }}</dd>
-        </div>
-
-        <div class="flex justify-between py-2 border-b border-gray-100">
           <dt class="text-sm text-gray-600">Less: Total Monthly Costs:</dt>
           <dd class="text-sm font-medium text-red-600">-{{ formatCurrency(totalMonthlyCosts) }}</dd>
         </div>
@@ -201,8 +191,8 @@
 
         <div v-if="property.property_type === 'buy_to_let'">
           <p class="text-sm text-gray-700">Annual Cash Flow:</p>
-          <p class="text-xl font-bold" :class="netRentalIncome >= 0 ? 'text-green-600' : 'text-red-600'">
-            {{ formatCurrency(netRentalIncome) }}
+          <p class="text-xl font-bold" :class="netAnnualIncome >= 0 ? 'text-green-600' : 'text-red-600'">
+            {{ formatCurrency(netAnnualIncome) }}
           </p>
           <p class="text-xs text-gray-600 mt-1">Rental income - costs</p>
         </div>
@@ -449,14 +439,9 @@ export default {
       );
     },
 
-    actualMonthlyIncome() {
-      const income = parseFloat(this.property.monthly_rental_income) || 0;
-      const occupancyRate = (parseFloat(this.property.occupancy_rate_percent) || 100) / 100;
-      return income * occupancyRate;
-    },
-
     netMonthlyIncome() {
-      return this.actualMonthlyIncome - this.totalMonthlyCosts;
+      const monthlyIncome = parseFloat(this.property.monthly_rental_income) || 0;
+      return monthlyIncome - this.totalMonthlyCosts;
     },
 
     netAnnualIncome() {

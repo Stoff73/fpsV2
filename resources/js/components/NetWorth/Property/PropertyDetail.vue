@@ -168,11 +168,7 @@
                   </div>
                   <div class="flex justify-between">
                     <dt class="text-sm text-gray-600">Annual Rental Income:</dt>
-                    <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.annual_rental_income) }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-sm text-gray-600">Occupancy Rate:</dt>
-                    <dd class="text-sm font-medium text-gray-900">{{ property.occupancy_rate_percent || 100 }}%</dd>
+                    <dd class="text-sm font-medium text-gray-900">{{ formatCurrency((property.monthly_rental_income || 0) * 12) }}</dd>
                   </div>
                   <div class="flex justify-between" v-if="property.tenant_name">
                     <dt class="text-sm text-gray-600">Tenant:</dt>

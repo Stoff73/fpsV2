@@ -31,7 +31,36 @@ Development guidelines for Claude Code when working with the TenGo financial pla
 - ✅ `php artisan migrate` (forward only)
 - ✅ Admin panel backup/restore system
 
-### 3. USE AVAILABLE SKILLS
+### 3. NEVER HARDCODE USER INPUT VALUES
+
+**⚠️ CRITICAL: ALWAYS USE DATABASE AND USER-PROVIDED VALUES - NEVER OVERRIDE WITH HARDCODED DEFAULTS**
+
+- **NEVER** hardcode values from user inputs unless explicitly instructed to do so
+- **ALWAYS** use the actual data provided by users in forms
+- **ALWAYS** store and retrieve values exactly as entered by the user
+- **NEVER** manipulate, override, or replace user input with default values like 'To be completed', 'Unknown', etc.
+
+**Examples:**
+
+❌ **WRONG - Hardcoding values:**
+```php
+$mortgageData = [
+    'lender_name' => 'To be completed',  // NEVER DO THIS
+    'mortgage_type' => 'repayment',      // NEVER DO THIS
+];
+```
+
+✅ **CORRECT - Using actual user input:**
+```php
+$mortgageData = [
+    'lender_name' => $validated['lender_name'] ?? 'To be completed',  // Use input, default only if not provided
+    'mortgage_type' => $validated['mortgage_type'] ?? 'repayment',    // Use input, default only if not provided
+];
+```
+
+**The only acceptable time to use default values is when the user has NOT provided any input at all.**
+
+### 4. USE AVAILABLE SKILLS
 
 **BEFORE STARTING ANY TASK, CHECK IF THERE IS A RELEVANT SKILL AVAILABLE.**
 
@@ -41,9 +70,12 @@ Available Skills:
 3. **fps-feature-builder** - For adding/extending features in existing modules
 4. **fps-component-builder** - For creating Vue 3 components
 
-**FAILURE TO USE AVAILABLE SKILLS IS UNACCEPTABLE.**
+Available Agents:
+1. **laravel-stack-deployer** - For Laravel + MySQL + Vue.js + Vite deployment to production/staging/development environments
 
-### 4. UNIFIED FORM COMPONENTS
+**FAILURE TO USE AVAILABLE SKILLS AND AGENTS IS UNACCEPTABLE.**
+
+### 5. UNIFIED FORM COMPONENTS
 
 **⚠️ THE APPLICATION USES ONE FORM FOR ALL INPUTS ACROSS ALL AREAS**
 
@@ -70,7 +102,7 @@ Available Skills:
 - ❌ Duplicate form logic across components
 - ❌ Use `@submit` event name (causes double submission bug)
 
-### 5. ENVIRONMENT VARIABLE CONTAMINATION
+### 6. ENVIRONMENT VARIABLE CONTAMINATION
 
 **⚠️ THE #1 CAUSE OF DEVELOPMENT ENVIRONMENT FAILURES IS ENVIRONMENT VARIABLE POLLUTION**
 
@@ -94,7 +126,7 @@ printenv | grep -E "^APP_|^DB_|^VITE_|^CACHE_"
 3. Cache errors: "This cache store does not support tagging"
 4. Vite shows wrong URL in output
 
-### 6. CANONICAL DATA TYPES - ONE SOURCE OF TRUTH
+### 7. CANONICAL DATA TYPES - ONE SOURCE OF TRUTH
 
 **⚠️ ALL ASSET/LIABILITY/PROPERTY TYPES MUST USE CANONICAL VALUES DEFINED BY DATABASE MIGRATIONS**
 
@@ -142,7 +174,7 @@ printenv | grep -E "^APP_|^DB_|^VITE_|^CACHE_"
 
 **TenGo** - UK-focused comprehensive financial planning application covering five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
-**Current Version**: v0.2.6 (Beta - Production Ready)
+**Current Version**: v0.2.7 (Beta - Production Ready)
 **Tech Stack**: Laravel 10.x (PHP 8.2+) + Vue.js 3 + MySQL 8.0+ + Memcached
 **Status**: All core modules complete, 95% advanced features complete
 
@@ -555,9 +587,23 @@ resources/js/
 
 ## Known Issues
 
-**Status**: ✅ No known issues at this time.
+### 🔴 CRITICAL - Joint Mortgage Reciprocal Creation (November 13, 2025)
 
-All core modules are fully functional. If you encounter any bugs, please use the `systematic-debugging` skill to investigate before implementing fixes.
+**Issue**: When creating a joint property with a mortgage, only ONE mortgage record is being created instead of TWO.
+
+**Expected Behavior**: For a joint property with a mortgage:
+- Two property records created ✅ (working)
+- Two mortgage records created ❌ (broken - only one created)
+
+**Status**: Under investigation. Code exists in `PropertyController.php` `createJointProperty()` method but appears to not be executing or failing silently.
+
+**Impact**: Joint property owners see correct property records but only the creator sees the mortgage record. Spouse's mortgage record is missing.
+
+**Documentation**: See `OUTSTANDING_MORTGAGE_ISSUE.md` for detailed investigation notes.
+
+---
+
+For any other bugs encountered, please use the `systematic-debugging` skill to investigate before implementing fixes.
 
 ---
 
@@ -568,8 +614,8 @@ All core modules are fully functional. If you encounter any bugs, please use the
 
 ---
 
-**Current Version**: v0.2.6 (Beta - Production Ready)
-**Last Updated**: November 12, 2025
+**Current Version**: v0.2.7 (Beta - Production Ready)
+**Last Updated**: November 14, 2025
 **Status**: 🚀 Active Development - All Core Features Complete
 
 ---

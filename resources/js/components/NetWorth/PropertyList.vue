@@ -141,16 +141,29 @@ export default {
           this.successMessage = 'Property updated successfully';
         } else {
           // Create new property
+          // Note: PropertyController automatically creates mortgage(s) if outstanding_mortgage is provided
+          // For joint ownership, it creates reciprocal mortgage records automatically
+
+          // Include ALL mortgage data if provided
+          if (data.mortgage && data.mortgage.outstanding_balance) {
+            data.property.outstanding_mortgage = data.mortgage.outstanding_balance;
+            data.property.mortgage_lender_name = data.mortgage.lender_name;
+            data.property.mortgage_type = data.mortgage.mortgage_type;
+            data.property.mortgage_monthly_payment = data.mortgage.monthly_payment;
+            data.property.mortgage_interest_rate = data.mortgage.interest_rate;
+            data.property.mortgage_rate_type = data.mortgage.rate_type;
+            data.property.mortgage_start_date = data.mortgage.start_date;
+            data.property.mortgage_maturity_date = data.mortgage.maturity_date;
+          }
+
           propertyResponse = await api.post('/properties', data.property);
           this.properties.push(propertyResponse.data);
-          this.successMessage = 'Property added successfully';
 
-          // If mortgage data provided, save mortgage
-          if (data.mortgage && propertyResponse.data?.id) {
-            const propertyId = propertyResponse.data.id;
-            await api.post(`/properties/${propertyId}/mortgages`, data.mortgage);
-            this.successMessage = 'Property and mortgage added successfully';
-          }
+          // Check if mortgage was auto-created
+          const hasMortgage = data.property.outstanding_mortgage > 0;
+          this.successMessage = hasMortgage
+            ? 'Property and mortgage added successfully'
+            : 'Property added successfully';
         }
 
         this.closePropertyForm();

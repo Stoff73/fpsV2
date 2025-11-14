@@ -57,18 +57,48 @@
               </p>
             </div>
 
-            <!-- Name -->
-            <div>
-              <label for="name" class="block text-body-sm font-medium text-gray-700 mb-1">
-                Full Name <span class="text-error-600">*</span>
-              </label>
-              <input
-                id="name"
-                v-model="form.name"
-                type="text"
-                required
-                class="input-field"
-              />
+            <!-- Name Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- First Name -->
+              <div>
+                <label for="first_name" class="block text-body-sm font-medium text-gray-700 mb-1">
+                  First Name <span class="text-error-600">*</span>
+                </label>
+                <input
+                  id="first_name"
+                  v-model="form.first_name"
+                  type="text"
+                  required
+                  class="input-field"
+                />
+              </div>
+
+              <!-- Middle Name -->
+              <div>
+                <label for="middle_name" class="block text-body-sm font-medium text-gray-700 mb-1">
+                  Middle Name
+                </label>
+                <input
+                  id="middle_name"
+                  v-model="form.middle_name"
+                  type="text"
+                  class="input-field"
+                />
+              </div>
+
+              <!-- Last Name -->
+              <div>
+                <label for="last_name" class="block text-body-sm font-medium text-gray-700 mb-1">
+                  Surname <span class="text-error-600">*</span>
+                </label>
+                <input
+                  id="last_name"
+                  v-model="form.last_name"
+                  type="text"
+                  required
+                  class="input-field"
+                />
+              </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -259,7 +289,9 @@ export default {
     const form = ref({
       relationship: '',
       email: '',
-      name: '',
+      first_name: '',
+      middle_name: '',
+      last_name: '',
       date_of_birth: '',
       gender: '',
       national_insurance_number: '',
@@ -290,7 +322,9 @@ export default {
         form.value = {
           relationship: member.relationship || '',
           email: member.email || '',
-          name: member.name || '',
+          first_name: member.first_name || '',
+          middle_name: member.middle_name || '',
+          last_name: member.last_name || '',
           date_of_birth: formatDateForInput(member.date_of_birth),
           gender: member.gender || '',
           national_insurance_number: member.national_insurance_number || '',
@@ -304,7 +338,9 @@ export default {
         form.value = {
           relationship: '',
           email: '',
-          name: '',
+          first_name: '',
+          middle_name: '',
+          last_name: '',
           date_of_birth: '',
           gender: '',
           national_insurance_number: '',
@@ -323,6 +359,16 @@ export default {
       try {
         // Clean up form data - remove empty strings
         const formData = { ...form.value };
+
+        // Construct full name from parts for backward compatibility
+        const nameParts = [
+          formData.first_name,
+          formData.middle_name,
+          formData.last_name
+        ].filter(part => part && part.trim() !== '');
+
+        formData.name = nameParts.join(' ');
+
         Object.keys(formData).forEach(key => {
           if (formData[key] === '' || formData[key] === null) {
             delete formData[key];

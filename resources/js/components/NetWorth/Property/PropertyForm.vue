@@ -960,31 +960,6 @@
                 </div>
 
                 <div>
-                  <label for="annual_rental_income" class="block text-sm font-medium text-gray-700 mb-1">Annual Rental Income (£)</label>
-                  <input
-                    id="annual_rental_income"
-                    v-model.number="form.annual_rental_income"
-                    type="number"
-                    step="any"
-                    min="0"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label for="occupancy_rate_percent" class="block text-sm font-medium text-gray-700 mb-1">Occupancy Rate (%)</label>
-                  <input
-                    id="occupancy_rate_percent"
-                    v-model.number="form.occupancy_rate_percent"
-                    type="number"
-                    step="any"
-                    min="0"
-                    max="100"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
                   <label for="tenant_name" class="block text-sm font-medium text-gray-700 mb-1">Tenant Name</label>
                   <input
                     id="tenant_name"
@@ -1137,8 +1112,6 @@ export default {
         monthly_maintenance_reserve: null,
         other_monthly_costs: null,
         monthly_rental_income: null,
-        annual_rental_income: null,
-        occupancy_rate_percent: null,
         tenant_name: '',
         tenant_email: '',
         lease_start_date: '',
@@ -1371,8 +1344,6 @@ export default {
 
       // Rental fields (may be nested or top-level)
       this.form.monthly_rental_income = this.property.monthly_rental_income || this.property.rental?.monthly_rental_income || null;
-      this.form.annual_rental_income = this.property.annual_rental_income || this.property.rental?.annual_rental_income || null;
-      this.form.occupancy_rate_percent = this.property.occupancy_rate_percent || this.property.rental?.occupancy_rate_percent || null;
       this.form.tenant_name = this.property.tenant_name || this.property.rental?.tenant_name || '';
       this.form.tenant_email = this.property.tenant_email || this.property.rental?.tenant_email || '';
       this.form.lease_start_date = this.formatDateForInput(this.property.lease_start_date || this.property.rental?.lease_start_date);

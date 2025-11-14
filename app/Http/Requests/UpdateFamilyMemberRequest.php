@@ -24,7 +24,10 @@ class UpdateFamilyMemberRequest extends FormRequest
     {
         return [
             'relationship' => ['sometimes', Rule::in(['spouse', 'child', 'parent', 'other_dependent'])],
-            'name' => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'nullable', 'string', 'max:255'], // Optional - constructed from name parts
+            'first_name' => ['sometimes', 'string', 'max:255'],
+            'middle_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'last_name' => ['sometimes', 'string', 'max:255'],
             'date_of_birth' => ['sometimes', 'nullable', 'date', 'before:today'],
             'gender' => ['sometimes', 'nullable', Rule::in(['male', 'female', 'other', 'prefer_not_to_say'])],
             'national_insurance_number' => ['sometimes', 'nullable', 'string', 'regex:/^[A-Z]{2}[0-9]{6}[A-Z]{1}$/'],

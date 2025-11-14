@@ -68,7 +68,6 @@ class PropertyController extends Controller
         // Convert rental_income to monthly if provided
         if (isset($validated['rental_income']) && ! isset($validated['monthly_rental_income'])) {
             $validated['monthly_rental_income'] = $validated['rental_income'];
-            $validated['annual_rental_income'] = $validated['rental_income'] * 12;
         }
 
         // For joint ownership, default to 50/50 split if not specified
@@ -88,18 +87,23 @@ class PropertyController extends Controller
             // Split outstanding balance based on ownership percentage
             $userMortgageBalance = $validated['outstanding_mortgage'] * ($userOwnershipPercentage / 100);
 
+            // Split monthly payment based on ownership percentage if provided
+            $userMonthlyPayment = isset($validated['mortgage_monthly_payment'])
+                ? $validated['mortgage_monthly_payment'] * ($userOwnershipPercentage / 100)
+                : 0.00;
+
             $mortgageData = [
                 'property_id' => $property->id,
                 'user_id' => $user->id,
-                'lender_name' => 'To be completed',
-                'mortgage_type' => 'repayment',
+                'lender_name' => $validated['mortgage_lender_name'] ?? 'To be completed',
+                'mortgage_type' => $validated['mortgage_type'] ?? 'repayment',
                 'original_loan_amount' => 0.00,  // Not provided in property form
                 'outstanding_balance' => $userMortgageBalance,  // User's share
-                'interest_rate' => 0.0000,
-                'rate_type' => 'fixed',
-                'monthly_payment' => 0.00,
-                'start_date' => now(),
-                'maturity_date' => now()->addYears(25),
+                'interest_rate' => $validated['mortgage_interest_rate'] ?? 0.0000,
+                'rate_type' => $validated['mortgage_rate_type'] ?? 'fixed',
+                'monthly_payment' => $userMonthlyPayment,
+                'start_date' => $validated['mortgage_start_date'] ?? now(),
+                'maturity_date' => $validated['mortgage_maturity_date'] ?? now()->addYears(25),
                 'remaining_term_months' => 300,
                 'ownership_type' => $validated['ownership_type'],
             ];
@@ -117,11 +121,14 @@ class PropertyController extends Controller
         // If joint ownership, create reciprocal property for joint owner
         if ($validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
             $totalMortgage = $validated['outstanding_mortgage'] ?? 0;
-            $this->createJointProperty($property, $validated['joint_owner_id'], $validated['ownership_percentage'], $totalValue, $totalMortgage);
+            $this->createJointProperty($property, $validated['joint_owner_id'], $validated['ownership_percentage'], $totalValue, $totalMortgage, $validated);
         }
 
         // Sync rental income to user table
         $this->syncUserRentalIncome($user);
+
+        // Load mortgages relationship before returning
+        $property->load('mortgages');
 
         return response()->json($property, 201);
     }
@@ -309,7 +316,7 @@ class PropertyController extends Controller
     /**
      * Create a reciprocal property record for joint owner
      */
-    private function createJointProperty(Property $originalProperty, int $jointOwnerId, float $ownershipPercentage, float $totalValue, float $totalMortgage = 0): void
+    private function createJointProperty(Property $originalProperty, int $jointOwnerId, float $ownershipPercentage, float $totalValue, float $totalMortgage = 0, array $validated = []): void
     {
         // Calculate the reciprocal ownership percentage
         $reciprocalPercentage = 100.00 - $ownershipPercentage;
@@ -338,18 +345,23 @@ class PropertyController extends Controller
         if ($totalMortgage > 0) {
             $jointMortgageBalance = $totalMortgage * ($reciprocalPercentage / 100);
 
+            // Split monthly payment based on reciprocal ownership percentage if provided
+            $jointMonthlyPayment = isset($validated['mortgage_monthly_payment'])
+                ? $validated['mortgage_monthly_payment'] * ($reciprocalPercentage / 100)
+                : 0.00;
+
             \App\Models\Mortgage::create([
                 'property_id' => $jointProperty->id,
                 'user_id' => $jointOwnerId,
-                'lender_name' => 'To be completed',
-                'mortgage_type' => 'repayment',
+                'lender_name' => $validated['mortgage_lender_name'] ?? 'To be completed',
+                'mortgage_type' => $validated['mortgage_type'] ?? 'repayment',
                 'original_loan_amount' => 0.00,  // Not provided in property form
                 'outstanding_balance' => $jointMortgageBalance,  // Joint owner's share
-                'interest_rate' => 0.0000,
-                'rate_type' => 'fixed',
-                'monthly_payment' => 0.00,
-                'start_date' => now(),
-                'maturity_date' => now()->addYears(25),
+                'interest_rate' => $validated['mortgage_interest_rate'] ?? 0.0000,
+                'rate_type' => $validated['mortgage_rate_type'] ?? 'fixed',
+                'monthly_payment' => $jointMonthlyPayment,
+                'start_date' => $validated['mortgage_start_date'] ?? now(),
+                'maturity_date' => $validated['mortgage_maturity_date'] ?? now()->addYears(25),
                 'remaining_term_months' => 300,
                 'ownership_type' => 'joint',
                 'joint_owner_id' => $originalProperty->user_id,

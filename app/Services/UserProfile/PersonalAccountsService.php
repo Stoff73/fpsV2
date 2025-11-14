@@ -280,8 +280,19 @@ class PersonalAccountsService
 
         // Mortgages - individual line items
         foreach ($user->mortgages as $mortgage) {
+            // Include property address to ensure uniqueness when multiple mortgages have same lender
+            $mortgageLabel = $mortgage->lender_name ?? 'Mortgage';
+
+            // Try to get property address for this mortgage
+            $property = $user->properties->firstWhere('id', $mortgage->property_id);
+            if ($property && $property->address_line_1) {
+                $mortgageLabel .= " ({$property->address_line_1})";
+            } else {
+                $mortgageLabel .= ' - Mortgage';
+            }
+
             $liabilities[] = [
-                'line_item' => $mortgage->lender_name ? "{$mortgage->lender_name} - Mortgage" : 'Mortgage',
+                'line_item' => $mortgageLabel,
                 'category' => 'mortgage',
                 'amount' => $mortgage->outstanding_balance,
             ];

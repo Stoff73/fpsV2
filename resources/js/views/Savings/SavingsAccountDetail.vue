@@ -70,7 +70,7 @@
             </div>
             <div class="bg-gray-50 rounded-lg p-4">
               <p class="text-sm text-gray-600">Interest Rate</p>
-              <p class="text-2xl font-bold text-blue-600">{{ account.interest_rate }}%</p>
+              <p class="text-2xl font-bold text-blue-600">{{ formatInterestRate(account.interest_rate) }}</p>
             </div>
             <div class="bg-gray-50 rounded-lg p-4">
               <p class="text-sm text-gray-600">Annual Interest</p>
@@ -116,8 +116,8 @@
                   <dd class="text-sm font-medium text-gray-900 font-semibold">{{ formatCurrency(account.current_balance) }}</dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-sm text-gray-600">Interest Rate (APY):</dt>
-                  <dd class="text-sm font-medium text-gray-900">{{ account.interest_rate }}%</dd>
+                  <dt class="text-sm text-gray-600">Interest Rate:</dt>
+                  <dd class="text-sm font-medium text-gray-900">{{ formatInterestRate(account.interest_rate) }}</dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-gray-600">Monthly Interest:</dt>
@@ -351,6 +351,12 @@ export default {
         innovative_finance: 'Innovative Finance ISA',
       };
       return types[type] || type;
+    },
+
+    formatInterestRate(rate) {
+      // Convert from decimal to percentage (e.g., 0.01 -> 1.00%)
+      // The rate from database is already in decimal form (0.01 = 1%)
+      return `${(rate * 100).toFixed(2)}%`;
     },
   },
 };

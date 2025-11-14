@@ -40,9 +40,7 @@ class Property extends Model
         'valuation_date',
         'sdlt_paid',
         'monthly_rental_income',
-        'annual_rental_income',
         'outstanding_mortgage',
-        'occupancy_rate_percent',
         'tenant_name',
         'tenant_email',
         'lease_start_date',
@@ -69,7 +67,6 @@ class Property extends Model
         'current_value' => 'decimal:2',
         'sdlt_paid' => 'decimal:2',
         'monthly_rental_income' => 'decimal:2',
-        'annual_rental_income' => 'decimal:2',
         'outstanding_mortgage' => 'decimal:2',
         'monthly_council_tax' => 'decimal:2',
         'monthly_gas' => 'decimal:2',
@@ -81,7 +78,6 @@ class Property extends Model
         'monthly_maintenance_reserve' => 'decimal:2',
         'other_monthly_costs' => 'decimal:2',
         'ownership_percentage' => 'decimal:2',
-        'occupancy_rate_percent' => 'integer',
         'lease_remaining_years' => 'integer',
     ];
 

@@ -25,7 +25,10 @@ class StoreFamilyMemberRequest extends FormRequest
         return [
             'relationship' => ['required', Rule::in(['spouse', 'child', 'parent', 'other_dependent'])],
             'email' => ['required_if:relationship,spouse', 'nullable', 'email', 'max:255'],
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['nullable', 'string', 'max:255'], // Optional - constructed from name parts
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
             'gender' => ['nullable', Rule::in(['male', 'female', 'other', 'prefer_not_to_say'])],
             'national_insurance_number' => ['nullable', 'string', 'regex:/^[A-Z]{2}[0-9]{6}[A-Z]{1}$/'],
@@ -45,7 +48,8 @@ class StoreFamilyMemberRequest extends FormRequest
             'relationship.required' => 'Please select a relationship type.',
             'email.required_if' => 'Email address is required for spouse.',
             'email.email' => 'Please enter a valid email address.',
-            'name.required' => 'Name is required.',
+            'first_name.required' => 'First name is required.',
+            'last_name.required' => 'Surname is required.',
             'date_of_birth.before' => 'Date of birth must be in the past.',
             'national_insurance_number.regex' => 'National Insurance number must be in format: AB123456C',
             'annual_income.min' => 'Income cannot be negative.',

@@ -309,6 +309,9 @@ Each module has an intelligent agent that orchestrates analysis:
 - **RetirementAgent**: Pension projections & readiness scoring
 - **CoordinatingAgent**: Cross-module holistic planning
 
+**Deployment Agent**:
+- **laravel-stack-deployer**: Handles Laravel + MySQL + Vue.js + Vite deployments to production/staging/development environments
+
 **Note**: Estate module uses direct service architecture (EstateAgent deprecated in favor of IHTCalculationService).
 
 ### Request Flow
@@ -814,9 +817,108 @@ For issues, questions, or contributions:
 
 ---
 
-**Current Version**: v0.2.6 (Beta - Production Ready)
+### November 13, 2025 - Critical Bug Fixes (Production Deployment)
 
-**Last Updated**: November 12, 2025
+**Protection Module - Add/Edit Policy Fixes**:
+
+1. **Add Policy Button Not Working**:
+   - ✅ Fixed "Add Policy" button doing nothing in Protection Dashboard
+   - ✅ Root cause: `handleAddPolicy()` was empty stub, no modal existed
+   - ✅ Solution: Added PolicyFormModal to dashboard with proper state management
+   - ✅ Pattern: Same unified form approach as onboarding (`:is-editing` prop)
+
+2. **Edit Policy Modal Showing Blank**:
+   - ✅ Fixed edit modal appearing but form fields empty
+   - ✅ Root cause: Missing `:is-editing="true"` prop on PolicyFormModal
+   - ✅ Solution: Added prop so modal knows to load policy data into form
+   - ✅ Result: Edit modal now properly populates with policy data
+
+3. **Save Throwing "Unknown policy type" Error**:
+   - ✅ Fixed console error when saving edited policy
+   - ✅ Root cause: Wrong parameter names passed to Vuex store action
+   - ✅ Solution: Changed to correct parameters (`policyType`, `id`, `policyData`)
+   - ✅ Result: Save operation now works without errors
+
+**Files Modified**: 2 frontend components
+- `resources/js/views/Protection/ProtectionDashboard.vue`
+- `resources/js/components/Protection/PolicyDetail.vue`
+
+**Status**: ✅ Deployed to production
+
+---
+
+**Savings Module - Ownership Fields Fix**:
+
+4. **Savings Account Form Freeze**:
+   - ✅ Fixed form freeze and 500/422 errors during onboarding
+   - ✅ Root cause: SavingsAccount model missing ownership fields from `$fillable` array
+   - ✅ Solution: Added `ownership_type`, `ownership_percentage`, `joint_owner_id`, `trust_id` to model
+   - ✅ Result: Form now saves successfully
+
+5. **Validation Mismatch**:
+   - ✅ Fixed validation requiring `ownership_percentage` that frontend doesn't send
+   - ✅ Solution: Changed validation to `nullable` with controller defaults
+   - ✅ Pattern: Frontend doesn't send field, backend sets sensible default (100% or 50% for joint)
+
+**Files Modified**: 3 backend files
+- `app/Models/SavingsAccount.php`
+- `app/Http/Requests/Savings/StoreSavingsAccountRequest.php`
+- `app/Http/Controllers/Api/SavingsController.php`
+
+**Status**: ✅ Deployed to production
+
+---
+
+**User Profile Module - Display Fixes**:
+
+6. **Mortgage Allocation Fix**:
+   - ✅ Fixed joint mortgages showing full amount under each spouse instead of 50/50 split
+   - ✅ Root cause: `createJointMortgage()` copied full balance to both records
+   - ✅ Solution: Split balance 50/50 when creating reciprocal mortgage records
+   - ✅ Impact: Each spouse now shows their correct share (£100k each for £200k total)
+
+7. **Interest Rate Display Fix**:
+   - ✅ Fixed interest rates showing as 2700.00% instead of 27.00%
+   - ✅ Root cause: Multiplying by 100 when rate already stored as percentage
+   - ✅ Solution: Removed multiplication, rates stored as 27.00 not 0.27
+   - ✅ Result: Interest rates display correctly
+
+8. **Balance Sheet Individual Line Items**:
+   - ✅ Fixed balance sheet showing categories instead of individual assets/liabilities
+   - ✅ Root cause: PersonalAccountsService returned summary categories
+   - ✅ Solution: Complete rewrite to return individual line items
+   - ✅ Result: Users see each specific account with ownership percentages
+
+**Files Modified**: 2 files
+- `app/Http/Controllers/Api/MortgageController.php`
+- `app/Services/UserProfile/PersonalAccountsService.php`
+- `resources/js/components/UserProfile/LiabilitiesOverview.vue`
+
+**Status**: ✅ Deployed to production (requires database fix for existing joint mortgages)
+
+**Documentation**: See `BUGFIX_PROTECTION_MODULE_2025-11-13.md`, `BUGFIX_SAVINGS_OWNERSHIP_2025-11-13.md`, `BUGFIX_USER_PROFILE_2025-11-13.md`
+
+---
+
+### November 14, 2025 - Documentation Updates
+
+**CLAUDE.md Updates**:
+- ✅ Updated version to v0.2.7
+- ✅ Added laravel-stack-deployer agent documentation
+- ✅ Updated Known Issues section with critical mortgage issue
+- ✅ Updated last modified date
+
+**README.md Updates**:
+- ✅ Updated version to v0.2.7
+- ✅ Added laravel-stack-deployer agent to Agent-Based System section
+- ✅ Added November 13-14 bug fix changelog
+- ✅ Updated last modified date
+
+---
+
+**Current Version**: v0.2.7 (Beta - Production Ready)
+
+**Last Updated**: November 14, 2025
 
 **Status**: 🚀 Active Development - All Core Features Complete
 

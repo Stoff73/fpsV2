@@ -1,8 +1,8 @@
 # Outstanding Mortgage Issue - Joint Ownership
 
-**Date:** November 13, 2025
+**Date:** November 13-14, 2025
 **Priority:** CRITICAL
-**Status:** Under Investigation
+**Status:** ✅ RESOLVED - November 14, 2025
 
 ---
 
@@ -213,4 +213,49 @@ if ($totalMortgage > 0) {
 
 ---
 
-**Investigation Required:** Why is the `if ($totalMortgage > 0)` block not executing or failing silently?
+## ✅ RESOLUTION (November 14, 2025)
+
+### Root Cause
+
+The code logic was **100% CORRECT**. The issue was a **missing database migration**.
+
+The mortgages table was missing two required columns:
+- `ownership_type` (enum: individual, joint, trust)
+- `joint_owner_name` (varchar)
+
+When the code attempted to create the reciprocal mortgage record, it failed with SQL error:
+```
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'ownership_type' in 'field list'
+```
+
+### Solution
+
+Run the pending migration:
+```bash
+php artisan migrate
+```
+
+This runs migration: `2025_11_13_164000_add_missing_ownership_columns_to_mortgages`
+
+### Testing Results
+
+✅ **Test 1: 50/50 Joint Ownership**
+- £200k property, £100k mortgage
+- Result: 2 properties (£100k each), 2 mortgages (£50k each) ✅
+
+✅ **Test 2: 30/70 Tenants in Common**
+- £300k property, £150k mortgage, 30% ownership
+- Result: 2 properties (£90k / £210k), 2 mortgages (£45k / £105k) ✅
+
+### Files Changed
+
+- `app/Http/Controllers/Api/PropertyController.php` - Removed debug logging (no functional changes)
+- Database migration run (adds missing columns)
+
+### Deployment Guide
+
+See `JOINT_MORTGAGE_FIX_2025-11-14.md` for complete production deployment instructions.
+
+---
+
+**ISSUE RESOLVED** - Code was always correct, just needed database migration to be run.

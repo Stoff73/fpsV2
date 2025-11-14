@@ -69,9 +69,9 @@
       </div>
 
       <!-- Main Content -->
-      <div v-else class="bg-white rounded-lg shadow">
+      <div v-else :class="isEmbedded ? 'savings-embedded' : 'bg-white rounded-lg shadow'">
         <!-- Tab Navigation -->
-        <div class="border-b border-gray-200">
+        <div v-if="!isEmbedded" class="border-b border-gray-200">
           <nav class="-mb-px flex overflow-x-auto" aria-label="Tabs">
             <button
               v-for="tab in tabs"
@@ -90,7 +90,7 @@
         </div>
 
         <!-- Tab Content -->
-        <div class="p-6">
+        <div :class="isEmbedded ? '' : 'p-6'">
           <!-- Current Situation Tab -->
           <CurrentSituation v-if="activeTab === 'current'" />
 
@@ -102,9 +102,6 @@
 
           <!-- Recommendations Tab -->
           <Recommendations v-else-if="activeTab === 'recommendations'" />
-
-          <!-- Account Details Tab -->
-          <AccountDetails v-else-if="activeTab === 'details'" />
         </div>
       </div>
       </div>
@@ -141,7 +138,6 @@ export default {
         { id: 'emergency', label: 'Emergency Fund' },
         { id: 'goals', label: 'Savings Goals' },
         { id: 'recommendations', label: 'Strategy' },
-        { id: 'details', label: 'Account Details' },
       ],
     };
   },

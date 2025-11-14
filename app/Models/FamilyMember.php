@@ -17,6 +17,9 @@ class FamilyMember extends Model
         'household_id',
         'relationship',
         'name',
+        'first_name',
+        'middle_name',
+        'last_name',
         'date_of_birth',
         'gender',
         'national_insurance_number',
@@ -46,5 +49,19 @@ class FamilyMember extends Model
     public function household(): BelongsTo
     {
         return $this->belongsTo(Household::class);
+    }
+
+    /**
+     * Accessor: Get the full name from name parts (for backward compatibility)
+     */
+    public function getFullNameAttribute(): string
+    {
+        $parts = array_filter([
+            $this->first_name,
+            $this->middle_name,
+            $this->last_name,
+        ]);
+
+        return implode(' ', $parts);
     }
 }
