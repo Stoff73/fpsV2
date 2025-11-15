@@ -1303,6 +1303,14 @@ export default {
           // Store the full response for detailed breakdown
           this.secondDeathData = response;
 
+          // DEBUG: Log what we received
+          console.log('IHT Response received:', {
+            data_sharing_enabled: response.data_sharing_enabled,
+            has_assets_breakdown: !!response.assets_breakdown,
+            has_spouse_assets: !!response.assets_breakdown?.spouse,
+            spouse_name: response.assets_breakdown?.spouse?.name,
+          });
+
           // Extract IHT summary for display
           if (response.iht_summary) {
             this.ihtData = {

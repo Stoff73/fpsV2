@@ -1531,6 +1531,24 @@ export default {
         this.currentStep = this.stepMapping[4] || this.currentStep + 1;
       }
     },
+
+    // Sync mortgage ownership with property ownership
+    'form.ownership_type'(newVal) {
+      // Update mortgage ownership_type to match property ownership_type
+      this.mortgageForm.ownership_type = newVal;
+    },
+
+    // Sync mortgage joint owner with property joint owner
+    'form.joint_owner_id'(newVal) {
+      // Update mortgage joint_owner_id to match property joint_owner_id
+      this.mortgageForm.joint_owner_id = newVal;
+    },
+
+    // Sync mortgage joint owner name with property joint owner name
+    'form.joint_owner_name'(newVal) {
+      // Update mortgage joint_owner_name to match property joint_owner_name
+      this.mortgageForm.joint_owner_name = newVal;
+    },
   },
 
   mounted() {
@@ -1633,6 +1651,11 @@ export default {
         } else if (this.mortgageForm.joint_owner_name) {
           this.mortgageJointOwnerSelection = 'other';
         }
+      } else {
+        // No existing mortgage - sync ownership from property form
+        this.mortgageForm.ownership_type = this.form.ownership_type || 'individual';
+        this.mortgageForm.joint_owner_id = this.form.joint_owner_id || null;
+        this.mortgageForm.joint_owner_name = this.form.joint_owner_name || '';
       }
     },
 

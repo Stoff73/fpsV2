@@ -462,26 +462,81 @@ class OnboardingService
     {
         $user = User::findOrFail($userId);
 
-        // Update user expenditure fields
-        $user->update([
-            'food_groceries' => $data['food_groceries'] ?? 0,
-            'transport_fuel' => $data['transport_fuel'] ?? 0,
-            'healthcare_medical' => $data['healthcare_medical'] ?? 0,
-            'insurance' => $data['insurance'] ?? 0,
-            'mobile_phones' => $data['mobile_phones'] ?? 0,
-            'internet_tv' => $data['internet_tv'] ?? 0,
-            'subscriptions' => $data['subscriptions'] ?? 0,
-            'clothing_personal_care' => $data['clothing_personal_care'] ?? 0,
-            'entertainment_dining' => $data['entertainment_dining'] ?? 0,
-            'holidays_travel' => $data['holidays_travel'] ?? 0,
-            'pets' => $data['pets'] ?? 0,
-            'childcare' => $data['childcare'] ?? 0,
-            'school_fees' => $data['school_fees'] ?? 0,
-            'children_activities' => $data['children_activities'] ?? 0,
-            'other_expenditure' => $data['other_expenditure'] ?? 0,
-            'monthly_expenditure' => $data['monthly_expenditure'] ?? 0,
-            'annual_expenditure' => $data['annual_expenditure'] ?? 0,
-        ]);
+        // Check if this is separate mode data (has userData and spouseData keys)
+        if (isset($data['userData']) && isset($data['spouseData'])) {
+            // Separate mode: Update current user with userData
+            $userData = $data['userData'];
+            $user->update([
+                'food_groceries' => $userData['food_groceries'] ?? 0,
+                'transport_fuel' => $userData['transport_fuel'] ?? 0,
+                'healthcare_medical' => $userData['healthcare_medical'] ?? 0,
+                'insurance' => $userData['insurance'] ?? 0,
+                'mobile_phones' => $userData['mobile_phones'] ?? 0,
+                'internet_tv' => $userData['internet_tv'] ?? 0,
+                'subscriptions' => $userData['subscriptions'] ?? 0,
+                'clothing_personal_care' => $userData['clothing_personal_care'] ?? 0,
+                'entertainment_dining' => $userData['entertainment_dining'] ?? 0,
+                'holidays_travel' => $userData['holidays_travel'] ?? 0,
+                'pets' => $userData['pets'] ?? 0,
+                'childcare' => $userData['childcare'] ?? 0,
+                'school_fees' => $userData['school_fees'] ?? 0,
+                'children_activities' => $userData['children_activities'] ?? 0,
+                'other_expenditure' => $userData['other_expenditure'] ?? 0,
+                'monthly_expenditure' => $userData['monthly_expenditure'] ?? 0,
+                'annual_expenditure' => $userData['annual_expenditure'] ?? 0,
+                'expenditure_entry_mode' => $userData['expenditure_entry_mode'] ?? 'category',
+            ]);
+
+            // Update spouse with spouseData
+            if ($user->spouse_id) {
+                $spouse = User::find($user->spouse_id);
+                if ($spouse) {
+                    $spouseData = $data['spouseData'];
+                    $spouse->update([
+                        'food_groceries' => $spouseData['food_groceries'] ?? 0,
+                        'transport_fuel' => $spouseData['transport_fuel'] ?? 0,
+                        'healthcare_medical' => $spouseData['healthcare_medical'] ?? 0,
+                        'insurance' => $spouseData['insurance'] ?? 0,
+                        'mobile_phones' => $spouseData['mobile_phones'] ?? 0,
+                        'internet_tv' => $spouseData['internet_tv'] ?? 0,
+                        'subscriptions' => $spouseData['subscriptions'] ?? 0,
+                        'clothing_personal_care' => $spouseData['clothing_personal_care'] ?? 0,
+                        'entertainment_dining' => $spouseData['entertainment_dining'] ?? 0,
+                        'holidays_travel' => $spouseData['holidays_travel'] ?? 0,
+                        'pets' => $spouseData['pets'] ?? 0,
+                        'childcare' => $spouseData['childcare'] ?? 0,
+                        'school_fees' => $spouseData['school_fees'] ?? 0,
+                        'children_activities' => $spouseData['children_activities'] ?? 0,
+                        'other_expenditure' => $spouseData['other_expenditure'] ?? 0,
+                        'monthly_expenditure' => $spouseData['monthly_expenditure'] ?? 0,
+                        'annual_expenditure' => $spouseData['annual_expenditure'] ?? 0,
+                        'expenditure_entry_mode' => $spouseData['expenditure_entry_mode'] ?? 'category',
+                    ]);
+                }
+            }
+        } else {
+            // Joint mode or single user: Update user with flat data
+            $user->update([
+                'food_groceries' => $data['food_groceries'] ?? 0,
+                'transport_fuel' => $data['transport_fuel'] ?? 0,
+                'healthcare_medical' => $data['healthcare_medical'] ?? 0,
+                'insurance' => $data['insurance'] ?? 0,
+                'mobile_phones' => $data['mobile_phones'] ?? 0,
+                'internet_tv' => $data['internet_tv'] ?? 0,
+                'subscriptions' => $data['subscriptions'] ?? 0,
+                'clothing_personal_care' => $data['clothing_personal_care'] ?? 0,
+                'entertainment_dining' => $data['entertainment_dining'] ?? 0,
+                'holidays_travel' => $data['holidays_travel'] ?? 0,
+                'pets' => $data['pets'] ?? 0,
+                'childcare' => $data['childcare'] ?? 0,
+                'school_fees' => $data['school_fees'] ?? 0,
+                'children_activities' => $data['children_activities'] ?? 0,
+                'other_expenditure' => $data['other_expenditure'] ?? 0,
+                'monthly_expenditure' => $data['monthly_expenditure'] ?? 0,
+                'annual_expenditure' => $data['annual_expenditure'] ?? 0,
+                'expenditure_entry_mode' => $data['expenditure_entry_mode'] ?? 'category',
+            ]);
+        }
     }
 
     /**

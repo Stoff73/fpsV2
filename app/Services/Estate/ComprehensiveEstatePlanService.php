@@ -54,13 +54,21 @@ class ComprehensiveEstatePlanService
             ]);
         }
 
-        // Gather all assets
-        $aggregatedAssets = $this->assetAggregator->gatherUserAssets($user);
-        $assets = $this->convertToAssetModels($aggregatedAssets, $user);
-
         // Calculate current IHT position using simplified service
         $spouse = ($user->marital_status === 'married' && $user->spouse_id) ? User::find($user->spouse_id) : null;
         $dataSharingEnabled = $spouse && $user->hasAcceptedSpousePermission();
+
+        // Gather user assets
+        $aggregatedAssets = $this->assetAggregator->gatherUserAssets($user);
+        $assets = $this->convertToAssetModels($aggregatedAssets, $user);
+
+        // Gather spouse assets if data sharing enabled
+        $spouseAggregatedAssets = collect();
+        $spouseAssets = collect();
+        if ($dataSharingEnabled) {
+            $spouseAggregatedAssets = $this->assetAggregator->gatherUserAssets($spouse);
+            $spouseAssets = $this->convertToAssetModels($spouseAggregatedAssets, $spouse);
+        }
 
         $ihtAnalysis = $this->ihtCalculationService->calculate($user, $spouse, $dataSharingEnabled);
         $currentIHTLiability = $ihtAnalysis['iht_liability'];
@@ -132,9 +140,9 @@ class ComprehensiveEstatePlanService
                 $secondDeathAnalysis
             ),
             'user_profile' => $this->buildUserProfile($user),
-            'balance_sheet' => $this->buildBalanceSheet($user, $assets, $ihtAnalysis),
-            'estate_overview' => $this->buildEstateOverview($aggregatedAssets, $ihtAnalysis),
-            'estate_breakdown' => $this->buildEstateBreakdown($user, $aggregatedAssets, $secondDeathAnalysis),
+            'balance_sheet' => $this->buildBalanceSheet($user, $assets, $ihtAnalysis, $spouse, $spouseAssets, $dataSharingEnabled),
+            'estate_overview' => $this->buildEstateOverview($aggregatedAssets, $ihtAnalysis, $spouseAggregatedAssets, $dataSharingEnabled),
+            'estate_breakdown' => $this->buildEstateBreakdown($user, $aggregatedAssets, $secondDeathAnalysis, $spouse, $spouseAggregatedAssets, $dataSharingEnabled),
             'current_iht_position' => $this->buildIHTPosition($ihtAnalysis, $ihtProfile, $secondDeathAnalysis),
             'gifting_strategy' => $giftingPlan,
             'trust_strategy' => $trustPlan,
@@ -246,11 +254,12 @@ class ComprehensiveEstatePlanService
 
     /**
      * Build estate overview with detailed asset breakdown
+     * Shows user, spouse, and combined totals when data sharing enabled
      */
-    private function buildEstateOverview(Collection $assets, array $ihtAnalysis): array
+    private function buildEstateOverview(Collection $assets, array $ihtAnalysis, Collection $spouseAssets, bool $dataSharingEnabled): array
     {
+        // User's assets
         $assetsByType = $assets->groupBy('asset_type');
-
         $breakdown = [];
         $detailedAssets = [];
 
@@ -271,7 +280,7 @@ class ComprehensiveEstatePlanService
             })->toArray();
         }
 
-        return [
+        $result = [
             'total_assets' => $assets->sum('current_value'),
             'total_liabilities' => $ihtAnalysis['total_liabilities'] ?? 0,
             'net_estate' => $ihtAnalysis['total_net_estate'] ?? 0,
@@ -279,13 +288,51 @@ class ComprehensiveEstatePlanService
             'breakdown' => $breakdown,
             'detailed_assets' => $detailedAssets,
         ];
+
+        // Add spouse data if sharing enabled
+        if ($dataSharingEnabled && $spouseAssets->isNotEmpty()) {
+            $spouseAssetsByType = $spouseAssets->groupBy('asset_type');
+            $spouseBreakdown = [];
+            $spouseDetailedAssets = [];
+
+            foreach ($spouseAssetsByType as $type => $typeAssets) {
+                $spouseBreakdown[] = [
+                    'type' => ucfirst($type),
+                    'count' => $typeAssets->count(),
+                    'value' => $typeAssets->sum('current_value'),
+                ];
+
+                $spouseDetailedAssets[$type] = $typeAssets->map(function ($asset) {
+                    return [
+                        'name' => $asset->asset_name,
+                        'value' => $asset->current_value,
+                        'is_iht_exempt' => $asset->is_iht_exempt ?? false,
+                    ];
+                })->toArray();
+            }
+
+            $result['spouse'] = [
+                'total_assets' => $spouseAssets->sum('current_value'),
+                'asset_count' => $spouseAssets->count(),
+                'breakdown' => $spouseBreakdown,
+                'detailed_assets' => $spouseDetailedAssets,
+            ];
+
+            // Combined totals
+            $result['combined'] = [
+                'total_assets' => $assets->sum('current_value') + $spouseAssets->sum('current_value'),
+                'asset_count' => $assets->count() + $spouseAssets->count(),
+            ];
+        }
+
+        return $result;
     }
 
     /**
      * Build estate breakdown with separate user, spouse, and joint sections
      * Uses data from secondDeathAnalysis if available (already calculated in Estate module)
      */
-    private function buildEstateBreakdown(User $user, Collection $aggregatedAssets, ?array $secondDeathAnalysis): array
+    private function buildEstateBreakdown(User $user, Collection $aggregatedAssets, ?array $secondDeathAnalysis, ?User $spouse, Collection $spouseAggregatedAssets, bool $dataSharingEnabled): array
     {
         $breakdown = [
             'user' => null,
@@ -295,10 +342,6 @@ class ComprehensiveEstatePlanService
 
         // If we have second death analysis, use that data (already calculated)
         if ($secondDeathAnalysis && isset($secondDeathAnalysis['first_death']) && isset($secondDeathAnalysis['second_death'])) {
-            // Get all assets for both users
-            $spouse = User::find($user->spouse_id);
-            $spouseAggregatedAssets = $spouse ? $this->assetAggregator->gatherUserAssets($spouse) : collect([]);
-
             // Combine all assets (user + spouse)
             $allAssets = $aggregatedAssets->concat($spouseAggregatedAssets);
 
@@ -314,15 +357,17 @@ class ComprehensiveEstatePlanService
             ];
 
             // Spouse's estate
-            $spouseAssets = $allAssets->filter(fn ($asset) => $asset->user_id === $spouse->id);
-            $breakdown['spouse'] = [
-                'name' => $secondDeathAnalysis['second_death']['name'],
-                'total_assets' => $secondDeathAnalysis['second_death']['current_estate_value'],
-                'total_liabilities' => $secondDeathAnalysis['liability_breakdown']['current']['spouse_liabilities'] ?? 0,
-                'net_estate' => $secondDeathAnalysis['second_death']['current_estate_value'] - ($secondDeathAnalysis['liability_breakdown']['current']['spouse_liabilities'] ?? 0),
-                'asset_count' => $spouseAssets->count(),
-                'detailed_assets' => $this->groupAssetsByType($spouseAssets),
-            ];
+            if ($spouse) {
+                $spouseAssets = $allAssets->filter(fn ($asset) => $asset->user_id === $spouse->id);
+                $breakdown['spouse'] = [
+                    'name' => $secondDeathAnalysis['second_death']['name'],
+                    'total_assets' => $secondDeathAnalysis['second_death']['current_estate_value'],
+                    'total_liabilities' => $secondDeathAnalysis['liability_breakdown']['current']['spouse_liabilities'] ?? 0,
+                    'net_estate' => $secondDeathAnalysis['second_death']['current_estate_value'] - ($secondDeathAnalysis['liability_breakdown']['current']['spouse_liabilities'] ?? 0),
+                    'asset_count' => $spouseAssets->count(),
+                    'detailed_assets' => $this->groupAssetsByType($spouseAssets),
+                ];
+            }
 
             // Combined estate (from current_combined_totals)
             $breakdown['combined'] = [
@@ -333,7 +378,7 @@ class ComprehensiveEstatePlanService
                 'detailed_assets' => $this->groupAssetsByType($allAssets),
             ];
         } else {
-            // Single person - just show their estate
+            // User's estate
             $userLiabilities = \App\Models\Estate\Liability::where('user_id', $user->id)->sum('current_balance') ?? 0;
             $userLiabilities += \App\Models\Mortgage::where('user_id', $user->id)->sum('outstanding_balance') ?? 0;
 
@@ -345,6 +390,30 @@ class ComprehensiveEstatePlanService
                 'asset_count' => $aggregatedAssets->count(),
                 'detailed_assets' => $this->groupAssetsByType($aggregatedAssets),
             ];
+
+            // Add spouse data if available and sharing enabled
+            if ($dataSharingEnabled && $spouse && $spouseAggregatedAssets->isNotEmpty()) {
+                $spouseLiabilities = \App\Models\Estate\Liability::where('user_id', $spouse->id)->sum('current_balance') ?? 0;
+                $spouseLiabilities += \App\Models\Mortgage::where('user_id', $spouse->id)->sum('outstanding_balance') ?? 0;
+
+                $breakdown['spouse'] = [
+                    'name' => $spouse->name,
+                    'total_assets' => $spouseAggregatedAssets->sum('current_value'),
+                    'total_liabilities' => $spouseLiabilities,
+                    'net_estate' => $spouseAggregatedAssets->sum('current_value') - $spouseLiabilities,
+                    'asset_count' => $spouseAggregatedAssets->count(),
+                    'detailed_assets' => $this->groupAssetsByType($spouseAggregatedAssets),
+                ];
+
+                // Combined totals
+                $breakdown['combined'] = [
+                    'total_assets' => $aggregatedAssets->sum('current_value') + $spouseAggregatedAssets->sum('current_value'),
+                    'total_liabilities' => $userLiabilities + $spouseLiabilities,
+                    'net_estate' => ($aggregatedAssets->sum('current_value') + $spouseAggregatedAssets->sum('current_value')) - ($userLiabilities + $spouseLiabilities),
+                    'asset_count' => $aggregatedAssets->count() + $spouseAggregatedAssets->count(),
+                    'detailed_assets' => $this->groupAssetsByType($aggregatedAssets->concat($spouseAggregatedAssets)),
+                ];
+            }
         }
 
         return $breakdown;
@@ -373,8 +442,9 @@ class ComprehensiveEstatePlanService
 
     /**
      * Build balance sheet from user profile
+     * Shows user, spouse, and combined balance sheets when data sharing enabled
      */
-    private function buildBalanceSheet(User $user, Collection $assets, array $ihtAnalysis): array
+    private function buildBalanceSheet(User $user, Collection $assets, array $ihtAnalysis, ?User $spouse, Collection $spouseAssets, bool $dataSharingEnabled): array
     {
         // Group assets by type for balance sheet presentation
         $assetsByType = $assets->groupBy('asset_type');
@@ -453,19 +523,203 @@ class ComprehensiveEstatePlanService
         $totalLiabilities = $ihtAnalysis['liabilities'] ?? 0;
         $netWorth = $totalAssets - $totalLiabilities;
 
-        return [
+        $result = [
             'as_at_date' => now()->format('d F Y'),
-            'assets' => $balanceSheetAssets,
-            'total_assets' => $totalAssets,
-            'liabilities' => [
-                'total' => $totalLiabilities,
-                'breakdown' => [], // Could be expanded if liability details are available
+            'user' => [
+                'name' => $user->name,
+                'assets' => $balanceSheetAssets,
+                'total_assets' => $totalAssets,
+                'liabilities' => [
+                    'total' => $totalLiabilities,
+                    'breakdown' => [],
+                ],
+                'net_worth' => $netWorth,
+                'monthly_income' => $user->net_monthly_income ?? 0,
+                'monthly_expenditure' => $user->monthly_expenditure ?? 0,
+                'annual_income' => $user->gross_annual_income ?? 0,
             ],
-            'net_worth' => $netWorth,
-            'monthly_income' => $user->net_monthly_income ?? 0,
-            'monthly_expenditure' => $user->monthly_expenditure ?? 0,
-            'annual_income' => $user->gross_annual_income ?? 0,
         ];
+
+        // Add spouse balance sheet if data sharing enabled
+        if ($dataSharingEnabled && $spouse && $spouseAssets->isNotEmpty()) {
+            $spouseAssetsByType = $spouseAssets->groupBy('asset_type');
+            $spouseBalanceSheetAssets = [];
+
+            // Property
+            if ($spouseAssetsByType->has('property')) {
+                $spouseBalanceSheetAssets['Property'] = [
+                    'items' => $spouseAssetsByType['property']->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $spouseAssetsByType['property']->sum('current_value'),
+                ];
+            }
+
+            // Investments
+            if ($spouseAssetsByType->has('investment')) {
+                $spouseBalanceSheetAssets['Investments'] = [
+                    'items' => $spouseAssetsByType['investment']->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $spouseAssetsByType['investment']->sum('current_value'),
+                ];
+            }
+
+            // Cash & Savings
+            if ($spouseAssetsByType->has('cash')) {
+                $spouseBalanceSheetAssets['Cash & Savings'] = [
+                    'items' => $spouseAssetsByType['cash']->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $spouseAssetsByType['cash']->sum('current_value'),
+                ];
+            }
+
+            // Pensions
+            if ($spouseAssetsByType->has('pension')) {
+                $spouseBalanceSheetAssets['Pensions'] = [
+                    'items' => $spouseAssetsByType['pension']->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $spouseAssetsByType['pension']->sum('current_value'),
+                ];
+            }
+
+            // Business
+            if ($spouseAssetsByType->has('business')) {
+                $spouseBalanceSheetAssets['Business Interests'] = [
+                    'items' => $spouseAssetsByType['business']->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $spouseAssetsByType['business']->sum('current_value'),
+                ];
+            }
+
+            // Other
+            $spouseOtherTypes = $spouseAssetsByType->keys()->diff(['property', 'investment', 'cash', 'pension', 'business']);
+            if ($spouseOtherTypes->isNotEmpty()) {
+                $spouseOtherAssets = $spouseAssets->whereIn('asset_type', $spouseOtherTypes->toArray());
+                $spouseBalanceSheetAssets['Other Assets'] = [
+                    'items' => $spouseOtherAssets->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $spouseOtherAssets->sum('current_value'),
+                ];
+            }
+
+            $spouseTotalAssets = $spouseAssets->sum('current_value');
+            $spouseLiabilities = \App\Models\Estate\Liability::where('user_id', $spouse->id)->sum('current_balance') ?? 0;
+            $spouseLiabilities += \App\Models\Mortgage::where('user_id', $spouse->id)->sum('outstanding_balance') ?? 0;
+            $spouseNetWorth = $spouseTotalAssets - $spouseLiabilities;
+
+            $result['spouse'] = [
+                'name' => $spouse->name,
+                'assets' => $spouseBalanceSheetAssets,
+                'total_assets' => $spouseTotalAssets,
+                'liabilities' => [
+                    'total' => $spouseLiabilities,
+                    'breakdown' => [],
+                ],
+                'net_worth' => $spouseNetWorth,
+                'monthly_income' => $spouse->net_monthly_income ?? 0,
+                'monthly_expenditure' => $spouse->monthly_expenditure ?? 0,
+                'annual_income' => $spouse->gross_annual_income ?? 0,
+            ];
+
+            // Combined balance sheet
+            $combinedAssets = $assets->concat($spouseAssets);
+            $combinedAssetsByType = $combinedAssets->groupBy('asset_type');
+            $combinedBalanceSheetAssets = [];
+
+            // Property
+            if ($combinedAssetsByType->has('property')) {
+                $combinedBalanceSheetAssets['Property'] = [
+                    'items' => $combinedAssetsByType['property']->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $combinedAssetsByType['property']->sum('current_value'),
+                ];
+            }
+
+            // Investments
+            if ($combinedAssetsByType->has('investment')) {
+                $combinedBalanceSheetAssets['Investments'] = [
+                    'items' => $combinedAssetsByType['investment']->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $combinedAssetsByType['investment']->sum('current_value'),
+                ];
+            }
+
+            // Cash & Savings
+            if ($combinedAssetsByType->has('cash')) {
+                $combinedBalanceSheetAssets['Cash & Savings'] = [
+                    'items' => $combinedAssetsByType['cash']->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $combinedAssetsByType['cash']->sum('current_value'),
+                ];
+            }
+
+            // Pensions
+            if ($combinedAssetsByType->has('pension')) {
+                $combinedBalanceSheetAssets['Pensions'] = [
+                    'items' => $combinedAssetsByType['pension']->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $combinedAssetsByType['pension']->sum('current_value'),
+                ];
+            }
+
+            // Business
+            if ($combinedAssetsByType->has('business')) {
+                $combinedBalanceSheetAssets['Business Interests'] = [
+                    'items' => $combinedAssetsByType['business']->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $combinedAssetsByType['business']->sum('current_value'),
+                ];
+            }
+
+            // Other
+            $combinedOtherTypes = $combinedAssetsByType->keys()->diff(['property', 'investment', 'cash', 'pension', 'business']);
+            if ($combinedOtherTypes->isNotEmpty()) {
+                $combinedOtherAssets = $combinedAssets->whereIn('asset_type', $combinedOtherTypes->toArray());
+                $combinedBalanceSheetAssets['Other Assets'] = [
+                    'items' => $combinedOtherAssets->map(fn ($a) => [
+                        'name' => $a->asset_name,
+                        'value' => $a->current_value,
+                    ])->toArray(),
+                    'total' => $combinedOtherAssets->sum('current_value'),
+                ];
+            }
+
+            $result['combined'] = [
+                'assets' => $combinedBalanceSheetAssets,
+                'total_assets' => $totalAssets + $spouseTotalAssets,
+                'liabilities' => [
+                    'total' => $totalLiabilities + $spouseLiabilities,
+                    'breakdown' => [],
+                ],
+                'net_worth' => $netWorth + $spouseNetWorth,
+                'monthly_income' => ($user->net_monthly_income ?? 0) + ($spouse->net_monthly_income ?? 0),
+                'monthly_expenditure' => ($user->monthly_expenditure ?? 0) + ($spouse->monthly_expenditure ?? 0),
+                'annual_income' => ($user->gross_annual_income ?? 0) + ($spouse->gross_annual_income ?? 0),
+            ];
+        }
+
+        return $result;
     }
 
     /**

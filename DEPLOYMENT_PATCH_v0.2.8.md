@@ -10,16 +10,17 @@
 
 ## Executive Summary
 
-This patch consolidates **11 critical bug fixes**, **5 major UI improvements**, and **2 architectural enhancements** made to the production application post-deployment. All changes have been tested locally, including comprehensive onboarding flow testing, and are ready for production deployment.
+This patch consolidates **12 critical bug fixes**, **5 major UI improvements**, and **2 architectural enhancements** made to the production application post-deployment. All changes have been tested locally, including comprehensive onboarding flow testing, and are ready for production deployment.
 
-**Impact**: Critical - Addresses multiple blocking issues in Protection, Savings, Net Worth, Retirement modules, plus critical onboarding flow bugs that prevented users from completing the property/mortgage and expenditure steps. Also adds enhanced expenditure tracking with full spouse data integration, employment flexibility, and life insurance policy enhancements.
+**Impact**: Critical - Addresses multiple blocking issues in Protection, Savings, Net Worth, Retirement modules, plus critical onboarding flow bugs that prevented users from completing the property/mortgage and expenditure steps. **Most importantly, fixes the joint mortgage reciprocal creation bug that prevented joint properties from creating mortgages for both owners.** Also adds enhanced expenditure tracking with full spouse data integration, employment flexibility, and life insurance policy enhancements.
 
 **Risk Level**: Low-Medium
-- 9 database migrations required (all additive, non-destructive)
+- 10 database migrations required (all additive, non-destructive)
 - Backend changes tested with existing production data patterns
 - Frontend changes extensively tested across multiple modules
 - Architectural refactoring follows FPS unified form pattern
 - **Complete onboarding flow tested end-to-end successfully**
+- **Joint mortgage creation verified working correctly**
 
 ---
 
@@ -706,6 +707,66 @@ This patch consolidates **11 critical bug fixes**, **5 major UI improvements**, 
 
 ---
 
+#### 14.10 Joint Mortgage Ownership Sync (CRITICAL - FINAL FIX)
+**Date**: November 15, 2025
+**Problem**: Joint properties created reciprocal property records correctly, but only ONE mortgage record was created instead of TWO
+
+**Root Cause**:
+- PropertyForm sent property ownership data correctly: `ownership_type = 'joint'`, `joint_owner_id = 1161`
+- But mortgageForm kept default values: `ownership_type = 'individual'`, `joint_owner_id = null`
+- MortgageController checked if `ownership_type === 'joint'` to trigger reciprocal creation → FAILED
+- Result: Only primary user got mortgage, joint owner got nothing
+
+**Example**:
+- Property 179 (Chris, joint) ✓ created with joint_owner_id = 1161
+- Property 180 (Ang, joint) ✓ created with joint_owner_id = 1160
+- Mortgage 69 (Chris) ✓ created BUT with ownership_type = 'individual'
+- Mortgage for Ang ✗ NEVER CREATED
+
+**The Fix**:
+Added watchers and initialization logic to sync mortgage ownership with property ownership:
+
+1. **Three Watchers** (`PropertyForm.vue` watch section):
+   ```javascript
+   'form.ownership_type'(newVal) {
+     this.mortgageForm.ownership_type = newVal;
+   }
+
+   'form.joint_owner_id'(newVal) {
+     this.mortgageForm.joint_owner_id = newVal;
+   }
+
+   'form.joint_owner_name'(newVal) {
+     this.mortgageForm.joint_owner_name = newVal;
+   }
+   ```
+
+2. **Initial Sync** (when editing property without existing mortgage):
+   ```javascript
+   // No existing mortgage - sync ownership from property form
+   this.mortgageForm.ownership_type = this.form.ownership_type || 'individual';
+   this.mortgageForm.joint_owner_id = this.form.joint_owner_id || null;
+   this.mortgageForm.joint_owner_name = this.form.joint_owner_name || '';
+   ```
+
+**How It Works**:
+1. User creates joint property, selects ownership_type = 'joint', joint_owner_id = 1161
+2. Watchers automatically update mortgageForm.ownership_type = 'joint', mortgageForm.joint_owner_id = 1161
+3. User adds mortgage details
+4. Mortgage data submitted includes ownership_type = 'joint' and joint_owner_id = 1161
+5. MortgageController.store() sees joint ownership → Creates BOTH mortgages ✓
+
+**Files Changed**:
+- `resources/js/components/NetWorth/Property/PropertyForm.vue`
+
+**Testing**:
+- ✅ Created new joint main residence with £125k mortgage (Lloyds, £1,500/month)
+- ✅ Verified TWO mortgage records created (one for each owner)
+- ✅ Both mortgages have correct ownership_type and joint_owner_id
+- ✅ Both properties show mortgage correctly
+
+---
+
 **Summary of Section 14**:
 - ✅ Fixed 3 critical onboarding blocking issues (expenditure, state pension, property/mortgage)
 - ✅ Fixed mortgage route parameter binding (404 errors)
@@ -713,6 +774,7 @@ This patch consolidates **11 critical bug fixes**, **5 major UI improvements**, 
 - ✅ Comprehensive mortgage validation improvements
 - ✅ Removed invalid 'part_and_part' mortgage type
 - ✅ Enhanced error logging for debugging
+- ✅ **FIXED joint mortgage reciprocal creation (THE BIG ONE)**
 - ✅ **Complete onboarding flow now works end-to-end**
 
 **Impact**:

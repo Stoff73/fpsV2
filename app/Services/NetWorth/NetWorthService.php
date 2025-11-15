@@ -8,8 +8,8 @@ use App\Models\BusinessInterest;
 use App\Models\Chattel;
 use App\Models\DBPension;
 use App\Models\DCPension;
+use App\Models\Estate\Liability;
 use App\Models\Investment\InvestmentAccount;
-use App\Models\PersonalAccount;
 use App\Models\Property;
 use App\Models\StatePension;
 use App\Models\User;
@@ -48,9 +48,14 @@ class NetWorthService
 
         // Use CrossModuleAssetAggregator for mortgages
         $mortgages = $this->assetAggregator->calculateMortgageTotal($userId);
-        $otherLiabilities = $this->calculateOtherLiabilities($userId);
 
-        $totalLiabilities = $mortgages + $otherLiabilities;
+        // Calculate all liabilities breakdown
+        $liabilitiesBreakdown = $this->calculateLiabilitiesBreakdown($userId);
+
+        // Add mortgages to the breakdown
+        $liabilitiesBreakdown['mortgages'] = $mortgages;
+
+        $totalLiabilities = array_sum($liabilitiesBreakdown);
 
         // Calculate net worth
         $netWorth = $totalAssets - $totalLiabilities;
@@ -69,8 +74,10 @@ class NetWorthService
                 'chattels' => round($chattelValue, 2),
             ],
             'liabilities_breakdown' => [
-                'mortgages' => round($mortgages, 2),
-                'other' => round($otherLiabilities, 2),
+                'mortgages' => round($liabilitiesBreakdown['mortgages'], 2),
+                'loans' => round($liabilitiesBreakdown['loans'], 2),
+                'credit_cards' => round($liabilitiesBreakdown['credit_cards'], 2),
+                'other' => round($liabilitiesBreakdown['other'], 2),
             ],
         ];
     }
@@ -100,13 +107,58 @@ class NetWorthService
     }
 
     /**
-     * Calculate other liabilities from personal accounts
+     * Calculate liabilities breakdown by type
+     *
+     * Returns an array with keys: loans, credit_cards, other
+     * (mortgages are calculated separately via CrossModuleAssetAggregator)
      */
-    private function calculateOtherLiabilities(int $userId): float
+    private function calculateLiabilitiesBreakdown(int $userId): array
     {
-        return (float) PersonalAccount::where('user_id', $userId)
-            ->where('account_type', 'liability')
-            ->sum('amount');
+        // Get all liabilities from the liabilities table
+        $liabilities = Liability::where('user_id', $userId)->get();
+
+        $breakdown = [
+            'mortgages' => 0.0, // Will be filled with property mortgages
+            'loans' => 0.0,
+            'credit_cards' => 0.0,
+            'other' => 0.0,
+        ];
+
+        foreach ($liabilities as $liability) {
+            $balance = $liability->current_balance ?? 0;
+
+            // Map granular liability types to display categories
+            switch ($liability->liability_type) {
+                // Loan types - all map to 'loans'
+                case 'loan':
+                case 'secured_loan':
+                case 'personal_loan':
+                case 'hire_purchase':
+                case 'student_loan':
+                case 'business_loan':
+                    $breakdown['loans'] += $balance;
+                    break;
+
+                    // Credit card debt
+                case 'credit_card':
+                    $breakdown['credit_cards'] += $balance;
+                    break;
+
+                    // Mortgages - skip as they're tracked via property mortgages
+                case 'mortgage':
+                    // Skip mortgages from liabilities table - they're tracked via property mortgages
+                    break;
+
+                    // Other liabilities
+                case 'overdraft':
+                case 'other':
+                default:
+                    $breakdown['other'] += $balance;
+                    break;
+            }
+        }
+
+        return $breakdown;
     }
 
     /**

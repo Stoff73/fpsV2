@@ -468,6 +468,49 @@ export default {
 - ❌ Variable names: `optimizationResult`, `colorScheme`
 - ❌ Method names: `analyzePortfolio()`, `optimizeAllocation()`
 
+### 6. Syncing Related Form Data (CRITICAL)
+
+**⚠️ CRITICAL**: When forms have related parent-child data (e.g., property + mortgage), ALWAYS sync the child form data with the parent using watchers.
+
+**Problem Example**: PropertyForm has `form.ownership_type` and `mortgageForm.ownership_type`. User changes property to joint, but mortgage stays individual.
+
+**✅ CORRECT - Use watchers to sync:**
+
+```javascript
+watch: {
+  // Sync mortgage ownership with property ownership
+  'form.ownership_type'(newVal) {
+    this.mortgageForm.ownership_type = newVal;
+  },
+
+  'form.joint_owner_id'(newVal) {
+    this.mortgageForm.joint_owner_id = newVal;
+  },
+
+  'form.joint_owner_name'(newVal) {
+    this.mortgageForm.joint_owner_name = newVal;
+  },
+}
+```
+
+**Also initialize in populateForm():**
+
+```javascript
+// If no existing mortgage, sync ownership from property
+if (!this.property.mortgages?.length) {
+  this.mortgageForm.ownership_type = this.form.ownership_type || 'individual';
+  this.mortgageForm.joint_owner_id = this.form.joint_owner_id || null;
+  this.mortgageForm.joint_owner_name = this.form.joint_owner_name || '';
+}
+```
+
+**Why This Matters**:
+- Backend logic (e.g., reciprocal record creation) depends on correct ownership_type
+- Prevents silent data inconsistency bugs that are hard to debug
+- Ensures frontend and backend state remain synchronized
+
+**Real-World Impact**: This pattern fixed the critical joint mortgage bug where only one mortgage was created instead of two.
+
 ---
 
 ## Coding Standards
@@ -635,25 +678,55 @@ resources/js/
 
 ---
 
-## Known Issues
+## Previously Known Issues - NOW RESOLVED
 
-### 🔴 CRITICAL - Joint Mortgage Reciprocal Creation (November 13, 2025)
+### ✅ RESOLVED - Joint Mortgage Reciprocal Creation (Fixed November 15, 2025)
 
-**Issue**: When creating a joint property with a mortgage, only ONE mortgage record is being created instead of TWO.
+**Issue**: When creating a joint property with a mortgage, only ONE mortgage record was being created instead of TWO.
 
-**Expected Behavior**: For a joint property with a mortgage:
-- Two property records created ✅ (working)
-- Two mortgage records created ❌ (broken - only one created)
+**Root Cause**: PropertyForm's `mortgageForm` kept default `ownership_type: 'individual'` even when property was joint. MortgageController checked ownership_type to trigger reciprocal creation but it was always 'individual'.
 
-**Status**: Under investigation. Code exists in `PropertyController.php` `createJointProperty()` method but appears to not be executing or failing silently.
+**Solution**: Added watchers in PropertyForm.vue to sync mortgage ownership with property ownership:
+- Watch `form.ownership_type` → Update `mortgageForm.ownership_type`
+- Watch `form.joint_owner_id` → Update `mortgageForm.joint_owner_id`
+- Watch `form.joint_owner_name` → Update `mortgageForm.joint_owner_name`
 
-**Impact**: Joint property owners see correct property records but only the creator sees the mortgage record. Spouse's mortgage record is missing.
+**Status**: ✅ **FIXED** - Both property and mortgage reciprocal records now created correctly
 
-**Documentation**: See `OUTSTANDING_MORTGAGE_ISSUE.md` for detailed investigation notes.
+**Documentation**: See `DEPLOYMENT_PATCH_v0.2.8.md` Section 14.10
+
+**Key Lesson**: When forms have related data (parent-child), always sync the data using watchers to prevent inconsistent submissions.
+
+### ✅ RESOLVED - Estate Plan Spouse Data & IHT Liability Display (Fixed November 15, 2025)
+
+**Issues**:
+1. Comprehensive Estate Plan (Plans module) not showing spouse assets/liabilities even when data sharing enabled
+2. IHT Planning tab not displaying non-mortgage liabilities (credit cards, loans, etc.)
+
+**Root Causes**:
+1. `ComprehensiveEstatePlanService` only gathered user assets, didn't pass spouse data to build methods
+2. `IHTController.formatLiabilitiesBreakdown()` used wrong field names (`amount` instead of `current_balance`, `description` instead of `liability_name`)
+
+**Solutions**:
+1. Updated `ComprehensiveEstatePlanService`:
+   - Added spouse asset gathering when data sharing enabled
+   - Enhanced `buildBalanceSheet()`, `buildEstateOverview()`, `buildEstateBreakdown()` to accept and display spouse data
+   - Returns structured data with `user`, `spouse`, and `combined` sections
+
+2. Updated `IHTController.formatLiabilitiesBreakdown()`:
+   - Changed `$liability->amount` to `$liability->current_balance`
+   - Changed `$liability->description` to `$liability->liability_name`
+   - Applied fixes to both user and spouse liability sections
+
+**Status**: ✅ **FIXED** - Estate Plan shows combined spouse data, all liabilities display correctly
+
+**Documentation**: See `DEPLOYMENT_PATCH_v0.2.9.md`
+
+**Key Lesson**: Always verify model field names match database schema. The Liability model uses `current_balance` and `liability_name`, not `amount` and `description`.
 
 ---
 
-For any other bugs encountered, please use the `systematic-debugging` skill to investigate before implementing fixes.
+For any bugs encountered, please use the `systematic-debugging` skill to investigate before implementing fixes.
 
 ---
 
@@ -664,8 +737,8 @@ For any other bugs encountered, please use the `systematic-debugging` skill to i
 
 ---
 
-**Current Version**: v0.2.7 (Beta - Production Ready)
-**Last Updated**: November 14, 2025
+**Current Version**: v0.2.9 (Beta - Production Ready)
+**Last Updated**: November 15, 2025
 **Status**: 🚀 Active Development - All Core Features Complete
 
 ---

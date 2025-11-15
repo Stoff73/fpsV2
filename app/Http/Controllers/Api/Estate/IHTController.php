@@ -90,6 +90,7 @@ class IHTController extends Controller
                 'calculation' => $calculation,
                 'assets_breakdown' => $assetsBreakdown,
                 'liabilities_breakdown' => $liabilitiesBreakdown,
+                'data_sharing_enabled' => $dataSharingEnabled, // Add to top level for frontend
             ];
 
             // Add formatted data for easy frontend consumption
@@ -298,17 +299,17 @@ class IHTController extends Controller
         }
 
         foreach ($userLiabilities as $liability) {
-            if ($liability->amount > 0) {
+            if ($liability->current_balance > 0) {
                 // Other liabilities persist at current value
                 $userLiabilitiesFormatted[] = [
                     'type' => ucwords(str_replace('_', ' ', $liability->liability_type)),
-                    'institution' => $liability->description ?? ucwords(str_replace('_', ' ', $liability->liability_type)),
-                    'current_balance' => $liability->amount,
-                    'projected_balance' => $liability->amount,
+                    'institution' => $liability->liability_name ?? ucwords(str_replace('_', ' ', $liability->liability_type)),
+                    'current_balance' => $liability->current_balance,
+                    'projected_balance' => $liability->current_balance,
                     'is_joint' => ($liability->ownership_type ?? 'individual') === 'joint',
                 ];
-                $userLiabilitiesTotal += $liability->amount;
-                $userLiabilitiesProjectedTotal += $liability->amount;
+                $userLiabilitiesTotal += $liability->current_balance;
+                $userLiabilitiesProjectedTotal += $liability->current_balance;
             }
         }
 
@@ -364,17 +365,17 @@ class IHTController extends Controller
             }
 
             foreach ($spouseLiabilities as $liability) {
-                if ($liability->amount > 0) {
+                if ($liability->current_balance > 0) {
                     // Other liabilities persist at current value
                     $spouseLiabilitiesFormatted[] = [
                         'type' => ucwords(str_replace('_', ' ', $liability->liability_type)),
-                        'institution' => $liability->description ?? ucwords(str_replace('_', ' ', $liability->liability_type)),
-                        'current_balance' => $liability->amount,
-                        'projected_balance' => $liability->amount,
+                        'institution' => $liability->liability_name ?? ucwords(str_replace('_', ' ', $liability->liability_type)),
+                        'current_balance' => $liability->current_balance,
+                        'projected_balance' => $liability->current_balance,
                         'is_joint' => ($liability->ownership_type ?? 'individual') === 'joint',
                     ];
-                    $spouseLiabilitiesTotal += $liability->amount;
-                    $spouseLiabilitiesProjectedTotal += $liability->amount;
+                    $spouseLiabilitiesTotal += $liability->current_balance;
+                    $spouseLiabilitiesProjectedTotal += $liability->current_balance;
                 }
             }
 
