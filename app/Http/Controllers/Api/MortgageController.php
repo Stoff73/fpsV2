@@ -146,7 +146,7 @@ class MortgageController extends Controller
      * PUT /api/mortgages/{id}
      * PUT /api/properties/{propertyId}/mortgages/{mortgageId}
      */
-    public function update(UpdateMortgageRequest $request, int $propertyId = null, int $mortgageId = null): JsonResponse
+    public function update(UpdateMortgageRequest $request, ?int $propertyId = null, ?int $mortgageId = null): JsonResponse
     {
         $user = $request->user();
 
@@ -197,7 +197,7 @@ class MortgageController extends Controller
      * DELETE /api/mortgages/{id}
      * DELETE /api/properties/{propertyId}/mortgages/{mortgageId}
      */
-    public function destroy(Request $request, int $propertyId = null, int $mortgageId = null): JsonResponse
+    public function destroy(Request $request, ?int $propertyId = null, ?int $mortgageId = null): JsonResponse
     {
         // Handle both route patterns
         $id = $mortgageId ?? $propertyId;

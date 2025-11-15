@@ -65,8 +65,11 @@
           <!-- Key Metrics -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
             <div class="bg-gray-50 rounded-lg p-4">
-              <p class="text-sm text-gray-600">Current Balance</p>
-              <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(account.current_balance) }}</p>
+              <p class="text-sm text-gray-600">Full Balance</p>
+              <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(fullBalance) }}</p>
+              <p v-if="account.ownership_type === 'joint'" class="text-xs text-gray-600 mt-1">
+                Your Share ({{ account.ownership_percentage }}%): {{ formatCurrency(account.current_balance) }}
+              </p>
             </div>
             <div class="bg-gray-50 rounded-lg p-4">
               <p class="text-sm text-gray-600">Interest Rate</p>
@@ -112,8 +115,12 @@
               <h5 class="text-sm font-semibold text-gray-800 mb-3">Balance & Interest</h5>
               <dl class="space-y-2">
                 <div class="flex justify-between">
-                  <dt class="text-sm text-gray-600">Current Balance:</dt>
-                  <dd class="text-sm font-medium text-gray-900 font-semibold">{{ formatCurrency(account.current_balance) }}</dd>
+                  <dt class="text-sm text-gray-600">Full Balance:</dt>
+                  <dd class="text-sm font-medium text-gray-900 font-semibold">{{ formatCurrency(fullBalance) }}</dd>
+                </div>
+                <div v-if="account.ownership_type === 'joint'" class="flex justify-between">
+                  <dt class="text-sm text-gray-600">Your Share ({{ account.ownership_percentage }}%):</dt>
+                  <dd class="text-sm font-medium text-blue-600">{{ formatCurrency(account.current_balance) }}</dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-gray-600">Interest Rate:</dt>
@@ -227,6 +234,16 @@ export default {
   },
 
   computed: {
+    fullBalance() {
+      if (!this.account) return 0;
+      // If joint ownership, calculate full balance from user's share
+      if (this.account.ownership_type === 'joint' && this.account.ownership_percentage) {
+        return this.account.current_balance / (this.account.ownership_percentage / 100);
+      }
+      // For individual ownership, user's share = full balance
+      return this.account.current_balance;
+    },
+
     monthlyInterest() {
       if (!this.account) return 0;
       return (this.account.current_balance * (this.account.interest_rate / 100)) / 12;

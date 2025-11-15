@@ -142,6 +142,7 @@ class CrossModuleAssetAggregator
             ->get()
             ->sum(function ($property) {
                 $ownershipPercentage = $property->ownership_percentage ?? 100;
+
                 return ($property->current_value * $ownershipPercentage) / 100;
             });
     }

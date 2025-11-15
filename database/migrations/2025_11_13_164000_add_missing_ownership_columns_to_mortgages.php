@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::table('mortgages', function (Blueprint $table) {
             // Only add the columns that don't exist
-            if (!Schema::hasColumn('mortgages', 'ownership_type')) {
+            if (! Schema::hasColumn('mortgages', 'ownership_type')) {
                 $table->enum('ownership_type', ['individual', 'joint', 'trust'])
                     ->default('individual')
                     ->after('remaining_term_months');
             }
 
-            if (!Schema::hasColumn('mortgages', 'joint_owner_name')) {
+            if (! Schema::hasColumn('mortgages', 'joint_owner_name')) {
                 $table->string('joint_owner_name', 255)
                     ->nullable()
                     ->after('joint_owner_id');
