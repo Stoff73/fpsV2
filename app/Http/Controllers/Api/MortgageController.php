@@ -144,10 +144,14 @@ class MortgageController extends Controller
      * Update a mortgage
      *
      * PUT /api/mortgages/{id}
+     * PUT /api/properties/{propertyId}/mortgages/{mortgageId}
      */
-    public function update(UpdateMortgageRequest $request, int $id): JsonResponse
+    public function update(UpdateMortgageRequest $request, int $propertyId = null, int $mortgageId = null): JsonResponse
     {
         $user = $request->user();
+
+        // Handle both route patterns
+        $id = $mortgageId ?? $propertyId;
 
         $mortgage = Mortgage::where('id', $id)
             ->where('user_id', $user->id)
@@ -191,9 +195,13 @@ class MortgageController extends Controller
      * Delete a mortgage
      *
      * DELETE /api/mortgages/{id}
+     * DELETE /api/properties/{propertyId}/mortgages/{mortgageId}
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(Request $request, int $propertyId = null, int $mortgageId = null): JsonResponse
     {
+        // Handle both route patterns
+        $id = $mortgageId ?? $propertyId;
+
         \Log::info('=== MORTGAGE DESTROY METHOD CALLED ===', ['mortgage_id' => $id]);
 
         $user = $request->user();

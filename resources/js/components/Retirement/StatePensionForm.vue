@@ -226,10 +226,17 @@ export default {
       immediate: true,
       handler(newStatePension) {
         if (newStatePension) {
-          // Editing existing state pension - populate form with data
+          // Editing existing state pension - transform backend data to form format
           this.formData = {
-            ...newStatePension,
-            forecast_date: this.formatDateForInput(newStatePension.forecast_date),
+            forecast_weekly_amount: newStatePension.state_pension_forecast_annual ?
+              Math.round((newStatePension.state_pension_forecast_annual / 52) * 100) / 100 : null,
+            qualifying_years: newStatePension.ni_years_completed || null,
+            state_pension_age: newStatePension.state_pension_age || 67,
+            forecast_date: null, // Not stored in backend
+            has_ni_gaps: !!(newStatePension.ni_gaps && newStatePension.ni_gaps.length > 0),
+            gaps_years: newStatePension.ni_gaps ? newStatePension.ni_gaps.length : null,
+            estimated_gap_cost: newStatePension.gap_fill_cost || null,
+            notes: '', // Not stored in backend
           };
         }
       },
@@ -277,7 +284,18 @@ export default {
         return;
       }
 
-      this.$emit('save', this.formData);
+      // Transform form data to match backend schema
+      const dataToSend = {
+        ni_years_completed: this.formData.qualifying_years,
+        ni_years_required: 35, // New State Pension requires 35 qualifying years
+        state_pension_forecast_annual: this.formData.forecast_weekly_amount ? this.formData.forecast_weekly_amount * 52 : null,
+        state_pension_age: this.formData.state_pension_age,
+        ni_gaps: this.formData.has_ni_gaps && this.formData.gaps_years ?
+          Array(this.formData.gaps_years).fill({ year: 'Unknown', cost: 0 }) : null,
+        gap_fill_cost: this.formData.has_ni_gaps ? this.formData.estimated_gap_cost : null,
+      };
+
+      this.$emit('save', dataToSend);
     },
   },
 };

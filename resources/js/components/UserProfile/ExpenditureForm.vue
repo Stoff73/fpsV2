@@ -1216,7 +1216,7 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex justify-end space-x-3">
+    <div v-if="showButtons" class="flex justify-end space-x-3">
       <button
         v-if="showCancel"
         type="button"
@@ -1262,6 +1262,10 @@ export default {
     alwaysShowTabs: {
       type: Boolean,
       default: false, // In user profile, this is true; in onboarding, false
+    },
+    showButtons: {
+      type: Boolean,
+      default: true, // In onboarding, this is false; buttons handled by OnboardingStep
     },
     showCancel: {
       type: Boolean,
@@ -1423,33 +1427,17 @@ export default {
 
     const loadInitialData = () => {
       if (!props.initialData || Object.keys(props.initialData).length === 0) {
+        // Default to detailed breakdown mode for first-time users
+        useSimpleEntry.value = false;
         return;
       }
 
-      // Check if user has detailed breakdown data
-      const hasDetailedData =
-        (props.initialData.food_groceries || 0) > 0 ||
-        (props.initialData.transport_fuel || 0) > 0 ||
-        (props.initialData.healthcare_medical || 0) > 0 ||
-        (props.initialData.insurance || 0) > 0 ||
-        (props.initialData.mobile_phones || 0) > 0 ||
-        (props.initialData.internet_tv || 0) > 0 ||
-        (props.initialData.subscriptions || 0) > 0 ||
-        (props.initialData.clothing_personal_care || 0) > 0 ||
-        (props.initialData.entertainment_dining || 0) > 0 ||
-        (props.initialData.holidays_travel || 0) > 0 ||
-        (props.initialData.pets || 0) > 0 ||
-        (props.initialData.childcare || 0) > 0 ||
-        (props.initialData.school_fees || 0) > 0 ||
-        (props.initialData.school_lunches || 0) > 0 ||
-        (props.initialData.school_extras || 0) > 0 ||
-        (props.initialData.university_fees || 0) > 0 ||
-        (props.initialData.children_activities || 0) > 0 ||
-        (props.initialData.gifts_charity || 0) > 0 ||
-        (props.initialData.regular_savings || 0) > 0 ||
-        (props.initialData.other_expenditure || 0) > 0;
-
-      if (hasDetailedData) {
+      // Check if user explicitly chose simple entry mode
+      if (props.initialData.expenditure_entry_mode === 'simple') {
+        useSimpleEntry.value = true;
+        simpleMonthlyExpenditure.value = Number(props.initialData.monthly_expenditure) || 0;
+      } else {
+        // Default to detailed breakdown mode (either explicitly chosen or default)
         useSimpleEntry.value = false;
         formData.value = {
           food_groceries: Number(props.initialData.food_groceries) || 0,
@@ -1473,9 +1461,6 @@ export default {
           regular_savings: Number(props.initialData.regular_savings) || 0,
           other_expenditure: Number(props.initialData.other_expenditure) || 0,
         };
-      } else {
-        useSimpleEntry.value = true;
-        simpleMonthlyExpenditure.value = Number(props.initialData.monthly_expenditure) || 0;
       }
 
       // Check if user has expenditure_sharing_mode set to 'separate'
@@ -1634,6 +1619,23 @@ export default {
       emit('cancel');
     };
 
+    const getNextTab = () => {
+      if (!showTabs.value) return null;
+
+      if (activeTab.value === 'user') return 'spouse';
+      if (activeTab.value === 'spouse') return 'household';
+      return null; // household is the last tab
+    };
+
+    const advanceToNextTab = () => {
+      const nextTab = getNextTab();
+      if (nextTab) {
+        activeTab.value = nextTab;
+        return true; // More tabs to view
+      }
+      return false; // No more tabs, ready to proceed
+    };
+
     // Load initial data when component mounts or prop changes
     watch(() => props.initialData, loadInitialData, { immediate: true, deep: true });
     watch(() => props.spouseData, loadSpouseData, { immediate: true, deep: true });
@@ -1656,6 +1658,9 @@ export default {
       formatCurrency,
       handleSave,
       handleCancel,
+      // Expose for parent component to manage tab cycling
+      getNextTab,
+      advanceToNextTab,
     };
   },
 };

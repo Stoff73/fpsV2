@@ -1601,6 +1601,13 @@ export default {
       this.form.lease_start_date = this.formatDateForInput(this.property.lease_start_date || this.property.rental?.lease_start_date);
       this.form.lease_end_date = this.formatDateForInput(this.property.lease_end_date || this.property.rental?.lease_end_date);
 
+      // Managing Agent fields
+      this.form.managing_agent_name = this.property.managing_agent_name || '';
+      this.form.managing_agent_company = this.property.managing_agent_company || '';
+      this.form.managing_agent_email = this.property.managing_agent_email || '';
+      this.form.managing_agent_phone = this.property.managing_agent_phone || '';
+      this.form.managing_agent_fee = this.property.managing_agent_fee || null;
+
       // Check if property has mortgage(s) and populate mortgage form
       if (this.property.mortgages && this.property.mortgages.length > 0) {
         this.hasMortgage = true;
@@ -1754,10 +1761,39 @@ export default {
       this.submitting = true;
       this.error = null;
 
+      // Clean mortgage data - convert empty strings to null for date and nullable fields
+      let cleanedMortgage = null;
+      if (this.hasMortgage) {
+        cleanedMortgage = { ...this.mortgageForm };
+        // Convert empty strings to null for date fields
+        if (cleanedMortgage.rate_fix_end_date === '') cleanedMortgage.rate_fix_end_date = null;
+        if (cleanedMortgage.start_date === '') cleanedMortgage.start_date = null;
+        if (cleanedMortgage.maturity_date === '') cleanedMortgage.maturity_date = null;
+        // Convert empty strings to null for enum/select fields
+        if (cleanedMortgage.mortgage_type === '') cleanedMortgage.mortgage_type = null;
+        if (cleanedMortgage.rate_type === '') cleanedMortgage.rate_type = null;
+        // Convert empty strings to null for text fields
+        if (cleanedMortgage.mortgage_account_number === '') cleanedMortgage.mortgage_account_number = null;
+        if (cleanedMortgage.joint_owner_name === '') cleanedMortgage.joint_owner_name = null;
+        if (cleanedMortgage.country === '') cleanedMortgage.country = null;
+        if (cleanedMortgage.notes === '') cleanedMortgage.notes = null;
+        // Convert empty strings to null for numeric fields
+        if (cleanedMortgage.original_loan_amount === '') cleanedMortgage.original_loan_amount = null;
+        if (cleanedMortgage.interest_rate === '') cleanedMortgage.interest_rate = null;
+        if (cleanedMortgage.repayment_percentage === '') cleanedMortgage.repayment_percentage = null;
+        if (cleanedMortgage.interest_only_percentage === '') cleanedMortgage.interest_only_percentage = null;
+        if (cleanedMortgage.remaining_term_months === '') cleanedMortgage.remaining_term_months = null;
+        if (cleanedMortgage.joint_owner_id === '') cleanedMortgage.joint_owner_id = null;
+        if (cleanedMortgage.fixed_rate_percentage === '') cleanedMortgage.fixed_rate_percentage = null;
+        if (cleanedMortgage.variable_rate_percentage === '') cleanedMortgage.variable_rate_percentage = null;
+        if (cleanedMortgage.fixed_interest_rate === '') cleanedMortgage.fixed_interest_rate = null;
+        if (cleanedMortgage.variable_interest_rate === '') cleanedMortgage.variable_interest_rate = null;
+      }
+
       // Emit 'save' event (NOT 'submit' - see CLAUDE.md)
       this.$emit('save', {
         property: this.form,
-        mortgage: this.hasMortgage ? this.mortgageForm : null,
+        mortgage: cleanedMortgage,
       });
     },
 

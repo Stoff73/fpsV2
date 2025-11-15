@@ -11,13 +11,13 @@
   >
     <!-- Shared Expenditure Form -->
     <ExpenditureForm
+      ref="formRef"
       :initial-data="initialData"
       :spouse-data="spouseData"
       :spouse-name="spouseName"
       :is-married="isMarried"
       :always-show-tabs="false"
-      :show-cancel="false"
-      save-text="Continue"
+      :show-buttons="false"
       @save="handleFormSave"
     />
   </OnboardingStep>
@@ -49,7 +49,7 @@ export default {
     const user = computed(() => store.getters['auth/currentUser']);
 
     const isMarried = computed(() => {
-      return user.value?.marital_status === 'married' && user.value?.spouse_id;
+      return user.value?.marital_status === 'married' && !!user.value?.spouse_id;
     });
 
     const spouseName = computed(() => {
@@ -69,6 +69,8 @@ export default {
       }
     };
 
+    const formRef = ref(null);
+
     const handleFormSave = async (formData) => {
       error.value = null;
 
@@ -83,7 +85,7 @@ export default {
           return;
         }
 
-        handleNext(formData);
+        await saveAndProceed(formData);
       } else {
         // Joint mode or single user
         if (formData.monthly_expenditure === 0 && formData.annual_expenditure === 0) {
@@ -91,11 +93,11 @@ export default {
           return;
         }
 
-        handleNext(formData);
+        await saveAndProceed(formData);
       }
     };
 
-    const handleNext = async (formData) => {
+    const saveAndProceed = async (formData) => {
       loading.value = true;
       error.value = null;
 
@@ -113,6 +115,24 @@ export default {
       }
     };
 
+    const handleNext = async () => {
+      error.value = null;
+
+      // Check if we need to cycle through tabs
+      if (formRef.value && formRef.value.advanceToNextTab) {
+        const hasMoreTabs = formRef.value.advanceToNextTab();
+        if (hasMoreTabs) {
+          // More tabs to view, don't proceed yet
+          return;
+        }
+      }
+
+      // All tabs viewed or not using tabs - trigger form save
+      if (formRef.value && formRef.value.handleSave) {
+        formRef.value.handleSave();
+      }
+    };
+
     const handleBack = () => {
       emit('back');
     };
@@ -122,19 +142,29 @@ export default {
       try {
         const stepData = await store.dispatch('onboarding/fetchStepData', 'expenditure');
         if (stepData && Object.keys(stepData).length > 0) {
-          initialData.value = stepData;
+          // Check if this is separate mode data (has userData and spouseData keys)
+          if (stepData.userData && stepData.spouseData) {
+            // Separate mode: extract user and spouse data
+            initialData.value = stepData.userData;
+            // Load spouse data from saved data instead of fetching from API
+            spouseData.value = stepData.spouseData;
+          } else {
+            // Joint mode: use data directly
+            initialData.value = stepData;
+          }
         }
       } catch (err) {
         // No existing data, start with empty form
       }
 
-      // Fetch spouse data if married
-      if (isMarried.value) {
+      // Fetch spouse data if married and not already loaded from saved data
+      if (isMarried.value && (!spouseData.value || Object.keys(spouseData.value).length === 0)) {
         await fetchSpouseData();
       }
     });
 
     return {
+      formRef,
       initialData,
       spouseData,
       spouseName,
@@ -142,6 +172,7 @@ export default {
       loading,
       error,
       handleFormSave,
+      handleNext,
       handleBack,
     };
   },

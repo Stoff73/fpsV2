@@ -157,8 +157,16 @@ class PropertyService
             'annual_rental_income' => (float) ($property->annual_rental_income ?? 0),
             'occupancy_rate_percent' => (int) ($property->occupancy_rate_percent ?? 100),
             'tenant_name' => $property->tenant_name,
+            'tenant_email' => $property->tenant_email,
             'lease_start_date' => $property->lease_start_date?->format('Y-m-d'),
             'lease_end_date' => $property->lease_end_date?->format('Y-m-d'),
+
+            // Managing agent fields (flat for form compatibility)
+            'managing_agent_name' => $property->managing_agent_name,
+            'managing_agent_company' => $property->managing_agent_company,
+            'managing_agent_email' => $property->managing_agent_email,
+            'managing_agent_phone' => $property->managing_agent_phone,
+            'managing_agent_fee' => (float) ($property->managing_agent_fee ?? 0),
 
             // Detailed nested structures
             'address' => [
@@ -216,10 +224,28 @@ class PropertyService
                 return [
                     'id' => $mortgage->id,
                     'lender_name' => $mortgage->lender_name,
+                    'mortgage_account_number' => $mortgage->mortgage_account_number,
+                    'mortgage_type' => $mortgage->mortgage_type,
+                    'country' => $mortgage->country,
+                    'repayment_percentage' => (float) ($mortgage->repayment_percentage ?? 0),
+                    'interest_only_percentage' => (float) ($mortgage->interest_only_percentage ?? 0),
+                    'original_loan_amount' => (float) ($mortgage->original_loan_amount ?? 0),
                     'outstanding_balance' => (float) ($mortgage->outstanding_balance ?? 0),
-                    'monthly_payment' => (float) ($mortgage->monthly_payment ?? 0),
                     'interest_rate' => (float) ($mortgage->interest_rate ?? 0),
+                    'rate_type' => $mortgage->rate_type,
+                    'fixed_rate_percentage' => (float) ($mortgage->fixed_rate_percentage ?? 0),
+                    'variable_rate_percentage' => (float) ($mortgage->variable_rate_percentage ?? 0),
+                    'fixed_interest_rate' => (float) ($mortgage->fixed_interest_rate ?? 0),
+                    'variable_interest_rate' => (float) ($mortgage->variable_interest_rate ?? 0),
+                    'rate_fix_end_date' => $mortgage->rate_fix_end_date?->format('Y-m-d'),
+                    'monthly_payment' => (float) ($mortgage->monthly_payment ?? 0),
+                    'start_date' => $mortgage->start_date?->format('Y-m-d'),
                     'maturity_date' => $mortgage->maturity_date?->format('Y-m-d'),
+                    'remaining_term_months' => (int) ($mortgage->remaining_term_months ?? 0),
+                    'ownership_type' => $mortgage->ownership_type,
+                    'joint_owner_id' => $mortgage->joint_owner_id,
+                    'joint_owner_name' => $mortgage->joint_owner_name,
+                    'notes' => $mortgage->notes,
                 ];
             })->toArray(),
         ];

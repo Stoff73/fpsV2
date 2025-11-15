@@ -634,9 +634,19 @@ export default {
       }
     }
 
-    function editProperty(property) {
-      editingProperty.value = property;
-      showPropertyForm.value = true;
+    async function editProperty(property) {
+      // Reload property from API to get fresh data (not cached)
+      try {
+        const response = await propertyService.getProperty(property.id);
+        // API returns { success, data: { property } }
+        editingProperty.value = response.data?.property || response.property || response;
+        showPropertyForm.value = true;
+      } catch (err) {
+        console.error('Failed to load property details:', err);
+        // Fallback to cached data if API fails
+        editingProperty.value = property;
+        showPropertyForm.value = true;
+      }
     }
 
     async function deleteProperty(id) {
@@ -673,14 +683,34 @@ export default {
           const existingMortgage = editingProperty.value?.mortgages?.[0];
 
           if (existingMortgage) {
-            // Update existing mortgage
-            await propertyService.updatePropertyMortgage(propertyId, existingMortgage.id, data.mortgage);
+            // Try to update existing mortgage
+            try {
+              await propertyService.updatePropertyMortgage(propertyId, existingMortgage.id, data.mortgage);
+            } catch (error) {
+              // If mortgage not found (404), create a new one instead
+              if (error.response?.status === 404) {
+                console.log('Mortgage not found, creating new one instead');
+                try {
+                  await propertyService.createPropertyMortgage(propertyId, data.mortgage);
+                } catch (createError) {
+                  console.error('CREATE Mortgage validation errors:', JSON.stringify(createError.response?.data?.errors, null, 2));
+                  console.error('Full error response:', JSON.stringify(createError.response?.data, null, 2));
+                  throw createError;
+                }
+              } else {
+                // Other error (like validation)
+                console.error('UPDATE Mortgage validation errors:', JSON.stringify(error.response?.data?.errors, null, 2));
+                console.error('Full error response:', JSON.stringify(error.response?.data, null, 2));
+                throw error;
+              }
+            }
           } else {
             // Create new mortgage
             try {
               await propertyService.createPropertyMortgage(propertyId, data.mortgage);
             } catch (error) {
-              console.error('Validation errors:', error.response?.data?.errors);
+              console.error('CREATE Mortgage validation errors:', JSON.stringify(error.response?.data?.errors, null, 2));
+              console.error('Full error response:', JSON.stringify(error.response?.data, null, 2));
               throw error;
             }
           }
