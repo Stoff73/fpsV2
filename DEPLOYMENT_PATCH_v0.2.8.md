@@ -984,10 +984,10 @@ These migrations improve data structure but are not critical for core functional
 ## Files Changed
 
 ### Summary
-- **Total Files Changed**: 64
-- **Backend (PHP)**: 22 files
-- **Frontend (Vue.js/JS)**: 35 files
-- **Migrations**: 8 files
+- **Total Files Changed**: 67
+- **Backend (PHP)**: 24 files
+- **Frontend (Vue.js/JS)**: 36 files
+- **Migrations**: 9 files
 - **Routes**: 1 file
 - **Documentation**: 7 files
 
@@ -995,7 +995,7 @@ These migrations improve data structure but are not critical for core functional
 
 #### Controllers (6 files)
 1. `app/Http/Controllers/Api/SavingsController.php` - Ownership defaults
-2. `app/Http/Controllers/Api/MortgageController.php` - Joint mortgage splitting
+2. `app/Http/Controllers/Api/MortgageController.php` - Joint mortgage splitting, route parameter binding fix
 3. `app/Http/Controllers/Api/PropertyController.php` - Joint property improvements
 4. `app/Http/Controllers/Api/FamilyMembersController.php` - Name field handling
 5. `app/Http/Controllers/Api/UserProfileController.php` - Spouse data access endpoints
@@ -1008,7 +1008,7 @@ These migrations improve data structure but are not critical for core functional
 5. `app/Models/DCPension.php` - Added pension_type to fillable
 6. `app/Models/User.php` - Added expenditure mode fields and education fields
 
-#### Request Validation (7 files)
+#### Request Validation (9 files)
 1. `app/Http/Requests/Savings/StoreSavingsAccountRequest.php`
 2. `app/Http/Requests/Protection/StoreLifePolicyRequest.php`
 3. `app/Http/Requests/Protection/UpdateLifePolicyRequest.php`
@@ -1016,10 +1016,13 @@ These migrations improve data structure but are not critical for core functional
 5. `app/Http/Requests/StoreFamilyMemberRequest.php`
 6. `app/Http/Requests/UpdateFamilyMemberRequest.php`
 7. `app/Http/Requests/StorePropertyRequest.php`
+8. `app/Http/Requests/StoreMortgageRequest.php` - Removed part_and_part mortgage type
+9. `app/Http/Requests/UpdateMortgageRequest.php` - Added nullable validation, removed after:start_date constraint
 
-#### Services (2 files)
+#### Services (3 files)
 1. `app/Services/UserProfile/PersonalAccountsService.php` - Balance sheet line items
 2. `app/Services/Estate/EstateAssetAggregatorService.php` - Property aggregation
+3. `app/Services/Property/PropertyService.php` - Returns all 24 mortgage fields + management agent fields
 
 #### Routes (1 file)
 1. `routes/api.php` - Added spouse data access routes (GET /api/users/{userId}, PUT /api/users/{userId}/expenditure)
@@ -1043,7 +1046,7 @@ These migrations improve data structure but are not critical for core functional
 #### Deleted Components (1 file)
 1. `resources/js/views/NetWorth/RetirementView.vue` - No longer needed
 
-#### Modified Components (33 files)
+#### Modified Components (36 files)
 
 **Dashboard Components**:
 1. `resources/js/components/Dashboard/NetWorthOverviewCard.vue` - Color coding
@@ -1064,7 +1067,7 @@ These migrations improve data structure but are not critical for core functional
 
 **Retirement Module**:
 10. `resources/js/components/Retirement/DCPensionForm.vue` - Pension type dropdown
-11. `resources/js/components/Retirement/StatePensionForm.vue` - Scrolling and titles
+11. `resources/js/components/Retirement/StatePensionForm.vue` - Scrolling, titles, bidirectional data transformation
 12. `resources/js/components/Retirement/RetirementOverviewCard.vue` - Navigation update
 13. `resources/js/views/Retirement/RetirementReadiness.vue` - Pension cards, unified form
 14. `resources/js/views/Retirement/RetirementDashboard.vue` - Embedded context, tab cleanup
@@ -1075,26 +1078,28 @@ These migrations improve data structure but are not critical for core functional
 17. `resources/js/components/NetWorth/PropertyCard.vue` - Joint mortgage label
 18. `resources/js/components/NetWorth/Property/PropertyDetail.vue` - Full amounts, LTV fix, mixed types
 19. `resources/js/components/NetWorth/Property/PropertyFinancials.vue`
-20. `resources/js/components/NetWorth/Property/PropertyForm.vue`
+20. `resources/js/components/NetWorth/Property/PropertyForm.vue` - Comprehensive data cleaning for mortgage nullable fields
 21. `resources/js/components/NetWorth/PropertyList.vue`
 
 **User Profile**:
 22. `resources/js/components/UserProfile/LiabilitiesOverview.vue` - Interest rate fix
 23. `resources/js/components/UserProfile/FamilyMemberFormModal.vue` - Separate name fields
-24. `resources/js/components/UserProfile/ExpenditureOverview.vue` - Refactored to use shared form
-25. `resources/js/components/UserProfile/IncomeOccupation.vue` - Part-time employment
+24. `resources/js/components/UserProfile/ExpenditureForm.vue` - Default mode to detailed breakdown
+25. `resources/js/components/UserProfile/ExpenditureOverview.vue` - Refactored to use shared form
+26. `resources/js/components/UserProfile/IncomeOccupation.vue` - Part-time employment
 
 **Onboarding**:
-26. `resources/js/components/Onboarding/steps/ExpenditureStep.vue` - Refactored to use shared form
-27. `resources/js/components/Onboarding/steps/IncomeStep.vue` - Part-time employment
+27. `resources/js/components/Onboarding/steps/AssetsStep.vue` - Enhanced error logging, fresh API reload
+28. `resources/js/components/Onboarding/steps/ExpenditureStep.vue` - Refactored to use shared form, fixed separate mode data loading
+29. `resources/js/components/Onboarding/steps/IncomeStep.vue` - Part-time employment
 
 **Savings Module**:
-28. `resources/js/components/Savings/CurrentSituation.vue` - Joint account display
-29. `resources/js/components/Savings/SaveAccountModal.vue` - Removed (APY) from labels
-30. `resources/js/views/Savings/SavingsAccountDetail.vue` - Joint account full balance
+30. `resources/js/components/Savings/CurrentSituation.vue` - Joint account display
+31. `resources/js/components/Savings/SaveAccountModal.vue` - Removed (APY) from labels
+32. `resources/js/views/Savings/SavingsAccountDetail.vue` - Joint account full balance
 
 **Router**:
-31. `resources/js/router/index.js` - Retirement route consolidation
+33. `resources/js/router/index.js` - Retirement route consolidation
 
 ---
 
@@ -1844,9 +1849,17 @@ tail -f ~/www/csjones.co/tengo-app/storage/logs/laravel.log
 - 🐛 Interest rates now display as 27.00% instead of 2700.00%
 - 🐛 Balance sheet now shows individual line items instead of categories
 - 🐛 State pension form scrolling and dynamic titles fixed
+- 🐛 State pension field name mismatch resolved (weekly/annual transformation)
 - 🐛 Policy edit modal now loads data correctly
 - 🐛 LTV calculation now uses full amounts (not user shares)
 - 🐛 Percentage formatting fixed to 2 decimal places (was 4)
+- 🐛 Expenditure form defaults to detailed breakdown (not simple total)
+- 🐛 Expenditure data persists correctly in separate mode
+- 🐛 Property management details now retained when editing
+- 🐛 Mortgage route parameter binding fixed (404 errors resolved)
+- 🐛 All 24 mortgage fields now persist correctly
+- 🐛 Mortgage validation accepts nullable fields (comprehensive data cleaning)
+- 🐛 Property API reloads fresh data (prevents stale mortgage references)
 
 ### Changed
 - 🔄 Refactored expenditure forms to use unified component (2200+ → 1278 lines, 42% reduction)
@@ -1868,12 +1881,13 @@ tail -f ~/www/csjones.co/tengo-app/storage/logs/laravel.log
 - ❌ What-If Scenarios tab from retirement module
 - ❌ Redundant property rental income columns
 - ❌ Duplicate expenditure form implementations (2000+ lines of code)
+- ❌ Invalid 'part_and_part' mortgage type from enum (not a recognized UK type)
 
 ---
 
 ## File Manifest
 
-### Database Migrations (8 files)
+### Database Migrations (9 files)
 ```
 database/migrations/2025_11_13_164000_add_missing_ownership_columns_to_mortgages.php
 database/migrations/2025_11_14_095112_remove_redundant_rental_fields_from_properties_table.php
@@ -1883,6 +1897,7 @@ database/migrations/2025_11_14_123750_add_pension_type_to_dc_pensions_table.php
 database/migrations/2025_11_15_111744_add_part_time_to_employment_status_enum.php
 database/migrations/2025_11_15_115911_add_expenditure_modes_and_education_fields_to_users_table.php
 database/migrations/2025_11_15_125142_add_is_mortgage_protection_to_life_insurance_policies_table.php
+database/migrations/2025_11_15_162349_remove_part_and_part_from_mortgage_type_enum.php
 ```
 
 ### Backend - Models (6 files)
@@ -1904,7 +1919,7 @@ app/Http/Controllers/Api/FamilyMembersController.php
 app/Http/Controllers/Api/UserProfileController.php
 ```
 
-### Backend - Request Validators (7 files)
+### Backend - Request Validators (9 files)
 ```
 app/Http/Requests/Savings/StoreSavingsAccountRequest.php
 app/Http/Requests/Protection/StoreLifePolicyRequest.php
@@ -1913,12 +1928,15 @@ app/Http/Requests/Retirement/StoreDCPensionRequest.php
 app/Http/Requests/StoreFamilyMemberRequest.php
 app/Http/Requests/UpdateFamilyMemberRequest.php
 app/Http/Requests/StorePropertyRequest.php
+app/Http/Requests/StoreMortgageRequest.php
+app/Http/Requests/UpdateMortgageRequest.php
 ```
 
-### Backend - Services (2 files)
+### Backend - Services (3 files)
 ```
 app/Services/UserProfile/PersonalAccountsService.php
 app/Services/Estate/EstateAssetAggregatorService.php
+app/Services/Property/PropertyService.php
 ```
 
 ### Backend - Routes (1 file)
@@ -1938,7 +1956,7 @@ resources/js/store/modules/auth.js
 resources/js/store/modules/userProfile.js
 ```
 
-### Frontend - Components (32 files)
+### Frontend - Components (36 files)
 ```
 resources/js/components/Dashboard/NetWorthOverviewCard.vue
 resources/js/components/Protection/PolicyDetail.vue
@@ -1962,6 +1980,7 @@ resources/js/components/UserProfile/FamilyMemberFormModal.vue
 resources/js/components/UserProfile/ExpenditureForm.vue (NEW)
 resources/js/components/UserProfile/ExpenditureOverview.vue
 resources/js/components/UserProfile/IncomeOccupation.vue
+resources/js/components/Onboarding/steps/AssetsStep.vue
 resources/js/components/Onboarding/steps/ExpenditureStep.vue
 resources/js/components/Onboarding/steps/IncomeStep.vue
 resources/js/views/Protection/ProtectionDashboard.vue
