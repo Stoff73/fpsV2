@@ -42,7 +42,12 @@
 
             <div class="account-details">
               <div class="detail-row">
-                <span class="detail-label">Balance</span>
+                <span class="detail-label">{{ getBalanceLabel(account) }}</span>
+                <span class="detail-value">{{ formatCurrency(getFullBalance(account)) }}</span>
+              </div>
+
+              <div v-if="account.ownership_type === 'joint'" class="detail-row">
+                <span class="detail-label">Your Share ({{ account.ownership_percentage }}%)</span>
                 <span class="detail-value">{{ formatCurrency(account.current_balance) }}</span>
               </div>
 
@@ -140,6 +145,22 @@ export default {
 
     viewAccountDetail(accountId) {
       this.$router.push({ name: 'SavingsAccountDetail', params: { id: accountId } });
+    },
+
+    getBalanceLabel(account) {
+      if (account.ownership_type === 'joint') {
+        return 'Full Balance';
+      }
+      return 'Balance';
+    },
+
+    getFullBalance(account) {
+      // If joint ownership, calculate full balance from user's share
+      if (account.ownership_type === 'joint' && account.ownership_percentage) {
+        return account.current_balance / (account.ownership_percentage / 100);
+      }
+      // For individual ownership, user's share = full balance
+      return account.current_balance;
     },
 
     formatCurrency(value) {

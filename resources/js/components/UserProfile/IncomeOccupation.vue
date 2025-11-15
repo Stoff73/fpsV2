@@ -104,10 +104,10 @@
             >
               <option value="">Select status</option>
               <option value="employed">Employed</option>
+              <option value="part_time">Part-Time</option>
               <option value="self_employed">Self-Employed</option>
               <option value="retired">Retired</option>
               <option value="unemployed">Unemployed</option>
-              <option value="student">Student</option>
               <option value="other">Other</option>
             </select>
           </div>
@@ -171,7 +171,7 @@
           <!-- Annual Employment Income -->
           <div>
             <label for="annual_employment_income" class="block text-body-sm font-medium text-gray-700 mb-1">
-              Employment Income
+              Employment Income (Full-Time/Part-Time)
             </label>
             <div class="relative rounded-md shadow-sm">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

@@ -59,6 +59,11 @@ class UpdatePropertyRequest extends FormRequest
             'occupancy_rate_percent' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:100'],
             'tenant_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'tenant_email' => ['sometimes', 'nullable', 'email', 'max:255'],
+            'managing_agent_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'managing_agent_company' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'managing_agent_email' => ['sometimes', 'nullable', 'email', 'max:255'],
+            'managing_agent_phone' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'managing_agent_fee' => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'lease_start_date' => ['sometimes', 'nullable', 'date'],
             'lease_end_date' => ['sometimes', 'nullable', 'date', 'after_or_equal:lease_start_date'],
 

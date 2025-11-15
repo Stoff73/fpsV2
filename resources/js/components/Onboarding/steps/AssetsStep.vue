@@ -792,7 +792,17 @@ export default {
 
     // Navigation
     function handleNext() {
-      emit('next');
+      // Define tab order for Assets & Wealth screen
+      const tabOrder = ['retirement', 'properties', 'investments', 'cash'];
+      const currentIndex = tabOrder.indexOf(activeTab.value);
+
+      // If not on the last tab, go to next tab
+      if (currentIndex < tabOrder.length - 1) {
+        activeTab.value = tabOrder[currentIndex + 1];
+      } else {
+        // On last tab (cash), proceed to next step (Liabilities)
+        emit('next');
+      }
     }
 
     function handleBack() {

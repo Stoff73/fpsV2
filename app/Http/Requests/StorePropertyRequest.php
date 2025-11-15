@@ -56,10 +56,16 @@ class StorePropertyRequest extends FormRequest
 
             // Mortgage details (when auto-creating mortgage from property form)
             'mortgage_lender_name' => ['nullable', 'string', 'max:255'],
-            'mortgage_type' => ['nullable', Rule::in(['repayment', 'interest_only'])],
+            'mortgage_type' => ['nullable', Rule::in(['repayment', 'interest_only', 'part_and_part', 'mixed'])],
+            'mortgage_repayment_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'mortgage_interest_only_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'mortgage_monthly_payment' => ['nullable', 'numeric', 'min:0'],
             'mortgage_interest_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'mortgage_rate_type' => ['nullable', Rule::in(['fixed', 'variable', 'tracker', 'discount'])],
+            'mortgage_rate_type' => ['nullable', Rule::in(['fixed', 'variable', 'tracker', 'discount', 'mixed'])],
+            'mortgage_fixed_rate_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'mortgage_variable_rate_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'mortgage_fixed_interest_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'mortgage_variable_interest_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'mortgage_start_date' => ['nullable', 'date'],
             'mortgage_maturity_date' => ['nullable', 'date'],
 
@@ -68,6 +74,11 @@ class StorePropertyRequest extends FormRequest
             'monthly_rental_income' => ['nullable', 'numeric', 'min:0'],
             'tenant_name' => ['nullable', 'string', 'max:255'],
             'tenant_email' => ['nullable', 'email', 'max:255'],
+            'managing_agent_name' => ['nullable', 'string', 'max:255'],
+            'managing_agent_company' => ['nullable', 'string', 'max:255'],
+            'managing_agent_email' => ['nullable', 'email', 'max:255'],
+            'managing_agent_phone' => ['nullable', 'string', 'max:255'],
+            'managing_agent_fee' => ['nullable', 'numeric', 'min:0'],
             'lease_start_date' => ['nullable', 'date'],
             'lease_end_date' => ['nullable', 'date', 'after_or_equal:lease_start_date'],
 

@@ -38,6 +38,7 @@ class UpdateLifePolicyRequest extends FormRequest
             'policy_term_years' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:50'],
             'indexation_rate' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:0.10'],
             'in_trust' => ['sometimes', 'boolean'],
+            'is_mortgage_protection' => ['sometimes', 'boolean'],
             'beneficiaries' => ['sometimes', 'nullable', 'string', 'max:1000'],
         ];
     }

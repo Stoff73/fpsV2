@@ -94,7 +94,7 @@
             <!-- Interest Rate -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Interest Rate (APY) <span class="text-red-500">*</span>
+                Interest Rate <span class="text-red-500">*</span>
               </label>
               <div class="relative">
                 <input
@@ -110,7 +110,7 @@
                 <span class="absolute right-3 top-2.5 text-gray-500">%</span>
               </div>
               <p class="text-xs text-gray-500 mt-1">
-                Enter as percentage (e.g., 5.0 for 5% APY). Maximum 20%.
+                Enter as percentage (e.g., 5.0 for 5%). Maximum 20%.
               </p>
             </div>
 

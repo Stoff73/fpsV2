@@ -62,6 +62,19 @@ const authService = {
   },
 
   /**
+   * Get user by ID (for viewing spouse/family member data)
+   * @param {number} userId - User ID to fetch
+   * @returns {Promise}
+   */
+  async getUserById(userId) {
+    const response = await api.get(`/api/users/${userId}`);
+    if (response.data.success) {
+      return response.data.data.user;
+    }
+    return null;
+  },
+
+  /**
    * Set authentication token in localStorage
    * @param {string} token
    */

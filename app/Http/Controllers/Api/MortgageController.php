@@ -69,7 +69,7 @@ class MortgageController extends Controller
         $validated['interest_rate'] = $validated['interest_rate'] ?? 0.0000;
         $validated['rate_type'] = $validated['rate_type'] ?? 'fixed';
         $validated['start_date'] = $validated['start_date'] ?? now();
-        $validated['original_loan_amount'] = $validated['original_loan_amount'] ?? $validated['outstanding_balance'];
+        // Note: original_loan_amount is optional and should NOT be auto-filled if not provided
 
         // Calculate maturity date if not provided (assume 25 year term)
         if (! isset($validated['maturity_date'])) {

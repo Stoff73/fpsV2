@@ -101,6 +101,16 @@ const actions = {
       commit('setLoading', false);
     }
   },
+
+  async fetchUserById({ commit }, userId) {
+    try {
+      const user = await authService.getUserById(userId);
+      return user;
+    } catch (error) {
+      console.error('Failed to fetch user by ID:', error);
+      throw error;
+    }
+  },
 };
 
 const mutations = {

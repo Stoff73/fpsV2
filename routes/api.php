@@ -124,6 +124,12 @@ Route::middleware('auth:sanctum')->prefix('spouse-permission')->group(function (
     Route::delete('/revoke', [SpousePermissionController::class, 'revoke']);
 });
 
+// Spouse data access routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users/{userId}', [UserProfileController::class, 'getUserById']);
+    Route::put('/users/{userId}/expenditure', [UserProfileController::class, 'updateSpouseExpenditure']);
+});
+
 // Net Worth routes (Phase 3)
 Route::middleware('auth:sanctum')->prefix('net-worth')->group(function () {
     Route::get('/overview', [NetWorthController::class, 'getOverview']);
@@ -152,6 +158,8 @@ Route::middleware('auth:sanctum')->prefix('properties')->group(function () {
     Route::prefix('{propertyId}/mortgages')->group(function () {
         Route::get('/', [MortgageController::class, 'index']);
         Route::post('/', [MortgageController::class, 'store']);
+        Route::put('/{mortgageId}', [MortgageController::class, 'update']);
+        Route::delete('/{mortgageId}', [MortgageController::class, 'destroy']);
     });
 });
 

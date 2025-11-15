@@ -233,6 +233,14 @@
                         <dt class="text-sm text-gray-600">Mortgage Type:</dt>
                         <dd class="text-sm font-medium text-gray-900">{{ formatMortgageType(mortgage.mortgage_type) }}</dd>
                       </div>
+                      <div v-if="mortgage.mortgage_type === 'mixed' && mortgage.repayment_percentage" class="flex justify-between">
+                        <dt class="text-sm text-gray-600 pl-4">└ Repayment:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.repayment_percentage }}%</dd>
+                      </div>
+                      <div v-if="mortgage.mortgage_type === 'mixed' && mortgage.interest_only_percentage" class="flex justify-between">
+                        <dt class="text-sm text-gray-600 pl-4">└ Interest Only:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.interest_only_percentage }}%</dd>
+                      </div>
                       <div v-if="mortgage.country" class="flex justify-between">
                         <dt class="text-sm text-gray-600">Property Country:</dt>
                         <dd class="text-sm font-medium text-gray-900">{{ mortgage.country }}</dd>
@@ -249,8 +257,12 @@
                         <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(mortgage.original_loan_amount) }}</dd>
                       </div>
                       <div class="flex justify-between">
-                        <dt class="text-sm text-gray-600">Outstanding Balance:</dt>
-                        <dd class="text-sm font-medium text-blue-600 font-semibold">{{ formatCurrency(mortgage.outstanding_balance) }}</dd>
+                        <dt class="text-sm text-gray-600">Full Outstanding Balance:</dt>
+                        <dd class="text-sm font-medium text-blue-600 font-semibold">{{ formatCurrency(calculateFullOutstandingBalance(mortgage)) }}</dd>
+                      </div>
+                      <div v-if="property.ownership_type === 'joint'" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Your Share ({{ property.ownership_percentage }}%):</dt>
+                        <dd class="text-sm font-medium text-blue-600">{{ formatCurrency(mortgage.outstanding_balance) }}</dd>
                       </div>
                       <div v-if="mortgage.original_loan_amount" class="flex justify-between">
                         <dt class="text-sm text-gray-600">Amount Paid Off:</dt>
@@ -258,7 +270,7 @@
                       </div>
                       <div v-if="property.current_value && mortgage.outstanding_balance" class="flex justify-between">
                         <dt class="text-sm text-gray-600">Loan-to-Value (LTV):</dt>
-                        <dd class="text-sm font-medium text-gray-900">{{ calculateLTV(mortgage.outstanding_balance, property.current_value) }}%</dd>
+                        <dd class="text-sm font-medium text-gray-900">{{ calculateLTV(mortgage) }}%</dd>
                       </div>
                     </dl>
                   </div>
@@ -267,13 +279,21 @@
                   <div>
                     <h5 class="text-sm font-semibold text-gray-800 mb-3">Interest Rate</h5>
                     <dl class="space-y-2">
-                      <div class="flex justify-between">
+                      <div v-if="mortgage.rate_type !== 'mixed'" class="flex justify-between">
                         <dt class="text-sm text-gray-600">Interest Rate:</dt>
                         <dd class="text-sm font-medium text-gray-900">{{ mortgage.interest_rate }}%</dd>
                       </div>
                       <div class="flex justify-between">
                         <dt class="text-sm text-gray-600">Rate Type:</dt>
                         <dd class="text-sm font-medium text-gray-900 capitalize">{{ mortgage.rate_type }}</dd>
+                      </div>
+                      <div v-if="mortgage.rate_type === 'mixed' && mortgage.fixed_rate_percentage" class="flex justify-between">
+                        <dt class="text-sm text-gray-600 pl-4">└ Fixed ({{ parseFloat(mortgage.fixed_rate_percentage).toFixed(2) }}%):</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ parseFloat(mortgage.fixed_interest_rate).toFixed(2) }}%</dd>
+                      </div>
+                      <div v-if="mortgage.rate_type === 'mixed' && mortgage.variable_rate_percentage" class="flex justify-between">
+                        <dt class="text-sm text-gray-600 pl-4">└ Variable ({{ parseFloat(mortgage.variable_rate_percentage).toFixed(2) }}%):</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ parseFloat(mortgage.variable_interest_rate).toFixed(2) }}%</dd>
                       </div>
                       <div v-if="mortgage.rate_type === 'fixed' && mortgage.rate_fix_end_date" class="flex justify-between">
                         <dt class="text-sm text-gray-600">Rate Fix Ends:</dt>
@@ -573,13 +593,38 @@ export default {
       const types = {
         repayment: 'Repayment',
         interest_only: 'Interest Only',
+        part_and_part: 'Part and Part',
+        mixed: 'Mixed',
       };
       return types[type] || type;
     },
 
-    calculateLTV(outstandingBalance, propertyValue) {
-      if (!propertyValue || propertyValue === 0) return '0.00';
-      const ltv = (outstandingBalance / propertyValue) * 100;
+    calculateFullOutstandingBalance(mortgage) {
+      // If joint ownership, calculate full balance from user's share
+      if (this.property?.ownership_type === 'joint' && this.property?.ownership_percentage) {
+        return mortgage.outstanding_balance / (this.property.ownership_percentage / 100);
+      }
+      // For individual ownership, user's share = full balance
+      return mortgage.outstanding_balance;
+    },
+
+    calculateFullPropertyValue() {
+      // If joint ownership, calculate full value from user's share
+      if (this.property?.ownership_type === 'joint' && this.property?.ownership_percentage) {
+        return this.property.current_value / (this.property.ownership_percentage / 100);
+      }
+      // For individual ownership, user's share = full value
+      return this.property?.current_value || 0;
+    },
+
+    calculateLTV(mortgage) {
+      // Always use full amounts for correct LTV calculation
+      const fullBalance = this.calculateFullOutstandingBalance(mortgage);
+      const fullValue = this.calculateFullPropertyValue();
+
+      if (!fullValue || fullValue === 0) return '0.00';
+
+      const ltv = (fullBalance / fullValue) * 100;
       return ltv.toFixed(2);
     },
 

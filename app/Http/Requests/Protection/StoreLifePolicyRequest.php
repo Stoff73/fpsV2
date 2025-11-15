@@ -32,6 +32,7 @@ class StoreLifePolicyRequest extends FormRequest
             'premium_amount' => ['required', 'numeric', 'min:0', 'max:9999999.99'],
             'premium_frequency' => ['required', Rule::in(['monthly', 'quarterly', 'annually'])],
             'in_trust' => ['required', 'boolean'],
+            'is_mortgage_protection' => ['required', 'boolean'],
             'beneficiaries' => ['nullable', 'string', 'max:1000'],
         ];
 

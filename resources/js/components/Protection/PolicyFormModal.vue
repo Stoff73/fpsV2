@@ -258,7 +258,25 @@
                 </label>
               </div>
               <p class="text-xs text-gray-500 mt-1 ml-6">
-                Policies held in trust can help reduce inheritance tax liability
+                Policies held in trust can help reduce inheritance tax liability. If you are not sure leave this blank
+              </p>
+            </div>
+
+            <!-- Mortgage Protection (for Life Insurance) -->
+            <div v-if="formData.policyType === 'life'">
+              <div class="flex items-center">
+                <input
+                  id="is_mortgage_protection"
+                  v-model="formData.is_mortgage_protection"
+                  type="checkbox"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label for="is_mortgage_protection" class="ml-2 block text-sm font-medium text-gray-700">
+                  Is this to pay off your mortgage?
+                </label>
+              </div>
+              <p class="text-xs text-gray-500 mt-1 ml-6">
+                If you are not sure leave this blank
               </p>
             </div>
 
@@ -492,6 +510,7 @@ export default {
         end_date: '',
         term_years: null,
         in_trust: false,
+        is_mortgage_protection: false,
         beneficiary_name: '',
         beneficiary_percentage: 100,
         additional_beneficiaries: '',
@@ -690,6 +709,7 @@ export default {
         end_date: this.formatDateForInput(this.policy.end_date || this.policy.policy_end_date),
         term_years: this.policy.term_years || this.policy.policy_term_years || null,
         in_trust: this.policy.in_trust || false,
+        is_mortgage_protection: this.policy.is_mortgage_protection || false,
         beneficiary_name: beneficiary_name,
         beneficiary_percentage: beneficiary_percentage,
         additional_beneficiaries: additional_beneficiaries,
@@ -750,6 +770,7 @@ export default {
         }
 
         data.in_trust = this.formData.in_trust || false;
+        data.is_mortgage_protection = this.formData.is_mortgage_protection || false;
 
         // Build beneficiaries string
         let beneficiaries = '';

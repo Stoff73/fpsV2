@@ -32,6 +32,7 @@ class LifeInsurancePolicy extends Model
         'policy_term_years',
         'indexation_rate',
         'in_trust',
+        'is_mortgage_protection',
         'beneficiaries',
     ];
 
@@ -50,6 +51,7 @@ class LifeInsurancePolicy extends Model
         'policy_end_date' => 'date',
         'policy_term_years' => 'integer',
         'in_trust' => 'boolean',
+        'is_mortgage_protection' => 'boolean',
     ];
 
     /**

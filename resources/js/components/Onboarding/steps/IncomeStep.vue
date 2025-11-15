@@ -74,6 +74,7 @@
             >
               <option value="">Select status</option>
               <option value="employed">Employed</option>
+              <option value="part_time">Part-Time</option>
               <option value="self_employed">Self-Employed</option>
               <option value="unemployed">Unemployed</option>
               <option value="retired">Retired</option>
@@ -152,7 +153,7 @@
           <!-- Employment Income -->
           <div>
             <label for="annual_employment_income" class="label">
-              Annual Employment Income
+              Annual Employment Income (Full-Time/Part-Time)
             </label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
@@ -167,7 +168,7 @@
               >
             </div>
             <p class="mt-1 text-body-sm text-gray-500">
-              Salary, bonuses, employment income (before tax)
+              Salary, bonuses, full-time or part-time employment income (before tax)
             </p>
           </div>
 

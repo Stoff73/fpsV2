@@ -25,8 +25,12 @@ class UpdateMortgageRequest extends FormRequest
         return [
             'lender_name' => ['sometimes', 'string', 'max:255'],
             'mortgage_account_number' => ['sometimes', 'nullable', 'string', 'max:50'],
-            'mortgage_type' => ['sometimes', Rule::in(['repayment', 'interest_only'])],
+            'mortgage_type' => ['sometimes', Rule::in(['repayment', 'interest_only', 'part_and_part', 'mixed'])],
             'country' => ['sometimes', 'nullable', 'string', 'max:255'],
+
+            // Mixed mortgage type fields (repayment vs interest-only split)
+            'repayment_percentage' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
+            'interest_only_percentage' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
 
             // Loan details
             'original_loan_amount' => ['sometimes', 'numeric', 'min:0'],
@@ -34,8 +38,14 @@ class UpdateMortgageRequest extends FormRequest
 
             // Interest
             'interest_rate' => ['sometimes', 'numeric', 'min:0', 'max:100'],
-            'rate_type' => ['sometimes', Rule::in(['fixed', 'variable', 'tracker', 'discount'])],
+            'rate_type' => ['sometimes', Rule::in(['fixed', 'variable', 'tracker', 'discount', 'mixed'])],
             'rate_fix_end_date' => ['sometimes', 'nullable', 'date'],
+
+            // Mixed rate type fields (fixed vs variable split)
+            'fixed_rate_percentage' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
+            'variable_rate_percentage' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
+            'fixed_interest_rate' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
+            'variable_interest_rate' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
 
             // Payment
             'monthly_payment' => ['sometimes', 'numeric', 'min:0'],

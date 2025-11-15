@@ -622,7 +622,69 @@
                 <option value="">Select mortgage type</option>
                 <option value="repayment">Repayment</option>
                 <option value="interest_only">Interest Only</option>
+                <option value="part_and_part">Part and Part</option>
+                <option value="mixed">Mixed</option>
               </select>
+            </div>
+
+            <!-- Mixed Mortgage Type Fields -->
+            <div v-if="mortgageForm.mortgage_type === 'mixed'" class="bg-blue-50 border border-blue-200 rounded-md p-4 space-y-4">
+              <div class="flex items-start gap-2 mb-3">
+                <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p class="text-sm font-medium text-blue-900">Mixed Mortgage - Repayment Split</p>
+                  <p class="text-xs text-blue-700 mt-1">
+                    Specify what percentage is on a repayment basis vs interest-only basis
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="repayment_percentage" class="block text-sm font-medium text-blue-900 mb-1">
+                    Repayment Portion (%) <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="repayment_percentage"
+                    v-model.number="mortgageForm.repayment_percentage"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    :required="mortgageForm.mortgage_type === 'mixed'"
+                    class="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    placeholder="e.g., 40"
+                  />
+                  <p class="text-xs text-blue-700 mt-1">Percentage on repayment basis</p>
+                </div>
+
+                <div>
+                  <label for="interest_only_percentage" class="block text-sm font-medium text-blue-900 mb-1">
+                    Interest-Only Portion (%) <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="interest_only_percentage"
+                    v-model.number="mortgageForm.interest_only_percentage"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    :required="mortgageForm.mortgage_type === 'mixed'"
+                    class="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    placeholder="e.g., 60"
+                  />
+                  <p class="text-xs text-blue-700 mt-1">Percentage on interest-only basis</p>
+                </div>
+              </div>
+
+              <div v-if="mortgageTypePercentageTotal !== 100 && (mortgageForm.repayment_percentage || mortgageForm.interest_only_percentage)"
+                   class="bg-red-50 border border-red-200 rounded-md p-3">
+                <p class="text-sm text-red-800">
+                  ⚠️ Percentages must total 100%. Current total: {{ mortgageTypePercentageTotal }}%
+                </p>
+              </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -653,7 +715,8 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+              <!-- Hide standard interest rate when mixed rate type is selected -->
+              <div v-if="mortgageForm.rate_type !== 'mixed'">
                 <label for="interest_rate" class="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
                 <input
                   id="interest_rate"
@@ -666,7 +729,7 @@
                 />
               </div>
 
-              <div>
+              <div :class="{ 'md:col-span-2': mortgageForm.rate_type === 'mixed' }">
                 <label for="rate_type" class="block text-sm font-medium text-gray-700 mb-1">Rate Type</label>
                 <select
                   id="rate_type"
@@ -678,6 +741,7 @@
                   <option value="variable">Variable</option>
                   <option value="tracker">Tracker</option>
                   <option value="discount">Discount</option>
+                  <option value="mixed">Mixed</option>
                 </select>
               </div>
             </div>
@@ -690,6 +754,104 @@
                 type="date"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+
+            <!-- Mixed Rate Type Fields -->
+            <div v-if="mortgageForm.rate_type === 'mixed'" class="bg-green-50 border border-green-200 rounded-md p-4 space-y-4">
+              <div class="flex items-start gap-2 mb-3">
+                <svg class="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p class="text-sm font-medium text-green-900">Mixed Rate - Interest Rate Split</p>
+                  <p class="text-xs text-green-700 mt-1">
+                    Specify what percentage has a fixed rate vs variable rate and the rates for each portion
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="fixed_rate_percentage" class="block text-sm font-medium text-green-900 mb-1">
+                    Fixed Rate Portion (%) <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="fixed_rate_percentage"
+                    v-model.number="mortgageForm.fixed_rate_percentage"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    :required="mortgageForm.rate_type === 'mixed'"
+                    class="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                    placeholder="e.g., 20"
+                  />
+                  <p class="text-xs text-green-700 mt-1">Percentage at fixed rate</p>
+                </div>
+
+                <div>
+                  <label for="variable_rate_percentage" class="block text-sm font-medium text-green-900 mb-1">
+                    Variable Rate Portion (%) <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="variable_rate_percentage"
+                    v-model.number="mortgageForm.variable_rate_percentage"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    :required="mortgageForm.rate_type === 'mixed'"
+                    class="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                    placeholder="e.g., 80"
+                  />
+                  <p class="text-xs text-green-700 mt-1">Percentage at variable rate</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="fixed_interest_rate" class="block text-sm font-medium text-green-900 mb-1">
+                    Fixed Interest Rate (%) <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="fixed_interest_rate"
+                    v-model.number="mortgageForm.fixed_interest_rate"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    :required="mortgageForm.rate_type === 'mixed'"
+                    class="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                    placeholder="e.g., 3.5"
+                  />
+                  <p class="text-xs text-green-700 mt-1">Annual rate for fixed portion</p>
+                </div>
+
+                <div>
+                  <label for="variable_interest_rate" class="block text-sm font-medium text-green-900 mb-1">
+                    Variable Interest Rate (%) <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="variable_interest_rate"
+                    v-model.number="mortgageForm.variable_interest_rate"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    :required="mortgageForm.rate_type === 'mixed'"
+                    class="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                    placeholder="e.g., 4.2"
+                  />
+                  <p class="text-xs text-green-700 mt-1">Annual rate for variable portion</p>
+                </div>
+              </div>
+
+              <div v-if="rateTypePercentageTotal !== 100 && (mortgageForm.fixed_rate_percentage || mortgageForm.variable_rate_percentage)"
+                   class="bg-red-50 border border-red-200 rounded-md p-3">
+                <p class="text-sm text-red-800">
+                  ⚠️ Percentages must total 100%. Current total: {{ rateTypePercentageTotal }}%
+                </p>
+              </div>
             </div>
 
             <div>
@@ -1001,6 +1163,71 @@
                   />
                 </div>
               </div>
+
+              <!-- Managing Agent Details Section -->
+              <div class="mt-6 pt-6 border-t border-gray-200">
+                <h5 class="text-md font-semibold text-gray-800 mb-4">Managing Agent Details (Optional)</h5>
+                <p class="text-sm text-gray-600 mb-4">If you use a managing agent to manage this property, enter their details below.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label for="managing_agent_name" class="block text-sm font-medium text-gray-700 mb-1">Agent Name</label>
+                    <input
+                      id="managing_agent_name"
+                      v-model="form.managing_agent_name"
+                      type="text"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., John Smith"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="managing_agent_company" class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                    <input
+                      id="managing_agent_company"
+                      v-model="form.managing_agent_company"
+                      type="text"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., ABC Property Management Ltd"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="managing_agent_email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input
+                      id="managing_agent_email"
+                      v-model="form.managing_agent_email"
+                      type="email"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="agent@propertymanagement.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="managing_agent_phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input
+                      id="managing_agent_phone"
+                      v-model="form.managing_agent_phone"
+                      type="tel"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., 020 1234 5678"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="managing_agent_fee" class="block text-sm font-medium text-gray-700 mb-1">Monthly Management Fee (£)</label>
+                    <input
+                      id="managing_agent_fee"
+                      v-model.number="form.managing_agent_fee"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., 150.00"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1114,6 +1341,11 @@ export default {
         monthly_rental_income: null,
         tenant_name: '',
         tenant_email: '',
+        managing_agent_name: '',
+        managing_agent_company: '',
+        managing_agent_email: '',
+        managing_agent_phone: '',
+        managing_agent_fee: null,
         lease_start_date: '',
         lease_end_date: '',
       },
@@ -1121,10 +1353,16 @@ export default {
         lender_name: '',
         mortgage_account_number: '',
         mortgage_type: '',
+        repayment_percentage: null,
+        interest_only_percentage: null,
         original_loan_amount: null,
         outstanding_balance: null,
         interest_rate: null,
         rate_type: '',
+        fixed_rate_percentage: null,
+        variable_rate_percentage: null,
+        fixed_interest_rate: null,
+        variable_interest_rate: null,
         rate_fix_end_date: '',
         monthly_payment: null,
         start_date: '',
@@ -1227,6 +1465,20 @@ export default {
       total += Number(this.form.other_monthly_costs) || 0;
 
       return total;
+    },
+
+    // Mixed mortgage type validation - repayment + interest-only must = 100%
+    mortgageTypePercentageTotal() {
+      const repayment = Number(this.mortgageForm.repayment_percentage) || 0;
+      const interestOnly = Number(this.mortgageForm.interest_only_percentage) || 0;
+      return repayment + interestOnly;
+    },
+
+    // Mixed rate type validation - fixed + variable must = 100%
+    rateTypePercentageTotal() {
+      const fixed = Number(this.mortgageForm.fixed_rate_percentage) || 0;
+      const variable = Number(this.mortgageForm.variable_rate_percentage) || 0;
+      return fixed + variable;
     },
   },
 

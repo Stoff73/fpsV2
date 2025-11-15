@@ -273,6 +273,34 @@ const actions = {
   },
 
   /**
+   * Update spouse expenditure information
+   */
+  async updateSpouseExpenditure({ commit }, { spouseId, expenditureData }) {
+    commit('setLoading', true);
+    commit('setError', null);
+
+    try {
+      const response = await userProfileService.updateSpouseExpenditure(spouseId, expenditureData);
+
+      if (response.success) {
+        // Refresh the full profile to get updated expenditure
+        const profileResponse = await userProfileService.getProfile();
+        if (profileResponse.success) {
+          commit('setProfile', profileResponse.data.profile);
+        }
+      }
+
+      return response;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update spouse expenditure';
+      commit('setError', errorMessage);
+      throw error;
+    } finally {
+      commit('setLoading', false);
+    }
+  },
+
+  /**
    * Fetch family members
    */
   async fetchFamilyMembers({ commit }) {

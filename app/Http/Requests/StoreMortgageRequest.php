@@ -25,8 +25,12 @@ class StoreMortgageRequest extends FormRequest
         return [
             'lender_name' => ['required', 'string', 'max:255'],
             'mortgage_account_number' => ['nullable', 'string', 'max:50'],
-            'mortgage_type' => ['required', Rule::in(['repayment', 'interest_only'])],
+            'mortgage_type' => ['required', Rule::in(['repayment', 'interest_only', 'part_and_part', 'mixed'])],
             'country' => ['nullable', 'string', 'max:255'],
+
+            // Mixed mortgage type fields (repayment vs interest-only split)
+            'repayment_percentage' => ['nullable', 'numeric', 'min:0', 'max:100', 'required_if:mortgage_type,mixed'],
+            'interest_only_percentage' => ['nullable', 'numeric', 'min:0', 'max:100', 'required_if:mortgage_type,mixed'],
 
             // Loan details - outstanding_balance and monthly_payment required
             'original_loan_amount' => ['nullable', 'numeric', 'min:0'],
@@ -34,8 +38,14 @@ class StoreMortgageRequest extends FormRequest
 
             // Interest - optional, default to 0 if not provided
             'interest_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'rate_type' => ['nullable', Rule::in(['fixed', 'variable', 'tracker', 'discount'])],
+            'rate_type' => ['nullable', Rule::in(['fixed', 'variable', 'tracker', 'discount', 'mixed'])],
             'rate_fix_end_date' => ['nullable', 'date'],
+
+            // Mixed rate type fields (fixed vs variable split)
+            'fixed_rate_percentage' => ['nullable', 'numeric', 'min:0', 'max:100', 'required_if:rate_type,mixed'],
+            'variable_rate_percentage' => ['nullable', 'numeric', 'min:0', 'max:100', 'required_if:rate_type,mixed'],
+            'fixed_interest_rate' => ['nullable', 'numeric', 'min:0', 'max:100', 'required_if:rate_type,mixed'],
+            'variable_interest_rate' => ['nullable', 'numeric', 'min:0', 'max:100', 'required_if:rate_type,mixed'],
 
             // Payment
             'monthly_payment' => ['required', 'numeric', 'min:0'],

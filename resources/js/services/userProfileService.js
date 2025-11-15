@@ -41,6 +41,17 @@ const userProfileService = {
   },
 
   /**
+   * Update spouse expenditure information
+   * @param {number} spouseId - Spouse user ID
+   * @param {Object} data - Expenditure data (monthly_expenditure, annual_expenditure)
+   * @returns {Promise}
+   */
+  async updateSpouseExpenditure(spouseId, data) {
+    const response = await api.put(`/api/users/${spouseId}/expenditure`, data);
+    return response.data;
+  },
+
+  /**
    * Get all family members
    * @returns {Promise}
    */

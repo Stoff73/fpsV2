@@ -233,7 +233,8 @@ class InvestmentController extends Controller
         \Log::info('Investment account creation attempt', ['data' => $request->all()]);
 
         $validated = $request->validate([
-            'account_type' => ['required', Rule::in(['isa', 'gia', 'nsi', 'onshore_bond', 'offshore_bond', 'vct', 'eis'])],
+            'account_type' => ['required', Rule::in(['isa', 'gia', 'nsi', 'onshore_bond', 'offshore_bond', 'vct', 'eis', 'other'])],
+            'account_type_other' => 'required_if:account_type,other|nullable|string|max:255',
             'provider' => 'required|string|max:255',
             'account_number' => 'nullable|string|max:255',
             'platform' => 'nullable|string|max:255',
@@ -315,7 +316,8 @@ class InvestmentController extends Controller
         $account = InvestmentAccount::where('user_id', $user->id)->findOrFail($id);
 
         $validated = $request->validate([
-            'account_type' => ['nullable', Rule::in(['isa', 'gia', 'nsi', 'onshore_bond', 'offshore_bond', 'vct', 'eis'])],
+            'account_type' => ['nullable', Rule::in(['isa', 'gia', 'nsi', 'onshore_bond', 'offshore_bond', 'vct', 'eis', 'other'])],
+            'account_type_other' => 'required_if:account_type,other|nullable|string|max:255',
             'provider' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255',
             'platform' => 'nullable|string|max:255',

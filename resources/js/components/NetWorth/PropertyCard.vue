@@ -25,7 +25,7 @@
         </div>
 
         <div v-if="hasMortgage" class="detail-row">
-          <span class="detail-label">Mortgage Outstanding</span>
+          <span class="detail-label">{{ mortgageLabel }}</span>
           <span class="detail-value mortgage">{{ formatCurrency(mortgageAmount) }}</span>
         </div>
 
@@ -65,6 +65,14 @@ export default {
 
     isJoint() {
       return this.property.ownership_type === 'joint';
+    },
+
+    mortgageLabel() {
+      if (this.isJoint) {
+        const userName = this.$store?.state?.user?.user?.name || 'Your';
+        return `${userName} share of mortgage (${this.property.ownership_percentage}%)`;
+      }
+      return 'Mortgage Outstanding';
     },
 
     hasMortgage() {

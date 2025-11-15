@@ -46,8 +46,27 @@
                 <option value="offshore_bond">Offshore Bond</option>
                 <option value="vct">Venture Capital Trust (VCT)</option>
                 <option value="eis">Enterprise Investment Scheme (EIS)</option>
+                <option value="other">Other</option>
               </select>
               <p v-if="errors.account_type" class="mt-1 text-sm text-red-600">{{ errors.account_type }}</p>
+            </div>
+
+            <!-- Custom Account Type (if 'other' selected) -->
+            <div v-if="formData.account_type === 'other'">
+              <label for="account_type_other" class="block text-sm font-medium text-gray-700 mb-1">
+                Specify Account Type <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="account_type_other"
+                v-model="formData.account_type_other"
+                type="text"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :class="{ 'border-red-500': errors.account_type_other }"
+                placeholder="e.g., Gold, Cryptocurrency, Classic Cars, Art Collection"
+                :required="formData.account_type === 'other'"
+              />
+              <p v-if="errors.account_type_other" class="mt-1 text-sm text-red-600">{{ errors.account_type_other }}</p>
+              <p class="mt-1 text-xs text-gray-500">Enter the custom asset class for this investment</p>
             </div>
 
             <!-- Provider -->
@@ -330,6 +349,7 @@ export default {
     return {
       formData: {
         account_type: '',
+        account_type_other: '',
         provider: '',
         platform: '',
         country: 'United Kingdom',
@@ -406,6 +426,7 @@ export default {
         if (newAccount) {
           this.formData = {
             ...newAccount,
+            account_type_other: newAccount.account_type_other || '',
             isa_type: newAccount.isa_type || 'stocks_and_shares',
             // Use isa_subscription_current_year directly (backend stores this field)
             isa_subscription_current_year: newAccount.isa_subscription_current_year || null,
@@ -428,6 +449,10 @@ export default {
       if (newType !== 'isa') {
         this.formData.isa_type = 'stocks_and_shares';
         this.formData.isa_subscription_current_year = null;
+      }
+      // Clear account_type_other when switching away from 'other'
+      if (newType !== 'other') {
+        this.formData.account_type_other = '';
       }
     },
   },
@@ -476,6 +501,14 @@ export default {
         isValid = false;
       }
 
+      // Validate custom account type if 'other' is selected
+      if (this.formData.account_type === 'other') {
+        if (!this.formData.account_type_other || this.formData.account_type_other.trim().length === 0) {
+          this.errors.account_type_other = 'Please specify the account type';
+          isValid = false;
+        }
+      }
+
       if (!this.formData.provider || this.formData.provider.trim().length === 0) {
         this.errors.provider = 'Provider is required';
         isValid = false;
@@ -520,6 +553,7 @@ export default {
     resetForm() {
       this.formData = {
         account_type: '',
+        account_type_other: '',
         provider: '',
         platform: '',
         current_value: null,

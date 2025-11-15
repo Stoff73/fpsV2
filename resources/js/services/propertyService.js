@@ -53,4 +53,14 @@ export default {
     const response = await api.post(`/properties/${propertyId}/mortgages`, data);
     return response.data;
   },
+
+  async updatePropertyMortgage(propertyId, mortgageId, data) {
+    const response = await api.put(`/properties/${propertyId}/mortgages/${mortgageId}`, data);
+    return response.data;
+  },
+
+  async deletePropertyMortgage(propertyId, mortgageId) {
+    const response = await api.delete(`/properties/${propertyId}/mortgages/${mortgageId}`);
+    return response.data;
+  },
 };
