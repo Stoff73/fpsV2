@@ -18,8 +18,8 @@
               <p class="mt-1 text-body-sm text-gray-600">Latest release information</p>
             </div>
             <div class="text-right">
-              <div class="text-3xl font-bold text-primary-600">v0.2.6</div>
-              <div class="text-body-sm text-gray-500 mt-1">Beta Release</div>
+              <div class="text-3xl font-bold text-primary-600">v0.2.9</div>
+              <div class="text-body-sm text-gray-500 mt-1">Production Ready</div>
             </div>
           </div>
         </div>
@@ -28,99 +28,109 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <h3 class="text-body-sm font-semibold text-gray-700 mb-2">Release Date</h3>
-              <p class="text-body-base text-gray-900">12 November 2025</p>
+              <p class="text-body-base text-gray-900">17 November 2025</p>
             </div>
             <div>
               <h3 class="text-body-sm font-semibold text-gray-700 mb-2">Status</h3>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-body-sm font-medium bg-blue-100 text-blue-800">
-                🚀 Active Development
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-body-sm font-medium bg-green-100 text-green-800">
+                ✅ Production Ready
               </span>
             </div>
           </div>
 
           <!-- What's New -->
           <div class="mb-6">
-            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">🏗️ Refactoring & Cleanup in v0.2.6</h3>
+            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">🚀 Major Features in v0.2.9</h3>
             <ul class="space-y-2">
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Estate Module Refactor:</strong> Removed deprecated EstateAgent.php and old IHT calculation services (GiftingStrategy, IHTCalculator, SecondDeathIHTCalculator). Added new IHTCalculationService with database persistence. Removed 14,985 lines of legacy code.</span>
+                <span class="text-body-base text-gray-700"><strong>Mixed Mortgages:</strong> Support for split repayment types (e.g., 70% repayment / 30% interest-only) and split rate types (e.g., 60% fixed @ 2.5% / 40% variable @ 4.2%). Full validation ensures percentages add to 100%.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Database-Driven IHT Calculations:</strong> Added ActuarialLifeTable model with ONS 2020-2022 life expectancy data. Added IHTCalculation model for storing projected IHT liabilities. Includes 3 new migrations and seeder.</span>
+                <span class="text-body-base text-gray-700"><strong>Managing Agents for BTL:</strong> Track property management company details (name, company, email, phone) and fees. Conditional display only for Buy-to-Let properties with integration in property detail views.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Investment Module Fixes:</strong> Fixed DateTime/Carbon type issues (2 files). Fixed polymorphic relationship access pattern - changed investmentAccount to holdable across 5 Investment service files. Fixed American/British spelling inconsistency in InvestmentDashboard.vue.</span>
+                <span class="text-body-base text-gray-700"><strong>Expenditure Modes:</strong> Simple vs. Category entry modes, Joint (50/50 split) vs. Separate expenditure tracking for married couples. Unified expenditure form component reduced code by 42% (2,200+ lines → 1,278 lines).</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Retirement Module Cleanup:</strong> Removed confusing readiness score, income gap, retirement gauge, and readiness breakdown from RetirementReadiness.vue. Simplified to show only Years to Retirement and Projected Income placeholders.</span>
+                <span class="text-body-base text-gray-700"><strong>Expanded Liability Types:</strong> 9 liability types instead of 4 (secured loan, unsecured loan, personal loan, car loan, hire purchase, overdraft). More accurate debt categorization and better reporting in Net Worth and IHT Planning.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Estate & Savings UI Cleanup:</strong> Removed legacy Estate components (Recommendations.vue, WhatIfScenarios.vue, SurvivingSpouseIHTPlanning.vue). Removed What-If Scenarios tab from Savings module. Simplified UI and removed confusing elements.</span>
+                <span class="text-body-base text-gray-700"><strong>Family Name Granularity:</strong> Split single 'name' field into first/middle/last names with automatic data migration for existing records. Better support for formal documents and legal compliance.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Documentation Cleanup:</strong> Moved all deployment-related markdown files to deployment/ folder. Removed obsolete session summaries and fix tracking docs. Organised deployment guides and approval documentation.</span>
+                <span class="text-body-base text-gray-700"><strong>Enhanced Education Tracking:</strong> New education expense fields (school lunches, school extras, university fees) for better cash flow planning and education funding analysis.</span>
               </li>
             </ul>
           </div>
 
-          <!-- Technical Debt -->
+          <!-- Critical Bug Fixes -->
           <div class="mb-6">
-            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">🔧 Technical Debt Resolved in v0.2.6</h3>
+            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">🐛 Critical Bug Fixes in v0.2.9</h3>
             <ul class="space-y-2">
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700">Fixed polymorphic relationship access pattern across 5 Investment service files (TaxDragCalculator, AccountTypeRecommender, FeeAnalyzer)</span>
+                <span class="text-body-base text-gray-700"><strong>Estate Plan Spouse Data Integration:</strong> Fixed comprehensive estate plan only showing user data, not spouse data. Enhanced service to include spouse assets/liabilities with structured user/spouse/combined sections.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700">Fixed DateTime/Carbon type issues in 2 Investment service files (Carbon objects can't be passed to DateTime constructor)</span>
+                <span class="text-body-base text-gray-700"><strong>IHT Planning Liability Display:</strong> Fixed non-mortgage liabilities not displaying in IHT Planning breakdown. Corrected field names (current_balance vs amount, liability_name vs description). All liability types now visible.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700">Fixed American/British spelling inconsistencies in method calls (analyzeInvestment → analyseInvestment)</span>
+                <span class="text-body-base text-gray-700"><strong>Expenditure Data Display:</strong> Fixed expenditure tab showing zeros despite data in database. Enhanced OnboardingService to handle both flat and nested data structures for joint/separate modes.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700">Removed deprecated agent pattern in Estate module (EstateAgent.php deleted)</span>
+                <span class="text-body-base text-gray-700"><strong>Property/Mortgage Ownership Sync:</strong> Fixed joint properties creating individual mortgages instead of joint. Added Vue watchers to sync mortgage ownership with property ownership automatically. Joint properties with mortgages now create reciprocal records for both owners.</span>
               </li>
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700">Consolidated IHT calculation logic into single service with database persistence (IHTCalculationService)</span>
+                <span class="text-body-base text-gray-700"><strong>Net Worth Liability Display:</strong> Fixed only mortgages showing, missing other liability types. Replaced deprecated PersonalAccount model with Liability model. Complete liability breakdown now shows all 9 types.</span>
               </li>
-              <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-                <span class="text-body-base text-gray-700"><strong>Code Reduction:</strong> Removed 14,985 lines of code, added 2,492 lines (net -12,493 lines). 71 files modified: 17 deleted, 7 added, 47 updated.</span>
-              </li>
+            </ul>
+          </div>
+
+          <!-- Database Changes -->
+          <div class="mb-6">
+            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">💾 Database Migrations</h3>
+            <p class="text-body-base text-gray-700 mb-2"><strong>20 new migrations</strong> adding 60+ fields across 8 tables:</p>
+            <ul class="space-y-1 text-body-sm text-gray-700 ml-6">
+              <li>• Mixed mortgage fields (repayment_percentage, interest_only_percentage, rate_type, etc.)</li>
+              <li>• Managing agent fields for properties (agent_name, agent_company, agent_email, agent_phone, agent_fee)</li>
+              <li>• Expenditure mode fields (entry_mode, allocation_mode) with education expenses</li>
+              <li>• Family member name fields (first_name, middle_name, last_name)</li>
+              <li>• Life insurance enhancements (policy_end_date, is_mortgage_protection)</li>
+              <li>• Employment status (added 'part_time' option)</li>
+              <li>• DC pension type field (occupational, sipp, personal, stakeholder)</li>
+              <li>• Expanded liability types (9 types: secured_loan, unsecured_loan, personal_loan, car_loan, hire_purchase, overdraft, etc.)</li>
             </ul>
           </div>
         </div>
@@ -128,92 +138,68 @@
         <!-- Version History Divider -->
         <div class="border-t border-gray-200 my-8"></div>
 
-        <!-- Previous Version: v0.2.5 -->
+        <!-- Previous Version: v0.2.8 -->
         <div class="mb-8">
-          <h2 class="text-h3 font-display text-gray-900 mb-4">Previous Release: v0.2.5</h2>
-          <p class="text-body-sm text-gray-600 mb-4">Released: 10 November 2025</p>
+          <h2 class="text-h3 font-display text-gray-900 mb-4">Previous Release: v0.2.8</h2>
+          <p class="text-body-sm text-gray-600 mb-4">Released: 14-15 November 2025</p>
 
           <div class="mb-6">
-            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">🐛 Bug Fixes in v0.2.5</h3>
+            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">🐛 Critical Bug Fixes in v0.2.8</h3>
             <ul class="space-y-2">
               <li class="flex items-start">
-                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Estate Will Tab Display:</strong> Fixed executor name and date not displaying correctly after data entry due to database schema mismatch.</span>
+                <span class="text-body-base text-gray-700"><strong>Joint Mortgage Reciprocal Creation (CRITICAL):</strong> Fixed joint properties with mortgages only creating ONE mortgage record instead of TWO. Added missing database columns (ownership_type, joint_owner_name) and Vue watchers to sync ownership data.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Estate Spouse Gifting Timeline:</strong> Fixed incorrect "enable data sharing" message showing despite spouse accounts being linked.</span>
+                <span class="text-body-base text-gray-700"><strong>Expenditure Form Defaulting:</strong> Fixed expenditure form defaulting to simple total instead of detailed breakdown during onboarding. Now correctly preserves user's entry mode choice.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Protection Policies Detection:</strong> Fixed Gap Analysis not detecting policies entered during onboarding due to property naming mismatch.</span>
+                <span class="text-body-base text-gray-700"><strong>State Pension Field Mismatch:</strong> Fixed 422 validation errors caused by field name mismatch. Changed backend validation to accept weekly_amount instead of amount.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Protection Tab Reorganisation:</strong> Renamed "Recommendations" tab to "Strategy" and removed "What-If Scenarios" tab for cleaner UX.</span>
+                <span class="text-body-base text-gray-700"><strong>Mortgage Fields Persistence:</strong> Fixed all 24 mortgage fields (repayment type, rate type, lender, start date, etc.) now persisting correctly. Added comprehensive validation.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Spouse Income in Gap Analysis:</strong> Fixed spouse income not being included in human capital calculation. Implemented proper spouse account creation with income population during onboarding, maintaining single source of truth in users table.</span>
-              </li>
-              <li class="flex items-start">
-                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-                <span class="text-body-base text-gray-700"><strong>Education Level Data Flow:</strong> Removed duplicate education level field from Personal Information tab. Fixed onboarding data not syncing health_status, smoking_status, and education_level to users table. Education level now appears only in Health tab as intended.</span>
+                <span class="text-body-base text-gray-700"><strong>Invalid Mortgage Type Removed:</strong> Removed invalid 'part_and_part' mortgage type from enum. Only valid types: repayment, interest_only, mixed.</span>
               </li>
             </ul>
           </div>
 
-          <!-- Technical Improvements -->
+          <!-- Module Improvements -->
           <div class="mb-6">
-            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">⚙️ Technical Improvements in v0.2.5</h3>
+            <h3 class="text-body-lg font-semibold text-gray-900 mb-4">⚙️ Module Improvements in v0.2.8</h3>
             <ul class="space-y-2">
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Database Schema Improvements:</strong> Fixed will information schema (added executor_name field, renamed last_reviewed_date to will_last_updated). Changed income/expenditure columns from DECIMAL to DOUBLE for proper JSON serialisation.</span>
+                <span class="text-body-base text-gray-700"><strong>Retirement Module Consolidation:</strong> Created unified pension form with visual type selection (DC/DB/State). Consolidated retirement access to /net-worth/retirement only. Removed standalone /retirement route.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Spouse Account Management:</strong> Enhanced FamilyMembersController to properly populate spouse user accounts with income data during creation, linking, and updates. Maintains single source of truth in users table.</span>
+                <span class="text-body-base text-gray-700"><strong>Net Worth UI Enhancements:</strong> Card grid layouts for investments and pensions. Color coding (blue assets, red liabilities). Joint property/mortgage full amounts with user share display. Mixed mortgage type display with percentages.</span>
               </li>
               <li class="flex items-start">
                 <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-body-base text-gray-700"><strong>Onboarding Service Enhancement:</strong> Fixed processPersonalInfo() to save health_status, smoking_status, and education_level to users table during onboarding, ensuring data flows correctly to User Profile tabs.</span>
-              </li>
-              <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-                <span class="text-body-base text-gray-700"><strong>UI/UX Improvements:</strong> Moved "Edit Information" button to top right in all User Profile tabs. Standardised button placement across 4 profile tab components for consistent user experience.</span>
-              </li>
-              <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-                <span class="text-body-base text-gray-700"><strong>British English Conversion:</strong> Converted all user-facing text from American to British English spelling (252 Vue/JS files updated). Maintained American spelling in code syntax (class names, CSS properties, API routes) per coding conventions.</span>
-              </li>
-              <li class="flex items-start">
-                <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-                <span class="text-body-base text-gray-700"><strong>Protection Module Refinements:</strong> Fixed Vuex property naming (camelCase), removed unused components, improved cache invalidation for spouse income updates.</span>
+                <span class="text-body-base text-gray-700"><strong>Database Migrations:</strong> 10 new migrations adding DC pension types, joint mortgage ownership fields, state pension enhancements, and more.</span>
               </li>
             </ul>
           </div>

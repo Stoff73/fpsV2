@@ -229,11 +229,17 @@
                 id="retirement_age"
                 v-model.number="formData.retirement_age"
                 type="number"
-                min="50"
+                min="55"
                 max="75"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                :class="{ 'border-red-500': validationErrors.retirement_age }"
                 placeholder="e.g., 67"
+                @blur="validateRetirementAge"
               />
+              <p v-if="validationErrors.retirement_age" class="text-xs text-red-500 mt-1">
+                {{ validationErrors.retirement_age }}
+              </p>
+              <p v-else class="text-xs text-gray-500 mt-1">DC pensions can only be accessed from 55</p>
             </div>
           </div>
 
@@ -325,6 +331,7 @@ export default {
       validationErrors: {
         employee_contribution_percent: '',
         employer_contribution_percent: '',
+        retirement_age: '',
       },
     };
   },
@@ -421,8 +428,19 @@ export default {
       }
     },
 
+    validateRetirementAge() {
+      this.validationErrors.retirement_age = '';
+      const age = this.formData.retirement_age;
+
+      if (age !== null && age !== '' && age < 55) {
+        this.validationErrors.retirement_age = 'DC pensions can only be accessed from 55, so this is the youngest age you can enter';
+      }
+    },
+
     handleSubmit() {
-      // Validate contributions before submitting
+      // Validate all fields before submitting
+      this.validateRetirementAge();
+
       if (this.isWorkplacePension) {
         this.validateEmployeeContribution();
         this.validateEmployerContribution();
@@ -431,6 +449,11 @@ export default {
         if (this.validationErrors.employee_contribution_percent || this.validationErrors.employer_contribution_percent) {
           return;
         }
+      }
+
+      // Check retirement age validation
+      if (this.validationErrors.retirement_age) {
+        return;
       }
 
       // Basic validation

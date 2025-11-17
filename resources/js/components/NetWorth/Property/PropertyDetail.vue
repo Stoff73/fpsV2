@@ -56,8 +56,12 @@
 
         <!-- Key Metrics -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+          <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <p class="text-sm text-gray-600">Full Property Value</p>
+            <p class="text-2xl font-bold text-blue-600">{{ formatCurrency(calculateFullPropertyValue()) }}</p>
+          </div>
           <div class="bg-gray-50 rounded-lg p-4">
-            <p class="text-sm text-gray-600">Current Value</p>
+            <p class="text-sm text-gray-600">Your Share ({{ property.ownership_percentage }}%)</p>
             <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(property.current_value) }}</p>
           </div>
           <div class="bg-gray-50 rounded-lg p-4">
@@ -143,7 +147,11 @@
                 <h3 class="text-lg font-semibold text-gray-800 mb-3">Valuation</h3>
                 <dl class="space-y-2">
                   <div class="flex justify-between">
-                    <dt class="text-sm text-gray-600">Current Value:</dt>
+                    <dt class="text-sm text-gray-600">Full Property Value:</dt>
+                    <dd class="text-sm font-medium text-blue-600 font-semibold">{{ formatCurrency(calculateFullPropertyValue()) }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Your Share ({{ property.ownership_percentage }}%):</dt>
                     <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.current_value) }}</dd>
                   </div>
                   <div class="flex justify-between">

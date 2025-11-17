@@ -60,36 +60,6 @@ class FamilyMembersController extends Controller
             return $memberArray;
         });
 
-        // If user has a spouse but no spouse family_member record, add spouse from User record
-        $hasOwnSpouseRecord = $familyMembers->contains(function ($fm) {
-            return $fm['relationship'] === 'spouse';
-        });
-
-        if ($user->spouse_id && ! $hasOwnSpouseRecord) {
-            $spouseUser = \App\Models\User::find($user->spouse_id);
-            if ($spouseUser) {
-                // Create a virtual spouse family member from the User record
-                $familyMembers->push([
-                    'id' => null,  // Virtual record, no ID
-                    'user_id' => $user->id,
-                    'household_id' => $user->household_id,
-                    'relationship' => 'spouse',
-                    'name' => $spouseUser->name,
-                    'date_of_birth' => $spouseUser->date_of_birth?->format('Y-m-d'),
-                    'gender' => $spouseUser->gender,
-                    'national_insurance_number' => $spouseUser->national_insurance_number,
-                    'annual_income' => $spouseUser->annual_employment_income,
-                    'is_dependent' => false,
-                    'notes' => null,
-                    'email' => $spouseUser->email,
-                    'is_shared' => false,
-                    'owner' => 'self',
-                    'created_at' => null,
-                    'updated_at' => null,
-                ]);
-            }
-        }
-
         // Process spouse's children (mark as shared if not duplicate)
         $sharedFromSpouse = $spouseFamilyMembers->map(function ($member) use ($familyMembers) {
             $memberArray = $member->toArray();
@@ -97,7 +67,8 @@ class FamilyMembersController extends Controller
             // Check if this child already exists in user's family members (duplicate)
             $isDuplicate = $familyMembers->contains(function ($fm) use ($member) {
                 return $fm['relationship'] === 'child' &&
-                       $fm['name'] === $member->name &&
+                       $fm['first_name'] === $member->first_name &&
+                       $fm['last_name'] === $member->last_name &&
                        $fm['date_of_birth'] === $member->date_of_birth;
             });
 
@@ -152,13 +123,15 @@ class FamilyMembersController extends Controller
         if ($data['relationship'] === 'child' && $user->spouse_id) {
             $duplicateInUserRecords = FamilyMember::where('user_id', $user->id)
                 ->where('relationship', 'child')
-                ->where('name', $data['name'])
+                ->where('first_name', $data['first_name'])
+                ->where('last_name', $data['last_name'])
                 ->where('date_of_birth', $data['date_of_birth'])
                 ->exists();
 
             $duplicateInSpouseRecords = FamilyMember::where('user_id', $user->spouse_id)
                 ->where('relationship', 'child')
-                ->where('name', $data['name'])
+                ->where('first_name', $data['first_name'])
+                ->where('last_name', $data['last_name'])
                 ->where('date_of_birth', $data['date_of_birth'])
                 ->exists();
 
@@ -170,10 +143,16 @@ class FamilyMembersController extends Controller
             }
         }
 
+        // Construct full name from name parts for legacy 'name' field
+        $fullName = trim(($data['first_name'] ?? '').' '.
+            (isset($data['middle_name']) && $data['middle_name'] ? $data['middle_name'].' ' : '').
+            ($data['last_name'] ?? ''));
+
         $familyMember = FamilyMember::create([
+            ...$data,
             'user_id' => $user->id,
             'household_id' => $user->household_id,
-            ...$data,
+            'name' => $fullName,  // Construct for legacy field (overrides any sent name)
         ]);
 
         return response()->json([
@@ -254,11 +233,11 @@ class FamilyMembersController extends Controller
             );
 
             // Create family member record
+            $fullName = trim(($data['first_name'] ?? '').' '.(isset($data['middle_name']) && $data['middle_name'] ? $data['middle_name'].' ' : '').($data['last_name'] ?? ''));
             $familyMember = FamilyMember::create([
                 'user_id' => $currentUser->id,
                 'household_id' => $currentUser->household_id,
                 'relationship' => 'spouse',
-                'name' => $data['name'],
                 'first_name' => $data['first_name'],
                 'middle_name' => $data['middle_name'] ?? null,
                 'last_name' => $data['last_name'],
@@ -268,6 +247,7 @@ class FamilyMembersController extends Controller
                 'annual_income' => $data['annual_income'] ?? null,
                 'is_dependent' => $data['is_dependent'] ?? false,
                 'notes' => $data['notes'] ?? null,
+                'name' => $fullName,  // Construct full name for legacy field (set last to override)
             ]);
 
             // Send email notification to spouse
@@ -291,8 +271,13 @@ class FamilyMembersController extends Controller
         // Spouse doesn't exist - create new user account
         $temporaryPassword = \Illuminate\Support\Str::random(16);
 
+        // Construct full name from name parts
+        $fullName = trim(($data['first_name'] ?? '').' '.
+            (isset($data['middle_name']) && $data['middle_name'] ? $data['middle_name'].' ' : '').
+            ($data['last_name'] ?? ''));
+
         $spouseUser = \App\Models\User::create([
-            'name' => $data['name'],
+            'name' => $fullName,
             'email' => $spouseEmail,
             'password' => \Illuminate\Support\Facades\Hash::make($temporaryPassword),
             'must_change_password' => true,
@@ -316,11 +301,11 @@ class FamilyMembersController extends Controller
         \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$currentUser->id}");
 
         // Create family member record
+        $fullName = trim(($data['first_name'] ?? '').' '.(isset($data['middle_name']) && $data['middle_name'] ? $data['middle_name'].' ' : '').($data['last_name'] ?? ''));
         $familyMember = FamilyMember::create([
             'user_id' => $currentUser->id,
             'household_id' => $currentUser->household_id,
             'relationship' => 'spouse',
-            'name' => $data['name'],
             'first_name' => $data['first_name'],
             'middle_name' => $data['middle_name'] ?? null,
             'last_name' => $data['last_name'],
@@ -330,6 +315,7 @@ class FamilyMembersController extends Controller
             'annual_income' => $data['annual_income'] ?? null,
             'is_dependent' => $data['is_dependent'] ?? false,
             'notes' => $data['notes'] ?? null,
+            'name' => $fullName,  // Construct full name for legacy field (set last to override)
         ]);
 
         // Send email to spouse with temporary password
@@ -431,11 +417,16 @@ class FamilyMembersController extends Controller
         $familyMember = FamilyMember::where('user_id', $user->id)
             ->findOrFail($id);
 
-        // If deleting a spouse, clear the spouse linkage
+        // If deleting a spouse, clear the spouse linkage and delete reciprocal record
         if ($familyMember->relationship === 'spouse' && $user->spouse_id) {
             $spouseUser = \App\Models\User::find($user->spouse_id);
 
             if ($spouseUser) {
+                // Delete the reciprocal family_member record on spouse's account
+                FamilyMember::where('user_id', $spouseUser->id)
+                    ->where('relationship', 'spouse')
+                    ->delete();
+
                 // Clear spouse linkage for both users
                 $spouseUser->spouse_id = null;
                 $spouseUser->save();

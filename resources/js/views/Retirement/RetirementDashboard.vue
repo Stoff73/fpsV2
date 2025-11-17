@@ -103,7 +103,7 @@ export default {
         },
         {
           id: 'recommendations',
-          name: 'Recommendations',
+          name: 'Strategies',
         },
         {
           id: 'decumulation',

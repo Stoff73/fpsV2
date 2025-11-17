@@ -1,5 +1,5 @@
 <template>
-  <div class="pension-card bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
+  <div class="pension-card bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 cursor-pointer" @click="viewDetails">
     <!-- Card Header -->
     <div class="p-5 border-b border-gray-200">
       <div class="flex items-center justify-between">
@@ -9,7 +9,7 @@
         </div>
         <div class="flex items-center space-x-2">
           <button
-            @click="$emit('edit', pension)"
+            @click.stop="$emit('edit', pension)"
             class="p-2 text-gray-400 hover:text-indigo-600 transition-colors duration-200"
             title="Edit"
           >
@@ -18,7 +18,7 @@
             </svg>
           </button>
           <button
-            @click="$emit('delete', pension.id)"
+            @click.stop="$emit('delete', pension.id)"
             class="p-2 text-gray-400 hover:text-red-600 transition-colors duration-200"
             title="Delete"
           >
@@ -27,7 +27,7 @@
             </svg>
           </button>
           <button
-            @click="expanded = !expanded"
+            @click.stop="toggleExpand"
             class="p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
             :title="expanded ? 'Collapse' : 'Expand'"
           >
@@ -174,6 +174,17 @@ export default {
 
     isPersonalPension() {
       return this.type === 'dc' && (this.pension.scheme_type === 'sipp' || this.pension.scheme_type === 'personal');
+    },
+  },
+
+  methods: {
+    viewDetails() {
+      // Navigate to pension detail view similar to PropertyDetail
+      this.$router.push(`/pension/${this.type}/${this.pension.id}`);
+    },
+
+    toggleExpand() {
+      this.expanded = !this.expanded;
     },
   },
 };

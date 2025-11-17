@@ -149,28 +149,13 @@
       </div>
     </div>
 
-    <!-- Modals -->
-    <DCPensionForm
-      v-if="showDCForm"
-      :pension="selectedPension"
-      :is-edit="isEditMode"
+    <!-- Unified Pension Form Modal -->
+    <UnifiedPensionForm
+      v-if="showPensionForm"
+      :initial-type="formType"
+      :editing-pension="selectedPension"
       @close="closeForms"
-      @save="handleDCSave"
-    />
-
-    <DBPensionForm
-      v-if="showDBForm"
-      :pension="selectedPension"
-      :is-edit="isEditMode"
-      @close="closeForms"
-      @save="handleDBSave"
-    />
-
-    <StatePensionForm
-      v-if="showStatePensionForm"
-      :state-pension="statePension"
-      @close="closeForms"
-      @save="handleStatePensionSave"
+      @save="handlePensionSave"
     />
   </div>
 </template>
@@ -178,28 +163,22 @@
 <script>
 import { mapState } from 'vuex';
 import PensionCard from '../../components/Retirement/PensionCard.vue';
-import DCPensionForm from '../../components/Retirement/DCPensionForm.vue';
-import DBPensionForm from '../../components/Retirement/DBPensionForm.vue';
-import StatePensionForm from '../../components/Retirement/StatePensionForm.vue';
+import UnifiedPensionForm from '../../components/Retirement/UnifiedPensionForm.vue';
 
 export default {
   name: 'PensionInventory',
 
   components: {
     PensionCard,
-    DCPensionForm,
-    DBPensionForm,
-    StatePensionForm,
+    UnifiedPensionForm,
   },
 
   data() {
     return {
       showAddMenu: false,
-      showDCForm: false,
-      showDBForm: false,
-      showStatePensionForm: false,
+      showPensionForm: false,
+      formType: null, // 'dc', 'db', or 'state'
       selectedPension: null,
-      isEditMode: false,
     };
   },
 
@@ -210,81 +189,43 @@ export default {
   methods: {
     openAddForm(type) {
       this.showAddMenu = false;
-      this.isEditMode = false;
       this.selectedPension = null;
-
-      if (type === 'dc') {
-        this.showDCForm = true;
-      } else if (type === 'db') {
-        this.showDBForm = true;
-      }
+      this.formType = type;
+      this.showPensionForm = true;
     },
 
     editDCPension(pension) {
       this.selectedPension = pension;
-      this.isEditMode = true;
-      this.showDCForm = true;
+      this.formType = 'dc';
+      this.showPensionForm = true;
     },
 
     editDBPension(pension) {
       this.selectedPension = pension;
-      this.isEditMode = true;
-      this.showDBForm = true;
+      this.formType = 'db';
+      this.showPensionForm = true;
     },
 
     openStatePensionForm() {
-      this.showStatePensionForm = true;
+      this.selectedPension = this.statePension;
+      this.formType = 'state';
+      this.showPensionForm = true;
     },
 
     closeForms() {
-      this.showDCForm = false;
-      this.showDBForm = false;
-      this.showStatePensionForm = false;
+      this.showPensionForm = false;
+      this.formType = null;
       this.selectedPension = null;
-      this.isEditMode = false;
     },
 
-    async handleDCSave(pensionData) {
+    async handlePensionSave() {
+      // UnifiedPensionForm handles the save internally via child components
+      // Just close the form and refresh data
+      this.closeForms();
       try {
-        if (this.isEditMode) {
-          await this.$store.dispatch('retirement/updateDCPension', {
-            id: this.selectedPension.id,
-            data: pensionData,
-          });
-        } else {
-          await this.$store.dispatch('retirement/createDCPension', pensionData);
-        }
-        this.closeForms();
+        await this.$store.dispatch('retirement/fetchRetirementData');
       } catch (error) {
-        console.error('Failed to save DC pension:', error);
-        alert('Failed to save pension. Please try again.');
-      }
-    },
-
-    async handleDBSave(pensionData) {
-      try {
-        if (this.isEditMode) {
-          await this.$store.dispatch('retirement/updateDBPension', {
-            id: this.selectedPension.id,
-            data: pensionData,
-          });
-        } else {
-          await this.$store.dispatch('retirement/createDBPension', pensionData);
-        }
-        this.closeForms();
-      } catch (error) {
-        console.error('Failed to save DB pension:', error);
-        alert('Failed to save pension. Please try again.');
-      }
-    },
-
-    async handleStatePensionSave(data) {
-      try {
-        await this.$store.dispatch('retirement/updateStatePension', data);
-        this.closeForms();
-      } catch (error) {
-        console.error('Failed to update state pension:', error);
-        alert('Failed to update state pension. Please try again.');
+        console.error('Failed to refresh retirement data:', error);
       }
     },
 

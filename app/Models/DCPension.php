@@ -37,6 +37,7 @@ class DCPension extends Model
         'investment_strategy',
         'platform_fee_percent',
         'retirement_age',
+        'expected_return_percent',
         'projected_value_at_retirement',
     ];
 
@@ -49,6 +50,7 @@ class DCPension extends Model
         'lump_sum_contribution' => 'decimal:2',
         'platform_fee_percent' => 'decimal:4',
         'retirement_age' => 'integer',
+        'expected_return_percent' => 'decimal:2',
         'projected_value_at_retirement' => 'decimal:2',
     ];
 

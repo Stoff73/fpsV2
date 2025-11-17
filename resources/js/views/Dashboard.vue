@@ -1,11 +1,7 @@
 <template>
   <AppLayout>
     <div class="px-4 sm:px-0">
-      <div class="flex items-center justify-between mb-6">
-        <h1 class="font-display text-h1 text-gray-900">
-          Welcome to TenGo
-        </h1>
-
+      <div class="flex items-center justify-end mb-6">
         <!-- Refresh Button -->
         <button
           @click="refreshDashboard"

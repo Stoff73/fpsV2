@@ -52,22 +52,19 @@ class CrossModuleAssetAggregator
     }
 
     /**
-     * Get property assets applying ownership percentage
+     * Get property assets
      *
-     * Properties store the FULL property value. Ownership percentage indicates
-     * the user's share (e.g., 50% of a jointly owned property).
+     * IMPORTANT: current_value is ALREADY stored as the user's share in the database.
+     * For joint properties, TWO records exist (one per user) each storing their share.
+     * NO need to multiply by ownership_percentage again.
      */
     public function getPropertyAssets(int $userId): Collection
     {
         return Property::where('user_id', $userId)->get()->map(function ($property) {
-            // Apply ownership percentage (default 100 if not set)
-            $ownershipPercentage = $property->ownership_percentage ?? 100;
-            $userShare = ($property->current_value * $ownershipPercentage) / 100;
-
             return (object) [
                 'asset_type' => 'property',
                 'asset_name' => $property->address_line_1 ?: 'Property',
-                'current_value' => (float) $userShare,
+                'current_value' => (float) $property->current_value,
                 'is_iht_exempt' => false,
                 'source_id' => $property->id,
                 'source_model' => 'Property',
@@ -131,20 +128,16 @@ class CrossModuleAssetAggregator
     }
 
     /**
-     * Calculate total property value applying ownership percentage
+     * Calculate total property value
      *
-     * Properties store the FULL property value. We calculate the user's share
-     * by applying their ownership_percentage.
+     * IMPORTANT: current_value is ALREADY stored as the user's share in the database.
+     * For joint properties, TWO records exist (one per user) each storing their share.
+     * Simply sum the current_value - NO need to multiply by ownership_percentage.
      */
     public function calculatePropertyTotal(int $userId): float
     {
         return (float) Property::where('user_id', $userId)
-            ->get()
-            ->sum(function ($property) {
-                $ownershipPercentage = $property->ownership_percentage ?? 100;
-
-                return ($property->current_value * $ownershipPercentage) / 100;
-            });
+            ->sum('current_value');
     }
 
     /**

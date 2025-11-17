@@ -222,18 +222,21 @@ class PersonalAccountsService
         }
 
         // Investment accounts - individual line items
+        // IMPORTANT: current_value is ALREADY stored as the user's share in the database
+        // (divided by ownership_percentage when saving). No need to multiply again.
         foreach ($user->investmentAccounts as $account) {
-            $userShare = $account->current_value * ($account->ownership_percentage / 100);
             $assets[] = [
                 'line_item' => $account->provider ? "{$account->provider} - {$account->account_type}" : $account->account_type,
                 'category' => 'investment',
-                'amount' => $userShare,
+                'amount' => $account->current_value,
             ];
         }
 
         // Properties - individual line items
+        // IMPORTANT: current_value is ALREADY stored as the user's share in the database.
+        // For joint properties, TWO records exist (one per user) each storing their share.
+        // No need to multiply by ownership_percentage again.
         foreach ($user->properties as $property) {
-            $userShare = $property->current_value * ($property->ownership_percentage / 100);
             $propertyLabel = $property->address_line_1;
             if ($property->property_type) {
                 $propertyLabel .= ' ('.str_replace('_', ' ', ucwords($property->property_type, '_')).')';
@@ -241,27 +244,29 @@ class PersonalAccountsService
             $assets[] = [
                 'line_item' => $propertyLabel,
                 'category' => 'property',
-                'amount' => $userShare,
+                'amount' => $property->current_value,
             ];
         }
 
         // Business interests - individual line items
+        // IMPORTANT: current_valuation is ALREADY stored as the user's share in the database
+        // (divided by ownership_percentage when saving). No need to multiply again.
         foreach ($user->businessInterests as $business) {
-            $userShare = $business->current_valuation * ($business->ownership_percentage / 100);
             $assets[] = [
                 'line_item' => $business->business_name ?? 'Business Interest',
                 'category' => 'business',
-                'amount' => $userShare,
+                'amount' => $business->current_valuation,
             ];
         }
 
         // Chattels - individual line items
+        // IMPORTANT: current_value is ALREADY stored as the user's share in the database
+        // (divided by ownership_percentage when saving). No need to multiply again.
         foreach ($user->chattels as $chattel) {
-            $userShare = $chattel->current_value * ($chattel->ownership_percentage / 100);
             $assets[] = [
                 'line_item' => $chattel->description ?? 'Chattel',
                 'category' => 'chattel',
-                'amount' => $userShare,
+                'amount' => $chattel->current_value,
             ];
         }
 

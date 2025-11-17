@@ -162,7 +162,8 @@ class NetWorthService
     }
 
     /**
-     * Calculate total pension value (DC + DB capital equivalent + State pension capital equivalent)
+     * Calculate total pension value (DC + DB capital equivalent)
+     * Note: State Pension is excluded as it cannot be accessed as a capital sum
      */
     private function calculatePensionValue(int $userId): float
     {
@@ -182,15 +183,10 @@ class NetWorthService
                 return ($annualPension * 20) + $lumpSum;
             });
 
-        // State Pension - calculate capital equivalent
-        // Use 20x annual forecast as capital value
-        $statePension = StatePension::where('user_id', $userId)->first();
-        $stateValue = 0;
-        if ($statePension && $statePension->state_pension_forecast_annual) {
-            $stateValue = $statePension->state_pension_forecast_annual * 20;
-        }
+        // Note: State Pension is NOT included in Net Worth calculation
+        // as it is not accessible as a capital sum
 
-        return (float) ($dcValue + $dbValue + $stateValue);
+        return (float) ($dcValue + $dbValue);
     }
 
     /**

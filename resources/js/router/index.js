@@ -29,6 +29,7 @@ const SavingsDashboard = () => import('@/views/Savings/SavingsDashboard.vue');
 const SavingsAccountDetail = () => import('@/views/Savings/SavingsAccountDetail.vue');
 const InvestmentDashboard = () => import('@/views/Investment/InvestmentDashboard.vue');
 const RetirementDashboard = () => import('@/views/Retirement/RetirementDashboard.vue');
+const PensionDetail = () => import('@/views/Retirement/PensionDetail.vue');
 const EstateDashboard = () => import('@/views/Estate/EstateDashboard.vue');
 const ComprehensiveEstatePlan = () => import('@/views/Estate/ComprehensiveEstatePlan.vue');
 const TrustsDashboard = () => import('@/views/Trusts/TrustsDashboard.vue');
@@ -165,6 +166,19 @@ const routes = [
         { label: 'Home', path: '/dashboard' },
         { label: 'Net Worth', path: '/net-worth' },
         { label: 'Property', path: '/property/:id' },
+      ],
+    },
+  },
+  {
+    path: '/pension/:type/:id',
+    name: 'PensionDetail',
+    component: PensionDetail,
+    meta: {
+      requiresAuth: true,
+      breadcrumb: [
+        { label: 'Home', path: '/dashboard' },
+        { label: 'Retirement', path: '/net-worth/retirement' },
+        { label: 'Pension Details', path: '' },
       ],
     },
   },

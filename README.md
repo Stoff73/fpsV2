@@ -36,15 +36,15 @@ A comprehensive financial planning web application designed for UK individuals a
 
 ### Current Status
 
-**Version**: v0.2.7 (Beta - Production Ready)
+**Version**: v0.2.9 (Beta - Production Ready)
 
 **Completion Status**:
 - ✅ **Foundation**: 100% (Authentication, routing, testing framework)
 - ✅ **Core Modules**: 100% (All 5 modules fully functional)
-- ✅ **Advanced Features**: 95% (Portfolio optimization, Monte Carlo simulations, IHT planning)
+- ✅ **Advanced Features**: 100% (Portfolio optimization, Monte Carlo simulations, IHT planning, mixed mortgages)
 - ✅ **User Management**: 100% (Spouse accounts, joint ownership, data sharing)
 - ✅ **Admin Panel**: 100% (User management, backups, tax configuration)
-- ✅ **UI/UX**: Enhanced (Policy detail views, Dashboard Plans card, life policy type tags)
+- ✅ **UI/UX**: Enhanced (Policy detail views, Dashboard Plans card, expenditure modes, managing agents)
 
 ---
 
@@ -407,7 +407,7 @@ npm run build
 
 - **Application URL**: http://localhost:8000
 - **Demo Login**: `demo@fps.com` / `password`
-- **Admin Login**: `admin@fps.com` / `admin123456`
+- **Admin Login**: `admin@fps.com` / `admin123`
 
 ---
 
@@ -646,6 +646,128 @@ For issues, questions, or contributions:
 ---
 
 ## 📋 Recent Updates (November 2025)
+
+### November 15, 2025 - v0.2.9 Major Feature Release
+
+**20 Database Migrations** - 60+ new fields across 8 tables
+
+**Major Features**:
+
+1. **Mixed Mortgages**:
+   - ✅ Support for split repayment types (e.g., 70% repayment / 30% interest-only)
+   - ✅ Support for split rate types (e.g., 60% fixed @ 2.5% / 40% variable @ 4.2%)
+   - ✅ Full validation to ensure percentages add to 100%
+   - ✅ Enhanced property detail display showing both splits
+
+2. **Managing Agents for BTL Properties**:
+   - ✅ Track property management company details (name, company, email, phone)
+   - ✅ Track management fees
+   - ✅ Conditional display (only for Buy-to-Let properties)
+   - ✅ Integration with property detail views
+
+3. **Expenditure Modes for Married Couples**:
+   - ✅ Simple vs. Category entry modes
+   - ✅ Joint (50/50 split) vs. Separate expenditure tracking
+   - ✅ Spouse data integration with full backend API support
+   - ✅ Enhanced education expense fields (school lunches, school extras, university fees)
+   - ✅ Unified expenditure form component (2,200+ lines → 1,278 lines, 42% code reduction)
+
+4. **Expanded Liability Types**:
+   - ✅ 9 liability types instead of 4 (secured loan, unsecured loan, personal loan, car loan, hire purchase, overdraft, etc.)
+   - ✅ More accurate debt categorization
+   - ✅ Better reporting in Net Worth and IHT Planning
+
+5. **Family Member Name Granularity**:
+   - ✅ Split single 'name' field into first/middle/last names
+   - ✅ Automatic data migration for existing records
+   - ✅ Better support for formal documents and legal compliance
+
+6. **Life Insurance Enhancements**:
+   - ✅ Added `policy_end_date` field (required for term policies)
+   - ✅ Made `policy_start_date` and `policy_term_years` optional
+   - ✅ Added `is_mortgage_protection` flag to identify mortgage protection policies
+   - ✅ Updated help text for better user guidance
+
+7. **Employment & Pension Improvements**:
+   - ✅ Added 'part_time' employment status option
+   - ✅ Added `pension_type` field to DC pensions (Occupational, SIPP, Personal, Stakeholder)
+   - ✅ Conditional field display based on pension type
+
+**Critical Bug Fixes**:
+
+1. **Estate Plan Spouse Data Integration**:
+   - ✅ Fixed comprehensive estate plan only showing user data, not spouse data
+   - ✅ Enhanced `ComprehensiveEstatePlanService` to include spouse assets/liabilities
+   - ✅ Returns structured data: user/spouse/combined sections
+
+2. **IHT Planning Liability Display**:
+   - ✅ Fixed non-mortgage liabilities not displaying in IHT Planning breakdown
+   - ✅ Corrected field names (`current_balance` instead of `amount`, `liability_name` instead of `description`)
+   - ✅ All liability types now visible (credit cards, loans, hire purchase, etc.)
+
+3. **Expenditure Data Display**:
+   - ✅ Fixed expenditure tab showing zeros despite data in database
+   - ✅ Enhanced `OnboardingService` to handle both flat and nested data structures
+   - ✅ Supports both joint and separate expenditure modes
+
+4. **Net Worth Card Liability Display**:
+   - ✅ Fixed only mortgages showing, missing other liability types
+   - ✅ Replaced deprecated `PersonalAccount` model with `Liability` model
+   - ✅ Complete liability breakdown with all types visible
+
+5. **Property/Mortgage Ownership Sync**:
+   - ✅ Fixed joint properties creating individual mortgages instead of joint
+   - ✅ Added Vue watchers to sync mortgage ownership with property ownership automatically
+   - ✅ Joint properties with mortgages now create reciprocal records for both owners
+
+**Files Changed**: 50 files (4,480 insertions, 1,542 deletions)
+
+**Documentation**: See `DEPLOYMENT_PATCH_v0.2.9.md` for complete details
+
+---
+
+### November 14-15, 2025 - v0.2.8 Post-Production Fixes
+
+**10 Database Migrations**
+
+**Critical Bug Fixes**:
+
+1. **Joint Mortgage Reciprocal Creation** (CRITICAL):
+   - ✅ Fixed joint properties with mortgages only creating ONE mortgage record instead of TWO
+   - ✅ Root cause: Missing database columns (`ownership_type`, `joint_owner_name`)
+   - ✅ Solution: Run pending migration, add watchers to sync ownership data
+   - ✅ Impact: Joint mortgages now correctly create reciprocal records for both owners
+
+2. **Retirement Module Consolidation**:
+   - ✅ Created unified pension form with visual type selection (DC/DB/State)
+   - ✅ Added DC pension types (Occupational, SIPP, Personal, Stakeholder)
+   - ✅ Improved state pension form scrolling and dynamic titles
+   - ✅ Consolidated retirement access to `/net-worth/retirement` only
+   - ✅ Removed standalone `/retirement` route
+
+3. **Net Worth UI Enhancements**:
+   - ✅ Card grid layouts for investments and pensions
+   - ✅ Color coding for Net Worth dashboard (blue assets, red liabilities)
+   - ✅ Joint property/mortgage display improvements (full amounts with user share)
+   - ✅ Mixed mortgage type display (percentages for split types)
+   - ✅ Joint savings account full balance display
+   - ✅ "Coming in Beta" messaging for business interests and chattels
+
+4. **Critical Onboarding Fixes**:
+   - ✅ Fixed expenditure form defaulting to simple total instead of detailed breakdown
+   - ✅ Fixed state pension field name mismatch (422 validation errors)
+   - ✅ Fixed expenditure data not persisting in separate mode
+   - ✅ Fixed property management details not retained when editing
+   - ✅ Fixed mortgage route parameter binding (404 errors)
+   - ✅ Fixed all 24 mortgage fields persisting correctly
+   - ✅ Comprehensive mortgage validation improvements
+   - ✅ Removed invalid 'part_and_part' mortgage type
+
+**Files Changed**: 67 files total
+
+**Documentation**: See `DEPLOYMENT_PATCH_v0.2.8.md` for complete details
+
+---
 
 ### November 12, 2025 - Critical Estate & Savings Fixes (Part 2)
 
@@ -916,9 +1038,9 @@ For issues, questions, or contributions:
 
 ---
 
-**Current Version**: v0.2.7 (Beta - Production Ready)
+**Current Version**: v0.2.9 (Beta - Production Ready)
 
-**Last Updated**: November 14, 2025
+**Last Updated**: November 17, 2025
 
 **Status**: 🚀 Active Development - All Core Features Complete
 

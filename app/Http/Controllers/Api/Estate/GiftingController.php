@@ -261,8 +261,10 @@ class GiftingController extends Controller
             $ihtSummary = $ihtPlanningData['iht_summary'];
             $yearsUntilDeath = (int) $ihtSummary['projected']['years_to_death'];
 
-            // Use CURRENT IHT liability (not projected - that includes decades of unrealistic growth)
+            // Use CURRENT IHT liability and gross estate value (not projected)
             $currentIHTLiability = $ihtSummary['current']['iht_liability'];
+            // Get gross estate value from calculation (not iht_summary)
+            $currentGrossEstateValue = $ihtPlanningData['calculation']['total_gross_assets'] ?? null;
 
             // Get IHT profile
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
@@ -289,6 +291,11 @@ class GiftingController extends Controller
                 user: $user,
                 yearsUntilDeath: $yearsUntilDeath
             );
+
+            // Override liquidity analysis total_value with accurate gross estate value from IHT calculation
+            if ($currentGrossEstateValue !== null) {
+                $personalizedStrategy['liquidity_analysis']['summary']['total_value'] = round($currentGrossEstateValue, 2);
+            }
 
             return response()->json([
                 'success' => true,
@@ -353,6 +360,8 @@ class GiftingController extends Controller
             $ihtSummary = $ihtPlanningData['iht_summary'];
             $yearsUntilDeath = (int) $ihtSummary['projected']['years_to_death'];
             $currentIHTLiability = $ihtSummary['current']['iht_liability'];
+            // Get gross estate value from calculation (not iht_summary)
+            $currentGrossEstateValue = $ihtPlanningData['calculation']['total_gross_assets'] ?? null;
 
             // Get or create IHT profile
             $ihtProfile = IHTProfile::where('user_id', $user->id)->first();
@@ -376,6 +385,11 @@ class GiftingController extends Controller
                 user: $user,
                 yearsUntilDeath: $yearsUntilDeath
             );
+
+            // Override liquidity analysis total_value with accurate gross estate value from IHT calculation
+            if ($currentGrossEstateValue !== null) {
+                $trustStrategy['liquidity_analysis']['summary']['total_value'] = round($currentGrossEstateValue, 2);
+            }
 
             return response()->json([
                 'success' => true,

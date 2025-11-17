@@ -314,8 +314,8 @@ export default {
     },
 
     viewPension(type, id) {
-      // Emit event to parent to change tab
-      this.$emit('change-tab', 'inventory');
+      // Navigate to pension detail view instead of changing tab
+      this.$router.push(`/pension/${type}/${id}`);
     },
   },
 };

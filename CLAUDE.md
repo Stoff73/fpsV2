@@ -21,7 +21,7 @@ Development guidelines for Claude Code when working with the TenGo financial pla
 
 - **BEFORE Database Wipe**: Create backup via admin panel, verify it exists in `storage/app/backups/`
 - **NEVER** run `migrate:fresh` or `migrate:refresh` without explicit user approval
-- **Admin Account**: `admin@fps.com` / `admin123456` (ID: 1016)
+- **Admin Account**: `admin@fps.com` / `admin123` (ID: 1016)
 
 **Commands to AVOID Without Backup:**
 - ❌ `php artisan migrate:fresh`, `migrate:refresh`, `db:wipe`
@@ -724,6 +724,47 @@ resources/js/
 
 **Key Lesson**: Always verify model field names match database schema. The Liability model uses `current_balance` and `liability_name`, not `amount` and `description`.
 
+### ✅ RESOLVED - All Liability Display Issues (Confirmed November 17, 2025)
+
+**Comprehensive Resolution Summary**:
+
+All liability-related display and categorization issues have been fully resolved across all modules:
+
+1. **Net Worth Card Liability Display** ✅
+   - Fixed: Only mortgages showing, missing other liability types
+   - Solution: Replaced deprecated `PersonalAccount` model with `Liability` model
+   - Result: Complete liability breakdown with all 9 types visible
+
+2. **IHT Planning Liability Display** ✅
+   - Fixed: Non-mortgage liabilities not displaying
+   - Solution: Corrected field names in `formatLiabilitiesBreakdown()`
+   - Result: All liabilities (mortgages, credit cards, loans, hire purchase, etc.) display correctly
+
+3. **Expanded Liability Types** ✅
+   - Enhancement: Expanded from 4 types to 9 types
+   - New types: Secured loan, unsecured loan, personal loan, car loan, hire purchase, overdraft
+   - Migration: `2025_11_15_170630_update_liability_type_enum_to_support_all_types.php`
+   - Result: More accurate debt categorization and reporting
+
+4. **User Profile Liabilities** ✅
+   - Fixed: Interest rates displaying as 2700.00% instead of 27.00%
+   - Fixed: Balance sheet showing categories instead of individual line items
+   - Result: Accurate display with correct formatting
+
+**Current Status**:
+- ✅ All 9 liability types fully supported
+- ✅ Correct display across all modules (Net Worth, Estate Planning, User Profile)
+- ✅ Proper categorization and reporting
+- ✅ No known liability-related issues remaining
+
+**Files Involved**:
+- `app/Services/NetWorth/NetWorthService.php`
+- `app/Http/Controllers/Api/Estate/IHTController.php`
+- `app/Services/UserProfile/PersonalAccountsService.php`
+- `database/migrations/2025_11_15_170630_update_liability_type_enum_to_support_all_types.php`
+
+**Documentation**: See `DEPLOYMENT_PATCH_v0.2.9.md` for complete details
+
 ---
 
 For any bugs encountered, please use the `systematic-debugging` skill to investigate before implementing fixes.
@@ -733,12 +774,12 @@ For any bugs encountered, please use the `systematic-debugging` skill to investi
 ## Demo Credentials
 
 - **User**: `demo@fps.com` / `password`
-- **Admin**: `admin@fps.com` / `admin123456`
+- **Admin**: `admin@fps.com` / `admin123`
 
 ---
 
 **Current Version**: v0.2.9 (Beta - Production Ready)
-**Last Updated**: November 15, 2025
+**Last Updated**: November 17, 2025
 **Status**: 🚀 Active Development - All Core Features Complete
 
 ---

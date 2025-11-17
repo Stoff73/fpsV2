@@ -19,8 +19,14 @@
       </p>
 
       <div class="property-details">
+        <!-- Show full property value for joint properties -->
+        <div v-if="isJoint" class="detail-row">
+          <span class="detail-label">Full Property Value</span>
+          <span class="detail-value full-value">{{ formatCurrency(fullPropertyValue) }}</span>
+        </div>
+
         <div class="detail-row">
-          <span class="detail-label">Current Value</span>
+          <span class="detail-label">{{ isJoint ? `Your Share (${property.ownership_percentage}%)` : 'Current Value' }}</span>
           <span class="detail-value">{{ formatCurrency(property.current_value) }}</span>
         </div>
 
@@ -65,6 +71,16 @@ export default {
 
     isJoint() {
       return this.property.ownership_type === 'joint';
+    },
+
+    fullPropertyValue() {
+      // Calculate full property value from user's share
+      // For joint properties: divide user's share by ownership percentage
+      if (this.isJoint && this.property.ownership_percentage) {
+        return this.property.current_value / (this.property.ownership_percentage / 100);
+      }
+      // For individual properties, user's share = full value
+      return this.property.current_value || 0;
     },
 
     mortgageLabel() {
@@ -227,6 +243,11 @@ export default {
 .detail-value {
   color: #111827;
   font-weight: 600;
+}
+
+.detail-value.full-value {
+  color: #2563eb;
+  font-weight: 700;
 }
 
 .detail-value.mortgage {

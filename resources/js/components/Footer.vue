@@ -6,7 +6,7 @@
           &copy; {{ currentYear }} TenGo - Financial Planning System. For demonstration purposes only.
           <span class="ml-2 text-gray-400">|</span>
           <router-link to="/version" class="ml-2 font-semibold text-primary-600 hover:text-primary-700 hover:underline">
-            v0.2.7
+            v0.2.9
           </router-link>
         </div>
         <div class="flex space-x-6">
