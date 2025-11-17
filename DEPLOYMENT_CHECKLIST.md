@@ -464,7 +464,7 @@ EOF
   php artisan db:seed --class=DemoUserSeeder --force
   ```
   - [ ] Tax configurations seeded
-  - [ ] Admin account created: admin@fps.com / admin123456
+  - [ ] Admin account created: admin@fps.com / admin123
   - [ ] Demo user created (optional): demo@fps.com / password
 
 - [ ] **Optimize Laravel for Production**
@@ -522,7 +522,7 @@ EOF
   - [ ] No console errors (check browser DevTools Console)
 
 - [ ] **Admin Login Test**
-  - [ ] Login: admin@fps.com / admin123456
+  - [ ] Login: admin@fps.com / admin123
   - [ ] Login succeeds
   - [ ] Redirects to dashboard
   - [ ] Dashboard loads without errors
@@ -784,7 +784,7 @@ ls -la public/.htaccess
   - [ ] Note SSH credentials
 
 - [ ] **Access Credentials Documented**
-  - [ ] Admin access: admin@fps.com / admin123456
+  - [ ] Admin access: admin@fps.com / admin123
   - [ ] Demo user: demo@fps.com / password
   - [ ] Database credentials saved securely
   - [ ] SSH credentials saved securely

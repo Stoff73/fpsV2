@@ -1184,7 +1184,7 @@ These migrations improve data structure but are not critical for core functional
 #### Option A: Via Admin Panel (Recommended)
 ```
 1. Login to https://csjones.co/tengo/
-2. Use admin@fps.com / admin123456
+2. Use admin@fps.com / admin123
 3. Navigate to Admin Panel → Database Backups
 4. Click "Create Backup"
 5. Verify backup appears in list with timestamp

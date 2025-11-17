@@ -1267,7 +1267,7 @@ php artisan db:seed --class=TaxConfigurationSeeder --force
 **Optional Demo Data (for testing):**
 
 ```bash
-# Create admin account: admin@fps.com / admin123456
+# Create admin account: admin@fps.com / admin123
 php artisan db:seed --class=AdminUserSeeder --force
 
 # Create demo user: demo@fps.com / password
@@ -1376,7 +1376,7 @@ RedirectMatch 403 ^/tengo/storage/
    - ✅ Form displays correctly
    - ✅ No console errors
 
-3. **Test Login**: admin@fps.com / admin123456
+3. **Test Login**: admin@fps.com / admin123
    - ✅ Login succeeds
    - ✅ Redirects to dashboard
    - ✅ Dashboard loads with no errors
@@ -1499,7 +1499,7 @@ curl -I https://csjones.co/tengo/api/admin/tax-config
 
 #### Test 8: Post-Login Route Testing
 
-1. Login as admin: admin@fps.com / admin123456
+1. Login as admin: admin@fps.com / admin123
 2. Navigate to each module:
    - https://csjones.co/tengo/protection
    - https://csjones.co/tengo/savings
@@ -1992,7 +1992,7 @@ curl -I https://csjones.co/tengo
 **Via Admin Panel (Preferred):**
 
 1. Login: https://csjones.co/tengo/admin
-2. Admin account: admin@fps.com / admin123456
+2. Admin account: admin@fps.com / admin123
 3. Navigate to **Database Backups**
 4. Select backup from before deployment
 5. Click **Restore**
@@ -2196,7 +2196,7 @@ php artisan tinker
 
 **TenGo Application:**
 - Version: v0.2.7
-- Admin Access: admin@fps.com / admin123456
+- Admin Access: admin@fps.com / admin123
 - Demo Access: demo@fps.com / password
 
 ---

@@ -726,7 +726,7 @@ All documented in v0.2.8 Section 14:
 
 - [ ] **Database Backup Created** (CRITICAL - NEVER skip)
   ```bash
-  # Via Admin Panel: admin@fps.com / admin123456
+  # Via Admin Panel: admin@fps.com / admin123
   # Navigate to: Admin → System → Backup Database
   # Download backup file to local machine
   ```
@@ -756,7 +756,7 @@ All documented in v0.2.8 Section 14:
 ```bash
 # Via Admin Panel (RECOMMENDED)
 1. Login: https://csjones.co/tengo/
-2. Admin: admin@fps.com / admin123456
+2. Admin: admin@fps.com / admin123
 3. Admin Panel → Database Backups
 4. Click "Create Backup"
 5. Verify backup appears with timestamp
@@ -1311,7 +1311,7 @@ Breakdown:
 
 **Deployment Lead**: Chris Jones
 **Primary Test Users**: Chris Jones (ID: 1160), Ang Jones (ID: 1161)
-**Admin Access**: admin@fps.com / admin123456
+**Admin Access**: admin@fps.com / admin123
 
 **If Critical Issues Arise**:
 1. Check logs immediately (`storage/logs/laravel.log`)

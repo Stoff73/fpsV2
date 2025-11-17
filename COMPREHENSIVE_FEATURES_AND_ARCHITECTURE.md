@@ -1383,7 +1383,7 @@ php artisan view:clear
 - **Migrations**: Forward-only (no rollback in production)
 - **Backups**: Required before any schema changes
 - **Seeding**: Tax configuration must be seeded
-- **Admin Account**: `admin@fps.com` / `admin123456`
+- **Admin Account**: `admin@fps.com` / `admin123`
 
 ### Server Requirements
 - PHP 8.2+ with BCMath, Ctype, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML

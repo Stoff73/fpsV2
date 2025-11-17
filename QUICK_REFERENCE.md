@@ -495,7 +495,7 @@ php artisan view:clear
 | User | Email | Password | Notes |
 |------|-------|----------|-------|
 | Demo | demo@fps.com | password | Full access |
-| Admin | admin@fps.com | admin123456 | Admin panel access |
+| Admin | admin@fps.com | admin123 | Admin panel access |
 
 ---
 

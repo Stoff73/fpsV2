@@ -604,7 +604,7 @@ Critical Issues: 0
 
 - [ ] **Database Backup Created**
   ```bash
-  # Via Admin Panel: admin@fps.com / admin123456
+  # Via Admin Panel: admin@fps.com / admin123
   # Navigate to: Admin → System → Backup Database
   # Download backup file to local machine
   ```
@@ -1028,7 +1028,7 @@ echo "=== Health Check Complete ==="
 
 **Deployment Lead**: Chris Jones
 **Primary Test User**: Chris Jones (ID: 1160), Ang Jones (ID: 1161)
-**Admin Access**: admin@fps.com / admin123456
+**Admin Access**: admin@fps.com / admin123
 
 **If Critical Issues Arise**:
 1. Check logs immediately (`storage/logs/laravel.log`)

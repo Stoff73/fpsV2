@@ -38,7 +38,7 @@ class TaxConfigurationTest extends TestCase
         // Create admin user with is_admin flag
         $this->admin = User::factory()->create([
             'email' => 'admin@fps.com',
-            'password' => bcrypt('admin123456'),
+            'password' => bcrypt('admin123'),
             'is_admin' => true, // Required by IsAdmin middleware
         ]);
 

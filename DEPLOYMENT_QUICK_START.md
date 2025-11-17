@@ -186,7 +186,7 @@ chmod -R 775 storage bootstrap/cache
 **Test URLs**:
 - Homepage: https://csjones.co/tengo
 - Login: https://csjones.co/tengo/login
-- Admin: admin@fps.com / admin123456
+- Admin: admin@fps.com / admin123
 
 **Check Logs**:
 ```bash
@@ -293,7 +293,7 @@ exit
 - 24/7 Chat Support available
 
 **Test Accounts**:
-- Admin: admin@fps.com / admin123456
+- Admin: admin@fps.com / admin123
 - Demo: demo@fps.com / password
 
 ---

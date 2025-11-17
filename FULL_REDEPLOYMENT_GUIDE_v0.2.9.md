@@ -86,7 +86,7 @@ git log --oneline -1
 #### Option A: Admin Panel Backup (Recommended)
 
 1. Open browser: https://csjones.co/tengo/
-2. Log in with: `admin@fps.com` / `admin123456`
+2. Log in with: `admin@fps.com` / `admin123`
 3. Navigate to: **Admin Panel** → **Database Backups**
 4. Click: **"Create New Backup"**
 5. Wait for success message

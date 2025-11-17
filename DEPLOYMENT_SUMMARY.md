@@ -233,7 +233,7 @@ RewriteBase /tengo/                       # CRITICAL for subdirectory routing
 ```
 Admin Account:
   Email: admin@fps.com
-  Password: admin123456
+  Password: admin123
   Purpose: System administration, database backups
 
 Demo Account:
@@ -319,7 +319,7 @@ Demo Account:
    - No 404 or 500 errors
    - CSS/JS assets load correctly
 
-2. **Admin login works**: admin@fps.com / admin123456
+2. **Admin login works**: admin@fps.com / admin123
    - Login succeeds
    - Dashboard displays correctly
 

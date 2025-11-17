@@ -75,7 +75,8 @@ class PropertyController extends Controller
             $validated['ownership_percentage'] = 50.00;
         }
 
-        // Split the current_value based on ownership percentage
+        // Store the USER'S SHARE in current_value (not full value)
+        // For joint properties, this creates TWO records with each user's share
         $totalValue = $validated['current_value'];
         $userOwnershipPercentage = $validated['ownership_percentage'];
         $validated['current_value'] = $totalValue * ($userOwnershipPercentage / 100);
