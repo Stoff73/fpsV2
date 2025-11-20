@@ -6,6 +6,10 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import VueApexCharts from 'vue3-apexcharts';
+import { useDesignMode } from './composables/useDesignMode';
+
+// Initialize design mode on app startup
+const { designMode } = useDesignMode();
 
 // Create Vue app instance
 const app = createApp(App);
