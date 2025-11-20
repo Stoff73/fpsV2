@@ -5,9 +5,13 @@ const DESIGN_MODE_KEY = 'fps_design_mode';
 // Reactive state shared across all components
 const designMode = ref(localStorage.getItem(DESIGN_MODE_KEY) || 'normal');
 
+console.log('[DesignMode] Initial mode from localStorage:', designMode.value);
+
 export function useDesignMode() {
   const toggleDesignMode = () => {
+    const oldMode = designMode.value;
     designMode.value = designMode.value === 'normal' ? 'slippery' : 'normal';
+    console.log('[DesignMode] Toggle clicked:', oldMode, '→', designMode.value);
   };
 
   const isSlipperyMode = () => {
@@ -20,15 +24,20 @@ export function useDesignMode() {
 
   // Watch for changes and update localStorage + apply CSS class to body
   watch(designMode, (newMode) => {
+    console.log('[DesignMode] Mode changed to:', newMode);
     localStorage.setItem(DESIGN_MODE_KEY, newMode);
 
-    // Update body class
+    // Update HTML element class
     if (newMode === 'slippery') {
       document.documentElement.classList.add('slippery-mode');
       document.documentElement.classList.remove('normal-mode');
+      console.log('[DesignMode] Applied slippery-mode class to <html>');
+      console.log('[DesignMode] HTML classes:', document.documentElement.classList.toString());
     } else {
       document.documentElement.classList.add('normal-mode');
       document.documentElement.classList.remove('slippery-mode');
+      console.log('[DesignMode] Applied normal-mode class to <html>');
+      console.log('[DesignMode] HTML classes:', document.documentElement.classList.toString());
     }
   }, { immediate: true });
 
