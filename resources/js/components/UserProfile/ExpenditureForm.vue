@@ -1488,7 +1488,7 @@
             <div class="bg-primary-50 rounded-lg p-4">
               <p class="text-body-sm text-primary-700 mb-2 font-medium">Household Total (Monthly)</p>
               <p class="text-h4 font-display text-primary-900">
-                {{ formatCurrency(householdTotalMonthlyWithCommitmentsCorrect) }}
+                {{ formatCurrency(householdTotalMonthlyWithCommitments) }}
               </p>
             </div>
           </div>
@@ -1510,7 +1510,7 @@
             <div class="bg-primary-50 rounded-lg p-4">
               <p class="text-body-sm text-primary-700 mb-2 font-medium">Household Total (Annual)</p>
               <p class="text-h4 font-display text-primary-900">
-                {{ formatCurrency(householdTotalAnnualWithCommitmentsCorrect) }}
+                {{ formatCurrency(householdTotalAnnualWithCommitments) }}
               </p>
             </div>
           </div>
@@ -1564,6 +1564,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import userProfileService from '../../services/userProfileService';
+import { formatCurrency } from '../../utils/currency';
 
 export default {
   name: 'ExpenditureForm',
@@ -1753,16 +1754,6 @@ export default {
 
     const totalAnnualWithCommitments = computed(() => totalMonthlyWithCommitments.value * 12);
 
-    const householdTotalMonthlyWithCommitments = computed(() => {
-      const commitmentsTotal = financialCommitments.value?.totals?.total || 0;
-      if (!props.isMarried || !useSeparateExpenditure.value) {
-        return totalMonthlyExpenditure.value + commitmentsTotal;
-      }
-      return totalMonthlyExpenditure.value + spouseTotalMonthlyExpenditure.value + commitmentsTotal;
-    });
-
-    const householdTotalAnnualWithCommitments = computed(() => householdTotalMonthlyWithCommitments.value * 12);
-
     // Spouse totals including joint commitments only
     const spouseTotalMonthlyWithCommitments = computed(() => {
       return spouseTotalMonthlyExpenditure.value + jointCommitmentsTotal.value;
@@ -1770,8 +1761,8 @@ export default {
 
     const spouseTotalAnnualWithCommitments = computed(() => spouseTotalMonthlyWithCommitments.value * 12);
 
-    // Recalculate household total using the corrected spouse total
-    const householdTotalMonthlyWithCommitmentsCorrect = computed(() => {
+    // Household total with commitments (prevents double-counting of joint items)
+    const householdTotalMonthlyWithCommitments = computed(() => {
       if (!props.isMarried || !useSeparateExpenditure.value) {
         // Not using separate mode, just user total with all commitments
         return totalMonthlyWithCommitments.value;
@@ -1780,16 +1771,7 @@ export default {
       return totalMonthlyWithCommitments.value + spouseTotalMonthlyWithCommitments.value;
     });
 
-    const householdTotalAnnualWithCommitmentsCorrect = computed(() => householdTotalMonthlyWithCommitmentsCorrect.value * 12);
-
-    const formatCurrency = (amount) => {
-      return new Intl.NumberFormat('en-GB', {
-        style: 'currency',
-        currency: 'GBP',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(amount || 0);
-    };
+    const householdTotalAnnualWithCommitments = computed(() => householdTotalMonthlyWithCommitments.value * 12);
 
     // Computed properties for commitments display
     const hasRetirementCommitments = computed(() => {
@@ -2114,8 +2096,6 @@ export default {
       spouseTotalAnnualWithCommitments,
       householdTotalMonthlyWithCommitments,
       householdTotalAnnualWithCommitments,
-      householdTotalMonthlyWithCommitmentsCorrect,
-      householdTotalAnnualWithCommitmentsCorrect,
       formatCurrency,
       handleSave,
       handleCancel,

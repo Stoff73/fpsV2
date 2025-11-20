@@ -451,9 +451,12 @@ export default {
           if (data.success && data.data?.income_occupation?.annual_rental_income) {
             annualRentalIncome.value = data.data.income_occupation.annual_rental_income;
           }
+        } else {
+          console.warn('Failed to fetch rental income: HTTP', response.status);
         }
       } catch (err) {
-        // No rental income, which is fine
+        console.warn('Failed to fetch rental income:', err.message || err);
+        // No rental income displayed, but error logged for debugging
       }
     });
 
