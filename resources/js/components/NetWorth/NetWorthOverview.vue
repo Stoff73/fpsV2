@@ -1,7 +1,7 @@
 <template>
   <div class="net-worth-overview">
     <div class="summary-cards">
-      <div class="summary-card assets-card">
+      <div class="summary-card assets-card clickable" @click="navigateToAssets">
         <div class="card-icon">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
@@ -13,7 +13,7 @@
         </div>
       </div>
 
-      <div class="summary-card liabilities-card">
+      <div class="summary-card liabilities-card clickable" @click="navigateToLiabilities">
         <div class="card-icon">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6L9 12.75l4.286-4.286a11.948 11.948 0 014.306 6.43l.776 2.898m0 0l3.182-5.511m-3.182 5.51l-5.511-3.181" />
@@ -25,7 +25,7 @@
         </div>
       </div>
 
-      <div class="summary-card net-worth-card highlighted">
+      <div class="summary-card net-worth-card highlighted clickable" @click="navigateToBalanceSheet">
         <div class="card-icon">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -38,6 +38,18 @@
       </div>
     </div>
 
+    <div class="chart-full-width">
+      <WealthSummary
+        :breakdown="overview.breakdown"
+        :liabilities-breakdown="overview.liabilitiesBreakdown"
+        :total-assets="overview.totalAssets"
+        :total-liabilities="overview.totalLiabilities"
+        :spouse-data="spouseOverview"
+        :user-name="currentUserName"
+        :spouse-name="spouseUserName"
+      />
+    </div>
+
     <div class="charts-grid">
       <div class="chart-item">
         <AssetAllocationDonut :breakdown="overview.breakdown" />
@@ -45,10 +57,6 @@
       <div class="chart-item">
         <NetWorthTrendChart :trend="trend" />
       </div>
-    </div>
-
-    <div class="chart-full-width">
-      <AssetBreakdownBar :breakdown="overview.breakdown" />
     </div>
 
     <div v-if="asOfDate" class="last-updated">
@@ -61,7 +69,7 @@
 import { mapState, mapGetters, mapActions } from 'vuex';
 import AssetAllocationDonut from './AssetAllocationDonut.vue';
 import NetWorthTrendChart from './NetWorthTrendChart.vue';
-import AssetBreakdownBar from './AssetBreakdownBar.vue';
+import WealthSummary from './WealthSummary.vue';
 
 export default {
   name: 'NetWorthOverview',
@@ -69,11 +77,11 @@ export default {
   components: {
     AssetAllocationDonut,
     NetWorthTrendChart,
-    AssetBreakdownBar,
+    WealthSummary,
   },
 
   computed: {
-    ...mapState('netWorth', ['overview', 'trend', 'loading']),
+    ...mapState('netWorth', ['overview', 'trend', 'loading', 'spouseOverview']),
     ...mapGetters('netWorth', [
       'formattedNetWorth',
       'formattedAssets',
@@ -93,6 +101,17 @@ export default {
       }
       return '';
     },
+
+    currentUserName() {
+      const user = this.$store.getters['auth/currentUser'];
+      return user?.name || 'Your Wealth';
+    },
+
+    spouseUserName() {
+      const user = this.$store.getters['auth/currentUser'];
+      const spouseName = user?.spouse_name;
+      return spouseName || 'Spouse Wealth';
+    },
   },
 
   methods: {
@@ -105,6 +124,18 @@ export default {
         month: 'long',
         day: 'numeric',
       });
+    },
+
+    navigateToAssets() {
+      this.$router.push('/profile?section=assets');
+    },
+
+    navigateToLiabilities() {
+      this.$router.push('/profile?section=liabilities');
+    },
+
+    navigateToBalanceSheet() {
+      this.$router.push('/profile?section=accounts');
     },
   },
 
@@ -141,6 +172,10 @@ export default {
   align-items: center;
   gap: 16px;
   transition: all 0.2s;
+}
+
+.summary-card.clickable {
+  cursor: pointer;
 }
 
 .summary-card:hover {

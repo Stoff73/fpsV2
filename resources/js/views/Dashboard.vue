@@ -53,6 +53,10 @@
           :taxable-estate="estateData.taxableEstate"
           :iht-liability="estateData.ihtLiability"
           :probate-readiness="estateData.probateReadiness"
+          :future-death-age="estateData.futureDeathAge"
+          :future-taxable-estate="estateData.futureTaxableEstate"
+          :future-iht-liability="estateData.futureIHTLiability"
+          :is-married="estateData.isMarried"
         />
 
         <!-- Card 4: Protection -->
@@ -280,6 +284,9 @@ export default {
       estateIHTLiability: 'ihtLiability',
       estateProbateReadiness: 'probateReadiness',
       estateTaxableEstate: 'taxableEstate',
+      estateFutureDeathAge: 'futureDeathAge',
+      estateFutureTaxableEstate: 'futureTaxableEstate',
+      estateFutureIHTLiability: 'futureIHTLiability',
     }),
 
     netWorthData() {
@@ -309,10 +316,17 @@ export default {
     },
 
     estateData() {
+      const user = this.$store.state.auth.user;
+      const isMarried = user && user.marital_status === 'married';
+
       return {
         taxableEstate: this.estateTaxableEstate || 0,
         ihtLiability: this.estateIHTLiability || 0,
         probateReadiness: this.estateProbateReadiness || 0,
+        futureDeathAge: this.estateFutureDeathAge,
+        futureTaxableEstate: this.estateFutureTaxableEstate,
+        futureIHTLiability: this.estateFutureIHTLiability,
+        isMarried: isMarried,
       };
     },
   },

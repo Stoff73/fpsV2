@@ -113,6 +113,31 @@ const getters = {
         return breakdown;
     },
 
+    // Check if any life insurance policies are in trust
+    hasLifePoliciesInTrust: (state) => {
+        return state.policies.life.some(policy => policy.in_trust === true || policy.in_trust === 1);
+    },
+
+    // Check if any life insurance policies are NOT in trust
+    hasLifePoliciesNotInTrust: (state) => {
+        return state.policies.life.some(policy => policy.in_trust === false || policy.in_trust === 0 || policy.in_trust === null);
+    },
+
+    // Check if user has income protection coverage
+    hasIncomeProtection: (state) => {
+        return state.policies.incomeProtection && state.policies.incomeProtection.length > 0;
+    },
+
+    // Check if user has critical illness coverage
+    hasCriticalIllness: (state) => {
+        return state.policies.criticalIllness && state.policies.criticalIllness.length > 0;
+    },
+
+    // Check if user has disability coverage
+    hasDisabilityInsurance: (state) => {
+        return state.policies.disability && state.policies.disability.length > 0;
+    },
+
     loading: (state) => state.loading,
     error: (state) => state.error,
 };

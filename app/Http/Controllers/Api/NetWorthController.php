@@ -32,10 +32,33 @@ class NetWorthController extends Controller
 
             $netWorth = $this->netWorthService->getCachedNetWorth($user);
 
-            return response()->json([
+            // Add spouse net worth data if spouse exists and data sharing is enabled
+            $spouseData = null;
+            if ($user->spouse_id) {
+                $spouse = $user->spouse;
+                if ($spouse) {
+                    // Check if data sharing is enabled (you can add permission checks here)
+                    $spouseNetWorth = $this->netWorthService->getCachedNetWorth($spouse);
+                    $spouseData = [
+                        'totalAssets' => $spouseNetWorth['total_assets'],
+                        'totalLiabilities' => $spouseNetWorth['total_liabilities'],
+                        'netWorth' => $spouseNetWorth['net_worth'],
+                        'breakdown' => $spouseNetWorth['breakdown'],
+                        'liabilitiesBreakdown' => $spouseNetWorth['liabilities_breakdown'],
+                    ];
+                }
+            }
+
+            $response = [
                 'success' => true,
                 'data' => $netWorth,
-            ]);
+            ];
+
+            if ($spouseData) {
+                $response['spouse_data'] = $spouseData;
+            }
+
+            return response()->json($response);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

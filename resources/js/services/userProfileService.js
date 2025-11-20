@@ -150,6 +150,15 @@ const userProfileService = {
     const response = await api.delete(`/user/personal-accounts/line-item/${id}`);
     return response.data;
   },
+
+  /**
+   * Get financial commitments (pensions, properties, investments, protection, liabilities)
+   * @returns {Promise}
+   */
+  async getFinancialCommitments() {
+    const response = await api.get('/user/financial-commitments');
+    return response.data;
+  },
 };
 
 export default userProfileService;

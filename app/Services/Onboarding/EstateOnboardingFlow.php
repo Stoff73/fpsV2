@@ -11,7 +11,7 @@ class EstateOnboardingFlow
      */
     public function getSteps(): array
     {
-        return [
+        $steps = [
             'personal_info' => [
                 'name' => 'personal_info',
                 'title' => 'Personal Information',
@@ -47,7 +47,7 @@ class EstateOnboardingFlow
                 'name' => 'income',
                 'title' => 'Employment & Income',
                 'description' => 'Your income and employment details help us understand your financial position',
-                'order' => 3,
+                'order' => 7,
                 'required' => true,
                 'skip_reason' => 'Income information is essential for calculating your estate\'s Inheritance Tax liability and understanding your protection needs. Without this, we cannot provide accurate IHT projections or determine if your family would be financially secure.',
                 'fields' => [
@@ -65,7 +65,7 @@ class EstateOnboardingFlow
                 'name' => 'expenditure',
                 'title' => 'Household Expenditure',
                 'description' => 'Help us understand your spending patterns for accurate financial planning',
-                'order' => 4,
+                'order' => 8,
                 'required' => true,
                 'skip_reason' => 'Understanding your expenditure helps us calculate your emergency fund needs, discretionary income, and protection requirements. Without this, we cannot accurately assess your financial resilience.',
                 'fields' => [
@@ -92,7 +92,7 @@ class EstateOnboardingFlow
                 'name' => 'domicile_info',
                 'title' => 'Domicile Information',
                 'description' => 'Your domicile status affects your UK tax liability and IHT calculations',
-                'order' => 5,
+                'order' => 3,
                 'required' => true,
                 'skip_reason' => 'Domicile status is crucial for IHT planning. Non-UK domiciled individuals have different IHT rules and exemptions. Without this information, we cannot calculate your accurate IHT liability.',
                 'fields' => [
@@ -107,7 +107,7 @@ class EstateOnboardingFlow
                 'name' => 'assets',
                 'title' => 'Assets & Wealth',
                 'description' => 'Tell us about your properties, investments, and other assets',
-                'order' => 6,
+                'order' => 4,
                 'required' => true,
                 'skip_reason' => 'Your assets form the basis of your taxable estate. Without this information, we cannot calculate your potential IHT liability, which is the primary purpose of estate planning.',
                 'fields' => [
@@ -122,7 +122,7 @@ class EstateOnboardingFlow
                 'name' => 'liabilities',
                 'title' => 'Liabilities & Debts',
                 'description' => 'Tell us about mortgages, loans, and other debts',
-                'order' => 7,
+                'order' => 5,
                 'required' => false,
                 'skip_reason' => 'Liabilities reduce your taxable estate for IHT purposes. Skipping this may result in overestimating your IHT bill and missing potential tax savings.',
                 'fields' => [
@@ -135,7 +135,7 @@ class EstateOnboardingFlow
                 'name' => 'protection_policies',
                 'title' => 'Protection Policies',
                 'description' => 'Tell us about your existing life insurance and protection coverage',
-                'order' => 8,
+                'order' => 6,
                 'required' => false,
                 'skip_reason' => 'Protection policies can provide liquidity for your estate to pay IHT bills. Knowing about these helps us ensure your beneficiaries have enough funds to settle tax liabilities.',
                 'fields' => [
@@ -179,6 +179,13 @@ class EstateOnboardingFlow
                 'fields' => [],
             ],
         ];
+
+        // Sort steps by 'order' field
+        uasort($steps, function ($a, $b) {
+            return $a['order'] <=> $b['order'];
+        });
+
+        return $steps;
     }
 
     /**

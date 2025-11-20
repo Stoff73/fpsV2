@@ -399,4 +399,211 @@ class UserProfileService
 
         return $familyMembers->toArray();
     }
+
+    /**
+     * Get all financial commitments for expenditure tracking
+     * Returns monthly payments from pensions, properties, investments, protection, and liabilities
+     */
+    public function getFinancialCommitments(User $user): array
+    {
+        $commitments = [
+            'retirement' => [],
+            'properties' => [],
+            'investments' => [],
+            'protection' => [],
+            'liabilities' => [],
+        ];
+
+        // 1. DC Pension Contributions
+        $dcPensions = \App\Models\DCPension::where('user_id', $user->id)->get();
+        foreach ($dcPensions as $pension) {
+            if ($pension->monthly_contribution_amount > 0) {
+                // Adjust for joint ownership
+                $isJoint = $pension->ownership_type === 'joint';
+                $displayAmount = $isJoint ? ($pension->monthly_contribution_amount / 2) : $pension->monthly_contribution_amount;
+
+                $commitments['retirement'][] = [
+                    'id' => $pension->id,
+                    'name' => $pension->pension_name ?? 'DC Pension',
+                    'type' => 'dc_pension',
+                    'monthly_amount' => $displayAmount,
+                    'is_joint' => $isJoint,
+                    'ownership_type' => $pension->ownership_type,
+                ];
+            }
+        }
+
+        // 2. Property Expenses (mortgage + council tax + utilities + maintenance)
+        $properties = \App\Models\Property::where('user_id', $user->id)->get();
+        foreach ($properties as $property) {
+            $totalMonthlyExpense = 0;
+            $breakdown = [];
+
+            // Mortgage payment
+            $mortgage = $property->mortgages()->first();
+            if ($mortgage && $mortgage->monthly_payment > 0) {
+                $totalMonthlyExpense += $mortgage->monthly_payment;
+                $breakdown['mortgage'] = $mortgage->monthly_payment;
+            }
+
+            // Council tax
+            if ($property->monthly_council_tax > 0) {
+                $totalMonthlyExpense += $property->monthly_council_tax;
+                $breakdown['council_tax'] = $property->monthly_council_tax;
+            }
+
+            // Utilities (gas + electricity + water)
+            $utilities = ($property->monthly_gas ?? 0) + ($property->monthly_electricity ?? 0) + ($property->monthly_water ?? 0);
+            if ($utilities > 0) {
+                $totalMonthlyExpense += $utilities;
+                $breakdown['utilities'] = $utilities;
+            }
+
+            // Insurance (building + contents)
+            $insurance = ($property->monthly_building_insurance ?? 0) + ($property->monthly_contents_insurance ?? 0);
+            if ($insurance > 0) {
+                $totalMonthlyExpense += $insurance;
+                $breakdown['insurance'] = $insurance;
+            }
+
+            // Service charge
+            if (($property->monthly_service_charge ?? 0) > 0) {
+                $totalMonthlyExpense += $property->monthly_service_charge;
+                $breakdown['service_charge'] = $property->monthly_service_charge;
+            }
+
+            // Maintenance reserve
+            if (($property->monthly_maintenance_reserve ?? 0) > 0) {
+                $totalMonthlyExpense += $property->monthly_maintenance_reserve;
+                $breakdown['maintenance'] = $property->monthly_maintenance_reserve;
+            }
+
+            // Other costs
+            if (($property->other_monthly_costs ?? 0) > 0) {
+                $totalMonthlyExpense += $property->other_monthly_costs;
+                $breakdown['other'] = $property->other_monthly_costs;
+            }
+
+            if ($totalMonthlyExpense > 0) {
+                // Adjust for joint ownership
+                $isJoint = $property->ownership_type === 'joint';
+                $displayAmount = $isJoint ? ($totalMonthlyExpense / 2) : $totalMonthlyExpense;
+
+                $commitments['properties'][] = [
+                    'id' => $property->id,
+                    'name' => $property->property_name ?? $property->address_line_1,
+                    'type' => 'property',
+                    'monthly_amount' => $displayAmount,
+                    'breakdown' => $breakdown,
+                    'is_joint' => $isJoint,
+                    'ownership_type' => $property->ownership_type,
+                ];
+            }
+        }
+
+        // 3. Investment Contributions
+        // NOTE: InvestmentAccount only tracks contributions_ytd (year-to-date), not monthly contributions
+        // If monthly tracking is needed, a new field must be added to the database schema
+
+        // 4. Protection Premiums
+        // Life Insurance
+        $lifeInsurancePolicies = \App\Models\LifeInsurancePolicy::where('user_id', $user->id)->get();
+        foreach ($lifeInsurancePolicies as $policy) {
+            // Calculate monthly premium based on frequency
+            $monthlyPremium = $policy->premium_amount;
+            if ($policy->premium_frequency === 'quarterly') {
+                $monthlyPremium = $policy->premium_amount / 3;
+            } elseif ($policy->premium_frequency === 'annually') {
+                $monthlyPremium = $policy->premium_amount / 12;
+            }
+
+            if ($monthlyPremium > 0) {
+                $commitments['protection'][] = [
+                    'id' => $policy->id,
+                    'name' => $policy->policy_name ?? 'Life Insurance',
+                    'type' => 'life_insurance',
+                    'monthly_amount' => $monthlyPremium,
+                    'is_joint' => false, // Life insurance not typically joint
+                    'ownership_type' => 'individual',
+                ];
+            }
+        }
+
+        // Critical Illness
+        $criticalIllnessPolicies = \App\Models\CriticalIllnessPolicy::where('user_id', $user->id)->get();
+        foreach ($criticalIllnessPolicies as $policy) {
+            // Calculate monthly premium based on frequency
+            $monthlyPremium = $policy->premium_amount;
+            if ($policy->premium_frequency === 'quarterly') {
+                $monthlyPremium = $policy->premium_amount / 3;
+            } elseif ($policy->premium_frequency === 'annually') {
+                $monthlyPremium = $policy->premium_amount / 12;
+            }
+
+            if ($monthlyPremium > 0) {
+                $commitments['protection'][] = [
+                    'id' => $policy->id,
+                    'name' => $policy->policy_name ?? 'Critical Illness',
+                    'type' => 'critical_illness',
+                    'monthly_amount' => $monthlyPremium,
+                    'is_joint' => false,
+                    'ownership_type' => 'individual',
+                ];
+            }
+        }
+
+        // Income Protection
+        $incomeProtectionPolicies = \App\Models\IncomeProtectionPolicy::where('user_id', $user->id)->get();
+        foreach ($incomeProtectionPolicies as $policy) {
+            // Income Protection premiums are stored as premium_amount (assumed monthly)
+            if ($policy->premium_amount > 0) {
+                $commitments['protection'][] = [
+                    'id' => $policy->id,
+                    'name' => $policy->policy_name ?? 'Income Protection',
+                    'type' => 'income_protection',
+                    'monthly_amount' => $policy->premium_amount,
+                    'is_joint' => false,
+                    'ownership_type' => 'individual',
+                ];
+            }
+        }
+
+        // 5. Liability Payments (excluding mortgages - they're in properties)
+        $liabilities = \App\Models\Estate\Liability::where('user_id', $user->id)
+            ->where('liability_type', '!=', 'mortgage')
+            ->get();
+
+        foreach ($liabilities as $liability) {
+            if ($liability->monthly_payment > 0) {
+                // Adjust for joint ownership
+                $isJoint = $liability->ownership_type === 'joint';
+                $displayAmount = $isJoint ? ($liability->monthly_payment / 2) : $liability->monthly_payment;
+
+                $commitments['liabilities'][] = [
+                    'id' => $liability->id,
+                    'name' => $liability->liability_name,
+                    'type' => $liability->liability_type,
+                    'monthly_amount' => $displayAmount,
+                    'is_joint' => $isJoint,
+                    'ownership_type' => $liability->ownership_type,
+                ];
+            }
+        }
+
+        // Calculate totals for each category
+        $totals = [
+            'retirement' => collect($commitments['retirement'])->sum('monthly_amount'),
+            'properties' => collect($commitments['properties'])->sum('monthly_amount'),
+            'investments' => collect($commitments['investments'])->sum('monthly_amount'),
+            'protection' => collect($commitments['protection'])->sum('monthly_amount'),
+            'liabilities' => collect($commitments['liabilities'])->sum('monthly_amount'),
+        ];
+
+        $totals['total'] = array_sum($totals);
+
+        return [
+            'commitments' => $commitments,
+            'totals' => $totals,
+        ];
+    }
 }

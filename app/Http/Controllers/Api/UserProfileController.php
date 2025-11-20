@@ -231,6 +231,31 @@ class UserProfileController extends Controller
     }
 
     /**
+     * Get financial commitments for expenditure tracking
+     *
+     * GET /api/user/financial-commitments
+     */
+    public function getFinancialCommitments(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            $commitments = $this->userProfileService->getFinancialCommitments($user);
+
+            return response()->json([
+                'success' => true,
+                'data' => $commitments,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch financial commitments',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Update spouse expenditure information
      *
      * PUT /api/users/{userId}/expenditure
