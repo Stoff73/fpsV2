@@ -37,87 +37,34 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <div class="text-center mb-16">
         <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-          Five Integrated Planning Modules
+          What the Boma Build Does
         </h2>
         <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-          Everything you need to plan your financial future in one comprehensive system
+          A comprehensive testing environment to evaluate core planning features and data integration
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Protection -->
-        <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-            <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">Protection Planning</h3>
-          <p class="text-gray-600 mb-4">
-            Life insurance, critical illness, and income protection analysis. Calculate coverage gaps and adequacy scores.
-          </p>
-          <ul class="text-sm text-gray-500 space-y-1">
-            <li>• Coverage gap analysis</li>
-            <li>• Human capital calculation</li>
-            <li>• Policy comparison</li>
-          </ul>
-        </div>
-
-        <!-- Savings -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <!-- Personal Information & Data Entry -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
           <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">Savings Planning</h3>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Personal Information & Income</h3>
           <p class="text-gray-600 mb-4">
-            Emergency fund tracker, savings goals, and ISA allowance monitoring (£20,000 annual limit).
+            Enter comprehensive personal details, occupation information, and income from multiple sources.
           </p>
           <ul class="text-sm text-gray-500 space-y-1">
-            <li>• Emergency fund runway</li>
-            <li>• ISA tracker</li>
-            <li>• Goal progress</li>
+            <li>• Employment and occupation details</li>
+            <li>• Multiple income streams tracking</li>
+            <li>• Detailed expenditure entry</li>
+            <li>• Spouse and family member entry</li>
           </ul>
         </div>
 
-        <!-- Investment -->
-        <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-            <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">Investment Planning</h3>
-          <p class="text-gray-600 mb-4">
-            Portfolio analysis, asset allocation, and Monte Carlo simulations for goal probability.
-          </p>
-          <ul class="text-sm text-gray-500 space-y-1">
-            <li>• Portfolio analysis</li>
-            <li>• Monte Carlo simulations</li>
-            <li>• Tax efficiency</li>
-          </ul>
-        </div>
-
-        <!-- Retirement -->
-        <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
-            <svg class="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">Retirement Planning</h3>
-          <p class="text-gray-600 mb-4">
-            Pension projections, contribution optimisation, and retirement readiness scoring with £60k annual allowance tracking.
-          </p>
-          <ul class="text-sm text-gray-500 space-y-1">
-            <li>• Pension projections</li>
-            <li>• Annual allowance tracker</li>
-            <li>• Readiness assessment</li>
-          </ul>
-        </div>
-
-        <!-- Estate -->
+        <!-- Estate Planning -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
           <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -126,31 +73,92 @@
           </div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">Estate Planning</h3>
           <p class="text-gray-600 mb-4">
-            IHT calculations, gifting strategies, will planning, and intestacy rules with NRB/RNRB tracking.
+            Comprehensive estate analysis with current and projected IHT liability calculations.
           </p>
           <ul class="text-sm text-gray-500 space-y-1">
-            <li>• IHT calculation (£325k NRB)</li>
-            <li>• Gifting strategy</li>
-            <li>• Will & intestacy planning</li>
+            <li>• Overview of current estate value</li>
+            <li>• Forward projection to approximate death age</li>
+            <li>• IHT liability calculation</li>
+            <li>• Mitigation strategies: Gifting & Life Policies</li>
           </ul>
         </div>
 
-        <!-- Holistic -->
+        <!-- Protection Planning -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-          <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-            <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">Holistic Planning</h3>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Protection Planning</h3>
           <p class="text-gray-600 mb-4">
-            Cross-module recommendations, cash flow coordination, and unified financial health score.
+            Analyse your current protection coverage and identify any gaps in life and income protection.
           </p>
           <ul class="text-sm text-gray-500 space-y-1">
-            <li>• Financial health score</li>
-            <li>• Prioritized actions</li>
-            <li>• 20-year projections</li>
+            <li>• Overview of current protection plans</li>
+            <li>• Life insurance coverage adequacy check</li>
+            <li>• Income protection coverage assessment</li>
+            <li>• Example protection plan generation</li>
           </ul>
+        </div>
+
+        <!-- Financial Data Management -->
+        <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Comprehensive Data Entry</h3>
+          <p class="text-gray-600 mb-4">
+            Enter and manage all your financial assets, accounts, and property details.
+          </p>
+          <ul class="text-sm text-gray-500 space-y-1">
+            <li>• Pension plans (DC, DB & State)</li>
+            <li>• Investment accounts</li>
+            <li>• Cash and bank accounts</li>
+            <li>• Property portfolio</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Additional Features -->
+      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-md p-8">
+        <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">Additional Features Available</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="text-center">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <h4 class="font-semibold text-gray-900 mb-2">Spouse Account Linking</h4>
+            <p class="text-sm text-gray-600">Link accounts for joint assets, liabilities, and shared planning</p>
+          </div>
+
+          <div class="text-center">
+            <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h4 class="font-semibold text-gray-900 mb-2">Balance Sheet View</h4>
+            <p class="text-sm text-gray-600">View joint and personal balance sheets with asset/liability breakdown</p>
+          </div>
+
+          <div class="text-center">
+            <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h4 class="font-semibold text-gray-900 mb-2">Letter to Spouse</h4>
+            <p class="text-sm text-gray-600">Generate example letter with essential information for your partner</p>
+          </div>
+        </div>
+
+        <div class="mt-8 text-center">
+          <p class="text-sm text-gray-600 italic">Example Investment, Protection, and Estate Plans are available for review</p>
         </div>
       </div>
     </div>
