@@ -163,6 +163,122 @@
       </div>
     </div>
 
+    <!-- Future Vision Section -->
+    <div class="bg-white py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            What Tengo Will Eventually Be
+          </h2>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            Full financial planning software allowing users to ensure they are covered for all financial planning scenarios
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Protection Planning Module -->
+          <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border border-green-100">
+            <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Protection Planning Module</h3>
+            <p class="text-sm text-gray-600">Showing any gaps, issues and strategies to protect you and your family.</p>
+          </div>
+
+          <!-- Investment Planning Module -->
+          <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-100">
+            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Investment Planning Module</h3>
+            <p class="text-sm text-gray-600">With all the relevant tools to optimise both tax and portfolio performance.</p>
+          </div>
+
+          <!-- Retirement Planning Module -->
+          <div class="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-6 border border-purple-100">
+            <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Retirement Planning Module</h3>
+            <p class="text-sm text-gray-600">For accumulation and decumulation, ensuring tax optimal strategies for both.</p>
+          </div>
+
+          <!-- Estate Planning Module -->
+          <div class="bg-gradient-to-br from-red-50 to-rose-50 rounded-lg p-6 border border-red-100">
+            <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Estate Planning Module</h3>
+            <p class="text-sm text-gray-600">Linking all modules to ensure strategies account for current and future tax, income and life needs, while protecting your wealth and ensuring generational transfer is tax optimised.</p>
+          </div>
+
+          <!-- Document Repository -->
+          <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-6 border border-orange-100">
+            <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Document Repository</h3>
+            <p class="text-sm text-gray-600">A repository for all your important financial and tax documents, securely stored and accessible.</p>
+          </div>
+
+          <!-- Full Account Linking -->
+          <div class="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-lg p-6 border border-teal-100">
+            <div class="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Full Account Linking</h3>
+            <p class="text-sm text-gray-600">So your spouse can access all important information, documents etc., in the event of illness or death.</p>
+          </div>
+
+          <!-- Partial Account Linking -->
+          <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-lg p-6 border border-pink-100">
+            <div class="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Partial Account Linking</h3>
+            <p class="text-sm text-gray-600">View-only access for your adviser, lawyer etc., which can become full access on death through death certification verification.</p>
+          </div>
+
+          <!-- Personal Accounts -->
+          <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg p-6 border border-yellow-100">
+            <div class="w-10 h-10 bg-yellow-600 rounded-lg flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Full Set of Personal Accounts</h3>
+            <p class="text-sm text-gray-600">Comprehensive tracking of all your personal financial accounts and holdings in one place.</p>
+          </div>
+
+          <!-- Cross Border Planning -->
+          <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg p-6 border border-indigo-100">
+            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center mb-4">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Cross-Border Planning</h3>
+            <p class="text-sm text-gray-600">Full cross-border, country interlinked financial planning for international families and assets.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- FCA News Section -->
     <div class="bg-gray-100 py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
