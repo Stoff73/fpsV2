@@ -13,7 +13,12 @@
 
 This is a **code-only deployment** with no database migrations required. All 28 changes are confined to backend controllers/services and frontend Vue components.
 
-**Total Files**: 29 (26 modified, 4 new, 1 deleted)
+**Total Files**: 25 (22 modified, 2 new, 1 deleted)
+- Backend: 6 files (5 modified + 1 route file)
+- Frontend: 17 files (16 modified + 1 new component)
+- Documentation: 1 file (bomaPath.md)
+- Deleted: 1 file (white.png)
+
 **Deployment Method**: File upload + frontend rebuild + cache clear
 **Estimated Time**: 15-20 minutes
 **Downtime**: None (rolling file updates)
@@ -61,9 +66,9 @@ echo "Backup created at: ~/backups/$backup_name"
 
 ## Step 2: Upload Changed Backend Files (5 minutes)
 
-Upload the following 5 backend files via FTP/SFTP to `~/tengo-app/`:
+Upload the following 6 backend files via FTP/SFTP to `~/tengo-app/`:
 
-### Backend Files (5 files)
+### Backend Files (6 files)
 
 1. **app/Http/Controllers/Api/FamilyMembersController.php**
    - Changes: Fixed spouse linking idempotency (allows re-linking already-linked accounts)
@@ -81,6 +86,9 @@ Upload the following 5 backend files via FTP/SFTP to `~/tengo-app/`:
 
 5. **app/Services/UserProfile/UserProfileService.php**
    - Changes: Fixed expenditure calculations and property expense field names
+
+6. **routes/api.php**
+   - Changes: Added financial commitments endpoint
 
 ### Upload Method
 
@@ -100,9 +108,9 @@ Action: Overwrite existing files
 
 ## Step 3: Upload Changed Frontend Files (5 minutes)
 
-Upload the following 21 frontend files via FTP/SFTP to `~/tengo-app/`:
+Upload the following 17 frontend files via FTP/SFTP to `~/tengo-app/`:
 
-### Vue Components (18 files)
+### Vue Components & Services (17 files)
 
 1. **resources/js/components/Estate/EstateOverviewCard.vue**
 2. **resources/js/components/Estate/IHTPlanning.vue**
@@ -119,14 +127,8 @@ Upload the following 21 frontend files via FTP/SFTP to `~/tengo-app/`:
 13. **resources/js/store/modules/estate.js**
 14. **resources/js/store/modules/netWorth.js**
 15. **resources/js/store/modules/protection.js**
-16. **resources/js/utils/currency.js** ⭐ **NEW FILE** (centralized currency formatting)
-17. **resources/js/views/Dashboard.vue**
-18. **resources/js/views/UserProfile.vue**
-
-### Routes (1 file)
-
-19. **routes/api.php**
-    - Changes: Added financial commitments endpoint
+16. **resources/js/views/Dashboard.vue**
+17. **resources/js/views/UserProfile.vue**
 
 ### Upload Method
 
@@ -137,18 +139,9 @@ Remote Path: ~/tengo-app/resources/
 Action: Overwrite existing files + upload new files
 ```
 
-**Important**: Make sure to create the new directories if they don't exist:
-- `~/tengo-app/resources/js/utils/` (for currency.js)
-
 ---
 
-## Step 4: Upload New Assets & Delete Deprecated Assets (2 minutes)
-
-### New Asset Files
-
-1. **estate.png** ⭐ **NEW FILE**
-   - Upload to: `~/tengo-app/estate.png`
-   - Purpose: Estate planning icon
+## Step 4: Delete Deprecated Assets (1 minute)
 
 ### Delete Deprecated Assets
 

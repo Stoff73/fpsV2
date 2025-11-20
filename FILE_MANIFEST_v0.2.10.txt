@@ -1,0 +1,192 @@
+═══════════════════════════════════════════════════════════════════
+   TenGo v0.2.10 - Complete File Manifest for Upload
+═══════════════════════════════════════════════════════════════════
+
+Total Files: 25 (22 modified, 2 new, 1 deleted)
+- Backend: 6 files
+- Frontend: 17 files
+- Documentation: 1 file (bomaPath.md)
+- Deleted: 1 file (white.png)
+
+═══════════════════════════════════════════════════════════════════
+BACKEND FILES (6 files)
+═══════════════════════════════════════════════════════════════════
+
+1. app/Http/Controllers/Api/FamilyMembersController.php
+   Local:  /Users/Chris/Desktop/fpsApp/tengo/app/Http/Controllers/Api/FamilyMembersController.php
+   Remote: ~/tengo-app/app/Http/Controllers/Api/FamilyMembersController.php
+   Change: Fixed spouse linking idempotency
+
+2. app/Http/Controllers/Api/NetWorthController.php
+   Local:  /Users/Chris/Desktop/fpsApp/tengo/app/Http/Controllers/Api/NetWorthController.php
+   Remote: ~/tengo-app/app/Http/Controllers/Api/NetWorthController.php
+   Change: Added financial commitments aggregation
+
+3. app/Http/Controllers/Api/UserProfileController.php
+   Local:  /Users/Chris/Desktop/fpsApp/tengo/app/Http/Controllers/Api/UserProfileController.php
+   Remote: ~/tengo-app/app/Http/Controllers/Api/UserProfileController.php
+   Change: Fixed model namespaces and field names
+
+4. app/Services/Onboarding/EstateOnboardingFlow.php
+   Local:  /Users/Chris/Desktop/fpsApp/tengo/app/Services/Onboarding/EstateOnboardingFlow.php
+   Remote: ~/tengo-app/app/Services/Onboarding/EstateOnboardingFlow.php
+   Change: Reordered onboarding steps
+
+5. app/Services/UserProfile/UserProfileService.php
+   Local:  /Users/Chris/Desktop/fpsApp/tengo/app/Services/UserProfile/UserProfileService.php
+   Remote: ~/tengo-app/app/Services/UserProfile/UserProfileService.php
+   Change: Fixed expenditure calculations
+
+6. routes/api.php
+   Local:  /Users/Chris/Desktop/fpsApp/tengo/routes/api.php
+   Remote: ~/tengo-app/routes/api.php
+   Change: Added financial commitments endpoint
+
+═══════════════════════════════════════════════════════════════════
+FRONTEND COMPONENTS (11 files)
+═══════════════════════════════════════════════════════════════════
+
+7. resources/js/components/Estate/EstateOverviewCard.vue
+   Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/Estate/EstateOverviewCard.vue
+   Remote: ~/tengo-app/resources/js/components/Estate/EstateOverviewCard.vue
+   Change: Enhanced styling and data display
+
+8. resources/js/components/Estate/IHTPlanning.vue
+   Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/Estate/IHTPlanning.vue
+   Remote: ~/tengo-app/resources/js/components/Estate/IHTPlanning.vue
+   Change: Fixed IHT planning display
+
+9. resources/js/components/Footer.vue
+   Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/Footer.vue
+   Remote: ~/tengo-app/resources/js/components/Footer.vue
+   Change: Updated to v0.2.10 with "Boma Build" link
+
+10. resources/js/components/NetWorth/AssetAllocationDonut.vue
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/NetWorth/AssetAllocationDonut.vue
+    Remote: ~/tengo-app/resources/js/components/NetWorth/AssetAllocationDonut.vue
+    Change: Enhanced chart with pensions and filtering
+
+11. resources/js/components/NetWorth/NetWorthOverview.vue
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/NetWorth/NetWorthOverview.vue
+    Remote: ~/tengo-app/resources/js/components/NetWorth/NetWorthOverview.vue
+    Change: Added clickable navigation and wealth summary
+
+12. resources/js/components/NetWorth/NetWorthTrendChart.vue
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/NetWorth/NetWorthTrendChart.vue
+    Remote: ~/tengo-app/resources/js/components/NetWorth/NetWorthTrendChart.vue
+    Change: Disabled with "Coming Soon" placeholder
+
+13. resources/js/components/NetWorth/WealthSummary.vue ⭐ NEW FILE
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/NetWorth/WealthSummary.vue
+    Remote: ~/tengo-app/resources/js/components/NetWorth/WealthSummary.vue
+    Change: NEW component - Spouse-aware wealth breakdown
+
+14. resources/js/components/Onboarding/steps/IncomeStep.vue
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/Onboarding/steps/IncomeStep.vue
+    Remote: ~/tengo-app/resources/js/components/Onboarding/steps/IncomeStep.vue
+    Change: Added rental income auto-display and error logging
+
+15. resources/js/components/Protection/ProtectionOverviewCard.vue
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/Protection/ProtectionOverviewCard.vue
+    Remote: ~/tengo-app/resources/js/components/Protection/ProtectionOverviewCard.vue
+    Change: Enhanced with trust status and coverage indicators
+
+16. resources/js/components/Trusts/TrustsOverviewCard.vue
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/Trusts/TrustsOverviewCard.vue
+    Remote: ~/tengo-app/resources/js/components/Trusts/TrustsOverviewCard.vue
+    Change: Greyed out with "Coming Soon" placeholder
+
+17. resources/js/components/UserProfile/ExpenditureForm.vue
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/components/UserProfile/ExpenditureForm.vue
+    Remote: ~/tengo-app/resources/js/components/UserProfile/ExpenditureForm.vue
+    Change: Fixed duplicate rendering and spouse calculations
+
+═══════════════════════════════════════════════════════════════════
+FRONTEND SERVICES & STORES (5 files)
+═══════════════════════════════════════════════════════════════════
+
+18. resources/js/services/userProfileService.js
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/services/userProfileService.js
+    Remote: ~/tengo-app/resources/js/services/userProfileService.js
+    Change: Added financial commitments endpoint
+
+19. resources/js/store/modules/estate.js
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/store/modules/estate.js
+    Remote: ~/tengo-app/resources/js/store/modules/estate.js
+    Change: Improved data fetching
+
+20. resources/js/store/modules/netWorth.js
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/store/modules/netWorth.js
+    Remote: ~/tengo-app/resources/js/store/modules/netWorth.js
+    Change: Enhanced asset allocation calculations
+
+21. resources/js/store/modules/protection.js
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/store/modules/protection.js
+    Remote: ~/tengo-app/resources/js/store/modules/protection.js
+    Change: Improved coverage data fetching
+
+22. resources/js/views/Dashboard.vue
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/views/Dashboard.vue
+    Remote: ~/tengo-app/resources/js/views/Dashboard.vue
+    Change: Integrated wealth summary component
+
+23. resources/js/views/UserProfile.vue
+    Local:  /Users/Chris/Desktop/fpsApp/tengo/resources/js/views/UserProfile.vue
+    Remote: ~/tengo-app/resources/js/views/UserProfile.vue
+    Change: Enhanced expenditure display
+
+═══════════════════════════════════════════════════════════════════
+DEPRECATED ASSETS (1 file - DELETE FROM PRODUCTION)
+═══════════════════════════════════════════════════════════════════
+
+24. white.png ⭐ DELETE
+    Local:  N/A (deleted locally)
+    Remote: ~/tengo-app/white.png
+    Action: DELETE this file from production
+
+═══════════════════════════════════════════════════════════════════
+DOCUMENTATION (1 file - INCLUDED IN GIT COMMIT)
+═══════════════════════════════════════════════════════════════════
+
+25. bomaPath.md
+    Purpose: Comprehensive patch documentation (included in commit)
+
+═══════════════════════════════════════════════════════════════════
+UPLOAD SUMMARY
+═══════════════════════════════════════════════════════════════════
+
+Files to Upload: 24 total
+   - Backend: 6 files (5 controllers/services + 1 route file)
+   - Frontend: 17 files (16 modified + 1 new component)
+   - Documentation: 1 file (bomaPath.md)
+
+Files to Delete: 1
+   - white.png
+
+═══════════════════════════════════════════════════════════════════
+UPLOAD METHODS
+═══════════════════════════════════════════════════════════════════
+
+Option 1: SFTP/SCP (Recommended)
+   Host: csjones.co
+   Port: 18765
+   Remote Path: ~/tengo-app/
+
+Option 2: SiteGround File Manager
+   Site Tools > File Manager
+   Navigate to ~/tengo-app/
+   Upload files manually
+
+Option 3: Git Pull (If Git installed on server)
+   ssh into server
+   cd ~/tengo-app
+   git fetch origin
+   git checkout Boma
+   git pull origin Boma
+
+═══════════════════════════════════════════════════════════════════
+
+Built with Claude Code by Anthropic
+November 20, 2025
+
+═══════════════════════════════════════════════════════════════════
