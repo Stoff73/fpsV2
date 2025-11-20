@@ -1,9 +1,9 @@
 /**
- * Slippery Mode Design System
+ * Slippery Mode Design System - AGGRESSIVE OVERRIDES
  * Based on slipperyDesignStyle.md specification
  *
- * Professional, high-contrast UI for financial planning
- * with strong data clarity and trust-building aesthetics
+ * NO PASTELS - All solid, saturated, professional colors
+ * This file FORCEFULLY overrides all Tailwind defaults
  */
 
 /* ============================================
@@ -12,97 +12,10 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ============================================
-   SLIPPERY MODE ROOT VARIABLES
+   AGGRESSIVE TYPOGRAPHY OVERRIDES
    ============================================ */
-.slippery-mode {
-  /* Primary Palette - Trust Blue */
-  --slippery-primary-900: #071A2C;
-  --slippery-primary-700: #0E3A66;
-  --slippery-primary-600: #1257A0;
-  --slippery-primary-500: #1A75CE;
-  --slippery-primary-400: #2D8FEF;
-
-  /* Secondary Palette - Institutional Teal */
-  --slippery-secondary-900: #043B38;
-  --slippery-secondary-700: #0A5F58;
-  --slippery-secondary-600: #0F7F76;
-  --slippery-secondary-500: #13A89C;
-  --slippery-secondary-400: #17C2B4;
-
-  /* Accent Colors - Amber */
-  --slippery-amber-800: #8C5307;
-  --slippery-amber-700: #B86D09;
-  --slippery-amber-600: #D98508;
-
-  /* Accent Colors - Error Red */
-  --slippery-error-800: #7A0F0F;
-  --slippery-error-700: #A31616;
-  --slippery-error-600: #C92222;
-
-  /* Accent Colors - Success Green */
-  --slippery-success-800: #0B5328;
-  --slippery-success-700: #0F6F36;
-  --slippery-success-600: #149447;
-
-  /* Gray / Neutral System */
-  --slippery-gray-900: #111111;
-  --slippery-gray-800: #1F1F1F;
-  --slippery-gray-700: #353535;
-  --slippery-gray-600: #4A4A4A;
-  --slippery-gray-500: #6A6A6A;
-  --slippery-gray-400: #8C8C8C;
-  --slippery-gray-300: #B5B5B5;
-  --slippery-gray-200: #D6D6D6;
-  --slippery-white: #FFFFFF;
-
-  /* Chart Palette */
-  --slippery-chart-1: #1257A0;
-  --slippery-chart-2: #0F7F76;
-  --slippery-chart-3: #7A2AA8;
-  --slippery-chart-4: #D98508;
-  --slippery-chart-5: #C92222;
-  --slippery-chart-6: #149447;
-  --slippery-chart-7: #F05A28;
-  --slippery-chart-8: #4C52F5;
-
-  /* Spacing Tokens (8px baseline) */
-  --slippery-space-1: 4px;
-  --slippery-space-2: 8px;
-  --slippery-space-3: 12px;
-  --slippery-space-4: 16px;
-  --slippery-space-5: 20px;
-  --slippery-space-6: 24px;
-  --slippery-space-8: 32px;
-  --slippery-space-12: 48px;
-  --slippery-space-16: 64px;
-
-  /* Typography */
-  --slippery-font-heading: 'IBM Plex Sans', sans-serif;
-  --slippery-font-body: 'Inter', sans-serif;
-  --slippery-font-numeric: 'JetBrains Mono', monospace;
-
-  /* Shadows */
-  --slippery-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --slippery-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
-  --slippery-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
-
-  /* Border Radius */
-  --slippery-radius-sm: 8px;
-  --slippery-radius-md: 12px;
-  --slippery-radius-lg: 16px;
-
-  /* Transitions */
-  --slippery-transition-fast: 150ms ease;
-  --slippery-transition-base: 300ms ease;
-  --slippery-transition-slow: 800ms ease;
-}
-
-/* ============================================
-   TYPOGRAPHY OVERRIDES
-   ============================================ */
-.slippery-mode {
-  /* Base font */
-  font-family: var(--slippery-font-body);
+.slippery-mode * {
+  font-family: 'Inter', sans-serif !important;
 }
 
 .slippery-mode h1,
@@ -110,168 +23,349 @@
 .slippery-mode h3,
 .slippery-mode h4,
 .slippery-mode h5,
-.slippery-mode h6 {
-  font-family: var(--slippery-font-heading);
+.slippery-mode h6,
+.slippery-mode .font-display {
+  font-family: 'IBM Plex Sans', sans-serif !important;
 }
 
 .slippery-mode h1 {
-  font-size: 32px;
-  font-weight: 600;
-  color: var(--slippery-gray-900);
+  font-size: 32px !important;
+  font-weight: 600 !important;
+  color: #111111 !important;
 }
 
 .slippery-mode h2 {
-  font-size: 26px;
-  font-weight: 600;
-  color: var(--slippery-gray-800);
+  font-size: 26px !important;
+  font-weight: 600 !important;
+  color: #1F1F1F !important;
 }
 
 .slippery-mode h3 {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--slippery-gray-700);
-}
-
-.slippery-mode p,
-.slippery-mode span,
-.slippery-mode div {
-  color: var(--slippery-gray-700);
-  line-height: 1.55;
-}
-
-.slippery-mode label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--slippery-gray-600);
-}
-
-/* Numeric values */
-.slippery-mode .numeric,
-.slippery-mode .currency,
-.slippery-mode .percentage,
-.slippery-mode [class*="amount"],
-.slippery-mode [class*="value"],
-.slippery-mode [class*="price"] {
-  font-family: var(--slippery-font-numeric);
-  font-feature-settings: "tnum", "lnum";
-  letter-spacing: -0.01em;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #353535 !important;
 }
 
 /* ============================================
-   NAVIGATION OVERRIDES
+   KILL ALL PASTELS - BACKGROUND COLORS
    ============================================ */
-.slippery-mode nav {
-  background: var(--slippery-white);
-  border-bottom: 1px solid var(--slippery-gray-200);
-  color: var(--slippery-gray-900);
+
+/* NO MORE BLUE PASTELS */
+.slippery-mode .bg-blue-50,
+.slippery-mode .bg-primary-50 {
+  background-color: #FFFFFF !important;
 }
 
-.slippery-mode nav a {
-  color: var(--slippery-gray-700);
-  transition: color var(--slippery-transition-fast);
+.slippery-mode .bg-blue-100,
+.slippery-mode .bg-primary-100 {
+  background-color: #E8F0F7 !important;
 }
 
-.slippery-mode nav a:hover {
-  color: var(--slippery-primary-600);
+.slippery-mode .bg-blue-200 {
+  background-color: #D1E1EF !important;
 }
 
-.slippery-mode nav a.router-link-active {
-  color: var(--slippery-primary-600);
-  border-color: var(--slippery-primary-600);
+.slippery-mode .bg-blue-600,
+.slippery-mode .bg-primary-600 {
+  background-color: #1257A0 !important; /* SOLID TRUST BLUE */
+}
+
+.slippery-mode .bg-blue-700,
+.slippery-mode .bg-primary-700 {
+  background-color: #0E3A66 !important;
+}
+
+/* NO MORE GREEN PASTELS */
+.slippery-mode .bg-green-50 {
+  background-color: #FFFFFF !important;
+}
+
+.slippery-mode .bg-green-100,
+.slippery-mode .bg-success-100 {
+  background-color: #E6F4EC !important;
+}
+
+.slippery-mode .bg-green-600,
+.slippery-mode .bg-success-600 {
+  background-color: #149447 !important; /* SOLID SUCCESS GREEN */
+}
+
+.slippery-mode .bg-green-700 {
+  background-color: #0F6F36 !important;
+}
+
+/* NO MORE RED PASTELS */
+.slippery-mode .bg-red-50 {
+  background-color: #FFFFFF !important;
+}
+
+.slippery-mode .bg-red-100,
+.slippery-mode .bg-error-100 {
+  background-color: #FCE8E8 !important;
+}
+
+.slippery-mode .bg-red-600,
+.slippery-mode .bg-error-600 {
+  background-color: #C92222 !important; /* SOLID ERROR RED */
+}
+
+.slippery-mode .bg-red-700 {
+  background-color: #A31616 !important;
+}
+
+/* NO MORE AMBER/YELLOW PASTELS */
+.slippery-mode .bg-amber-50,
+.slippery-mode .bg-yellow-50 {
+  background-color: #FFFFFF !important;
+}
+
+.slippery-mode .bg-amber-100,
+.slippery-mode .bg-yellow-100 {
+  background-color: #FEF3E6 !important;
+}
+
+.slippery-mode .bg-amber-600,
+.slippery-mode .bg-yellow-600 {
+  background-color: #D98508 !important; /* SOLID AMBER */
+}
+
+/* NO MORE TEAL PASTELS */
+.slippery-mode .bg-teal-50 {
+  background-color: #FFFFFF !important;
+}
+
+.slippery-mode .bg-teal-100 {
+  background-color: #E6F5F4 !important;
+}
+
+.slippery-mode .bg-teal-600,
+.slippery-mode .bg-secondary-600 {
+  background-color: #0F7F76 !important; /* SOLID INSTITUTIONAL TEAL */
+}
+
+/* NO MORE PURPLE PASTELS */
+.slippery-mode .bg-purple-50,
+.slippery-mode .bg-violet-50,
+.slippery-mode .bg-indigo-50 {
+  background-color: #FFFFFF !important;
+}
+
+.slippery-mode .bg-purple-100,
+.slippery-mode .bg-violet-100,
+.slippery-mode .bg-indigo-100 {
+  background-color: #F3EBF9 !important;
+}
+
+.slippery-mode .bg-purple-600 {
+  background-color: #7A2AA8 !important; /* SOLID PURPLE */
+}
+
+/* NO MORE PINK PASTELS */
+.slippery-mode .bg-pink-50,
+.slippery-mode .bg-rose-50 {
+  background-color: #FFFFFF !important;
+}
+
+.slippery-mode .bg-pink-100,
+.slippery-mode .bg-rose-100 {
+  background-color: #FDE8F0 !important;
+}
+
+/* NO MORE ORANGE PASTELS */
+.slippery-mode .bg-orange-50 {
+  background-color: #FFFFFF !important;
+}
+
+.slippery-mode .bg-orange-100 {
+  background-color: #FEF0E6 !important;
+}
+
+.slippery-mode .bg-orange-600 {
+  background-color: #F05A28 !important; /* SOLID ORANGE */
+}
+
+/* SOLID GRAYS - NO PASTELS */
+.slippery-mode .bg-gray-50 {
+  background-color: #F9F9F9 !important;
+}
+
+.slippery-mode .bg-gray-100 {
+  background-color: #D6D6D6 !important; /* SOLID GRAY */
+}
+
+.slippery-mode .bg-gray-200 {
+  background-color: #D6D6D6 !important;
+}
+
+.slippery-mode .bg-gray-300 {
+  background-color: #B5B5B5 !important;
+}
+
+.slippery-mode .bg-white {
+  background-color: #FFFFFF !important;
 }
 
 /* ============================================
-   BUTTON OVERRIDES
+   KILL ALL PASTELS - TEXT COLORS
+   ============================================ */
+.slippery-mode .text-blue-50,
+.slippery-mode .text-blue-100,
+.slippery-mode .text-blue-200,
+.slippery-mode .text-blue-300,
+.slippery-mode .text-blue-400 {
+  color: #1257A0 !important;
+}
+
+.slippery-mode .text-blue-600,
+.slippery-mode .text-primary-600 {
+  color: #1257A0 !important;
+}
+
+.slippery-mode .text-blue-700,
+.slippery-mode .text-primary-700 {
+  color: #0E3A66 !important;
+}
+
+.slippery-mode .text-blue-900 {
+  color: #071A2C !important;
+}
+
+.slippery-mode .text-green-600,
+.slippery-mode .text-success-600,
+.slippery-mode .text-success-700 {
+  color: #149447 !important;
+}
+
+.slippery-mode .text-red-600,
+.slippery-mode .text-error-600,
+.slippery-mode .text-error-700 {
+  color: #C92222 !important;
+}
+
+.slippery-mode .text-amber-600,
+.slippery-mode .text-amber-700,
+.slippery-mode .text-yellow-600 {
+  color: #D98508 !important;
+}
+
+.slippery-mode .text-gray-500 {
+  color: #6A6A6A !important;
+}
+
+.slippery-mode .text-gray-600 {
+  color: #4A4A4A !important;
+}
+
+.slippery-mode .text-gray-700 {
+  color: #353535 !important;
+}
+
+.slippery-mode .text-gray-800 {
+  color: #1F1F1F !important;
+}
+
+.slippery-mode .text-gray-900 {
+  color: #111111 !important;
+}
+
+/* ============================================
+   KILL ALL PASTELS - BORDER COLORS
+   ============================================ */
+.slippery-mode .border-blue-600,
+.slippery-mode .border-primary-600 {
+  border-color: #1257A0 !important;
+}
+
+.slippery-mode .border-blue-700 {
+  border-color: #0E3A66 !important;
+}
+
+.slippery-mode .border-gray-200 {
+  border-color: #D6D6D6 !important;
+}
+
+.slippery-mode .border-gray-300 {
+  border-color: #B5B5B5 !important;
+}
+
+.slippery-mode .border-gray-400 {
+  border-color: #8C8C8C !important;
+}
+
+/* ============================================
+   BUTTON OVERRIDES - SOLID COLORS ONLY
    ============================================ */
 .slippery-mode button,
 .slippery-mode .btn {
-  border-radius: var(--slippery-radius-sm);
-  padding: 10px 20px;
-  font-weight: 500;
-  transition: all var(--slippery-transition-fast);
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  transition: all 150ms ease !important;
 }
 
-.slippery-mode button:active,
-.slippery-mode .btn:active {
+.slippery-mode button:hover:not(:disabled),
+.slippery-mode .btn:hover:not(:disabled) {
   transform: scale(0.98);
 }
 
-/* Primary Button */
-.slippery-mode .btn-primary,
-.slippery-mode button.bg-primary-600,
-.slippery-mode button.bg-blue-600 {
-  background: var(--slippery-primary-600) !important;
-  color: var(--slippery-white) !important;
-  border-color: var(--slippery-primary-600) !important;
+/* Primary buttons - SOLID BLUE */
+.slippery-mode .bg-blue-600,
+.slippery-mode .bg-primary-600,
+.slippery-mode .btn-primary {
+  background-color: #1257A0 !important;
+  color: #FFFFFF !important;
+  border-color: #1257A0 !important;
 }
 
-.slippery-mode .btn-primary:hover,
-.slippery-mode button.bg-primary-600:hover,
-.slippery-mode button.bg-blue-600:hover {
-  background: var(--slippery-primary-700) !important;
-  border-color: var(--slippery-primary-700) !important;
+.slippery-mode .bg-blue-600:hover,
+.slippery-mode .bg-primary-600:hover,
+.slippery-mode .btn-primary:hover {
+  background-color: #0E3A66 !important;
+  border-color: #0E3A66 !important;
 }
 
-/* Secondary Button */
-.slippery-mode .btn-secondary {
-  background: var(--slippery-white);
-  border: 1px solid var(--slippery-gray-400);
-  color: var(--slippery-primary-600);
+/* Danger buttons - SOLID RED */
+.slippery-mode .bg-red-600,
+.slippery-mode .bg-error-600,
+.slippery-mode .btn-danger {
+  background-color: #C92222 !important;
+  color: #FFFFFF !important;
 }
 
-.slippery-mode .btn-secondary:hover {
-  background: var(--slippery-gray-200);
+.slippery-mode .bg-red-600:hover,
+.slippery-mode .bg-error-600:hover,
+.slippery-mode .btn-danger:hover {
+  background-color: #A31616 !important;
 }
 
-/* Danger Button */
-.slippery-mode .btn-danger,
-.slippery-mode button.bg-red-600 {
-  background: var(--slippery-error-600) !important;
-  color: var(--slippery-white) !important;
-}
-
-.slippery-mode .btn-danger:hover,
-.slippery-mode button.bg-red-600:hover {
-  background: var(--slippery-error-700) !important;
-}
-
-/* Success Button */
+/* Success buttons - SOLID GREEN */
+.slippery-mode .bg-green-600,
 .slippery-mode .btn-success {
-  background: var(--slippery-success-600);
-  color: var(--slippery-white);
+  background-color: #149447 !important;
+  color: #FFFFFF !important;
 }
 
+.slippery-mode .bg-green-600:hover,
 .slippery-mode .btn-success:hover {
-  background: var(--slippery-success-700);
-}
-
-/* Warning Button */
-.slippery-mode .btn-warning {
-  background: var(--slippery-amber-600);
-  color: var(--slippery-white);
-}
-
-.slippery-mode .btn-warning:hover {
-  background: var(--slippery-amber-700);
+  background-color: #0F6F36 !important;
 }
 
 /* ============================================
-   CARD OVERRIDES
+   CARD OVERRIDES - CLEAN WHITE WITH BORDERS
    ============================================ */
 .slippery-mode .card,
-.slippery-mode [class*="Card"],
-.slippery-mode .bg-white {
-  background: var(--slippery-white) !important;
-  border-radius: var(--slippery-radius-md);
-  padding: var(--slippery-space-6);
-  border: 1px solid var(--slippery-gray-200);
-  box-shadow: var(--slippery-shadow-sm);
-  transition: box-shadow var(--slippery-transition-fast);
+.slippery-mode .rounded-xl,
+.slippery-mode .rounded-lg,
+.slippery-mode .shadow-md,
+.slippery-mode .shadow-sm {
+  background-color: #FFFFFF !important;
+  border: 1px solid #D6D6D6 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
 }
 
 .slippery-mode .card:hover,
-.slippery-mode [class*="Card"]:hover {
-  box-shadow: var(--slippery-shadow-md);
+.slippery-mode .card-hover:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
 }
 
 /* ============================================
@@ -285,185 +379,150 @@
 .slippery-mode input[type="tel"],
 .slippery-mode select,
 .slippery-mode textarea {
-  border: 1px solid var(--slippery-gray-400);
-  border-radius: var(--slippery-radius-sm);
-  padding: 10px 14px;
-  font-size: 16px;
-  color: var(--slippery-gray-800);
-  transition: all var(--slippery-transition-fast);
+  border: 1px solid #8C8C8C !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  font-size: 16px !important;
+  color: #1F1F1F !important;
 }
 
 .slippery-mode input:focus,
 .slippery-mode select:focus,
 .slippery-mode textarea:focus {
-  outline: none;
-  border-color: var(--slippery-primary-600);
-  box-shadow: 0 0 0 3px rgba(18, 87, 160, 0.25);
+  outline: none !important;
+  border-color: #1257A0 !important;
+  box-shadow: 0 0 0 3px rgba(18, 87, 160, 0.25) !important;
 }
 
-.slippery-mode input.error,
-.slippery-mode select.error,
-.slippery-mode textarea.error {
-  border-color: var(--slippery-error-600);
+/* ============================================
+   NAVIGATION BAR - CLEAN WHITE
+   ============================================ */
+.slippery-mode nav {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid #D6D6D6 !important;
+}
+
+.slippery-mode nav .bg-gray-100 {
+  background-color: #D6D6D6 !important;
+}
+
+.slippery-mode nav .bg-gray-100:hover {
+  background-color: #B5B5B5 !important;
+}
+
+/* ============================================
+   GRADIENT OVERRIDES - REPLACE WITH SOLIDS
+   ============================================ */
+.slippery-mode .bg-gradient-to-br,
+.slippery-mode .bg-gradient-to-r,
+.slippery-mode .bg-gradient-to-l,
+.slippery-mode .bg-gradient-to-t,
+.slippery-mode .bg-gradient-to-b {
+  background-image: none !important;
+}
+
+.slippery-mode .from-blue-50,
+.slippery-mode .from-blue-100,
+.slippery-mode .from-indigo-50,
+.slippery-mode .to-indigo-50,
+.slippery-mode .via-blue-700 {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+}
+
+.slippery-mode .from-blue-600,
+.slippery-mode .to-blue-800,
+.slippery-mode .via-blue-700 {
+  background-color: #1257A0 !important;
+  background-image: none !important;
+}
+
+/* ============================================
+   NUMERIC VALUES - MONOSPACE FONT
+   ============================================ */
+.slippery-mode .text-2xl,
+.slippery-mode .text-3xl,
+.slippery-mode .text-4xl {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-feature-settings: "tnum", "lnum" !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Anything that looks like currency or numbers */
+.slippery-mode [class*="amount"],
+.slippery-mode [class*="value"],
+.slippery-mode [class*="total"],
+.slippery-mode [class*="balance"],
+.slippery-mode [class*="price"],
+.slippery-mode [class*="currency"] {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-feature-settings: "tnum", "lnum" !important;
 }
 
 /* ============================================
    TABLE OVERRIDES
    ============================================ */
 .slippery-mode table {
-  border: 1px solid var(--slippery-gray-200);
-  border-radius: var(--slippery-radius-md);
-  overflow: hidden;
+  border: 1px solid #D6D6D6 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
 }
 
 .slippery-mode thead {
-  background: #F5F5F5;
+  background-color: #F5F5F5 !important;
 }
 
 .slippery-mode th {
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--slippery-gray-700);
-  padding: var(--slippery-space-3) var(--slippery-space-4);
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  color: #353535 !important;
 }
 
 .slippery-mode td {
-  font-size: 14px;
-  color: var(--slippery-gray-700);
-  padding: var(--slippery-space-3) var(--slippery-space-4);
-  border-top: 1px solid var(--slippery-gray-200);
-}
-
-.slippery-mode td.numeric,
-.slippery-mode td[class*="amount"],
-.slippery-mode td[class*="value"] {
-  font-family: var(--slippery-font-numeric);
-  text-align: right;
+  font-size: 14px !important;
+  color: #353535 !important;
+  border-top: 1px solid #D6D6D6 !important;
 }
 
 /* ============================================
-   BACKGROUND COLORS
+   BADGE/TAG OVERRIDES - SOLID COLORS
    ============================================ */
-.slippery-mode .bg-gray-50 {
-  background-color: #F9F9F9 !important;
+.slippery-mode .badge-success,
+.slippery-mode .rounded-full.bg-success-100 {
+  background-color: #E6F4EC !important;
+  color: #0F6F36 !important;
 }
 
-.slippery-mode .bg-gray-100 {
-  background-color: var(--slippery-gray-200) !important;
+.slippery-mode .badge-error,
+.slippery-mode .rounded-full.bg-error-100 {
+  background-color: #FCE8E8 !important;
+  color: #A31616 !important;
 }
 
-.slippery-mode .bg-gray-200 {
-  background-color: var(--slippery-gray-200) !important;
+.slippery-mode .badge-warning,
+.slippery-mode .rounded-full.bg-amber-100 {
+  background-color: #FEF3E6 !important;
+  color: #B86D09 !important;
 }
 
 /* ============================================
-   TEXT COLORS
+   SHADOW OVERRIDES - PROFESSIONAL DEPTH
    ============================================ */
-.slippery-mode .text-gray-500 {
-  color: var(--slippery-gray-500) !important;
+.slippery-mode .shadow-sm {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
 }
 
-.slippery-mode .text-gray-600 {
-  color: var(--slippery-gray-600) !important;
+.slippery-mode .shadow,
+.slippery-mode .shadow-md {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
 }
 
-.slippery-mode .text-gray-700 {
-  color: var(--slippery-gray-700) !important;
+.slippery-mode .shadow-lg {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
 }
 
-.slippery-mode .text-gray-800 {
-  color: var(--slippery-gray-800) !important;
-}
-
-.slippery-mode .text-gray-900 {
-  color: var(--slippery-gray-900) !important;
-}
-
-.slippery-mode .text-primary-600 {
-  color: var(--slippery-primary-600) !important;
-}
-
-.slippery-mode .text-primary-700 {
-  color: var(--slippery-primary-700) !important;
-}
-
-/* ============================================
-   BORDER COLORS
-   ============================================ */
-.slippery-mode .border-gray-200 {
-  border-color: var(--slippery-gray-200) !important;
-}
-
-.slippery-mode .border-gray-300 {
-  border-color: var(--slippery-gray-300) !important;
-}
-
-.slippery-mode .border-primary-600 {
-  border-color: var(--slippery-primary-600) !important;
-}
-
-/* ============================================
-   DASHBOARD SPECIFIC
-   ============================================ */
-.slippery-mode .dashboard-grid {
-  gap: var(--slippery-space-6);
-}
-
-.slippery-mode section {
-  padding: var(--slippery-space-12) 0;
-}
-
-/* ============================================
-   LOADING STATES
-   ============================================ */
-.slippery-mode .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--slippery-gray-300) 0%,
-    var(--slippery-gray-200) 50%,
-    var(--slippery-gray-300) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-/* ============================================
-   ERROR STATES
-   ============================================ */
-.slippery-mode .error-message {
-  border-left: 3px solid var(--slippery-error-600);
-  background: rgba(201, 34, 34, 0.05);
-  padding: var(--slippery-space-4);
-  border-radius: var(--slippery-radius-sm);
-}
-
-/* ============================================
-   SUCCESS STATES
-   ============================================ */
-.slippery-mode .success-message {
-  border-left: 3px solid var(--slippery-success-600);
-  background: rgba(20, 148, 71, 0.05);
-  padding: var(--slippery-space-4);
-  border-radius: var(--slippery-radius-sm);
-}
-
-/* ============================================
-   WARNING STATES
-   ============================================ */
-.slippery-mode .warning-message {
-  border-left: 3px solid var(--slippery-amber-600);
-  background: rgba(217, 133, 8, 0.05);
-  padding: var(--slippery-space-4);
-  border-radius: var(--slippery-radius-sm);
+.slippery-mode .shadow-xl {
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important;
 }
