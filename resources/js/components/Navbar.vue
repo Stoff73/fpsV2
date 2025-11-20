@@ -91,6 +91,15 @@
                     Settings
                   </router-link>
                   <button
+                    @click="toggleDesignMode"
+                    class="flex items-center w-full text-left px-4 py-2 text-body-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                    </svg>
+                    {{ isSlipperyMode() ? 'Normal Mode' : 'Slippery Mode' }}
+                  </button>
+                  <button
                     @click="handleLogout"
                     class="flex items-center w-full text-left px-4 py-2 text-body-sm text-gray-700 hover:bg-gray-100"
                   >
@@ -177,6 +186,12 @@
             Settings
           </router-link>
           <button
+            @click="toggleDesignMode"
+            class="w-full text-left block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+          >
+            {{ isSlipperyMode() ? 'Normal Mode' : 'Slippery Mode' }}
+          </button>
+          <button
             @click="handleLogout"
             class="w-full text-left block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
           >
@@ -192,6 +207,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
+import { useDesignMode } from '@/composables/useDesignMode';
 
 export default {
   name: 'Navbar',
@@ -200,6 +216,7 @@ export default {
     const store = useStore();
     const route = useRoute();
     const router = useRouter();
+    const { designMode, toggleDesignMode, isSlipperyMode } = useDesignMode();
 
     const mobileMenuOpen = ref(false);
     const userDropdownOpen = ref(false);
@@ -255,6 +272,9 @@ export default {
       onboardingCompleted,
       isActive,
       handleLogout,
+      designMode,
+      toggleDesignMode,
+      isSlipperyMode,
     };
   },
 };

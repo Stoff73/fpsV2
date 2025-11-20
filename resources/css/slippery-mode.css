@@ -1,0 +1,469 @@
+/**
+ * Slippery Mode Design System
+ * Based on slipperyDesignStyle.md specification
+ *
+ * Professional, high-contrast UI for financial planning
+ * with strong data clarity and trust-building aesthetics
+ */
+
+/* ============================================
+   GOOGLE FONTS IMPORTS
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ============================================
+   SLIPPERY MODE ROOT VARIABLES
+   ============================================ */
+.slippery-mode {
+  /* Primary Palette - Trust Blue */
+  --slippery-primary-900: #071A2C;
+  --slippery-primary-700: #0E3A66;
+  --slippery-primary-600: #1257A0;
+  --slippery-primary-500: #1A75CE;
+  --slippery-primary-400: #2D8FEF;
+
+  /* Secondary Palette - Institutional Teal */
+  --slippery-secondary-900: #043B38;
+  --slippery-secondary-700: #0A5F58;
+  --slippery-secondary-600: #0F7F76;
+  --slippery-secondary-500: #13A89C;
+  --slippery-secondary-400: #17C2B4;
+
+  /* Accent Colors - Amber */
+  --slippery-amber-800: #8C5307;
+  --slippery-amber-700: #B86D09;
+  --slippery-amber-600: #D98508;
+
+  /* Accent Colors - Error Red */
+  --slippery-error-800: #7A0F0F;
+  --slippery-error-700: #A31616;
+  --slippery-error-600: #C92222;
+
+  /* Accent Colors - Success Green */
+  --slippery-success-800: #0B5328;
+  --slippery-success-700: #0F6F36;
+  --slippery-success-600: #149447;
+
+  /* Gray / Neutral System */
+  --slippery-gray-900: #111111;
+  --slippery-gray-800: #1F1F1F;
+  --slippery-gray-700: #353535;
+  --slippery-gray-600: #4A4A4A;
+  --slippery-gray-500: #6A6A6A;
+  --slippery-gray-400: #8C8C8C;
+  --slippery-gray-300: #B5B5B5;
+  --slippery-gray-200: #D6D6D6;
+  --slippery-white: #FFFFFF;
+
+  /* Chart Palette */
+  --slippery-chart-1: #1257A0;
+  --slippery-chart-2: #0F7F76;
+  --slippery-chart-3: #7A2AA8;
+  --slippery-chart-4: #D98508;
+  --slippery-chart-5: #C92222;
+  --slippery-chart-6: #149447;
+  --slippery-chart-7: #F05A28;
+  --slippery-chart-8: #4C52F5;
+
+  /* Spacing Tokens (8px baseline) */
+  --slippery-space-1: 4px;
+  --slippery-space-2: 8px;
+  --slippery-space-3: 12px;
+  --slippery-space-4: 16px;
+  --slippery-space-5: 20px;
+  --slippery-space-6: 24px;
+  --slippery-space-8: 32px;
+  --slippery-space-12: 48px;
+  --slippery-space-16: 64px;
+
+  /* Typography */
+  --slippery-font-heading: 'IBM Plex Sans', sans-serif;
+  --slippery-font-body: 'Inter', sans-serif;
+  --slippery-font-numeric: 'JetBrains Mono', monospace;
+
+  /* Shadows */
+  --slippery-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --slippery-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --slippery-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+  /* Border Radius */
+  --slippery-radius-sm: 8px;
+  --slippery-radius-md: 12px;
+  --slippery-radius-lg: 16px;
+
+  /* Transitions */
+  --slippery-transition-fast: 150ms ease;
+  --slippery-transition-base: 300ms ease;
+  --slippery-transition-slow: 800ms ease;
+}
+
+/* ============================================
+   TYPOGRAPHY OVERRIDES
+   ============================================ */
+.slippery-mode {
+  /* Base font */
+  font-family: var(--slippery-font-body);
+}
+
+.slippery-mode h1,
+.slippery-mode h2,
+.slippery-mode h3,
+.slippery-mode h4,
+.slippery-mode h5,
+.slippery-mode h6 {
+  font-family: var(--slippery-font-heading);
+}
+
+.slippery-mode h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--slippery-gray-900);
+}
+
+.slippery-mode h2 {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--slippery-gray-800);
+}
+
+.slippery-mode h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--slippery-gray-700);
+}
+
+.slippery-mode p,
+.slippery-mode span,
+.slippery-mode div {
+  color: var(--slippery-gray-700);
+  line-height: 1.55;
+}
+
+.slippery-mode label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--slippery-gray-600);
+}
+
+/* Numeric values */
+.slippery-mode .numeric,
+.slippery-mode .currency,
+.slippery-mode .percentage,
+.slippery-mode [class*="amount"],
+.slippery-mode [class*="value"],
+.slippery-mode [class*="price"] {
+  font-family: var(--slippery-font-numeric);
+  font-feature-settings: "tnum", "lnum";
+  letter-spacing: -0.01em;
+}
+
+/* ============================================
+   NAVIGATION OVERRIDES
+   ============================================ */
+.slippery-mode nav {
+  background: var(--slippery-white);
+  border-bottom: 1px solid var(--slippery-gray-200);
+  color: var(--slippery-gray-900);
+}
+
+.slippery-mode nav a {
+  color: var(--slippery-gray-700);
+  transition: color var(--slippery-transition-fast);
+}
+
+.slippery-mode nav a:hover {
+  color: var(--slippery-primary-600);
+}
+
+.slippery-mode nav a.router-link-active {
+  color: var(--slippery-primary-600);
+  border-color: var(--slippery-primary-600);
+}
+
+/* ============================================
+   BUTTON OVERRIDES
+   ============================================ */
+.slippery-mode button,
+.slippery-mode .btn {
+  border-radius: var(--slippery-radius-sm);
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: all var(--slippery-transition-fast);
+}
+
+.slippery-mode button:active,
+.slippery-mode .btn:active {
+  transform: scale(0.98);
+}
+
+/* Primary Button */
+.slippery-mode .btn-primary,
+.slippery-mode button.bg-primary-600,
+.slippery-mode button.bg-blue-600 {
+  background: var(--slippery-primary-600) !important;
+  color: var(--slippery-white) !important;
+  border-color: var(--slippery-primary-600) !important;
+}
+
+.slippery-mode .btn-primary:hover,
+.slippery-mode button.bg-primary-600:hover,
+.slippery-mode button.bg-blue-600:hover {
+  background: var(--slippery-primary-700) !important;
+  border-color: var(--slippery-primary-700) !important;
+}
+
+/* Secondary Button */
+.slippery-mode .btn-secondary {
+  background: var(--slippery-white);
+  border: 1px solid var(--slippery-gray-400);
+  color: var(--slippery-primary-600);
+}
+
+.slippery-mode .btn-secondary:hover {
+  background: var(--slippery-gray-200);
+}
+
+/* Danger Button */
+.slippery-mode .btn-danger,
+.slippery-mode button.bg-red-600 {
+  background: var(--slippery-error-600) !important;
+  color: var(--slippery-white) !important;
+}
+
+.slippery-mode .btn-danger:hover,
+.slippery-mode button.bg-red-600:hover {
+  background: var(--slippery-error-700) !important;
+}
+
+/* Success Button */
+.slippery-mode .btn-success {
+  background: var(--slippery-success-600);
+  color: var(--slippery-white);
+}
+
+.slippery-mode .btn-success:hover {
+  background: var(--slippery-success-700);
+}
+
+/* Warning Button */
+.slippery-mode .btn-warning {
+  background: var(--slippery-amber-600);
+  color: var(--slippery-white);
+}
+
+.slippery-mode .btn-warning:hover {
+  background: var(--slippery-amber-700);
+}
+
+/* ============================================
+   CARD OVERRIDES
+   ============================================ */
+.slippery-mode .card,
+.slippery-mode [class*="Card"],
+.slippery-mode .bg-white {
+  background: var(--slippery-white) !important;
+  border-radius: var(--slippery-radius-md);
+  padding: var(--slippery-space-6);
+  border: 1px solid var(--slippery-gray-200);
+  box-shadow: var(--slippery-shadow-sm);
+  transition: box-shadow var(--slippery-transition-fast);
+}
+
+.slippery-mode .card:hover,
+.slippery-mode [class*="Card"]:hover {
+  box-shadow: var(--slippery-shadow-md);
+}
+
+/* ============================================
+   FORM INPUT OVERRIDES
+   ============================================ */
+.slippery-mode input[type="text"],
+.slippery-mode input[type="email"],
+.slippery-mode input[type="password"],
+.slippery-mode input[type="number"],
+.slippery-mode input[type="date"],
+.slippery-mode input[type="tel"],
+.slippery-mode select,
+.slippery-mode textarea {
+  border: 1px solid var(--slippery-gray-400);
+  border-radius: var(--slippery-radius-sm);
+  padding: 10px 14px;
+  font-size: 16px;
+  color: var(--slippery-gray-800);
+  transition: all var(--slippery-transition-fast);
+}
+
+.slippery-mode input:focus,
+.slippery-mode select:focus,
+.slippery-mode textarea:focus {
+  outline: none;
+  border-color: var(--slippery-primary-600);
+  box-shadow: 0 0 0 3px rgba(18, 87, 160, 0.25);
+}
+
+.slippery-mode input.error,
+.slippery-mode select.error,
+.slippery-mode textarea.error {
+  border-color: var(--slippery-error-600);
+}
+
+/* ============================================
+   TABLE OVERRIDES
+   ============================================ */
+.slippery-mode table {
+  border: 1px solid var(--slippery-gray-200);
+  border-radius: var(--slippery-radius-md);
+  overflow: hidden;
+}
+
+.slippery-mode thead {
+  background: #F5F5F5;
+}
+
+.slippery-mode th {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--slippery-gray-700);
+  padding: var(--slippery-space-3) var(--slippery-space-4);
+}
+
+.slippery-mode td {
+  font-size: 14px;
+  color: var(--slippery-gray-700);
+  padding: var(--slippery-space-3) var(--slippery-space-4);
+  border-top: 1px solid var(--slippery-gray-200);
+}
+
+.slippery-mode td.numeric,
+.slippery-mode td[class*="amount"],
+.slippery-mode td[class*="value"] {
+  font-family: var(--slippery-font-numeric);
+  text-align: right;
+}
+
+/* ============================================
+   BACKGROUND COLORS
+   ============================================ */
+.slippery-mode .bg-gray-50 {
+  background-color: #F9F9F9 !important;
+}
+
+.slippery-mode .bg-gray-100 {
+  background-color: var(--slippery-gray-200) !important;
+}
+
+.slippery-mode .bg-gray-200 {
+  background-color: var(--slippery-gray-200) !important;
+}
+
+/* ============================================
+   TEXT COLORS
+   ============================================ */
+.slippery-mode .text-gray-500 {
+  color: var(--slippery-gray-500) !important;
+}
+
+.slippery-mode .text-gray-600 {
+  color: var(--slippery-gray-600) !important;
+}
+
+.slippery-mode .text-gray-700 {
+  color: var(--slippery-gray-700) !important;
+}
+
+.slippery-mode .text-gray-800 {
+  color: var(--slippery-gray-800) !important;
+}
+
+.slippery-mode .text-gray-900 {
+  color: var(--slippery-gray-900) !important;
+}
+
+.slippery-mode .text-primary-600 {
+  color: var(--slippery-primary-600) !important;
+}
+
+.slippery-mode .text-primary-700 {
+  color: var(--slippery-primary-700) !important;
+}
+
+/* ============================================
+   BORDER COLORS
+   ============================================ */
+.slippery-mode .border-gray-200 {
+  border-color: var(--slippery-gray-200) !important;
+}
+
+.slippery-mode .border-gray-300 {
+  border-color: var(--slippery-gray-300) !important;
+}
+
+.slippery-mode .border-primary-600 {
+  border-color: var(--slippery-primary-600) !important;
+}
+
+/* ============================================
+   DASHBOARD SPECIFIC
+   ============================================ */
+.slippery-mode .dashboard-grid {
+  gap: var(--slippery-space-6);
+}
+
+.slippery-mode section {
+  padding: var(--slippery-space-12) 0;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+.slippery-mode .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--slippery-gray-300) 0%,
+    var(--slippery-gray-200) 50%,
+    var(--slippery-gray-300) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ============================================
+   ERROR STATES
+   ============================================ */
+.slippery-mode .error-message {
+  border-left: 3px solid var(--slippery-error-600);
+  background: rgba(201, 34, 34, 0.05);
+  padding: var(--slippery-space-4);
+  border-radius: var(--slippery-radius-sm);
+}
+
+/* ============================================
+   SUCCESS STATES
+   ============================================ */
+.slippery-mode .success-message {
+  border-left: 3px solid var(--slippery-success-600);
+  background: rgba(20, 148, 71, 0.05);
+  padding: var(--slippery-space-4);
+  border-radius: var(--slippery-radius-sm);
+}
+
+/* ============================================
+   WARNING STATES
+   ============================================ */
+.slippery-mode .warning-message {
+  border-left: 3px solid var(--slippery-amber-600);
+  background: rgba(217, 133, 8, 0.05);
+  padding: var(--slippery-space-4);
+  border-radius: var(--slippery-radius-sm);
+}
