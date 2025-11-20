@@ -1,16 +1,14 @@
 <template>
-  <div class="net-worth-trend-chart">
+  <div class="net-worth-trend-chart disabled">
     <h3 class="chart-title">Net Worth Trend</h3>
-    <div v-if="hasData" class="chart-container">
-      <apexchart
-        type="area"
-        :options="chartOptions"
-        :series="series"
-        height="350"
-      ></apexchart>
-    </div>
-    <div v-else class="no-data">
-      <p>No trend data available</p>
+    <div class="coming-soon-overlay">
+      <div class="coming-soon-content">
+        <svg class="coming-soon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="coming-soon-text">Coming Soon</p>
+        <p class="coming-soon-description">Net worth trend tracking will be available in a future update</p>
+      </div>
     </div>
   </div>
 </template>
@@ -150,6 +148,13 @@ export default {
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.net-worth-trend-chart.disabled {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  opacity: 0.6;
 }
 
 .chart-title {
@@ -157,6 +162,44 @@ export default {
   font-weight: 600;
   color: #111827;
   margin: 0 0 20px 0;
+}
+
+.net-worth-trend-chart.disabled .chart-title {
+  color: #9ca3af;
+}
+
+.coming-soon-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 350px;
+  padding: 60px 20px;
+}
+
+.coming-soon-content {
+  text-align: center;
+  max-width: 300px;
+}
+
+.coming-soon-icon {
+  width: 64px;
+  height: 64px;
+  color: #d1d5db;
+  margin: 0 auto 16px;
+}
+
+.coming-soon-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: #9ca3af;
+  margin: 0 0 8px 0;
+}
+
+.coming-soon-description {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .chart-container {
@@ -181,6 +224,24 @@ export default {
 
   .chart-title {
     font-size: 16px;
+  }
+
+  .coming-soon-overlay {
+    min-height: 300px;
+    padding: 40px 20px;
+  }
+
+  .coming-soon-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .coming-soon-text {
+    font-size: 18px;
+  }
+
+  .coming-soon-description {
+    font-size: 13px;
   }
 }
 </style>

@@ -171,8 +171,21 @@ class FamilyMembersController extends Controller
     {
         $spouseEmail = $data['email'];
 
+        \Log::info('handleSpouseCreation called', [
+            'current_user_id' => $currentUser->id,
+            'current_user_email' => $currentUser->email,
+            'current_user_spouse_id' => $currentUser->spouse_id,
+            'spouse_email' => $spouseEmail,
+        ]);
+
         // Check if spouse already has an account
         $spouseUser = \App\Models\User::where('email', $spouseEmail)->first();
+
+        \Log::info('Spouse user lookup result', [
+            'found' => $spouseUser ? 'yes' : 'no',
+            'spouse_user_id' => $spouseUser?->id,
+            'spouse_user_spouse_id' => $spouseUser?->spouse_id,
+        ]);
 
         if ($spouseUser) {
             // Spouse already exists - link the accounts
@@ -183,11 +196,63 @@ class FamilyMembersController extends Controller
                 ], 422);
             }
 
-            if ($spouseUser->spouse_id) {
+            // Check if spouse is linked to a DIFFERENT user (not the current user)
+            if ($spouseUser->spouse_id && $spouseUser->spouse_id !== $currentUser->id) {
                 return response()->json([
                     'success' => false,
                     'message' => 'This user is already linked to another spouse',
                 ], 422);
+            }
+
+            // If already linked to current user, check if family member record exists
+            if ($spouseUser->spouse_id === $currentUser->id) {
+                // Already linked - check if family member record exists
+                $existingFamilyMember = FamilyMember::where('user_id', $currentUser->id)
+                    ->where('relationship', 'spouse')
+                    ->first();
+
+                if ($existingFamilyMember) {
+                    // Family member record already exists, return it
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Spouse is already linked',
+                        'data' => [
+                            'family_member' => $existingFamilyMember,
+                            'spouse_user' => $spouseUser,
+                            'linked' => true,
+                            'already_existed' => true,
+                        ],
+                    ], 200);
+                }
+
+                // Linked but family member record missing - create it
+                $fullName = trim(($data['first_name'] ?? '').' '.(isset($data['middle_name']) && $data['middle_name'] ? $data['middle_name'].' ' : '').($data['last_name'] ?? ''));
+                $familyMember = FamilyMember::create([
+                    'user_id' => $currentUser->id,
+                    'household_id' => $currentUser->household_id,
+                    'relationship' => 'spouse',
+                    'first_name' => $data['first_name'],
+                    'middle_name' => $data['middle_name'] ?? null,
+                    'last_name' => $data['last_name'],
+                    'date_of_birth' => $data['date_of_birth'] ?? null,
+                    'gender' => $data['gender'] ?? null,
+                    'national_insurance_number' => $data['national_insurance_number'] ?? null,
+                    'annual_income' => $data['annual_income'] ?? null,
+                    'is_dependent' => $data['is_dependent'] ?? false,
+                    'notes' => $data['notes'] ?? null,
+                    'name' => $fullName,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Spouse family member record created (accounts already linked)',
+                    'data' => [
+                        'family_member' => $familyMember,
+                        'spouse_user' => $spouseUser,
+                        'linked' => true,
+                        'record_created' => true,
+                    ],
+                ], 201);
             }
 
             // Link both users

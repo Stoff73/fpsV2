@@ -143,13 +143,27 @@
           Income Sources
         </h4>
 
-        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-          <p class="text-body-sm text-amber-800">
-            <strong>Note:</strong> Rental income is entered through the Property section where you can track property values, rental income, and expenses.
-          </p>
-        </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Rental Income (conditional - only shown if properties with rental income exist) -->
+          <div v-if="hasRentalIncome">
+            <label for="annual_rental_income" class="label">
+              Annual Rental Income
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">£</span>
+              <input
+                id="annual_rental_income"
+                :value="annualRentalIncome"
+                type="number"
+                class="input-field pl-8 bg-gray-50"
+                readonly
+                disabled
+              >
+            </div>
+            <p class="mt-1 text-body-sm text-gray-500">
+              From properties entered in Assets & Wealth (read-only)
+            </p>
+          </div>
           <!-- Employment Income -->
           <div>
             <label for="annual_employment_income" class="label">
@@ -266,6 +280,9 @@
             <p class="text-h3 font-display text-gray-900">
               £{{ totalIncome.toLocaleString() }}
             </p>
+            <p v-if="hasRentalIncome" class="text-body-sm text-gray-500 mt-2">
+              Includes £{{ annualRentalIncome.toLocaleString() }} rental income
+            </p>
           </div>
         </div>
       </div>
@@ -307,9 +324,14 @@ export default {
 
     const loading = ref(false);
     const error = ref(null);
+    const annualRentalIncome = ref(0);
 
     const today = computed(() => {
       return new Date().toISOString().split('T')[0];
+    });
+
+    const hasRentalIncome = computed(() => {
+      return annualRentalIncome.value > 0;
     });
 
     const totalIncome = computed(() => {
@@ -318,7 +340,8 @@ export default {
         (formData.value.annual_self_employment_income || 0) +
         (formData.value.annual_dividend_income || 0) +
         (formData.value.annual_interest_income || 0) +
-        (formData.value.annual_other_income || 0)
+        (formData.value.annual_other_income || 0) +
+        (annualRentalIncome.value || 0)
       );
     });
 
@@ -412,6 +435,26 @@ export default {
       } catch (err) {
         // No existing data, start with empty form (correct for new users)
       }
+
+      // Fetch rental income from user's profile (set in properties)
+      // IMPORTANT: Fetch fresh data from API, not cached store data
+      try {
+        const response = await fetch('/api/user/profile', {
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data?.income_occupation?.annual_rental_income) {
+            annualRentalIncome.value = data.data.income_occupation.annual_rental_income;
+          }
+        }
+      } catch (err) {
+        // No rental income, which is fine
+      }
     });
 
     return {
@@ -422,6 +465,8 @@ export default {
       totalIncome,
       retirementAge,
       showEarlyRetirementWarning,
+      annualRentalIncome,
+      hasRentalIncome,
       handleNext,
       handleBack,
     };

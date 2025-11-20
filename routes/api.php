@@ -90,6 +90,7 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::put('/profile/expenditure', [UserProfileController::class, 'updateExpenditure']);
     Route::put('/profile/domicile', [UserProfileController::class, 'updateDomicileInfo']);
     Route::get('/profile/completeness', [ProfileCompletenessController::class, 'check']);
+    Route::get('/financial-commitments', [UserProfileController::class, 'getFinancialCommitments']);
 
     // Letter to Spouse
     Route::get('/letter-to-spouse', [LetterToSpouseController::class, 'show']);

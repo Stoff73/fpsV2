@@ -133,56 +133,120 @@
       </div>
     </div>
 
-    <!-- Tax Allowances Information (NRB & RNRB Messages) -->
-    <div v-if="!loading && ihtData" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <!-- NRB Message -->
-      <div v-if="ihtData.nrb_message" class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+    <!-- Strategies Section -->
+    <div v-if="!loading && ihtData" class="mb-8">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">IHT Mitigation Strategies</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Will Card -->
+        <div class="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow cursor-pointer" @click="navigateToWillTab">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center">
+              <svg class="h-6 w-6 text-blue-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+              </svg>
+              <h4 class="text-sm font-semibold text-gray-900">Will</h4>
+            </div>
+            <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
           </div>
-          <div class="ml-3">
-            <h3 class="text-sm font-medium text-blue-800">Nil Rate Band (NRB)</h3>
-            <div class="mt-2 text-sm text-blue-700">
-              <p>{{ ihtData.nrb_message }}</p>
+          <div class="space-y-2">
+            <div class="flex items-center text-xs">
+              <span class="text-gray-600">Status:</span>
+              <span v-if="hasWill" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 8 8">
+                  <circle cx="4" cy="4" r="3" />
+                </svg>
+                Complete
+              </span>
+              <span v-else class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 8 8">
+                  <circle cx="4" cy="4" r="3" />
+                </svg>
+                Incomplete
+              </span>
+            </div>
+            <div v-if="hasWill" class="text-xs text-gray-600">
+              <p>Last updated: {{ formatDate(willLastUpdated) }}</p>
+              <p class="text-gray-500 mt-1">Executor: {{ willExecutor }}</p>
+            </div>
+            <div v-else class="text-xs text-amber-600">
+              <p>No will recorded</p>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- RNRB Message -->
-      <div v-if="ihtData.rnrb_message" :class="[
-        'border-l-4 p-4 rounded',
-        ihtData.rnrb_status === 'full' ? 'bg-green-50 border-green-500' :
-        ihtData.rnrb_status === 'tapered' ? 'bg-amber-50 border-amber-500' :
-        'bg-gray-50 border-gray-500'
-      ]">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg v-if="ihtData.rnrb_status === 'full'" class="h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
-            <svg v-else-if="ihtData.rnrb_status === 'tapered'" class="h-5 w-5 text-amber-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-            </svg>
-            <svg v-else class="h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        <!-- Gifting Card -->
+        <div class="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow cursor-pointer" @click="navigateToGiftingTab">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center">
+              <svg class="h-6 w-6 text-green-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+              </svg>
+              <h4 class="text-sm font-semibold text-gray-900">Gifting</h4>
+            </div>
+            <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
           </div>
-          <div class="ml-3">
-            <h3 class="text-sm font-medium" :class="[
-              ihtData.rnrb_status === 'full' ? 'text-green-800' :
-              ihtData.rnrb_status === 'tapered' ? 'text-amber-800' :
-              'text-gray-800'
-            ]">Residence Nil Rate Band (RNRB)</h3>
-            <div class="mt-2 text-sm" :class="[
-              ihtData.rnrb_status === 'full' ? 'text-green-700' :
-              ihtData.rnrb_status === 'tapered' ? 'text-amber-700' :
-              'text-gray-700'
-            ]">
-              <p>{{ ihtData.rnrb_message }}</p>
+          <div class="space-y-2">
+            <div class="text-xs">
+              <p class="text-gray-600">Annual Exemption:</p>
+              <p class="text-lg font-bold text-green-700">£3,000</p>
+            </div>
+            <div class="text-xs">
+              <p class="text-gray-600">Immediately Giftable:</p>
+              <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(immediatelyGiftableAmount) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Life Policy Card -->
+        <div class="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow cursor-pointer" @click="navigateToProtectionModule">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center">
+              <svg class="h-6 w-6 text-purple-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+              <h4 class="text-sm font-semibold text-gray-900">Life Policy</h4>
+            </div>
+            <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </div>
+          <div class="space-y-2">
+            <div class="text-xs">
+              <p class="text-gray-600">Cover Needed:</p>
+              <p class="text-lg font-bold text-purple-700">{{ formatCurrency(ihtData?.estate_iht_liability || 0) }}</p>
+            </div>
+            <div class="text-xs">
+              <p class="text-gray-600">Recommended:</p>
+              <p class="text-sm font-semibold text-gray-900">Whole of Life</p>
+              <p class="text-xs text-gray-500 mt-1">Written in trust</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust Card (Coming Soon) -->
+        <div class="bg-gray-50 rounded-lg border border-gray-300 p-5 opacity-60 cursor-not-allowed">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center">
+              <svg class="h-6 w-6 text-gray-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+              </svg>
+              <h4 class="text-sm font-semibold text-gray-500">Trust</h4>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-center py-6">
+              <div class="text-center">
+                <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-xs font-medium text-gray-500">Coming Soon</p>
+                <p class="text-xs text-gray-400 mt-1">Trust planning tools</p>
+              </div>
             </div>
           </div>
         </div>
@@ -904,6 +968,62 @@
       </div>
     </div>
 
+    <!-- Tax Allowances Information (NRB & RNRB Messages) -->
+    <div v-if="!loading && ihtData" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <!-- NRB Message -->
+      <div v-if="ihtData.nrb_message" class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-blue-800">Nil Rate Band (NRB)</h3>
+            <div class="mt-2 text-sm text-blue-700">
+              <p>{{ ihtData.nrb_message }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RNRB Message -->
+      <div v-if="ihtData.rnrb_message" :class="[
+        'border-l-4 p-4 rounded',
+        ihtData.rnrb_status === 'full' ? 'bg-green-50 border-green-500' :
+        ihtData.rnrb_status === 'tapered' ? 'bg-amber-50 border-amber-500' :
+        'bg-gray-50 border-gray-500'
+      ]">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg v-if="ihtData.rnrb_status === 'full'" class="h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <svg v-else-if="ihtData.rnrb_status === 'tapered'" class="h-5 w-5 text-amber-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            <svg v-else class="h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium" :class="[
+              ihtData.rnrb_status === 'full' ? 'text-green-800' :
+              ihtData.rnrb_status === 'tapered' ? 'text-amber-800' :
+              'text-gray-800'
+            ]">Residence Nil Rate Band (RNRB)</h3>
+            <div class="mt-2 text-sm" :class="[
+              ihtData.rnrb_status === 'full' ? 'text-green-700' :
+              ihtData.rnrb_status === 'tapered' ? 'text-amber-700' :
+              'text-gray-700'
+            ]">
+              <p>{{ ihtData.rnrb_message }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Dual Gifting Timeline (Married Users Only) -->
     <DualGiftingTimeline
       v-if="isMarried && secondDeathData?.user_gifting_timeline"
@@ -1143,6 +1263,29 @@ export default {
       return this.ihtData?.gifting_details?.clt_liability?.clts || [];
     },
 
+    // Strategy Cards Computed Properties
+    hasWill() {
+      return this.secondDeathData?.will_info?.has_will || false;
+    },
+
+    willLastUpdated() {
+      return this.secondDeathData?.will_info?.last_updated || null;
+    },
+
+    willExecutor() {
+      return this.secondDeathData?.will_info?.executor_name || 'Not specified';
+    },
+
+    immediatelyGiftableAmount() {
+      // Calculate assets that can be gifted immediately (liquid assets)
+      const netWorth = this.ihtData?.net_estate_value || 0;
+      const taxableEstate = this.ihtData?.taxable_estate || 0;
+
+      // Estimate liquid assets as a percentage of net worth (simplified)
+      // In a real scenario, this would come from the backend with actual liquid asset calculations
+      return netWorth * 0.3; // Assume 30% of assets are liquid and giftable
+    },
+
     // Projected subtotals for second death breakdown
     userAssetsProjectedTotal() {
       if (!this.secondDeathData?.assets_breakdown?.user?.assets) return 0;
@@ -1289,6 +1432,16 @@ export default {
     navigateToGiftingTab() {
       // Emit event to parent EstateDashboard to switch to Gifting tab
       this.$emit('switch-tab', 'gifting');
+    },
+
+    navigateToWillTab() {
+      // Emit event to parent EstateDashboard to switch to Will tab
+      this.$emit('switch-tab', 'will');
+    },
+
+    navigateToProtectionModule() {
+      // Emit event to parent EstateDashboard to switch to Life Policy Strategy tab
+      this.$emit('switch-tab', 'life-policy');
     },
 
     async loadIHTCalculation() {

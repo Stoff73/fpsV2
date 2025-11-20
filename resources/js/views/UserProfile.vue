@@ -152,6 +152,16 @@ export default {
 
     onMounted(() => {
       loadProfile();
+
+      // Check for section query parameter and set active tab
+      const urlParams = new URLSearchParams(window.location.search);
+      const section = urlParams.get('section');
+      if (section) {
+        const validTabIds = tabs.map(tab => tab.id);
+        if (validTabIds.includes(section)) {
+          activeTab.value = section;
+        }
+      }
     });
 
     return {

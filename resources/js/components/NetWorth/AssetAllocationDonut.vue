@@ -1,16 +1,16 @@
 <template>
   <div class="asset-allocation-donut">
-    <h3 class="chart-title">Asset Allocation</h3>
+    <h3 class="chart-title">Wealth Allocation</h3>
     <div v-if="hasData" class="chart-container">
       <apexchart
         type="donut"
         :options="chartOptions"
-        :series="series"
+        :series="filteredSeries"
         height="350"
       ></apexchart>
     </div>
     <div v-else class="no-data">
-      <p>No asset data available</p>
+      <p>No wealth data available</p>
     </div>
   </div>
 </template>
@@ -29,17 +29,39 @@ export default {
 
   computed: {
     hasData() {
-      return this.series.some(value => value > 0);
+      return this.filteredSeries.some(value => value > 0);
     },
 
-    series() {
+    allCategories() {
+      // All possible categories with their values and labels
       return [
-        this.breakdown.property || 0,
-        this.breakdown.investments || 0,
-        this.breakdown.cash || 0,
-        this.breakdown.business || 0,
-        this.breakdown.chattels || 0,
+        { label: 'Pensions', value: this.breakdown.pensions || 0, color: '#6366F1' },
+        { label: 'Property', value: this.breakdown.property || 0, color: '#10B981' },
+        { label: 'Investments', value: this.breakdown.investments || 0, color: '#3B82F6' },
+        { label: 'Cash & Savings', value: this.breakdown.cash || 0, color: '#F59E0B' },
+        { label: 'Business', value: this.breakdown.business || 0, color: '#8B5CF6' },
+        { label: 'Chattels', value: this.breakdown.chattels || 0, color: '#EC4899' },
       ];
+    },
+
+    filteredCategories() {
+      // Filter out categories with zero values
+      return this.allCategories.filter(cat => cat.value > 0);
+    },
+
+    filteredSeries() {
+      // Array of values for non-zero categories
+      return this.filteredCategories.map(cat => cat.value);
+    },
+
+    filteredLabels() {
+      // Array of labels for non-zero categories
+      return this.filteredCategories.map(cat => cat.label);
+    },
+
+    filteredColors() {
+      // Array of colors for non-zero categories
+      return this.filteredCategories.map(cat => cat.color);
     },
 
     chartOptions() {
@@ -48,8 +70,8 @@ export default {
           type: 'donut',
           fontFamily: 'Inter, system-ui, sans-serif',
         },
-        labels: ['Property', 'Investments', 'Cash', 'Business', 'Chattels'],
-        colours: ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'],
+        labels: this.filteredLabels,
+        colors: this.filteredColors,
         legend: {
           position: 'bottom',
           fontSize: '14px',
@@ -81,12 +103,12 @@ export default {
                 },
                 total: {
                   show: true,
-                  label: 'Total Assets',
+                  label: 'Total Wealth',
                   fontSize: '14px',
                   fontWeight: 600,
                   color: '#6b7280',
                   formatter: () => {
-                    const total = this.series.reduce((sum, val) => sum + val, 0);
+                    const total = this.filteredSeries.reduce((sum, val) => sum + val, 0);
                     return this.formatCurrency(total);
                   },
                 },

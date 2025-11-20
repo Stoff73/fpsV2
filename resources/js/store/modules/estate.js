@@ -172,6 +172,36 @@ const getters = {
         return totalAssets - totalLiabilities;
     },
 
+    // Future projected age at death (from mortality tables)
+    futureDeathAge: (state) => {
+        // NEW: Use unified iht_summary structure
+        if (state.secondDeathPlanning?.iht_summary?.projected?.estimated_age_at_death) {
+            return state.secondDeathPlanning.iht_summary.projected.estimated_age_at_death;
+        }
+        // OLD: Fallback to second_death_analysis structure
+        return state.secondDeathPlanning?.second_death_analysis?.second_death?.estimated_age_at_death || null;
+    },
+
+    // Future projected taxable estate (at mortality age)
+    futureTaxableEstate: (state) => {
+        // NEW: Use unified iht_summary structure
+        if (state.secondDeathPlanning?.iht_summary?.projected?.taxable_estate !== undefined) {
+            return state.secondDeathPlanning.iht_summary.projected.taxable_estate;
+        }
+        // OLD: Fallback to second_death_analysis structure
+        return state.secondDeathPlanning?.second_death_analysis?.iht_calculation?.taxable_estate || null;
+    },
+
+    // Future projected IHT liability (at mortality age)
+    futureIHTLiability: (state) => {
+        // NEW: Use unified iht_summary structure
+        if (state.secondDeathPlanning?.iht_summary?.projected?.iht_liability !== undefined) {
+            return state.secondDeathPlanning.iht_summary.projected.iht_liability;
+        }
+        // OLD: Fallback to second_death_analysis structure
+        return state.secondDeathPlanning?.second_death_analysis?.iht_calculation?.iht_liability || null;
+    },
+
     loading: (state) => state.loading,
     error: (state) => state.error,
 };

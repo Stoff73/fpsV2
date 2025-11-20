@@ -11,6 +11,7 @@ const state = {
         liabilitiesBreakdown: {},
         asOfDate: null,
     },
+    spouseOverview: null,
     trend: [],
     assetsSummary: {
         pensions: { count: 0, total_value: 0, breakdown: { dc: 0, db: 0, state: 0 } },
@@ -39,6 +40,10 @@ const mutations = {
             liabilitiesBreakdown: overview.liabilities_breakdown || {},
             asOfDate: overview.as_of_date || null,
         };
+    },
+
+    SET_SPOUSE_OVERVIEW(state, spouseData) {
+        state.spouseOverview = spouseData;
     },
 
     SET_TREND(state, trend) {
@@ -74,6 +79,7 @@ const mutations = {
             liabilitiesBreakdown: {},
             asOfDate: null,
         };
+        state.spouseOverview = null;
         state.trend = [];
         state.assetsSummary = {
             pensions: { count: 0, total_value: 0, breakdown: { dc: 0, db: 0, state: 0 } },
@@ -163,6 +169,12 @@ const actions = {
 
             if (response.success) {
                 commit('SET_OVERVIEW', response.data);
+                // Set spouse data if it exists
+                if (response.spouse_data) {
+                    commit('SET_SPOUSE_OVERVIEW', response.spouse_data);
+                } else {
+                    commit('SET_SPOUSE_OVERVIEW', null);
+                }
             } else {
                 throw new Error(response.message || 'Failed to fetch net worth overview');
             }

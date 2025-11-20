@@ -6,8 +6,12 @@
           &copy; {{ currentYear }} TenGo - Financial Planning System. For demonstration purposes only.
           <span class="ml-2 text-gray-400">|</span>
           <router-link to="/version" class="ml-2 font-semibold text-primary-600 hover:text-primary-700 hover:underline">
-            v0.2.9
+            v0.2.10
           </router-link>
+          <span class="ml-2 text-gray-400">|</span>
+          <a href="https://csjones.co" target="_blank" rel="noopener noreferrer" class="ml-2 font-semibold text-primary-600 hover:text-primary-700 hover:underline">
+            Boma Build
+          </a>
         </div>
         <div class="flex space-x-6">
           <a href="#" class="text-body-sm text-gray-500 hover:text-gray-700">
