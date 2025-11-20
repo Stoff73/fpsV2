@@ -6,9 +6,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Slippery Mode Design System */
-@import './slippery-mode.css';
-
 /* Base Styles */
 @layer base {
   body {
