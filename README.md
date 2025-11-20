@@ -36,7 +36,9 @@ A comprehensive financial planning web application designed for UK individuals a
 
 ### Current Status
 
-**Version**: v0.2.9 (Beta - Production Ready)
+**Version**: v0.2.10 "Boma Build" (Production)
+**Production URL**: https://csjones.co/tengo
+**Last Deployment**: November 20, 2025
 
 **Completion Status**:
 - ✅ **Foundation**: 100% (Authentication, routing, testing framework)
@@ -44,7 +46,8 @@ A comprehensive financial planning web application designed for UK individuals a
 - ✅ **Advanced Features**: 100% (Portfolio optimization, Monte Carlo simulations, IHT planning, mixed mortgages)
 - ✅ **User Management**: 100% (Spouse accounts, joint ownership, data sharing)
 - ✅ **Admin Panel**: 100% (User management, backups, tax configuration)
-- ✅ **UI/UX**: Enhanced (Policy detail views, Dashboard Plans card, expenditure modes, managing agents)
+- ✅ **UI/UX**: Enhanced (Uniform dashboard cards, wealth summary, financial commitments integration)
+- ✅ **Expenditure Tracking**: Three-mode system (Simple/Joint/Separate) with financial commitments
 
 ---
 
@@ -647,6 +650,90 @@ For issues, questions, or contributions:
 
 ## 📋 Recent Updates (November 2025)
 
+### November 20, 2025 - v0.2.10 "Boma Build" - Production Release
+
+**28 Bug Fixes & Feature Enhancements** - Successfully deployed to production
+
+**Major Features**:
+
+1. **Enhanced Dashboard Cards**:
+   - ✅ Uniform styling across Net Worth, Estate Planning, and Protection cards
+   - ✅ Clickable card navigation to relevant modules
+   - ✅ Estate card now displays future projected values correctly
+   - ✅ Protection card enhanced with trust status and coverage indicators
+   - ✅ Trusts card greyed out with "Coming Soon" placeholder
+
+2. **Wealth Summary with Spouse Data**:
+   - ✅ NEW WealthSummary component showing side-by-side asset/liability breakdown
+   - ✅ Spouse data integration when data sharing enabled
+   - ✅ Combined household view with individual shares
+   - ✅ Asset allocation donut chart with pensions and dynamic filtering
+   - ✅ Net Worth Trend chart disabled with "Coming Soon" placeholder
+
+3. **Financial Commitments Integration**:
+   - ✅ Automatic aggregation from DC Pensions, Properties, Protection policies, and Liabilities
+   - ✅ Display in expenditure form showing monthly commitments breakdown
+   - ✅ Joint-only commitments on spouse tab (prevents double-counting)
+   - ✅ Proper handling of premium frequency conversion (monthly/quarterly/annual)
+   - ✅ 50/50 split for joint property expenses
+
+4. **Expenditure Tracking Enhancements**:
+   - ✅ Three-tab system now showing commitments on all tabs
+   - ✅ Fixed duplicate expenditure form rendering in onboarding
+   - ✅ Fixed spouse tab calculations including joint commitments
+   - ✅ Property expense breakdown shows all costs (insurance, service charge, etc.)
+   - ✅ Totals now correctly include financial commitments
+
+5. **Onboarding Improvements**:
+   - ✅ Reordered steps for better UX (Domicile/Assets before Income)
+   - ✅ Rental income now displays automatically in Income step
+   - ✅ Fresh API data fetching instead of cached store data
+
+6. **IHT Planning Enhancements**:
+   - ✅ NRB/RNRB messages repositioned below breakdown for clarity
+   - ✅ IHT Mitigation Strategy cards (Will, Gifting, Life Policy, Trust)
+   - ✅ Life Policy card navigation fixed to correct strategy tab
+
+7. **Footer Update**:
+   - ✅ Updated to v0.2.10 with new "Boma Build" link
+
+**Critical Bug Fixes**:
+
+1. **Financial Commitments API** (Bugs #20-23):
+   - ✅ Fixed incorrect DC Pension model namespace
+   - ✅ Fixed DC Pension field name (`monthly_contribution_amount` not `employee_contribution_amount`)
+   - ✅ Fixed Property expense field names to match database schema
+   - ✅ Fixed Protection policy premium calculations (`premium_amount` + `premium_frequency`)
+
+2. **Spouse Account Linking** (Bug #19):
+   - ✅ Fixed validation to allow re-linking already-linked spouses (idempotency)
+
+3. **Expenditure Form Issues** (Bugs #24-27):
+   - ✅ Fixed property expenses not displaying in expenditure form
+   - ✅ Fixed expense totals showing £0 despite data
+   - ✅ Fixed spouse expenditure tab missing joint expenses
+   - ✅ Fixed spouse totals not including joint commitments
+
+4. **Rental Income Display** (Bug #28):
+   - ✅ Fixed rental income not appearing in onboarding Income step
+   - ✅ Fetches fresh user data from API instead of cached store
+
+**Technical Details**:
+- **Files Changed**: 25 files (22 modified, 2 new, 1 deleted)
+- **Backend**: 6 files (controllers, services, routes)
+- **Frontend**: 17 files (components, views, stores, services)
+- **New Components**: WealthSummary.vue
+- **Database Migrations**: None required (code-only deployment)
+- **Git Tag**: v0.2.10
+- **Deployment**: November 20, 2025
+
+**Documentation**:
+- `bomaPath.md` - Complete patch documentation
+- `expensemodule.md` - Expenditure component deep-dive
+- `DEPLOYMENT_v0.2.10_INSTRUCTIONS.md` - Production deployment guide
+
+---
+
 ### November 15, 2025 - v0.2.9 Major Feature Release
 
 **20 Database Migrations** - 60+ new fields across 8 tables
@@ -1038,11 +1125,13 @@ For issues, questions, or contributions:
 
 ---
 
-**Current Version**: v0.2.9 (Beta - Production Ready)
+**Current Version**: v0.2.10 "Boma Build" (Production)
 
-**Last Updated**: November 17, 2025
+**Production URL**: https://csjones.co/tengo
 
-**Status**: 🚀 Active Development - All Core Features Complete
+**Last Updated**: November 20, 2025
+
+**Status**: 🚀 Production Ready - All Core Features Complete
 
 ---
 

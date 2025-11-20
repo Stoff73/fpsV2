@@ -765,6 +765,43 @@ All liability-related display and categorization issues have been fully resolved
 
 **Documentation**: See `DEPLOYMENT_PATCH_v0.2.9.md` for complete details
 
+### ✅ RESOLVED - v0.2.10 "Boma Build" Fixes (Deployed November 20, 2025)
+
+**28 Bug Fixes and Feature Enhancements** - All successfully deployed to production
+
+**Key Fixes**:
+
+1. **Financial Commitments API** (Bugs #20-23):
+   - Fixed incorrect DC Pension model namespace (`App\Models\Retirement\DCPension`)
+   - Fixed DC Pension field name (`monthly_contribution_amount` not `employee_contribution_amount`)
+   - Fixed Property expense field names to match database schema
+   - Fixed Protection policy premium calculations (`premium_amount` + `premium_frequency`)
+
+2. **Expenditure Form** (Bugs #24-27):
+   - Fixed property expenses not displaying in financial commitments
+   - Fixed expense totals showing £0 despite data in database
+   - Fixed spouse expenditure tab missing joint expenses
+   - Fixed spouse totals not including joint commitments
+
+3. **Rental Income Display** (Bug #28):
+   - Fixed rental income not appearing in onboarding Income step
+   - Changed from cached store data to fresh API fetch
+
+4. **Spouse Account Linking** (Bug #19):
+   - Fixed validation to allow re-linking already-linked spouses
+
+5. **Dashboard Card Enhancements**:
+   - Enhanced all dashboard cards with uniform styling
+   - Added clickable navigation to relevant modules
+   - Fixed estate card future values display
+   - Added WealthSummary component with spouse data integration
+
+**Status**: ✅ **ALL FIXED** - Successfully deployed and verified in production
+
+**Production URL**: https://csjones.co/tengo
+
+**Documentation**: See `bomaPath.md` and `DEPLOYMENT_v0.2.10_INSTRUCTIONS.md` for complete details
+
 ---
 
 For any bugs encountered, please use the `systematic-debugging` skill to investigate before implementing fixes.
@@ -778,9 +815,10 @@ For any bugs encountered, please use the `systematic-debugging` skill to investi
 
 ---
 
-**Current Version**: v0.2.9 (Beta - Production Ready)
-**Last Updated**: November 17, 2025
-**Status**: 🚀 Active Development - All Core Features Complete
+**Current Version**: v0.2.10 "Boma Build" (Production)
+**Production URL**: https://csjones.co/tengo
+**Last Updated**: November 20, 2025
+**Status**: 🚀 Production Ready - All Core Features Complete
 
 ---
 
