@@ -292,4 +292,39 @@ class TrustController extends Controller
     /**
      * Get upcoming tax returns for all user's trusts
      */
+    public function getUpcomingTaxReturns(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $monthsAhead = $request->input('months_ahead', 12);
+
+        // Get upcoming periodic charges
+        $upcomingCharges = $this->periodicChargeCalculator->getUpcomingCharges($user->id, $monthsAhead);
+
+        // Get all active trusts with tax return due dates
+        $trusts = Trust::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->get();
+
+        $taxReturns = $trusts->map(function ($trust) {
+            $taxReturn = $this->periodicChargeCalculator->calculateTaxReturnDueDates($trust);
+
+            return [
+                'trust_id' => $trust->id,
+                'trust_name' => $trust->trust_name,
+                'trust_type' => $trust->trust_type,
+                'tax_year_end' => $taxReturn['tax_year_end'],
+                'return_due_date' => $taxReturn['return_due_date'],
+                'days_until_due' => $taxReturn['days_until_due'],
+                'is_overdue' => $taxReturn['is_overdue'],
+            ];
+        })->sortBy('return_due_date');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'upcoming_periodic_charges' => $upcomingCharges,
+                'tax_returns' => $taxReturns->values(),
+            ],
+        ]);
+    }
 }

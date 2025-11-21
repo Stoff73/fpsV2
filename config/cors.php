@@ -19,14 +19,13 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:8000',
-        'http://127.0.0.1:8000',
-        'http://localhost:5173',
-        'https://csjones.co',
-        env('FRONTEND_URL', 'http://localhost:5173'),
-        env('APP_URL'),
-    ],
+    'allowed_origins' => array_filter(array_unique(array_merge(
+        explode(',', env('ALLOWED_ORIGINS', '')),
+        [
+            env('FRONTEND_URL'),
+            env('APP_URL'),
+        ]
+    ))),
 
     'allowed_origins_patterns' => [],
 

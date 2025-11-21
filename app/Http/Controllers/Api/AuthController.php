@@ -28,10 +28,8 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        \Log::info('SECURITY AUDIT: User registered', [
+        \Log::info('User registered', [
             'user_id' => $user->id,
-            'user_email' => $user->email,
-            'token_preview' => substr($token, 0, 20).'...',
         ]);
 
         return response()->json([
@@ -128,11 +126,11 @@ class AuthController extends Controller
                 'string',
                 'min:8',
                 'confirmed',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/',
                 'different:current_password',
             ],
         ], [
-            'new_password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).',
+            'new_password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
             'new_password.different' => 'New password must be different from current password.',
         ]);
 

@@ -631,7 +631,7 @@ Route::middleware('auth:sanctum')->prefix('estate')->group(function () {
 
     // Trust planning and tax returns
     Route::get('/trust-recommendations', [TrustController::class, 'getTrustRecommendations']);
-    Route::get('/trusts/upcoming-tax-returns', [WillController::class, 'getUpcomingTaxReturns']);
+    Route::get('/trusts/upcoming-tax-returns', [TrustController::class, 'getUpcomingTaxReturns']);
 
     // Will and Bequests
     Route::get('/will', [WillController::class, 'getWill']);

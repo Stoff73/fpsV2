@@ -55,7 +55,7 @@ export default {
     const profile = computed(() => store.getters['userProfile/profile']);
 
     const isMarried = computed(() => {
-      return user.value?.marital_status === 'married' && user.value?.spouse_id;
+      return user.value?.marital_status === 'married' && !!user.value?.spouse_id;
     });
 
     const spouseName = computed(() => {

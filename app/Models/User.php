@@ -18,82 +18,18 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * The attributes that are guarded against mass assignment.
+     * Using guarded instead of fillable for maintainability - protects sensitive
+     * fields while allowing all others to be mass assignable by default.
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'is_admin',
-        'must_change_password',
-        'date_of_birth',
-        'gender',
-        'marital_status',
-        'spouse_id',
-        'household_id',
-        'is_primary_account',
-        'role',
-        'national_insurance_number',
-        'address_line_1',
-        'address_line_2',
-        'city',
-        'county',
-        'postcode',
-        'phone',
-        'occupation',
-        'employer',
-        'industry',
-        'employment_status',
-        'target_retirement_age',
-        'retirement_date',
-        'health_status',
-        'smoking_status',
-        'education_level',
-        'annual_employment_income',
-        'annual_self_employment_income',
-        'annual_rental_income',
-        'annual_dividend_income',
-        'annual_interest_income',
-        'annual_other_income',
-        'monthly_expenditure',
-        'annual_expenditure',
-        'food_groceries',
-        'transport_fuel',
-        'healthcare_medical',
-        'insurance',
-        'mobile_phones',
-        'internet_tv',
-        'subscriptions',
-        'clothing_personal_care',
-        'entertainment_dining',
-        'holidays_travel',
-        'pets',
-        'childcare',
-        'school_fees',
-        'school_lunches',
-        'school_extras',
-        'university_fees',
-        'children_activities',
-        'gifts_charity',
-        'charitable_bequest',
-        'regular_savings',
-        'other_expenditure',
-        'expenditure_entry_mode',
-        'expenditure_sharing_mode',
-        'liabilities_reviewed',
-        'onboarding_completed',
-        'onboarding_focus_area',
-        'onboarding_current_step',
-        'onboarding_skipped_steps',
-        'onboarding_started_at',
-        'onboarding_completed_at',
-        'domicile_status',
-        'country_of_birth',
-        'uk_arrival_date',
-        'years_uk_resident',
-        'deemed_domicile_date',
+    protected $guarded = [
+        'id',
+        'email_verified_at',
+        'remember_token',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -381,8 +317,9 @@ class User extends Authenticatable
         }
 
         // If both users are married and linked, enable data sharing automatically
+        // Use existing relationship to avoid N+1 queries when eager-loaded
         if ($this->marital_status === 'married') {
-            $spouse = User::find($this->spouse_id);
+            $spouse = $this->relationLoaded('spouse') ? $this->spouse : $this->spouse()->first();
             if ($spouse && $spouse->marital_status === 'married' && $spouse->spouse_id === $this->id) {
                 return true;
             }
