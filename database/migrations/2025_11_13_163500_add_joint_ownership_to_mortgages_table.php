@@ -12,23 +12,29 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('mortgages', function (Blueprint $table) {
-            $table->enum('ownership_type', ['individual', 'joint', 'trust'])
-                ->default('individual')
-                ->after('remaining_term_months');
+            if (!Schema::hasColumn('mortgages', 'ownership_type')) {
+                $table->enum('ownership_type', ['individual', 'joint', 'trust'])
+                    ->default('individual')
+                    ->after('remaining_term_months');
+            }
 
-            $table->unsignedBigInteger('joint_owner_id')
-                ->nullable()
-                ->after('ownership_type');
+            if (!Schema::hasColumn('mortgages', 'joint_owner_id')) {
+                $table->unsignedBigInteger('joint_owner_id')
+                    ->nullable()
+                    ->after('ownership_type');
 
-            $table->string('joint_owner_name', 255)
-                ->nullable()
-                ->after('joint_owner_id');
+                // Add foreign key constraint
+                $table->foreign('joint_owner_id')
+                    ->references('id')
+                    ->on('users')
+                    ->onDelete('set null');
+            }
 
-            // Add foreign key constraint
-            $table->foreign('joint_owner_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('set null');
+            if (!Schema::hasColumn('mortgages', 'joint_owner_name')) {
+                $table->string('joint_owner_name', 255)
+                    ->nullable()
+                    ->after('joint_owner_id');
+            }
         });
     }
 
