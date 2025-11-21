@@ -210,6 +210,25 @@ protected $guarded = [
 | `routes/api.php` | Fixed trust route to use TrustController |
 | `app/Http/Controllers/Api/Estate/TrustController.php` | Added getUpcomingTaxReturns method |
 | `app/Models/User.php` | Fixed N+1 query, switched to guarded |
+| `resources/js/components/UserProfile/ExpenditureOverview.vue` | Fixed isMarried prop type coercion |
+
+---
+
+## 10. Vue Prop Type Warning Fix
+
+**File:** `resources/js/components/UserProfile/ExpenditureOverview.vue`
+
+**Issue:** `isMarried` prop was passing `spouse_id` (Number) instead of Boolean, causing Vue warnings.
+
+**Fix:** Added `!!` to coerce to boolean.
+
+```javascript
+// Before
+return user.value?.marital_status === 'married' && user.value?.spouse_id;
+
+// After
+return user.value?.marital_status === 'married' && !!user.value?.spouse_id;
+```
 
 ---
 
