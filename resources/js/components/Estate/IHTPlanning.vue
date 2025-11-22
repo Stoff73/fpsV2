@@ -580,7 +580,10 @@
             <tr>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset / Liability</th>
               <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Current Value</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Projected (Age {{ projection?.at_death?.estimated_age_at_death || '...' }})</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <div>Projected (Age {{ projection?.at_death?.estimated_age_at_death || '...' }})</div>
+                <div class="text-[10px] font-normal text-gray-400 normal-case mt-0.5">This is a static future value calculation using 4.7%</div>
+              </th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">

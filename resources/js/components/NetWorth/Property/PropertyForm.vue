@@ -622,7 +622,6 @@
                 <option value="">Select mortgage type</option>
                 <option value="repayment">Repayment</option>
                 <option value="interest_only">Interest Only</option>
-                <option value="part_and_part">Part and Part</option>
                 <option value="mixed">Mixed</option>
               </select>
             </div>

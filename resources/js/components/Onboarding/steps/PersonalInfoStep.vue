@@ -417,7 +417,44 @@ export default {
         }
       }
 
-      // Fetch step data from backend (will be empty for new users)
+      // Get current user from store
+      const currentUser = store.getters['auth/currentUser'];
+
+      // Pre-populate from user table if data exists
+      if (currentUser) {
+        if (currentUser.date_of_birth) {
+          formData.value.date_of_birth = formatDate(currentUser.date_of_birth);
+        }
+        if (currentUser.gender) {
+          formData.value.gender = currentUser.gender;
+        }
+        if (currentUser.marital_status) {
+          formData.value.marital_status = currentUser.marital_status;
+        }
+        if (currentUser.address_line_1) {
+          formData.value.address_line_1 = currentUser.address_line_1;
+        }
+        if (currentUser.address_line_2) {
+          formData.value.address_line_2 = currentUser.address_line_2;
+        }
+        if (currentUser.city) {
+          formData.value.city = currentUser.city;
+        }
+        if (currentUser.county) {
+          formData.value.county = currentUser.county;
+        }
+        if (currentUser.postcode) {
+          formData.value.postcode = currentUser.postcode;
+        }
+        if (currentUser.phone) {
+          formData.value.phone = currentUser.phone;
+        }
+        if (currentUser.national_insurance_number) {
+          formData.value.national_insurance_number = currentUser.national_insurance_number;
+        }
+      }
+
+      // Fetch step data from backend (will override user data if exists)
       try {
         const stepData = await store.dispatch('onboarding/fetchStepData', 'personal_info');
         if (stepData && Object.keys(stepData).length > 0) {
@@ -428,7 +465,7 @@ export default {
           formData.value = { ...formData.value, ...stepData };
         }
       } catch (err) {
-        // No existing data, start with empty form (correct for new users)
+        // No existing step data, use pre-populated values from user table
       }
     });
 

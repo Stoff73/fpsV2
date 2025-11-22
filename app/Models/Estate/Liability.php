@@ -15,6 +15,9 @@ class Liability extends Model
 
     protected $fillable = [
         'user_id',
+        'ownership_type',
+        'joint_owner_id',
+        'trust_id',
         'liability_type',
         'country',
         'liability_name',
@@ -44,5 +47,21 @@ class Liability extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Joint owner relationship (for joint liabilities)
+     */
+    public function jointOwner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'joint_owner_id');
+    }
+
+    /**
+     * Trust relationship (for trust-owned liabilities)
+     */
+    public function trust(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Estate\Trust::class);
     }
 }

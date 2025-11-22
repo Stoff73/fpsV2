@@ -762,10 +762,11 @@ export default {
       const now = new Date();
       const yearsElapsed = (now - giftDate) / (365.25 * 24 * 60 * 60 * 1000);
 
+      // Green for years that have passed, red for years remaining
       if (yearsElapsed >= year) {
-        return 'text-white font-bold';
+        return 'text-green-600 font-bold'; // Passed - good
       }
-      return 'text-gray-600';
+      return 'text-red-600 font-bold'; // Remaining - still at risk
     },
 
     getSevenYearDate(gift) {

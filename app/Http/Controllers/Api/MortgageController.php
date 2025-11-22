@@ -93,8 +93,8 @@ class MortgageController extends Controller
             $validated['remaining_term_months'] = $validated['remaining_term_months'] ?? 300; // 25 years default
         }
 
-        // For joint ownership, split the outstanding balance 50/50 BEFORE creating any records
-        if (isset($validated['ownership_type']) && $validated['ownership_type'] === 'joint') {
+        // For joint or tenants_in_common ownership, split the outstanding balance 50/50 BEFORE creating any records
+        if (isset($validated['ownership_type']) && in_array($validated['ownership_type'], ['joint', 'tenants_in_common'])) {
             $validated['outstanding_balance'] = $validated['outstanding_balance'] / 2;
         }
 
@@ -104,8 +104,8 @@ class MortgageController extends Controller
             ...$validated,
         ]);
 
-        // If joint ownership, create reciprocal mortgage for joint owner
-        if (isset($validated['ownership_type']) && $validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
+        // If joint or tenants_in_common ownership, create reciprocal mortgage for joint owner
+        if (isset($validated['ownership_type']) && in_array($validated['ownership_type'], ['joint', 'tenants_in_common']) && isset($validated['joint_owner_id'])) {
             $this->createJointMortgage($mortgage, $validated['joint_owner_id'], $property);
         }
 

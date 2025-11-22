@@ -404,7 +404,7 @@ class UserProfileService
      * Get all financial commitments for expenditure tracking
      * Returns monthly payments from pensions, properties, investments, protection, and liabilities
      */
-    public function getFinancialCommitments(User $user): array
+    public function getFinancialCommitments(User $user, string $ownershipFilter = 'all'): array
     {
         $commitments = [
             'retirement' => [],
@@ -415,20 +415,22 @@ class UserProfileService
         ];
 
         // 1. DC Pension Contributions
+        // Note: DC Pensions are always individual - no joint ownership support
         $dcPensions = \App\Models\DCPension::where('user_id', $user->id)->get();
         foreach ($dcPensions as $pension) {
             if ($pension->monthly_contribution_amount > 0) {
-                // Adjust for joint ownership
-                $isJoint = $pension->ownership_type === 'joint';
-                $displayAmount = $isJoint ? ($pension->monthly_contribution_amount / 2) : $pension->monthly_contribution_amount;
+                // Apply ownership filter - DC pensions are always individual
+                if (!$this->shouldIncludeByOwnership(false, $ownershipFilter)) {
+                    continue;
+                }
 
                 $commitments['retirement'][] = [
                     'id' => $pension->id,
                     'name' => $pension->pension_name ?? 'DC Pension',
                     'type' => 'dc_pension',
-                    'monthly_amount' => $displayAmount,
-                    'is_joint' => $isJoint,
-                    'ownership_type' => $pension->ownership_type,
+                    'monthly_amount' => $pension->monthly_contribution_amount,
+                    'is_joint' => false,
+                    'ownership_type' => 'individual',
                 ];
             }
         }
@@ -486,7 +488,13 @@ class UserProfileService
 
             if ($totalMonthlyExpense > 0) {
                 // Adjust for joint ownership
-                $isJoint = $property->ownership_type === 'joint';
+                $isJoint = in_array($property->ownership_type, ['joint', 'tenants_in_common']);
+
+                // Apply ownership filter
+                if (!$this->shouldIncludeByOwnership($isJoint, $ownershipFilter)) {
+                    continue;
+                }
+
                 $displayAmount = $isJoint ? ($totalMonthlyExpense / 2) : $totalMonthlyExpense;
 
                 $commitments['properties'][] = [
@@ -577,6 +585,12 @@ class UserProfileService
             if ($liability->monthly_payment > 0) {
                 // Adjust for joint ownership
                 $isJoint = $liability->ownership_type === 'joint';
+
+                // Apply ownership filter
+                if (!$this->shouldIncludeByOwnership($isJoint, $ownershipFilter)) {
+                    continue;
+                }
+
                 $displayAmount = $isJoint ? ($liability->monthly_payment / 2) : $liability->monthly_payment;
 
                 $commitments['liabilities'][] = [
@@ -605,5 +619,22 @@ class UserProfileService
             'commitments' => $commitments,
             'totals' => $totals,
         ];
+    }
+
+    /**
+     * Helper method to determine if an item should be included based on ownership filter
+     *
+     * @param bool $isJoint Whether the item is jointly owned
+     * @param string $filter The ownership filter ('all', 'joint_only', 'individual_only')
+     * @return bool True if item should be included, false if it should be skipped
+     */
+    private function shouldIncludeByOwnership(bool $isJoint, string $filter): bool
+    {
+        return match($filter) {
+            'joint_only' => $isJoint,
+            'individual_only' => !$isJoint,
+            'all' => true,
+            default => true,
+        };
     }
 }

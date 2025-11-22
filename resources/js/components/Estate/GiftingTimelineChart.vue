@@ -202,11 +202,27 @@ export default {
             return this.formatCurrency(meta.gift_value);
           },
           style: {
-            colours: ['#fff'],
             fontSize: '11px',
             fontWeight: 'bold',
           },
+          background: {
+            enabled: true,
+            foreColor: '#fff',
+            padding: 4,
+            borderRadius: 2,
+            borderWidth: 0,
+            opacity: 0.9,
+            dropShadow: {
+              enabled: false,
+            },
+          },
         },
+        colors: this.gifts.map((gift) => {
+          const giftDate = new Date(gift.gift_date);
+          const today = new Date();
+          const yearsElapsed = this.calculateYearsElapsed(giftDate, today);
+          return this.getGiftColour(yearsElapsed, gift.gift_type);
+        }),
         tooltip: {
           custom: ({ seriesIndex, dataPointIndex, w }) => {
             const data = w.config.series[seriesIndex].data[dataPointIndex];

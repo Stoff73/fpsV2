@@ -128,8 +128,9 @@ export default {
     },
 
     handleSave(data) {
+      const pensionType = this.mainPensionType;
       this.mainPensionType = null;
-      this.$emit('save', data);
+      this.$emit('save', { ...data, _pensionType: pensionType });
     },
   },
 };

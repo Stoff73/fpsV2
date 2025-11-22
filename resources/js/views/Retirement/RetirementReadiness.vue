@@ -78,14 +78,14 @@
                 <span class="detail-value">{{ formatCurrency(pension.current_fund_value) }}</span>
               </div>
 
-              <div v-if="pension.contribution_amount" class="detail-row">
-                <span class="detail-label">Monthly Contribution</span>
-                <span class="detail-value">{{ formatCurrency(pension.contribution_amount) }}</span>
+              <div v-if="pension.retirement_age" class="detail-row">
+                <span class="detail-label">Retirement Age</span>
+                <span class="detail-value">{{ pension.retirement_age }}</span>
               </div>
 
-              <div v-if="pension.projected_retirement_value" class="detail-row">
-                <span class="detail-label">Projected at {{ targetRetirementAge }}</span>
-                <span class="detail-value">{{ formatCurrency(pension.projected_retirement_value) }}</span>
+              <div v-if="pension.monthly_contribution_amount" class="detail-row">
+                <span class="detail-label">Monthly Contribution</span>
+                <span class="detail-value">{{ formatCurrency(pension.monthly_contribution_amount) }}</span>
               </div>
             </div>
           </div>
@@ -165,7 +165,7 @@
 
               <div class="detail-row">
                 <span class="detail-label">Payment Age</span>
-                <span class="detail-value">{{ statePension.payment_start_age || 67 }}</span>
+                <span class="detail-value">{{ statePension.state_pension_age || 67 }}</span>
               </div>
             </div>
           </div>
@@ -256,11 +256,11 @@ export default {
     },
 
     statePensionForecast() {
-      return parseFloat(this.statePension?.forecast_weekly_amount || 0) * 52;
+      return parseFloat(this.statePension?.state_pension_forecast_annual || 0);
     },
 
     niYears() {
-      return this.statePension?.qualifying_years || 0;
+      return this.statePension?.ni_years_completed || 0;
     },
 
     allPensions() {
@@ -307,9 +307,25 @@ export default {
       this.isEditMode = false;
     },
 
-    handlePensionSave(data) {
-      // The UnifiedPensionForm's child components handle saving
-      // This just closes the form
+    async handlePensionSave(data) {
+      const pensionType = data._pensionType;
+      delete data._pensionType;
+
+      try {
+        if (pensionType === 'state') {
+          await this.$store.dispatch('retirement/updateStatePension', data);
+        } else if (pensionType === 'dc') {
+          await this.$store.dispatch('retirement/createDCPension', data);
+        } else if (pensionType === 'db') {
+          await this.$store.dispatch('retirement/createDBPension', data);
+        }
+        // Refresh data
+        await this.$store.dispatch('retirement/fetchRetirementData');
+      } catch (error) {
+        console.error('Failed to save pension:', error);
+        alert('Failed to save pension. Please try again.');
+      }
+
       this.closePensionForm();
     },
 

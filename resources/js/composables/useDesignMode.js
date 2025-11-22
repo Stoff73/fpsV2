@@ -3,7 +3,10 @@ import { ref, watch } from 'vue';
 const DESIGN_MODE_KEY = 'fps_design_mode';
 
 // Reactive state shared across all components
-const designMode = ref(localStorage.getItem(DESIGN_MODE_KEY) || 'normal');
+// Default to 'normal' mode - slippery mode must be explicitly activated from dashboard only
+// Clear any stale localStorage value to ensure normal mode is default
+localStorage.removeItem(DESIGN_MODE_KEY);
+const designMode = ref('normal');
 
 console.log('[DesignMode] Initial mode from localStorage:', designMode.value);
 

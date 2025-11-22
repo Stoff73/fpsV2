@@ -1089,7 +1089,116 @@ class OnboardingService
             ->where('step_name', $stepName)
             ->first();
 
-        return $progress?->step_data;
+        // If we have saved progress, return it
+        if ($progress && $progress->step_data) {
+            return $progress->step_data;
+        }
+
+        // No saved progress - fall back to user's existing data for this step
+        return $this->getStepDataFromUser($user, $stepName);
+    }
+
+    /**
+     * Get step data from user's existing fields (fallback when no onboarding_progress record exists)
+     */
+    private function getStepDataFromUser(User $user, string $stepName): ?array
+    {
+        switch ($stepName) {
+            case 'expenditure':
+                // Return user's expenditure fields if any exist
+                $hasExpenditureData = $user->monthly_expenditure > 0 ||
+                                     $user->annual_expenditure > 0 ||
+                                     $user->food_groceries > 0 ||
+                                     $user->transport_fuel > 0;
+
+                if (!$hasExpenditureData) {
+                    return null;
+                }
+
+                $userData = [
+                    'food_groceries' => $user->food_groceries ?? 0,
+                    'transport_fuel' => $user->transport_fuel ?? 0,
+                    'healthcare_medical' => $user->healthcare_medical ?? 0,
+                    'insurance' => $user->insurance ?? 0,
+                    'mobile_phones' => $user->mobile_phones ?? 0,
+                    'internet_tv' => $user->internet_tv ?? 0,
+                    'subscriptions' => $user->subscriptions ?? 0,
+                    'clothing_personal_care' => $user->clothing_personal_care ?? 0,
+                    'entertainment_dining' => $user->entertainment_dining ?? 0,
+                    'holidays_travel' => $user->holidays_travel ?? 0,
+                    'pets' => $user->pets ?? 0,
+                    'childcare' => $user->childcare ?? 0,
+                    'school_fees' => $user->school_fees ?? 0,
+                    'school_lunches' => $user->school_lunches ?? 0,
+                    'school_extras' => $user->school_extras ?? 0,
+                    'university_fees' => $user->university_fees ?? 0,
+                    'children_activities' => $user->children_activities ?? 0,
+                    'gifts_charity' => $user->gifts_charity ?? 0,
+                    'regular_savings' => $user->regular_savings ?? 0,
+                    'other_expenditure' => $user->other_expenditure ?? 0,
+                    'monthly_expenditure' => $user->monthly_expenditure ?? 0,
+                    'annual_expenditure' => $user->annual_expenditure ?? 0,
+                    'expenditure_entry_mode' => $user->expenditure_entry_mode ?? 'category',
+                    'expenditure_sharing_mode' => $user->expenditure_sharing_mode ?? 'joint',
+                ];
+
+                // If user is married and has spouse, check if spouse also has expenditure data
+                if ($user->spouse_id) {
+                    $spouse = User::find($user->spouse_id);
+                    if ($spouse !== null) {
+                        $hasSpouseExpenditureData = ($spouse->monthly_expenditure ?? 0) > 0 ||
+                                                   ($spouse->annual_expenditure ?? 0) > 0 ||
+                                                   ($spouse->food_groceries ?? 0) > 0 ||
+                                                   ($spouse->transport_fuel ?? 0) > 0;
+
+                        if ($hasSpouseExpenditureData) {
+                            // Both user and spouse have separate expenditure - return in separate mode format
+                            // Override sharing mode to 'separate' since both have data
+                            $userData['expenditure_sharing_mode'] = 'separate';
+
+                            $spouseData = [
+                                'food_groceries' => $spouse->food_groceries ?? 0,
+                                'transport_fuel' => $spouse->transport_fuel ?? 0,
+                                'healthcare_medical' => $spouse->healthcare_medical ?? 0,
+                                'insurance' => $spouse->insurance ?? 0,
+                                'mobile_phones' => $spouse->mobile_phones ?? 0,
+                                'internet_tv' => $spouse->internet_tv ?? 0,
+                                'subscriptions' => $spouse->subscriptions ?? 0,
+                                'clothing_personal_care' => $spouse->clothing_personal_care ?? 0,
+                                'entertainment_dining' => $spouse->entertainment_dining ?? 0,
+                                'holidays_travel' => $spouse->holidays_travel ?? 0,
+                                'pets' => $spouse->pets ?? 0,
+                                'childcare' => $spouse->childcare ?? 0,
+                                'school_fees' => $spouse->school_fees ?? 0,
+                                'school_lunches' => $spouse->school_lunches ?? 0,
+                                'school_extras' => $spouse->school_extras ?? 0,
+                                'university_fees' => $spouse->university_fees ?? 0,
+                                'children_activities' => $spouse->children_activities ?? 0,
+                                'gifts_charity' => $spouse->gifts_charity ?? 0,
+                                'regular_savings' => $spouse->regular_savings ?? 0,
+                                'other_expenditure' => $spouse->other_expenditure ?? 0,
+                                'monthly_expenditure' => $spouse->monthly_expenditure ?? 0,
+                                'annual_expenditure' => $spouse->annual_expenditure ?? 0,
+                                'expenditure_entry_mode' => $spouse->expenditure_entry_mode ?? 'category',
+                                'expenditure_sharing_mode' => 'separate',
+                                'name' => $spouse->name,
+                            ];
+
+                            return [
+                                'userData' => $userData,
+                                'spouseData' => $spouseData,
+                            ];
+                        }
+                    }
+                }
+
+                // No spouse data or spouse has no expenditure - return just user data
+                return $userData;
+
+            // Add other step fallbacks as needed
+            default:
+                return null;
+        }
     }
 
     /**

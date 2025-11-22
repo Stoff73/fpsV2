@@ -55,6 +55,12 @@ const getters = {
         return state.analysis?.gaps || [];
     },
 
+    // Individual policy type getters for dashboard
+    lifePolicies: (state) => state.policies.life || [],
+    criticalIllnessPolicies: (state) => state.policies.criticalIllness || [],
+    incomeProtectionPolicies: (state) => state.policies.incomeProtection || [],
+    disabilityPolicies: (state) => state.policies.disability || [],
+
     // Get high priority recommendations
     priorityRecommendations: (state) => {
         return state.recommendations.filter(rec => rec.priority === 'high');

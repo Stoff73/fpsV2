@@ -467,11 +467,6 @@ export default {
         return;
       }
 
-      if (!this.formData.provider) {
-        alert('Please enter a provider name');
-        return;
-      }
-
       if (!this.formData.current_fund_value || this.formData.current_fund_value < 0) {
         alert('Please enter a valid current fund value');
         return;

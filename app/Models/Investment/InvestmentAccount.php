@@ -18,6 +18,7 @@ class InvestmentAccount extends Model
 
     protected $fillable = [
         'user_id',
+        'joint_owner_id',
         'household_id',
         'trust_id',
         'ownership_type',

@@ -266,6 +266,14 @@ class FamilyMembersController extends Controller
             if (isset($data['annual_income']) && $data['annual_income'] > 0) {
                 $spouseUser->annual_employment_income = $data['annual_income'];
             }
+            // Copy address from current user if spouse doesn't have one
+            if (!$spouseUser->address_line_1 && $currentUser->address_line_1) {
+                $spouseUser->address_line_1 = $currentUser->address_line_1;
+                $spouseUser->address_line_2 = $currentUser->address_line_2;
+                $spouseUser->city = $currentUser->city;
+                $spouseUser->county = $currentUser->county;
+                $spouseUser->postcode = $currentUser->postcode;
+            }
             $spouseUser->save();
 
             // Clear cached protection analysis for both users since spouse linkage affects completeness
@@ -297,7 +305,7 @@ class FamilyMembersController extends Controller
                 ]
             );
 
-            // Create family member record
+            // Create family member record for current user
             $fullName = trim(($data['first_name'] ?? '').' '.(isset($data['middle_name']) && $data['middle_name'] ? $data['middle_name'].' ' : '').($data['last_name'] ?? ''));
             $familyMember = FamilyMember::create([
                 'user_id' => $currentUser->id,
@@ -313,6 +321,25 @@ class FamilyMembersController extends Controller
                 'is_dependent' => $data['is_dependent'] ?? false,
                 'notes' => $data['notes'] ?? null,
                 'name' => $fullName,  // Construct full name for legacy field (set last to override)
+            ]);
+
+            // Create reciprocal family member record for spouse
+            $currentUserNameParts = explode(' ', $currentUser->name);
+            $currentUserFirstName = $currentUserNameParts[0] ?? '';
+            $currentUserLastName = implode(' ', array_slice($currentUserNameParts, 1)) ?: '';
+
+            FamilyMember::create([
+                'user_id' => $spouseUser->id,
+                'household_id' => $spouseUser->household_id,
+                'relationship' => 'spouse',
+                'first_name' => $currentUserFirstName,
+                'last_name' => $currentUserLastName,
+                'date_of_birth' => $currentUser->date_of_birth,
+                'gender' => $currentUser->gender,
+                'national_insurance_number' => $currentUser->national_insurance_number,
+                'annual_income' => $currentUser->employment_income ?? 0,
+                'is_dependent' => false,
+                'name' => $currentUser->name,
             ]);
 
             // Send email notification to spouse
@@ -355,6 +382,12 @@ class FamilyMembersController extends Controller
             'national_insurance_number' => $data['national_insurance_number'] ?? null,
             // Populate income fields - treat family member annual_income as employment income
             'annual_employment_income' => $data['annual_income'] ?? 0,
+            // Copy address from current user (main residence)
+            'address_line_1' => $currentUser->address_line_1,
+            'address_line_2' => $currentUser->address_line_2,
+            'city' => $currentUser->city,
+            'county' => $currentUser->county,
+            'postcode' => $currentUser->postcode,
         ]);
 
         // Update current user
@@ -365,7 +398,7 @@ class FamilyMembersController extends Controller
         // Clear cached protection analysis for current user since spouse linkage affects completeness
         \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$currentUser->id}");
 
-        // Create family member record
+        // Create family member record for current user
         $fullName = trim(($data['first_name'] ?? '').' '.(isset($data['middle_name']) && $data['middle_name'] ? $data['middle_name'].' ' : '').($data['last_name'] ?? ''));
         $familyMember = FamilyMember::create([
             'user_id' => $currentUser->id,
@@ -381,6 +414,25 @@ class FamilyMembersController extends Controller
             'is_dependent' => $data['is_dependent'] ?? false,
             'notes' => $data['notes'] ?? null,
             'name' => $fullName,  // Construct full name for legacy field (set last to override)
+        ]);
+
+        // Create reciprocal family member record for new spouse
+        $currentUserNameParts = explode(' ', $currentUser->name);
+        $currentUserFirstName = $currentUserNameParts[0] ?? '';
+        $currentUserLastName = implode(' ', array_slice($currentUserNameParts, 1)) ?: '';
+
+        FamilyMember::create([
+            'user_id' => $spouseUser->id,
+            'household_id' => $spouseUser->household_id,
+            'relationship' => 'spouse',
+            'first_name' => $currentUserFirstName,
+            'last_name' => $currentUserLastName,
+            'date_of_birth' => $currentUser->date_of_birth,
+            'gender' => $currentUser->gender,
+            'national_insurance_number' => $currentUser->national_insurance_number,
+            'annual_income' => $currentUser->employment_income ?? 0,
+            'is_dependent' => false,
+            'name' => $currentUser->name,
         ]);
 
         // Send email to spouse with temporary password

@@ -38,7 +38,7 @@ class StoreDCPensionRequest extends FormRequest
         $rules = [
             'scheme_name' => ['required', 'string', 'max:255'],
             'scheme_type' => ['nullable', 'in:workplace,sipp,personal'],
-            'provider' => ['required', 'string', 'max:255'],
+            'provider' => ['nullable', 'string', 'max:255'],
             'pension_type' => ['required', 'in:occupational,sipp,personal,stakeholder'],
             'member_number' => ['nullable', 'string', 'max:255'],
             'current_fund_value' => ['required', 'numeric', 'min:0'],

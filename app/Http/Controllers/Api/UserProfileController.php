@@ -240,7 +240,10 @@ class UserProfileController extends Controller
         $user = $request->user();
 
         try {
-            $commitments = $this->userProfileService->getFinancialCommitments($user);
+            // Optional filter: 'all' (default), 'joint_only', 'individual_only'
+            $ownershipFilter = $request->query('ownership_filter', 'all');
+
+            $commitments = $this->userProfileService->getFinancialCommitments($user, $ownershipFilter);
 
             return response()->json([
                 'success' => true,

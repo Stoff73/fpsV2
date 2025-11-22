@@ -70,8 +70,8 @@ class PropertyController extends Controller
             $validated['monthly_rental_income'] = $validated['rental_income'];
         }
 
-        // For joint ownership, default to 50/50 split if not specified
-        if ($validated['ownership_type'] === 'joint' && $validated['ownership_percentage'] == 100.00) {
+        // For joint or tenants_in_common ownership, default to 50/50 split if not specified
+        if (in_array($validated['ownership_type'], ['joint', 'tenants_in_common']) && $validated['ownership_percentage'] == 100.00) {
             $validated['ownership_percentage'] = 50.00;
         }
 
@@ -115,8 +115,8 @@ class PropertyController extends Controller
                 'ownership_type' => $validated['ownership_type'],
             ];
 
-            // Add joint ownership fields if applicable
-            if ($validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
+            // Add joint ownership fields if applicable (joint or tenants_in_common)
+            if (in_array($validated['ownership_type'], ['joint', 'tenants_in_common']) && isset($validated['joint_owner_id'])) {
                 $jointOwner = \App\Models\User::find($validated['joint_owner_id']);
                 $mortgageData['joint_owner_id'] = $validated['joint_owner_id'];
                 $mortgageData['joint_owner_name'] = $jointOwner ? $jointOwner->name : null;
@@ -125,8 +125,8 @@ class PropertyController extends Controller
             \App\Models\Mortgage::create($mortgageData);
         }
 
-        // If joint ownership, create reciprocal property for joint owner
-        if ($validated['ownership_type'] === 'joint' && isset($validated['joint_owner_id'])) {
+        // If joint or tenants_in_common ownership, create reciprocal property for joint owner
+        if (in_array($validated['ownership_type'], ['joint', 'tenants_in_common']) && isset($validated['joint_owner_id'])) {
             $totalMortgage = $validated['outstanding_mortgage'] ?? 0;
             $this->createJointProperty($property, $validated['joint_owner_id'], $validated['ownership_percentage'], $totalValue, $totalMortgage, $validated);
         }
@@ -376,7 +376,7 @@ class PropertyController extends Controller
                 'start_date' => $validated['mortgage_start_date'] ?? now(),
                 'maturity_date' => $validated['mortgage_maturity_date'] ?? now()->addYears(25),
                 'remaining_term_months' => 300,
-                'ownership_type' => 'joint',
+                'ownership_type' => $originalProperty->ownership_type,
                 'joint_owner_id' => $originalProperty->user_id,
                 'joint_owner_name' => \App\Models\User::find($originalProperty->user_id)->name ?? null,
             ]);

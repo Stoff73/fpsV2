@@ -91,14 +91,14 @@
               id="target_retirement_age"
               v-model.number="formData.target_retirement_age"
               type="number"
-              min="55"
+              min="30"
               max="75"
               class="input-field"
               placeholder="65"
               required
             >
             <p class="mt-1 text-body-sm text-gray-500">
-              Your planned retirement age (minimum 55)
+              Your planned retirement age. This may be different to the age entered for your DC Pension Plans.
             </p>
           </div>
 
@@ -382,8 +382,8 @@ export default {
           error.value = 'Please enter your target retirement age';
           return false;
         }
-        if (formData.value.target_retirement_age < 55) {
-          error.value = 'Retirement age must be at least 55';
+        if (formData.value.target_retirement_age < 30) {
+          error.value = 'Retirement age must be at least 30';
           return false;
         }
       }
@@ -426,6 +426,28 @@ export default {
     };
 
     onMounted(async () => {
+      // Ensure we have latest user data
+      if (!store.getters['auth/currentUser']) {
+        try {
+          await store.dispatch('auth/fetchUser');
+        } catch (err) {
+          console.error('Failed to fetch current user:', err);
+        }
+      }
+
+      // Get current user from store
+      const currentUser = store.getters['auth/currentUser'];
+
+      // Pre-populate from user table if data exists
+      if (currentUser) {
+        // Check both field names for backwards compatibility
+        if (currentUser.annual_employment_income) {
+          formData.value.annual_employment_income = currentUser.annual_employment_income;
+        } else if (currentUser.employment_income) {
+          formData.value.annual_employment_income = currentUser.employment_income;
+        }
+      }
+
       // ONLY load from backend API - single source of truth
       try {
         const stepData = await store.dispatch('onboarding/fetchStepData', 'income');
@@ -433,7 +455,7 @@ export default {
           formData.value = { ...formData.value, ...stepData };
         }
       } catch (err) {
-        // No existing data, start with empty form (correct for new users)
+        // No existing data, use pre-populated values from user table
       }
 
       // Fetch rental income from user's profile (set in properties)

@@ -73,14 +73,41 @@
             <p class="account-type">{{ account.account_name }}</p>
 
             <div class="account-details">
-              <div class="detail-row">
+              <!-- Joint account: DB stores user's 50% share, display both full value (share × 2) and user's share -->
+              <div v-if="account.ownership_type === 'joint'">
+                <div class="detail-row">
+                  <span class="detail-label">Full Value</span>
+                  <!-- Full value = user's share × 2 (each user has reciprocal 50% record) -->
+                  <span class="detail-value">{{ formatCurrency(account.current_value * 2) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Your Share (50%)</span>
+                  <!-- DB stores user's 50% share directly, no division needed -->
+                  <span class="detail-value text-purple-600">{{ formatCurrency(account.current_value) }}</span>
+                </div>
+              </div>
+
+              <!-- Individual account shows just current value -->
+              <div v-else class="detail-row">
                 <span class="detail-label">Current Value</span>
                 <span class="detail-value">{{ formatCurrency(account.current_value) }}</span>
               </div>
 
+              <!-- ISA allowance info -->
+              <div v-if="account.account_type === 'isa'" class="isa-allowance-info">
+                <div class="detail-row">
+                  <span class="detail-label">ISA Contributions (YTD)</span>
+                  <span class="detail-value text-green-600">{{ formatCurrency(getIsaContributions(account)) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Allowance Remaining</span>
+                  <span class="detail-value" :class="getIsaRemainingClass(account)">{{ formatCurrency(getIsaRemaining(account)) }}</span>
+                </div>
+              </div>
+
               <div v-if="account.ytd_return" class="detail-row">
                 <span class="detail-label">YTD Return</span>
-                <span class="detail-value" :class="getReturnColourClass(account.ytd_return)">
+                <span class="detail-value" :class="getReturnColorClass(account.ytd_return)">
                   {{ formatReturn(account.ytd_return) }}
                 </span>
               </div>
@@ -148,6 +175,7 @@
 import { mapGetters } from 'vuex';
 import AssetAllocationChart from './AssetAllocationChart.vue';
 import GeographicAllocationMap from './GeographicAllocationMap.vue';
+import { TAX_CONFIG } from '@/constants/taxConfig';
 
 export default {
   name: 'PortfolioOverview',
@@ -290,7 +318,7 @@ export default {
       return classes[type] || 'bg-gray-100 text-gray-800';
     },
 
-    getReturnColourClass(value) {
+    getReturnColorClass(value) {
       if (!value && value !== 0) return 'text-gray-600';
       return value >= 0 ? 'text-green-600' : 'text-red-600';
     },
@@ -364,6 +392,28 @@ export default {
       this.$parent.activeTab = 'accounts';
       // Optionally emit event to pre-select the account
       this.$emit('account-selected', accountId);
+    },
+
+    getSpouseName() {
+      const user = this.$store.getters['auth/currentUser'];
+      return user?.spouse?.name || 'Spouse';
+    },
+
+    getIsaContributions(account) {
+      // Use isa_subscription_current_year for ISA accounts
+      return account.isa_subscription_current_year || 0;
+    },
+
+    getIsaRemaining(account) {
+      const contributions = this.getIsaContributions(account);
+      return Math.max(0, TAX_CONFIG.ISA_ANNUAL_ALLOWANCE - contributions);
+    },
+
+    getIsaRemainingClass(account) {
+      const remaining = this.getIsaRemaining(account);
+      if (remaining <= 0) return 'text-red-600';
+      if (remaining < 5000) return 'text-amber-600';
+      return 'text-green-600';
     },
   },
 };
@@ -504,6 +554,13 @@ export default {
   font-size: 16px;
   color: #111827;
   font-weight: 700;
+}
+
+.isa-allowance-info {
+  background: #f0fdf4;
+  border-radius: 6px;
+  padding: 8px;
+  margin: 4px 0;
 }
 
 .empty-state {

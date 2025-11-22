@@ -109,8 +109,8 @@ export default {
 
     spouseUserName() {
       const user = this.$store.getters['auth/currentUser'];
-      const spouseName = user?.spouse_name;
-      return spouseName || 'Spouse Wealth';
+      const spouseName = user?.spouse?.name;
+      return spouseName || 'Spouse';
     },
   },
 

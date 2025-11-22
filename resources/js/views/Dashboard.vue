@@ -83,6 +83,10 @@
           :total-coverage="protectionData.totalCoverage"
           :premium-total="protectionData.premiumTotal"
           :critical-gaps="protectionData.criticalGaps"
+          :life-policies="protectionData.lifePolicies"
+          :critical-illness-policies="protectionData.criticalIllnessPolicies"
+          :income-protection-policies="protectionData.incomeProtectionPolicies"
+          :disability-policies="protectionData.disabilityPolicies"
         />
 
         <!-- Card 5: Trusts -->
@@ -279,6 +283,10 @@ export default {
       protectionTotalCoverage: 'totalCoverage',
       protectionTotalPremium: 'totalPremium',
       protectionCoverageGaps: 'coverageGaps',
+      protectionLifePolicies: 'lifePolicies',
+      protectionCriticalIllnessPolicies: 'criticalIllnessPolicies',
+      protectionIncomeProtectionPolicies: 'incomeProtectionPolicies',
+      protectionDisabilityPolicies: 'disabilityPolicies',
     }),
     ...mapGetters('estate', {
       estateIHTLiability: 'ihtLiability',
@@ -312,6 +320,10 @@ export default {
         totalCoverage: this.protectionTotalCoverage || 0,
         premiumTotal: this.protectionTotalPremium || 0,
         criticalGaps: criticalGaps,
+        lifePolicies: this.protectionLifePolicies || [],
+        criticalIllnessPolicies: this.protectionCriticalIllnessPolicies || [],
+        incomeProtectionPolicies: this.protectionIncomeProtectionPolicies || [],
+        disabilityPolicies: this.protectionDisabilityPolicies || [],
       };
     },
 

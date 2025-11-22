@@ -4,8 +4,11 @@
       <span class="property-type-badge" :class="typeClass">
         {{ propertyTypeLabel }}
       </span>
-      <span v-if="isJoint" class="ownership-badge">
+      <span v-if="isJoint" class="ownership-badge joint-badge">
         Joint ({{ property.ownership_percentage }}%)
+      </span>
+      <span v-if="isTenantsInCommon" class="ownership-badge tic-badge">
+        Tenants in Common ({{ property.ownership_percentage }}%)
       </span>
     </div>
 
@@ -19,14 +22,14 @@
       </p>
 
       <div class="property-details">
-        <!-- Show full property value for joint properties -->
-        <div v-if="isJoint" class="detail-row">
+        <!-- Show full property value for joint or tenants in common properties -->
+        <div v-if="isSharedOwnership" class="detail-row">
           <span class="detail-label">Full Property Value</span>
           <span class="detail-value full-value">{{ formatCurrency(fullPropertyValue) }}</span>
         </div>
 
         <div class="detail-row">
-          <span class="detail-label">{{ isJoint ? `Your Share (${property.ownership_percentage}%)` : 'Current Value' }}</span>
+          <span class="detail-label">{{ isSharedOwnership ? `Your Share (${property.ownership_percentage}%)` : 'Current Value' }}</span>
           <span class="detail-value">{{ formatCurrency(property.current_value) }}</span>
         </div>
 
@@ -73,10 +76,18 @@ export default {
       return this.property.ownership_type === 'joint';
     },
 
+    isTenantsInCommon() {
+      return this.property.ownership_type === 'tenants_in_common';
+    },
+
+    isSharedOwnership() {
+      return this.isJoint || this.isTenantsInCommon;
+    },
+
     fullPropertyValue() {
       // Calculate full property value from user's share
-      // For joint properties: divide user's share by ownership percentage
-      if (this.isJoint && this.property.ownership_percentage) {
+      // For shared ownership: divide user's share by ownership percentage
+      if (this.isSharedOwnership && this.property.ownership_percentage) {
         return this.property.current_value / (this.property.ownership_percentage / 100);
       }
       // For individual properties, user's share = full value
@@ -84,7 +95,7 @@ export default {
     },
 
     mortgageLabel() {
-      if (this.isJoint) {
+      if (this.isSharedOwnership) {
         const userName = this.$store?.state?.user?.user?.name || 'Your';
         return `${userName} share of mortgage (${this.property.ownership_percentage}%)`;
       }
@@ -186,8 +197,16 @@ export default {
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.joint-badge {
   background: #f3e8ff;
   color: #6b21a8;
+}
+
+.tic-badge {
+  background: #d1fae5;
+  color: #065f46;
 }
 
 .card-content {

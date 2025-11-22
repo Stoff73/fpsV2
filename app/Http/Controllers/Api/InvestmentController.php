@@ -30,6 +30,7 @@ class InvestmentController extends Controller
     {
         $user = $request->user();
 
+        // Get user's own accounts (includes their share of joint accounts via reciprocal records)
         $accounts = InvestmentAccount::where('user_id', $user->id)
             ->with('holdings')
             ->get();

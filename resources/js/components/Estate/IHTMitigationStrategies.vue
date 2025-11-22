@@ -120,6 +120,15 @@
             </div>
           </div>
 
+          <!-- Will Strategy - Show Implementation Notice -->
+          <div v-if="strategy.strategy_name && strategy.strategy_name.toLowerCase().includes('will')" class="mt-3">
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p class="text-sm text-amber-800">
+                <span class="font-medium">⚠️ Note:</span> Full will functionality has not been implemented.
+              </p>
+            </div>
+          </div>
+
           <!-- Other Strategies - Standard List -->
           <div v-else-if="strategy.specific_actions && Array.isArray(strategy.specific_actions)" class="mt-3">
             <h5 class="text-sm font-medium text-gray-900 mb-2">Implementation Steps:</h5>
