@@ -563,13 +563,66 @@ class UserProfileService
         // Income Protection
         $incomeProtectionPolicies = \App\Models\IncomeProtectionPolicy::where('user_id', $user->id)->get();
         foreach ($incomeProtectionPolicies as $policy) {
-            // Income Protection premiums are stored as premium_amount (assumed monthly)
-            if ($policy->premium_amount > 0) {
+            // Calculate monthly premium based on frequency
+            $monthlyPremium = $policy->premium_amount;
+            if ($policy->premium_frequency === 'quarterly') {
+                $monthlyPremium = $policy->premium_amount / 3;
+            } elseif ($policy->premium_frequency === 'annually') {
+                $monthlyPremium = $policy->premium_amount / 12;
+            }
+
+            if ($monthlyPremium > 0) {
                 $commitments['protection'][] = [
                     'id' => $policy->id,
                     'name' => $policy->policy_name ?? 'Income Protection',
                     'type' => 'income_protection',
-                    'monthly_amount' => $policy->premium_amount,
+                    'monthly_amount' => $monthlyPremium,
+                    'is_joint' => false,
+                    'ownership_type' => 'individual',
+                ];
+            }
+        }
+
+        // Disability
+        $disabilityPolicies = \App\Models\DisabilityPolicy::where('user_id', $user->id)->get();
+        foreach ($disabilityPolicies as $policy) {
+            // Calculate monthly premium based on frequency
+            $monthlyPremium = $policy->premium_amount;
+            if ($policy->premium_frequency === 'quarterly') {
+                $monthlyPremium = $policy->premium_amount / 3;
+            } elseif ($policy->premium_frequency === 'annually') {
+                $monthlyPremium = $policy->premium_amount / 12;
+            }
+
+            if ($monthlyPremium > 0) {
+                $commitments['protection'][] = [
+                    'id' => $policy->id,
+                    'name' => $policy->policy_name ?? 'Disability',
+                    'type' => 'disability',
+                    'monthly_amount' => $monthlyPremium,
+                    'is_joint' => false,
+                    'ownership_type' => 'individual',
+                ];
+            }
+        }
+
+        // Sickness/Illness
+        $sicknessIllnessPolicies = \App\Models\SicknessIllnessPolicy::where('user_id', $user->id)->get();
+        foreach ($sicknessIllnessPolicies as $policy) {
+            // Calculate monthly premium based on frequency
+            $monthlyPremium = $policy->premium_amount;
+            if ($policy->premium_frequency === 'quarterly') {
+                $monthlyPremium = $policy->premium_amount / 3;
+            } elseif ($policy->premium_frequency === 'annually') {
+                $monthlyPremium = $policy->premium_amount / 12;
+            }
+
+            if ($monthlyPremium > 0) {
+                $commitments['protection'][] = [
+                    'id' => $policy->id,
+                    'name' => $policy->policy_name ?? 'Sickness/Illness',
+                    'type' => 'sickness_illness',
+                    'monthly_amount' => $monthlyPremium,
                     'is_joint' => false,
                     'ownership_type' => 'individual',
                 ];

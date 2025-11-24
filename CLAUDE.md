@@ -6,7 +6,32 @@ Development guidelines for Claude Code when working with the TenGo financial pla
 
 ## ⚠️ CRITICAL RULES
 
-### 1. MAINTAIN APPLICATION FUNCTIONALITY
+### 1. DEPLOYMENT AND BUILD PROCESS
+
+**⚠️ NEVER INCLUDE `public/build/` IN TAR FILES WITHOUT EXPLICIT USER PERMISSION**
+
+When creating deployment tarballs or packages:
+- ❌ **DO NOT** automatically include `public/build/` directory
+- ❌ **DO NOT** assume frontend assets should be in deployment packages
+- ❌ **NEVER** instruct user to run `npm run build` on production server
+- ✅ **ALWAYS ASK** the user before including compiled frontend assets
+- ✅ **ONLY INCLUDE** source files (Vue components, PHP files, migrations) unless explicitly told otherwise
+- ✅ **ALWAYS build on LOCAL machine**: `NODE_ENV=production npm run build`
+
+**Why**:
+- Production servers often lack Node.js or have wrong versions
+- Build process is resource-intensive and can crash shared hosting
+- Including `public/build/` causes wrong asset paths if Vite base configuration changed
+- Massive tarball sizes (build/ can be 10-50MB+)
+- Cache issues with old compiled assets
+
+**Correct deployment workflow**:
+1. Upload source files ONLY (Vue components, PHP controllers, migrations, etc.)
+2. Build locally: `NODE_ENV=production npm run build`
+3. Upload `public/build/` separately IF explicitly requested
+4. User clears caches on production server
+
+### 2. MAINTAIN APPLICATION FUNCTIONALITY
 
 **THE APPLICATION MUST REMAIN FULLY FUNCTIONAL AT ALL TIMES.**
 

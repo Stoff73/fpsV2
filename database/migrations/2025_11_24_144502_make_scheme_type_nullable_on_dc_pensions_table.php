@@ -1,8 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,9 +10,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('dc_pensions', function (Blueprint $table) {
-            $table->enum('scheme_type', ['workplace', 'sipp', 'personal'])->nullable()->change();
-        });
+        // Use raw SQL to modify enum column (avoids Doctrine DBAL enum issues)
+        DB::statement("ALTER TABLE dc_pensions MODIFY COLUMN scheme_type ENUM('workplace', 'sipp', 'personal') NULL");
     }
 
     /**
@@ -21,8 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('dc_pensions', function (Blueprint $table) {
-            $table->enum('scheme_type', ['workplace', 'sipp', 'personal'])->nullable(false)->change();
-        });
+        DB::statement("ALTER TABLE dc_pensions MODIFY COLUMN scheme_type ENUM('workplace', 'sipp', 'personal') NOT NULL");
     }
 };

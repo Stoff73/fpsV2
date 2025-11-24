@@ -593,7 +593,9 @@
             <h4 class="text-lg font-semibold text-gray-800 mb-4">Mortgage Details</h4>
 
             <div>
-              <label for="lender_name" class="block text-sm font-medium text-gray-700 mb-1">Lender Name</label>
+              <label for="lender_name" class="block text-sm font-medium text-gray-700 mb-1">
+                Lender Name <span class="text-red-500">*</span>
+              </label>
               <input
                 id="lender_name"
                 v-model="mortgageForm.lender_name"

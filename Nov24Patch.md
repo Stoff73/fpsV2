@@ -9,6 +9,38 @@
 
 ---
 
+## ⚠️ CRITICAL WARNING FOR ALL CLAUDE INSTANCES ⚠️
+
+**NEVER INCLUDE `public/build/` IN TAR FILE CREATION WITHOUT EXPLICIT USER PERMISSION**
+
+When creating deployment tarballs:
+- ❌ **DO NOT** automatically include `public/build/` directory
+- ❌ **DO NOT** assume frontend assets should be in deployment packages
+- ✅ **ALWAYS ASK** the user before including compiled frontend assets
+- ✅ **ONLY INCLUDE** source files (Vue components, PHP files, migrations) unless explicitly told otherwise
+
+**Why**: Including `public/build/` causes:
+1. Wrong asset paths if Vite base configuration changed
+2. Cache issues with old compiled assets
+3. Deployment confusion between source code fixes and compiled output
+4. Massive tarball sizes (build/ can be 10-50MB+)
+
+**Correct deployment workflow**:
+1. Upload source files ONLY (Vue components, PHP controllers, etc.)
+2. **ALWAYS build on LOCAL machine**: `NODE_ENV=production npm run build`
+3. Upload the `public/build/` directory separately IF needed
+4. **NEVER** instruct user to run `npm run build` on production server
+
+**Why build locally, not on server**:
+- Production servers often lack Node.js or have wrong versions
+- Build process is resource-intensive and can crash shared hosting
+- Local builds use correct environment configuration
+- Faster deployment without waiting for server builds
+
+**This deployment failed initially because**: Claude created `build-assets-fixed.tar.gz` with ONLY `public/build/` instead of the actual Vue component fixes from the patch, causing hours of debugging.
+
+---
+
 ## Patch Overview
 
 This patch addresses critical bugs in:
@@ -16,11 +48,13 @@ This patch addresses critical bugs in:
 2. DB pension creation (field name mismatches)
 3. Pension display in onboarding (missing data, no pensions showing)
 4. Protection policy creation (optional dates, missing database columns, validation)
+5. Financial commitments missing Disability and Sickness/Illness premiums
+6. Property form mortgage lender name missing required indicator
 
-**Total Sections**: 10
-**Total Files Modified**: 18
-- Backend: 11 files (controllers, validation requests, 4 database migrations)
-- Frontend: 7 files (Vue components)
+**Total Sections**: 12
+**Total Files Modified**: 20
+- Backend: 12 files (controllers, validation requests, services, 4 database migrations)
+- Frontend: 8 files (Vue components)
 
 **Deployment Method**: File upload + 4 database migrations + frontend rebuild + cache clear
 **Estimated Time**: 20-25 minutes
@@ -512,9 +546,166 @@ components: {
 
 ---
 
+## Section 11: Financial Commitments - Missing Disability and Sickness/Illness Premiums (CRITICAL)
+
+**Issue**: Disability and Sickness/Illness policy premiums were not appearing in the Expenditure form's financial commitments section.
+
+**Root Cause**: The `getFinancialCommitments` method in `UserProfileService` only fetched Life Insurance, Critical Illness, and Income Protection premiums. Disability and Sickness/Illness policies were completely missing from the financial commitments API response.
+
+**Console/User Report**: "I do not see the premiums for disability and sickness, every thing else looks good."
+
+**Database Verification**:
+```sql
+-- User had policies with premiums
+SELECT id, user_id, provider, premium_amount, premium_frequency FROM disability_policies WHERE user_id = 5;
+-- Result: id=1, premium_amount=250.00, premium_frequency=monthly
+
+SELECT id, user_id, provider, premium_amount, premium_frequency FROM sickness_illness_policies WHERE user_id = 5;
+-- Result: id=1, premium_amount=200.00, premium_frequency=monthly
+```
+
+### Changes Made
+
+#### File: `app/Services/UserProfile/UserProfileService.php`
+
+**Location 1**: Lines 566-572 (Fixed Income Protection frequency calculation)
+
+**Before**:
+```php
+$incomeProtectionPolicies = \App\Models\IncomeProtectionPolicy::where('user_id', $user->id)->get();
+foreach ($incomeProtectionPolicies as $policy) {
+    // Income Protection premiums are stored as premium_amount (assumed monthly)
+    if ($policy->premium_amount > 0) {
+        $commitments['protection'][] = [
+            // ...
+            'monthly_amount' => $policy->premium_amount,  // ❌ Doesn't handle quarterly/annually
+        ];
+    }
+}
+```
+
+**After**:
+```php
+$incomeProtectionPolicies = \App\Models\IncomeProtectionPolicy::where('user_id', $user->id)->get();
+foreach ($incomeProtectionPolicies as $policy) {
+    // Calculate monthly premium based on frequency
+    $monthlyPremium = $policy->premium_amount;
+    if ($policy->premium_frequency === 'quarterly') {
+        $monthlyPremium = $policy->premium_amount / 3;
+    } elseif ($policy->premium_frequency === 'annually') {
+        $monthlyPremium = $policy->premium_amount / 12;
+    }
+
+    if ($monthlyPremium > 0) {
+        $commitments['protection'][] = [
+            // ...
+            'monthly_amount' => $monthlyPremium,  // ✅ Correctly converts to monthly
+        ];
+    }
+}
+```
+
+**Location 2**: Lines 586-607 (Added Disability policies)
+
+**Added**:
+```php
+// Disability
+$disabilityPolicies = \App\Models\DisabilityPolicy::where('user_id', $user->id)->get();
+foreach ($disabilityPolicies as $policy) {
+    // Calculate monthly premium based on frequency
+    $monthlyPremium = $policy->premium_amount;
+    if ($policy->premium_frequency === 'quarterly') {
+        $monthlyPremium = $policy->premium_amount / 3;
+    } elseif ($policy->premium_frequency === 'annually') {
+        $monthlyPremium = $policy->premium_amount / 12;
+    }
+
+    if ($monthlyPremium > 0) {
+        $commitments['protection'][] = [
+            'id' => $policy->id,
+            'name' => $policy->policy_name ?? 'Disability',
+            'type' => 'disability',
+            'monthly_amount' => $monthlyPremium,
+            'is_joint' => false,
+            'ownership_type' => 'individual',
+        ];
+    }
+}
+```
+
+**Location 3**: Lines 609-630 (Added Sickness/Illness policies)
+
+**Added**:
+```php
+// Sickness/Illness
+$sicknessIllnessPolicies = \App\Models\SicknessIllnessPolicy::where('user_id', $user->id)->get();
+foreach ($sicknessIllnessPolicies as $policy) {
+    // Calculate monthly premium based on frequency
+    $monthlyPremium = $policy->premium_amount;
+    if ($policy->premium_frequency === 'quarterly') {
+        $monthlyPremium = $policy->premium_amount / 3;
+    } elseif ($policy->premium_frequency === 'annually') {
+        $monthlyPremium = $policy->premium_amount / 12;
+    }
+
+    if ($monthlyPremium > 0) {
+        $commitments['protection'][] = [
+            'id' => $policy->id,
+            'name' => $policy->policy_name ?? 'Sickness/Illness',
+            'type' => 'sickness_illness',
+            'monthly_amount' => $monthlyPremium,
+            'is_joint' => false,
+            'ownership_type' => 'individual',
+        ];
+    }
+}
+```
+
+**Impact**:
+- ✅ Disability policy premiums now appear in financial commitments (£250/month for user)
+- ✅ Sickness/Illness policy premiums now appear in financial commitments (£200/month for user)
+- ✅ Income Protection premiums correctly converted to monthly (quarterly/annually supported)
+- ✅ Complete protection coverage tracking in expenditure form
+- ✅ Accurate monthly expenditure totals
+
+---
+
+## Section 12: Property Form - Mortgage Lender Name Required Indicator
+
+**Issue**: The mortgage lender name field in the Property Form did not have a red asterisk (*) to indicate it's a required field.
+
+**Root Cause**: The label for "Lender Name" in the PropertyForm component was missing the visual required indicator, which is inconsistent with other required fields throughout the application.
+
+**User Request**: "please add a red asterix(denoting required information) to the Lender name label of the mortgage details when adding a property."
+
+### Changes Made
+
+#### File: `resources/js/components/NetWorth/Property/PropertyForm.vue`
+
+**Location**: Lines 596-598
+
+**Before**:
+```vue
+<label for="lender_name" class="block text-sm font-medium text-gray-700 mb-1">Lender Name</label>
+```
+
+**After**:
+```vue
+<label for="lender_name" class="block text-sm font-medium text-gray-700 mb-1">
+  Lender Name <span class="text-red-500">*</span>
+</label>
+```
+
+**Impact**:
+- ✅ Visual consistency with other required fields
+- ✅ Clear indication that lender name is mandatory
+- ✅ Improved user experience during property/mortgage entry
+
+---
+
 ## Complete Files Changed
 
-### Backend (11 files)
+### Backend (12 files)
 
 1. **`database/migrations/2025_11_24_124735_make_policy_end_date_nullable_on_life_insurance_policies_table.php`** (NEW)
    - Makes `policy_end_date` nullable on `life_insurance_policies` table for Whole of Life policies
@@ -548,7 +739,12 @@ components: {
 
 11. **`app/Http/Requests/Retirement/StoreDBPensionRequest.php`** (Reference only - unchanged)
 
-### Frontend (7 files)
+12. **`app/Services/UserProfile/UserProfileService.php`**
+   - Lines 566-572: Fixed Income Protection premium frequency calculation
+   - Lines 586-607: Added Disability policy premium tracking
+   - Lines 609-630: Added Sickness/Illness policy premium tracking
+
+### Frontend (8 files)
 
 1. **`resources/js/components/Retirement/DCPensionForm.vue`**
    - Lines 398-407: Fixed stakeholder pension `scheme_type` mapping
@@ -573,7 +769,10 @@ components: {
    - Lines 182-187: Added `getCoverageLabel` function
    - Line 399: Added `getCoverageLabel` to return statement
 
-7. **`resources/js/components/UserProfile/FamilyMemberFormModal.vue`** (Reference only - previously modified)
+7. **`resources/js/components/NetWorth/Property/PropertyForm.vue`**
+   - Lines 596-598: Added red asterisk to Lender Name label
+
+8. **`resources/js/components/UserProfile/FamilyMemberFormModal.vue`** (Reference only - previously modified)
 
 ---
 
@@ -596,20 +795,22 @@ database/migrations/2025_11_24_144502_make_scheme_type_nullable_on_dc_pensions_t
 database/migrations/2025_11_24_151629_make_protection_policy_dates_nullable.php
 ```
 
-**Backend (6 files)**:
+**Backend (7 files)**:
 ```
 app/Http/Controllers/Api/ProtectionController.php
 app/Http/Requests/Protection/StoreDisabilityPolicyRequest.php
 app/Http/Requests/Protection/UpdateDisabilityPolicyRequest.php
 app/Http/Requests/Protection/StoreSicknessIllnessPolicyRequest.php
 app/Http/Requests/Protection/UpdateSicknessIllnessPolicyRequest.php
+app/Services/UserProfile/UserProfileService.php
 ```
 
-**Frontend (7 files)**:
+**Frontend (8 files)**:
 ```
 resources/js/components/Retirement/DCPensionForm.vue
 resources/js/components/Retirement/DBPensionForm.vue
 resources/js/components/Retirement/PensionCard.vue
+resources/js/components/NetWorth/Property/PropertyForm.vue
 resources/js/components/Onboarding/steps/AssetsStep.vue
 resources/js/components/Protection/PolicyFormModal.vue
 resources/js/components/Onboarding/steps/ProtectionPoliciesStep.vue
@@ -652,6 +853,8 @@ php artisan route:clear
 - Test DB pension creation
 - Verify pensions display in onboarding
 - Test all protection policy types
+- Verify Disability and Sickness/Illness premiums appear in expenditure
+- Check Property Form shows red asterisk on Lender Name field
 
 ### Step 7: Tag Release
 ```bash
@@ -674,6 +877,14 @@ PROTECTION POLICY FIXES:
 - Updated all backend validation to accept nullable dates
 - Fixed frontend to send proper date values
 - Fixed benefit_amount display for IP/Disability/Sickness policies
+
+FINANCIAL COMMITMENTS FIXES:
+- Added Disability policy premiums to expenditure tracking
+- Added Sickness/Illness policy premiums to expenditure tracking
+- Fixed Income Protection premium frequency conversion
+
+UI IMPROVEMENTS:
+- Added red asterisk to Property Form Lender Name field
 
 MIGRATIONS:
 - 2025_11_24_124735: Make policy_end_date nullable on life_insurance_policies
@@ -712,6 +923,17 @@ git push origin main --tags
 - [ ] Create Sickness/Illness without dates - verify saves
 - [ ] Verify benefit amounts display correctly for all policy types
 
+### Financial Commitments (Expenditure)
+- [ ] Navigate to User Profile → Expenditure
+- [ ] Verify Disability premium appears (£250/month)
+- [ ] Verify Sickness/Illness premium appears (£200/month)
+- [ ] Verify Income Protection premium displays correctly
+- [ ] Verify all protection premiums sum correctly in totals
+
+### Property Form
+- [ ] Open Property Form to add a property with mortgage
+- [ ] Verify "Lender Name" field has red asterisk (*)
+
 ---
 
 ## Rollback Plan
@@ -734,8 +956,49 @@ php artisan cache:clear
 ---
 
 **Deployment Date**: 24 November 2025
-**Deployed By**: [Your Name]
-**Status**: ⏳ Pending Deployment
+**Deployed By**: Chris Jones
+**Status**: ✅ SUCCESSFULLY DEPLOYED AND TESTED
+
+### Deployment Notes
+
+**Deployed**: 24 November 2025 at 19:45 GMT
+**Production URL**: https://csjones.co/tengo
+
+**Migration Status**: ✅ All migrations applied successfully via manual SQL execution
+- `2025_11_24_124735_make_policy_end_date_nullable_on_life_insurance_policies_table` - DONE
+- `2025_11_24_144502_make_scheme_type_nullable_on_dc_pensions_table` - DONE (with stakeholder enum value)
+- `2025_11_24_151629_make_protection_policy_dates_nullable` - DONE
+
+**Additional Database Fixes Required**:
+- ✅ `dc_pensions.provider` made nullable (Column 'provider' cannot be null error)
+
+**Manual SQL Commands Executed**:
+```sql
+ALTER TABLE life_insurance_policies MODIFY COLUMN policy_end_date DATE NULL;
+ALTER TABLE dc_pensions MODIFY COLUMN scheme_type ENUM("workplace", "sipp", "personal", "stakeholder") NULL DEFAULT NULL;
+ALTER TABLE dc_pensions MODIFY COLUMN provider VARCHAR(255) NULL;
+ALTER TABLE critical_illness_policies MODIFY COLUMN policy_start_date DATE NULL, MODIFY COLUMN policy_term_years INT NULL;
+ALTER TABLE income_protection_policies MODIFY COLUMN policy_start_date DATE NULL, MODIFY COLUMN deferred_period_weeks INT NULL;
+ALTER TABLE disability_policies MODIFY COLUMN policy_start_date DATE NULL, MODIFY COLUMN deferred_period_weeks INT NULL;
+ALTER TABLE sickness_illness_policies MODIFY COLUMN policy_start_date DATE NULL;
+```
+
+**Deployment Issues Encountered & Resolved**:
+1. ✅ Laravel migrations showed as "Ran" but didn't execute - Fixed by running raw SQL via tinker
+2. ✅ Missing `provider` column nullable constraint - Fixed with ALTER TABLE
+3. ✅ Vite asset path configuration issues during deployment (unrelated to patch)
+4. ✅ All Vue component fixes uploaded and frontend rebuilt successfully
+5. ✅ All caches cleared and config rebuilt
+
+**Testing Results**: ✅ ALL TESTS PASSED
+- ✅ DC Pension creation (all types including stakeholder) - WORKING
+- ✅ DB Pension creation - WORKING
+- ✅ Pensions display correctly in onboarding - WORKING
+- ✅ Life Insurance policy creation - WORKING
+- ✅ Critical Illness policy creation - WORKING
+- ✅ Income Protection policy creation - WORKING
+- ✅ Disability policy creation - WORKING
+- ✅ Sickness/Illness policy creation - WORKING
 
 ---
 
