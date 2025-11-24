@@ -61,43 +61,15 @@
           <h4 class="text-body font-medium text-gray-900">
             DC Pensions ({{ pensions.dc.length }})
           </h4>
-          <div
-            v-for="pension in pensions.dc"
-            :key="pension.id"
-            class="border border-gray-200 rounded-lg p-4 bg-gray-50"
-          >
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <h5 class="text-body font-medium text-gray-900">
-                    {{ pension.provider }}
-                  </h5>
-                  <span class="text-body-sm px-2 py-0.5 bg-orange-100 text-orange-700 rounded">
-                    DC Pension
-                  </span>
-                </div>
-                <div class="mt-2">
-                  <p class="text-body-sm text-gray-500">Current Value</p>
-                  <p class="text-body font-medium text-gray-900">£{{ pension.current_fund_value?.toLocaleString() }}</p>
-                </div>
-              </div>
-              <div class="flex gap-2 ml-4">
-                <button
-                  type="button"
-                  class="text-primary-600 hover:text-primary-700 text-body-sm"
-                  @click="openPensionForm('dc', pension)"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  class="text-red-600 hover:text-red-700 text-body-sm"
-                  @click="deletePension('dc', pension.id)"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+          <div class="grid grid-cols-1 gap-4">
+            <PensionCard
+              v-for="pension in pensions.dc"
+              :key="pension.id"
+              :pension="pension"
+              type="dc"
+              @edit="openPensionForm('dc', pension)"
+              @delete="deletePension('dc', pension.id)"
+            />
           </div>
         </div>
 
@@ -106,43 +78,15 @@
           <h4 class="text-body font-medium text-gray-900">
             DB Pensions ({{ pensions.db.length }})
           </h4>
-          <div
-            v-for="pension in pensions.db"
-            :key="pension.id"
-            class="border border-gray-200 rounded-lg p-4 bg-gray-50"
-          >
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <h5 class="text-body font-medium text-gray-900">
-                    {{ pension.scheme_name }}
-                  </h5>
-                  <span class="text-body-sm px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded">
-                    DB Pension
-                  </span>
-                </div>
-                <div class="mt-2">
-                  <p class="text-body-sm text-gray-500">Annual Pension</p>
-                  <p class="text-body font-medium text-gray-900">£{{ pension.accrued_annual_pension?.toLocaleString() }}</p>
-                </div>
-              </div>
-              <div class="flex gap-2 ml-4">
-                <button
-                  type="button"
-                  class="text-primary-600 hover:text-primary-700 text-body-sm"
-                  @click="openPensionForm('db', pension)"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  class="text-red-600 hover:text-red-700 text-body-sm"
-                  @click="deletePension('db', pension.id)"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+          <div class="grid grid-cols-1 gap-4">
+            <PensionCard
+              v-for="pension in pensions.db"
+              :key="pension.id"
+              :pension="pension"
+              type="db"
+              @edit="openPensionForm('db', pension)"
+              @delete="deletePension('db', pension.id)"
+            />
           </div>
         </div>
 
@@ -490,6 +434,7 @@ import SaveAccountModal from '@/components/Savings/SaveAccountModal.vue';
 import DCPensionForm from '@/components/Retirement/DCPensionForm.vue';
 import DBPensionForm from '@/components/Retirement/DBPensionForm.vue';
 import StatePensionForm from '@/components/Retirement/StatePensionForm.vue';
+import PensionCard from '@/components/Retirement/PensionCard.vue';
 import propertyService from '@/services/propertyService';
 import investmentService from '@/services/investmentService';
 import savingsService from '@/services/savingsService';
@@ -506,6 +451,7 @@ export default {
     DCPensionForm,
     DBPensionForm,
     StatePensionForm,
+    PensionCard,
   },
 
   emits: ['next', 'back', 'skip'],
@@ -547,22 +493,30 @@ export default {
 
     // Load existing data
     onMounted(async () => {
-      await Promise.all([
-        loadPensions(),
-        loadProperties(),
-        loadInvestments(),
-        loadSavingsAccounts(),
-      ]);
+      console.log('AssetsStep mounted - loading data...');
+      try {
+        await Promise.all([
+          loadPensions(),
+          loadProperties(),
+          loadInvestments(),
+          loadSavingsAccounts(),
+        ]);
+        console.log('All data loaded successfully');
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
     });
 
     // Pensions methods
     async function loadPensions() {
       try {
         const response = await retirementService.getRetirementData();
+        // retirementService returns response.data which has structure: { success, message, data: { dc_pensions, db_pensions, state_pension } }
+        const retirementData = response.data || response;
         pensions.value = {
-          dc: response.data?.dc_pensions || [],
-          db: response.data?.db_pensions || [],
-          state: response.data?.state_pension || null,
+          dc: retirementData.dc_pensions || [],
+          db: retirementData.db_pensions || [],
+          state: retirementData.state_pension || null,
         };
       } catch (err) {
         console.error('Failed to load pensions', err);

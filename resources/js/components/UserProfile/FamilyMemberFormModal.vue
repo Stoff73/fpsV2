@@ -360,6 +360,11 @@ export default {
         // Clean up form data - remove empty strings
         const formData = { ...form.value };
 
+        // Convert National Insurance number to uppercase
+        if (formData.national_insurance_number && formData.national_insurance_number.trim() !== '') {
+          formData.national_insurance_number = formData.national_insurance_number.toUpperCase().trim();
+        }
+
         // Construct full name from parts for backward compatibility
         const nameParts = [
           formData.first_name,

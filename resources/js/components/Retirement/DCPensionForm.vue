@@ -397,7 +397,12 @@ export default {
       // Set scheme_type for backward compatibility
       if (this.formData.pension_type === 'occupational') {
         this.formData.scheme_type = 'workplace';
+      } else if (this.formData.pension_type === 'stakeholder') {
+        // Stakeholder pensions map to 'personal' scheme_type
+        // (stakeholder is a regulated type of personal pension in UK)
+        this.formData.scheme_type = 'personal';
       } else {
+        // sipp, personal map directly
         this.formData.scheme_type = this.formData.pension_type;
       }
     },

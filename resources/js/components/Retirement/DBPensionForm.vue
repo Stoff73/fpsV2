@@ -317,7 +317,21 @@ export default {
         return;
       }
 
-      this.$emit('save', this.formData);
+      // Map form fields to API field names
+      const apiData = {
+        scheme_name: this.formData.employer_name,
+        scheme_type: this.formData.scheme_type,
+        accrued_annual_pension: this.formData.annual_income,
+        pensionable_service_years: this.formData.service_years,
+        pensionable_salary: this.formData.final_salary,
+        normal_retirement_age: this.formData.normal_retirement_age,
+        revaluation_method: this.formData.revaluation_rate ? `${this.formData.revaluation_rate}%` : null,
+        lump_sum_entitlement: this.formData.pcls_available,
+        // Map accrual_rate if needed by backend
+        // inflation_protection can be added if form has it
+      };
+
+      this.$emit('save', apiData);
     },
   },
 };

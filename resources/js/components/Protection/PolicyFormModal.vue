@@ -228,19 +228,18 @@
               />
             </div>
 
-            <!-- End Date (for Life and Critical Illness term policies) -->
+            <!-- End Date (for all policies - optional) -->
             <div v-if="showEndDate">
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Policy End Date <span class="text-red-500">*</span>
+                Policy End Date
               </label>
               <input
                 v-model="formData.end_date"
                 type="date"
-                required
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p class="text-xs text-gray-500 mt-1">
-                When does this policy expire?
+                When does this policy expire? Leave blank if policy has no end date.
               </p>
             </div>
 
@@ -601,9 +600,11 @@ export default {
     },
 
     showEndDate() {
-      if (!this.isLifeInsurance) return true; // Other policies always show end date
+      // All policy types can have an optional end date
+      if (!this.isLifeInsurance) return true;
+
+      // For life insurance, show for term-based policies, hide for whole_of_life
       const lifeType = this.formData.life_policy_type;
-      // Show for decreasing_term and term, hide for whole_of_life
       return lifeType === 'decreasing_term' || lifeType === 'term' || lifeType === 'level_term';
     },
   },
@@ -786,16 +787,17 @@ export default {
       } else if (type === 'criticalIllness') {
         data.policy_type = 'standalone'; // Default to standalone critical illness
         data.sum_assured = this.formData.coverage_amount;
-        data.policy_start_date = this.formData.start_date || null;
-        data.policy_end_date = this.formData.end_date;
-        data.policy_term_years = this.formData.term_years || null;
+        data.policy_start_date = this.formData.start_date;
+        data.policy_end_date = this.formData.end_date || null;
+        data.policy_term_years = this.formData.term_years;
         data.conditions_covered = []; // Empty array for conditions covered
       } else {
         data.benefit_amount = this.formData.coverage_amount;
         data.benefit_frequency = this.formData.benefit_frequency;
         data.benefit_period_months = this.formData.benefit_period_months;
-        data.policy_start_date = this.formData.start_date || null;
-        data.policy_end_date = this.formData.end_date;
+        data.policy_start_date = this.formData.start_date;
+        data.policy_end_date = this.formData.end_date || null;
+        data.policy_term_years = this.formData.term_years || null;
       }
 
       // Add deferred period for income protection and disability

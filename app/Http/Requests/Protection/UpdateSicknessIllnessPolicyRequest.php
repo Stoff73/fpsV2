@@ -34,6 +34,7 @@ class UpdateSicknessIllnessPolicyRequest extends FormRequest
             'premium_amount' => ['sometimes', 'numeric', 'min:0', 'max:9999999.99'],
             'premium_frequency' => ['sometimes', Rule::in(['monthly', 'quarterly', 'annually'])],
             'policy_start_date' => ['sometimes', 'date', 'before_or_equal:today'],
+            'policy_end_date' => ['sometimes', 'nullable', 'date', 'after:policy_start_date'],
             'policy_term_years' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:50'],
             'conditions_covered' => ['sometimes', 'nullable', 'array'],
             'conditions_covered.*' => ['string', 'max:255'],

@@ -323,8 +323,9 @@ class ProtectionController extends Controller
             'sum_assured' => 'required|numeric|min:1000',
             'premium_amount' => 'required|numeric|min:0',
             'premium_frequency' => 'required|in:monthly,quarterly,annually',
-            'policy_start_date' => 'required|date|before_or_equal:today',
-            'policy_term_years' => 'required|integer|min:1|max:50',
+            'policy_start_date' => 'nullable|date|before_or_equal:today',
+            'policy_end_date' => 'nullable|date|after:policy_start_date',
+            'policy_term_years' => 'nullable|integer|min:1|max:50',
             'conditions_covered' => 'nullable|array',
         ]);
 
@@ -364,6 +365,7 @@ class ProtectionController extends Controller
             'premium_amount' => 'sometimes|numeric|min:0',
             'premium_frequency' => 'sometimes|in:monthly,quarterly,annually',
             'policy_start_date' => 'sometimes|date|before_or_equal:today',
+            'policy_end_date' => 'sometimes|nullable|date|after:policy_start_date',
             'policy_term_years' => 'sometimes|integer|min:1|max:50',
             'conditions_covered' => 'sometimes|nullable|array',
         ]);
@@ -440,11 +442,14 @@ class ProtectionController extends Controller
             'policy_number' => 'nullable|string|max:255',
             'benefit_amount' => 'required|numeric|min:100',
             'benefit_frequency' => 'required|in:monthly,weekly',
-            'deferred_period_weeks' => 'required|integer|min:0|max:104',
+            'deferred_period_weeks' => 'nullable|integer|min:0|max:104',
             'benefit_period_months' => 'nullable|integer|min:1|max:720',
             'premium_amount' => 'required|numeric|min:0',
+            'premium_frequency' => 'required|in:monthly,quarterly,annually',
             'occupation_class' => 'nullable|string|max:255',
-            'policy_start_date' => 'required|date|before_or_equal:today',
+            'policy_start_date' => 'nullable|date|before_or_equal:today',
+            'policy_end_date' => 'nullable|date|after:policy_start_date',
+            'policy_term_years' => 'nullable|integer|min:1|max:50',
         ]);
 
         $validated['user_id'] = $user->id;
@@ -483,8 +488,10 @@ class ProtectionController extends Controller
             'deferred_period_weeks' => 'sometimes|integer|min:0|max:104',
             'benefit_period_months' => 'sometimes|nullable|integer|min:1|max:720',
             'premium_amount' => 'sometimes|numeric|min:0',
+            'premium_frequency' => 'sometimes|in:monthly,quarterly,annually',
             'occupation_class' => 'sometimes|nullable|string|max:255',
             'policy_start_date' => 'sometimes|date|before_or_equal:today',
+            'policy_end_date' => 'sometimes|nullable|date|after:policy_start_date',
         ]);
 
         try {

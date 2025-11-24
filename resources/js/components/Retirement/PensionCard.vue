@@ -6,6 +6,7 @@
         <div class="flex-1">
           <h4 class="text-lg font-semibold text-gray-900">{{ pension.scheme_name || pension.employer_name }}</h4>
           <p class="text-sm text-gray-500 mt-1">{{ typeLabel }}</p>
+          <p v-if="pension.provider" class="text-xs text-gray-400 mt-1">{{ pension.provider }}</p>
         </div>
         <div class="flex items-center space-x-2">
           <button
@@ -165,15 +166,40 @@ export default {
 
   computed: {
     typeLabel() {
-      return this.type === 'dc' ? 'Defined Contribution' : 'Defined Benefit';
+      if (this.type === 'db') {
+        return 'Defined Benefit';
+      }
+
+      // For DC pensions, show the specific pension type
+      if (this.pension.pension_type) {
+        const typeMap = {
+          'occupational': 'Occupational',
+          'sipp': 'SIPP',
+          'personal': 'Personal',
+          'stakeholder': 'Stakeholder'
+        };
+        return typeMap[this.pension.pension_type] || 'Defined Contribution';
+      }
+
+      // Fallback to scheme_type if pension_type not available
+      const schemeTypeMap = {
+        'workplace': 'Occupational',
+        'sipp': 'SIPP',
+        'personal': 'Personal'
+      };
+      return schemeTypeMap[this.pension.scheme_type] || 'Defined Contribution';
     },
 
     isWorkplacePension() {
-      return this.type === 'dc' && this.pension.scheme_type === 'workplace';
+      return this.type === 'dc' && (this.pension.pension_type === 'occupational' || this.pension.scheme_type === 'workplace');
     },
 
     isPersonalPension() {
-      return this.type === 'dc' && (this.pension.scheme_type === 'sipp' || this.pension.scheme_type === 'personal');
+      // Include stakeholder pensions as personal pensions
+      if (this.pension.pension_type) {
+        return ['sipp', 'personal', 'stakeholder'].includes(this.pension.pension_type);
+      }
+      return this.pension.scheme_type === 'sipp' || this.pension.scheme_type === 'personal';
     },
   },
 

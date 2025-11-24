@@ -35,6 +35,7 @@ class UpdateDisabilityPolicyRequest extends FormRequest
             'premium_frequency' => ['sometimes', Rule::in(['monthly', 'quarterly', 'annually'])],
             'occupation_class' => ['sometimes', 'nullable', 'string', 'max:255'],
             'policy_start_date' => ['sometimes', 'date', 'before_or_equal:today'],
+            'policy_end_date' => ['sometimes', 'nullable', 'date', 'after:policy_start_date'],
             'policy_term_years' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:50'],
             'coverage_type' => ['sometimes', Rule::in(['accident_only', 'accident_and_sickness'])],
         ];

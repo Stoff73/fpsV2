@@ -65,8 +65,8 @@
               </div>
               <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
                 <div>
-                  <p class="text-body-sm text-gray-500">Sum Assured</p>
-                  <p class="text-body font-medium text-gray-900">£{{ policy.coverage_amount?.toLocaleString() || policy.sum_assured?.toLocaleString() }}</p>
+                  <p class="text-body-sm text-gray-500">{{ getCoverageLabel(policy.policyType || policy.policy_type) }}</p>
+                  <p class="text-body font-medium text-gray-900">£{{ (policy.coverage_amount || policy.sum_assured || policy.benefit_amount || 0).toLocaleString() }}</p>
                 </div>
                 <div>
                   <p class="text-body-sm text-gray-500">Premium</p>
@@ -177,6 +177,13 @@ export default {
         whole_of_life: 'Whole of Life',
       };
       return labels[lifePolicyType] || lifePolicyType;
+    };
+
+    const getCoverageLabel = (type) => {
+      if (type === 'life' || type === 'criticalIllness') {
+        return 'Sum Assured';
+      }
+      return 'Benefit Amount';
     };
 
     onMounted(async () => {
@@ -389,6 +396,7 @@ export default {
       getPolicyTypeLabel,
       isLifeInsurancePolicy,
       getLifePolicyTypeLabel,
+      getCoverageLabel,
       editPolicy,
       deletePolicy,
       closeForm,
