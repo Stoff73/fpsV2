@@ -840,10 +840,17 @@ For any bugs encountered, please use the `systematic-debugging` skill to investi
 
 ---
 
-**Current Version**: v0.2.10 "Boma Build" (Production)
+**Current Version**: v0.2.13 (Production)
 **Production URL**: https://csjones.co/tengo
-**Last Updated**: November 20, 2025
+**Last Updated**: November 24, 2025
 **Status**: 🚀 Production Ready - All Core Features Complete
+
+**Latest Patch (v0.2.13)**: Critical pension and protection policy fixes
+- ✅ DC pension creation (all types including stakeholder)
+- ✅ DB pension creation (field name mapping)
+- ✅ Protection policy dates made optional
+- ✅ Financial commitments tracking (Disability/Sickness premiums)
+- ✅ All database nullable constraints fixed
 
 ---
 
