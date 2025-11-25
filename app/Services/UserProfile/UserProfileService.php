@@ -181,15 +181,15 @@ class UserProfileService
 
     /**
      * Calculate total annual rental income from user's properties
+     * Note: monthly_rental_income is ALREADY stored as user's share in database
      */
     private function calculateAnnualRentalIncome(User $user): float
     {
         return $user->properties->sum(function ($property) {
             $monthlyRental = $property->monthly_rental_income ?? 0;
-            $ownershipPercentage = $property->ownership_percentage ?? 100;
 
-            // Calculate annual rental income adjusted for ownership percentage
-            return ($monthlyRental * 12) * ($ownershipPercentage / 100);
+            // Values are already user's share - just annualize
+            return $monthlyRental * 12;
         });
     }
 
@@ -420,7 +420,7 @@ class UserProfileService
         foreach ($dcPensions as $pension) {
             if ($pension->monthly_contribution_amount > 0) {
                 // Apply ownership filter - DC pensions are always individual
-                if (!$this->shouldIncludeByOwnership(false, $ownershipFilter)) {
+                if (! $this->shouldIncludeByOwnership(false, $ownershipFilter)) {
                     continue;
                 }
 
@@ -487,24 +487,25 @@ class UserProfileService
             }
 
             if ($totalMonthlyExpense > 0) {
-                // Adjust for joint ownership
+                // Check if joint ownership
                 $isJoint = in_array($property->ownership_type, ['joint', 'tenants_in_common']);
 
                 // Apply ownership filter
-                if (!$this->shouldIncludeByOwnership($isJoint, $ownershipFilter)) {
+                if (! $this->shouldIncludeByOwnership($isJoint, $ownershipFilter)) {
                     continue;
                 }
 
-                $displayAmount = $isJoint ? ($totalMonthlyExpense / 2) : $totalMonthlyExpense;
-
+                // Values stored in database ARE ALREADY the user's share
+                // No adjustment needed - just use the values directly
                 $commitments['properties'][] = [
                     'id' => $property->id,
                     'name' => $property->property_name ?? $property->address_line_1,
                     'type' => 'property',
-                    'monthly_amount' => $displayAmount,
+                    'monthly_amount' => $totalMonthlyExpense,
                     'breakdown' => $breakdown,
                     'is_joint' => $isJoint,
                     'ownership_type' => $property->ownership_type,
+                    'ownership_percentage' => $property->ownership_percentage ?? 100,
                 ];
             }
         }
@@ -640,7 +641,7 @@ class UserProfileService
                 $isJoint = $liability->ownership_type === 'joint';
 
                 // Apply ownership filter
-                if (!$this->shouldIncludeByOwnership($isJoint, $ownershipFilter)) {
+                if (! $this->shouldIncludeByOwnership($isJoint, $ownershipFilter)) {
                     continue;
                 }
 
@@ -677,15 +678,15 @@ class UserProfileService
     /**
      * Helper method to determine if an item should be included based on ownership filter
      *
-     * @param bool $isJoint Whether the item is jointly owned
-     * @param string $filter The ownership filter ('all', 'joint_only', 'individual_only')
+     * @param  bool  $isJoint  Whether the item is jointly owned
+     * @param  string  $filter  The ownership filter ('all', 'joint_only', 'individual_only')
      * @return bool True if item should be included, false if it should be skipped
      */
     private function shouldIncludeByOwnership(bool $isJoint, string $filter): bool
     {
-        return match($filter) {
+        return match ($filter) {
             'joint_only' => $isJoint,
-            'individual_only' => !$isJoint,
+            'individual_only' => ! $isJoint,
             'all' => true,
             default => true,
         };

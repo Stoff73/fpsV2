@@ -23,8 +23,10 @@ class StoreFamilyMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'relationship' => ['required', Rule::in(['spouse', 'child', 'parent', 'other_dependent'])],
-            'email' => ['required_if:relationship,spouse', 'nullable', 'email', 'max:255'],
+            'relationship' => ['required', Rule::in(['spouse', 'child', 'step_child', 'parent', 'other_dependent'])],
+            'email' => $this->input('relationship') === 'spouse'
+                ? ['required', 'email', 'max:255']
+                : ['nullable', 'email', 'max:255'],
             'name' => ['nullable', 'string', 'max:255'], // Optional - constructed from name parts
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],

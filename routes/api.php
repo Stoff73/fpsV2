@@ -141,6 +141,11 @@ Route::middleware('auth:sanctum')->prefix('net-worth')->group(function () {
     Route::post('/refresh', [NetWorthController::class, 'refresh']);
 });
 
+// Joint Account Logs routes
+Route::middleware('auth:sanctum')->prefix('joint-account-logs')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\JointAccountLogController::class, 'index']);
+});
+
 // Property routes (Phase 4)
 Route::middleware('auth:sanctum')->prefix('properties')->group(function () {
     // Property CRUD

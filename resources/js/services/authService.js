@@ -67,7 +67,7 @@ const authService = {
    * @returns {Promise}
    */
   async getUserById(userId) {
-    const response = await api.get(`/api/users/${userId}`);
+    const response = await api.get(`/users/${userId}`);
     if (response.data.success) {
       return response.data.data.user;
     }

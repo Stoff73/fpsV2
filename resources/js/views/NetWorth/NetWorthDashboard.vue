@@ -59,6 +59,7 @@ export default {
         { path: 'cash', label: 'Cash' },
         { path: 'business', label: 'Business Interests' },
         { path: 'chattels', label: 'Chattels' },
+        { path: 'joint-history', label: 'Joint History' },
       ],
     };
   },

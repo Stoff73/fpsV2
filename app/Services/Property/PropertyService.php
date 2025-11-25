@@ -34,18 +34,19 @@ class PropertyService
 
     /**
      * Calculate total monthly costs for the property
+     * Note: All cost values are ALREADY stored as user's share in database
      */
     public function calculateTotalMonthlyCosts(Property $property): float
     {
         $costs = 0;
 
-        // Mortgage costs (monthly)
+        // Mortgage costs (monthly) - already user's share
         $mortgages = $property->mortgages;
         foreach ($mortgages as $mortgage) {
             $costs += $mortgage->monthly_payment ?? 0;
         }
 
-        // Property-specific costs (monthly)
+        // Property-specific costs (monthly) - already user's share
         $costs += $property->monthly_council_tax ?? 0;
         $costs += $property->monthly_gas ?? 0;
         $costs += $property->monthly_electricity ?? 0;
@@ -92,6 +93,7 @@ class PropertyService
 
     /**
      * Get comprehensive property summary
+     * Note: All values are ALREADY user's share in database
      */
     public function getPropertySummary(Property $property): array
     {

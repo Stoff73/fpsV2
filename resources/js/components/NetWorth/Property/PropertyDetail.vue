@@ -315,12 +315,16 @@
                     <h5 class="text-sm font-semibold text-gray-800 mb-3">Payment Information</h5>
                     <dl class="space-y-2">
                       <div class="flex justify-between">
-                        <dt class="text-sm text-gray-600">Monthly Payment:</dt>
-                        <dd class="text-sm font-medium text-gray-900 font-semibold">{{ formatCurrency(mortgage.monthly_payment) }}</dd>
+                        <dt class="text-sm text-gray-600">Full Monthly Payment:</dt>
+                        <dd class="text-sm font-medium text-blue-600 font-semibold">{{ formatCurrency(calculateFullMonthlyPayment(mortgage)) }}</dd>
+                      </div>
+                      <div v-if="property.ownership_type === 'joint' || property.ownership_type === 'tenants_in_common'" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Your Share ({{ property.ownership_percentage }}%):</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(mortgage.monthly_payment) }}</dd>
                       </div>
                       <div class="flex justify-between">
-                        <dt class="text-sm text-gray-600">Annual Payment:</dt>
-                        <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(mortgage.monthly_payment * 12) }}</dd>
+                        <dt class="text-sm text-gray-600">Full Annual Payment:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(calculateFullMonthlyPayment(mortgage) * 12) }}</dd>
                       </div>
                       <div v-if="mortgage.start_date && mortgage.maturity_date" class="flex justify-between">
                         <dt class="text-sm text-gray-600">Remaining Term:</dt>
@@ -350,7 +354,7 @@
                     <dl class="space-y-2">
                       <div class="flex justify-between">
                         <dt class="text-sm text-gray-600">Ownership Type:</dt>
-                        <dd class="text-sm font-medium text-gray-900 capitalize">{{ mortgage.ownership_type === 'individual' ? 'Sole Owner' : 'Joint Owner' }}</dd>
+                        <dd class="text-sm font-medium text-gray-900 capitalize">{{ mortgage.ownership_type === 'individual' ? 'Individual Owner' : 'Joint Owner' }}</dd>
                       </div>
                       <div v-if="mortgage.ownership_type === 'joint' && mortgage.joint_owner_name" class="flex justify-between">
                         <dt class="text-sm text-gray-600">Joint Owner:</dt>
@@ -609,16 +613,25 @@ export default {
 
     calculateFullOutstandingBalance(mortgage) {
       // If joint ownership, calculate full balance from user's share
-      if (this.property?.ownership_type === 'joint' && this.property?.ownership_percentage) {
+      if ((this.property?.ownership_type === 'joint' || this.property?.ownership_type === 'tenants_in_common') && this.property?.ownership_percentage) {
         return mortgage.outstanding_balance / (this.property.ownership_percentage / 100);
       }
       // For individual ownership, user's share = full balance
       return mortgage.outstanding_balance;
     },
 
+    calculateFullMonthlyPayment(mortgage) {
+      // If joint ownership, calculate full payment from user's share
+      if ((this.property?.ownership_type === 'joint' || this.property?.ownership_type === 'tenants_in_common') && this.property?.ownership_percentage) {
+        return mortgage.monthly_payment / (this.property.ownership_percentage / 100);
+      }
+      // For individual ownership, user's share = full payment
+      return mortgage.monthly_payment;
+    },
+
     calculateFullPropertyValue() {
       // If joint ownership, calculate full value from user's share
-      if (this.property?.ownership_type === 'joint' && this.property?.ownership_percentage) {
+      if ((this.property?.ownership_type === 'joint' || this.property?.ownership_type === 'tenants_in_common') && this.property?.ownership_percentage) {
         return this.property.current_value / (this.property.ownership_percentage / 100);
       }
       // For individual ownership, user's share = full value

@@ -184,6 +184,7 @@ import { useStore } from 'vuex';
 import FamilyMemberFormModal from './FamilyMemberFormModal.vue';
 import ConfirmationModal from '@/components/Common/ConfirmationModal.vue';
 import SpouseSuccessModal from '@/components/Shared/SpouseSuccessModal.vue';
+import familyMembersService from '@/services/familyMembersService';
 
 export default {
   name: 'FamilyMembers',
@@ -205,9 +206,18 @@ export default {
     const spouseCreated = ref(false);
     const spouseEmail = ref(null);
     const temporaryPassword = ref(null);
+    const familyMembers = ref([]);
 
-    const familyMembers = computed(() => store.getters['userProfile/familyMembers']);
     const charitableBequest = computed(() => store.state.auth.user?.charitable_bequest);
+
+    const loadFamilyMembers = async () => {
+      try {
+        const response = await familyMembersService.getFamilyMembers();
+        familyMembers.value = response.data?.family_members || [];
+      } catch (err) {
+        console.error('Failed to load family members:', err);
+      }
+    };
 
     const formatDate = (dateString) => {
       if (!dateString) return 'N/A';
@@ -275,14 +285,11 @@ export default {
       try {
         if (selectedMember.value) {
           // Update existing member
-          await store.dispatch('userProfile/updateFamilyMember', {
-            id: selectedMember.value.id,
-            data: formData,
-          });
+          await familyMembersService.updateFamilyMember(selectedMember.value.id, formData);
           successMessage.value = 'Family member updated successfully!';
         } else {
-          // Add new member
-          const response = await store.dispatch('userProfile/addFamilyMember', formData);
+          // Add new member - use same service as onboarding
+          const response = await familyMembersService.createFamilyMember(formData);
 
           // Check if spouse account was created or linked
           if (formData.relationship === 'spouse' && response.data) {
@@ -292,16 +299,20 @@ export default {
               spouseEmail.value = response.data.spouse_email;
               temporaryPassword.value = response.data.temporary_password;
               showSpouseSuccess.value = true;
-              // Refresh user data to reflect spouse linkage
-              await store.dispatch('auth/fetchUser');
+              // Refresh user data to reflect spouse linkage (silently - don't block modal)
+              store.dispatch('auth/fetchUser').catch((err) => {
+                console.warn('Failed to refresh user data after spouse creation:', err);
+              });
             } else if (response.data.linked) {
               // Show spouse success modal for linking
               spouseCreated.value = false;
               spouseEmail.value = formData.email;
               temporaryPassword.value = null;
               showSpouseSuccess.value = true;
-              // Refresh user data to reflect spouse linkage
-              await store.dispatch('auth/fetchUser');
+              // Refresh user data to reflect spouse linkage (silently - don't block modal)
+              store.dispatch('auth/fetchUser').catch((err) => {
+                console.warn('Failed to refresh user data after spouse linking:', err);
+              });
             } else {
               successMessage.value = 'Family member added successfully!';
             }
@@ -311,6 +322,8 @@ export default {
         }
 
         closeModal();
+        // Refresh family members list
+        await loadFamilyMembers();
 
         // Clear success message after 5 seconds
         if (successMessage.value) {
@@ -337,10 +350,11 @@ export default {
 
     const handleDelete = async () => {
       try {
-        await store.dispatch('userProfile/deleteFamilyMember', memberToDelete.value.id);
+        await familyMembersService.deleteFamilyMember(memberToDelete.value.id);
         successMessage.value = 'Family member deleted successfully!';
         showDeleteConfirm.value = false;
         memberToDelete.value = null;
+        await loadFamilyMembers();
 
         // Clear success message after 3 seconds
         setTimeout(() => {
@@ -352,10 +366,9 @@ export default {
       }
     };
 
-    // Disabled auto-fetch to prevent infinite loop
-    // onMounted(async () => {
-    //   await store.dispatch('userProfile/fetchFamilyMembers');
-    // });
+    onMounted(async () => {
+      await loadFamilyMembers();
+    });
 
     return {
       familyMembers,
@@ -381,6 +394,7 @@ export default {
       closeSpouseSuccess,
       confirmDelete,
       handleDelete,
+      loadFamilyMembers,
     };
   },
 };

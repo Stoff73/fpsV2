@@ -295,6 +295,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import OnboardingStep from '../OnboardingStep.vue';
+import propertyService from '@/services/propertyService';
 
 export default {
   name: 'IncomeStep',
@@ -458,26 +459,25 @@ export default {
         // No existing data, use pre-populated values from user table
       }
 
-      // Fetch rental income from user's profile (set in properties)
-      // IMPORTANT: Fetch fresh data from API, not cached store data
+      // Fetch rental income directly from properties API using propertyService
+      // Properties are loaded fresh to ensure we have the latest rental income data
       try {
-        const response = await fetch('/api/user/profile', {
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
+        const response = await propertyService.getProperties();
+        // API returns array directly, not wrapped in {success, data}
+        const properties = Array.isArray(response) ? response : (response.data || []);
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.data?.income_occupation?.annual_rental_income) {
-            annualRentalIncome.value = data.data.income_occupation.annual_rental_income;
-          }
-        } else {
-          console.warn('Failed to fetch rental income: HTTP', response.status);
+        if (properties.length > 0) {
+          const totalRentalIncome = properties.reduce((total, property) => {
+            const monthlyRental = property.monthly_rental_income || 0;
+            // Values are ALREADY stored as user's share in database - just annualize
+            // DO NOT multiply by ownership_percentage again (would cause double calculation)
+            return total + (monthlyRental * 12);
+          }, 0);
+          annualRentalIncome.value = totalRentalIncome;
+          console.log('Calculated rental income from properties:', totalRentalIncome, 'from', properties.length, 'properties');
         }
       } catch (err) {
-        console.warn('Failed to fetch rental income:', err.message || err);
+        console.warn('Failed to fetch rental income from properties:', err.message || err);
         // No rental income displayed, but error logged for debugging
       }
     });

@@ -197,7 +197,9 @@
               </div>
 
               <div>
-                <label for="current_value" class="block text-sm font-medium text-gray-700 mb-1">Current Value (£) <span class="text-red-500">*</span></label>
+                <label for="current_value" class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ isJointPropertyEdit ? 'Full Property Value (£)' : 'Current Value (£)' }} <span class="text-red-500">*</span>
+                </label>
                 <input
                   id="current_value"
                   name="current_value"
@@ -208,6 +210,9 @@
                   required
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                <p v-if="isJointPropertyEdit" class="text-xs text-blue-600 mt-1">
+                  Enter the full property value. Your {{ form.ownership_percentage }}% share will be calculated automatically.
+                </p>
               </div>
 
               <div>
@@ -702,7 +707,9 @@
               </div>
 
               <div>
-                <label for="outstanding_balance" class="block text-sm font-medium text-gray-700 mb-1">Outstanding Balance (£) <span class="text-red-500">*</span></label>
+                <label for="outstanding_balance" class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ isJointPropertyEdit ? 'Full Outstanding Balance (£)' : 'Outstanding Balance (£)' }} <span class="text-red-500">*</span>
+                </label>
                 <input
                   id="outstanding_balance"
                   v-model.number="mortgageForm.outstanding_balance"
@@ -712,6 +719,9 @@
                   required
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                <p v-if="isJointPropertyEdit" class="text-xs text-blue-600 mt-1">
+                  Enter the full mortgage balance. Your {{ form.ownership_percentage }}% share will be calculated automatically.
+                </p>
               </div>
             </div>
 
@@ -906,7 +916,7 @@
                   v-model="mortgageForm.ownership_type"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="individual">Sole Owner</option>
+                  <option value="individual">Individual Owner</option>
                   <option value="joint">Joint Owner</option>
                 </select>
               </div>
@@ -1481,6 +1491,14 @@ export default {
       const variable = Number(this.mortgageForm.variable_rate_percentage) || 0;
       return fixed + variable;
     },
+
+    // Check if editing a joint property (joint or tenants_in_common with linked joint owner)
+    isJointPropertyEdit() {
+      return this.isEditMode &&
+             (this.form.ownership_type === 'joint' || this.form.ownership_type === 'tenants_in_common') &&
+             this.form.joint_owner_id &&
+             this.form.ownership_percentage < 100;
+    },
   },
 
   watch: {
@@ -1508,6 +1526,9 @@ export default {
           this.form.ownership_percentage = 50;
         }
       }
+
+      // Also sync mortgage ownership_type with property ownership_type
+      this.mortgageForm.ownership_type = newVal;
     },
 
     mortgageJointOwnerSelection(newVal) {
@@ -1531,12 +1552,6 @@ export default {
       if (oldVal && !newVal && this.currentStep === this.stepMapping[3]) {
         this.currentStep = this.stepMapping[4] || this.currentStep + 1;
       }
-    },
-
-    // Sync mortgage ownership with property ownership
-    'form.ownership_type'(newVal) {
-      // Update mortgage ownership_type to match property ownership_type
-      this.mortgageForm.ownership_type = newVal;
     },
 
     // Sync mortgage joint owner with property joint owner
@@ -1574,8 +1589,23 @@ export default {
       this.form.household_id = this.property.household_id || null;
       this.form.trust_id = this.property.trust_id || null;
       this.form.trust_name = this.property.trust_name || '';
-      this.form.current_value = this.property.current_value || null;
-      this.form.purchase_price = this.property.purchase_price || null;
+      // For joint properties WITH a linked joint owner, calculate full value from user's share
+      // Only do this if joint_owner_id exists - otherwise the stored value might already be full
+      // This matches the calculation used in PropertyDetail.vue's calculateFullPropertyValue()
+      const isLinkedJointProperty = (this.property.ownership_type === 'joint' || this.property.ownership_type === 'tenants_in_common') &&
+                                     this.property.joint_owner_id &&
+                                     this.property.ownership_percentage &&
+                                     this.property.ownership_percentage < 100;
+
+      if (isLinkedJointProperty) {
+        // Calculate full property value from user's share: userShare / (percentage / 100)
+        const ownershipDecimal = this.property.ownership_percentage / 100;
+        this.form.current_value = this.property.current_value ? Math.round(this.property.current_value / ownershipDecimal) : null;
+        this.form.purchase_price = this.property.purchase_price ? Math.round(this.property.purchase_price / ownershipDecimal) : null;
+      } else {
+        this.form.current_value = this.property.current_value || null;
+        this.form.purchase_price = this.property.purchase_price || null;
+      }
 
       // Set joint owner selection state
       if (this.form.joint_owner_id) {
@@ -1634,8 +1664,6 @@ export default {
         this.mortgageForm.lender_name = mortgage.lender_name || '';
         this.mortgageForm.mortgage_account_number = mortgage.mortgage_account_number || '';
         this.mortgageForm.mortgage_type = mortgage.mortgage_type || '';
-        this.mortgageForm.original_loan_amount = mortgage.original_loan_amount || null;
-        this.mortgageForm.outstanding_balance = mortgage.outstanding_balance || null;
         this.mortgageForm.interest_rate = mortgage.interest_rate || null;
         this.mortgageForm.rate_type = mortgage.rate_type || '';
         this.mortgageForm.rate_fix_end_date = this.formatDateForInput(mortgage.rate_fix_end_date);
@@ -1645,6 +1673,22 @@ export default {
         this.mortgageForm.ownership_type = mortgage.ownership_type || 'individual';
         this.mortgageForm.joint_owner_id = mortgage.joint_owner_id || null;
         this.mortgageForm.joint_owner_name = mortgage.joint_owner_name || '';
+
+        // For joint mortgages, calculate full balance from user's share using ownership percentage
+        // This matches the calculation used in PropertyDetail.vue's calculateFullOutstandingBalance()
+        const isJointMortgage = (mortgage.ownership_type === 'joint' || mortgage.ownership_type === 'tenants_in_common') &&
+                                mortgage.joint_owner_id &&
+                                this.property.ownership_percentage &&
+                                this.property.ownership_percentage < 100;
+        if (isJointMortgage) {
+          // Calculate full mortgage balance from user's share: userShare / (percentage / 100)
+          const ownershipDecimal = this.property.ownership_percentage / 100;
+          this.mortgageForm.outstanding_balance = mortgage.outstanding_balance ? Math.round(mortgage.outstanding_balance / ownershipDecimal) : null;
+          this.mortgageForm.original_loan_amount = mortgage.original_loan_amount ? Math.round(mortgage.original_loan_amount / ownershipDecimal) : null;
+        } else {
+          this.mortgageForm.outstanding_balance = mortgage.outstanding_balance || null;
+          this.mortgageForm.original_loan_amount = mortgage.original_loan_amount || null;
+        }
 
         // Set mortgage joint owner selection state
         if (this.mortgageForm.joint_owner_id) {

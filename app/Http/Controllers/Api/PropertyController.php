@@ -35,6 +35,40 @@ class PropertyController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // For each joint property, fetch the joint owner's share and add it to the property data
+        $properties = $properties->map(function ($property) use ($user) {
+            $propertyData = $property->toArray();
+
+            // For joint properties, include the joint owner's share so frontend can calculate full values
+            if (in_array($property->ownership_type, ['joint', 'tenants_in_common']) && $property->joint_owner_id) {
+                $reciprocalProperty = Property::where('user_id', $property->joint_owner_id)
+                    ->where('joint_owner_id', $user->id)
+                    ->where('address_line_1', $property->address_line_1)
+                    ->where('postcode', $property->postcode)
+                    ->with('mortgages')
+                    ->first();
+
+                if ($reciprocalProperty) {
+                    $propertyData['joint_owner_share'] = [
+                        'current_value' => $reciprocalProperty->current_value,
+                        'purchase_price' => $reciprocalProperty->purchase_price,
+                        'ownership_percentage' => $reciprocalProperty->ownership_percentage,
+                    ];
+
+                    // Include mortgage share if exists
+                    if ($reciprocalProperty->mortgages && $reciprocalProperty->mortgages->count() > 0) {
+                        $reciprocalMortgage = $reciprocalProperty->mortgages->first();
+                        $propertyData['joint_owner_share']['mortgage'] = [
+                            'outstanding_balance' => $reciprocalMortgage->outstanding_balance,
+                            'original_loan_amount' => $reciprocalMortgage->original_loan_amount,
+                        ];
+                    }
+                }
+            }
+
+            return $propertyData;
+        });
+
         return response()->json($properties);
     }
 
@@ -80,6 +114,42 @@ class PropertyController extends Controller
         $totalValue = $validated['current_value'];
         $userOwnershipPercentage = $validated['ownership_percentage'];
         $validated['current_value'] = $totalValue * ($userOwnershipPercentage / 100);
+
+        // For joint properties, also split costs and rental income by ownership percentage
+        if (in_array($validated['ownership_type'], ['joint', 'tenants_in_common'])) {
+            $ownershipMultiplier = $userOwnershipPercentage / 100;
+
+            if (isset($validated['monthly_rental_income'])) {
+                $validated['monthly_rental_income'] = $validated['monthly_rental_income'] * $ownershipMultiplier;
+            }
+            if (isset($validated['monthly_council_tax'])) {
+                $validated['monthly_council_tax'] = $validated['monthly_council_tax'] * $ownershipMultiplier;
+            }
+            if (isset($validated['monthly_gas'])) {
+                $validated['monthly_gas'] = $validated['monthly_gas'] * $ownershipMultiplier;
+            }
+            if (isset($validated['monthly_electricity'])) {
+                $validated['monthly_electricity'] = $validated['monthly_electricity'] * $ownershipMultiplier;
+            }
+            if (isset($validated['monthly_water'])) {
+                $validated['monthly_water'] = $validated['monthly_water'] * $ownershipMultiplier;
+            }
+            if (isset($validated['monthly_building_insurance'])) {
+                $validated['monthly_building_insurance'] = $validated['monthly_building_insurance'] * $ownershipMultiplier;
+            }
+            if (isset($validated['monthly_contents_insurance'])) {
+                $validated['monthly_contents_insurance'] = $validated['monthly_contents_insurance'] * $ownershipMultiplier;
+            }
+            if (isset($validated['monthly_service_charge'])) {
+                $validated['monthly_service_charge'] = $validated['monthly_service_charge'] * $ownershipMultiplier;
+            }
+            if (isset($validated['monthly_maintenance_reserve'])) {
+                $validated['monthly_maintenance_reserve'] = $validated['monthly_maintenance_reserve'] * $ownershipMultiplier;
+            }
+            if (isset($validated['other_monthly_costs'])) {
+                $validated['other_monthly_costs'] = $validated['other_monthly_costs'] * $ownershipMultiplier;
+            }
+        }
 
         $property = Property::create($validated);
 
@@ -156,6 +226,34 @@ class PropertyController extends Controller
 
         $summary = $this->propertyService->getPropertySummary($property);
 
+        // For joint properties, include the joint owner's share INSIDE the property object
+        // so it gets carried through Vuex store correctly
+        if (in_array($property->ownership_type, ['joint', 'tenants_in_common']) && $property->joint_owner_id) {
+            $reciprocalProperty = Property::where('user_id', $property->joint_owner_id)
+                ->where('joint_owner_id', $user->id)
+                ->where('address_line_1', $property->address_line_1)
+                ->where('postcode', $property->postcode)
+                ->with('mortgages')
+                ->first();
+
+            if ($reciprocalProperty) {
+                $summary['joint_owner_share'] = [
+                    'current_value' => $reciprocalProperty->current_value,
+                    'purchase_price' => $reciprocalProperty->purchase_price,
+                    'ownership_percentage' => $reciprocalProperty->ownership_percentage,
+                ];
+
+                // Include mortgage share if exists
+                if ($reciprocalProperty->mortgages && $reciprocalProperty->mortgages->count() > 0) {
+                    $reciprocalMortgage = $reciprocalProperty->mortgages->first();
+                    $summary['joint_owner_share']['mortgage'] = [
+                        'outstanding_balance' => $reciprocalMortgage->outstanding_balance,
+                        'original_loan_amount' => $reciprocalMortgage->original_loan_amount,
+                    ];
+                }
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -177,10 +275,14 @@ class PropertyController extends Controller
             ->where('user_id', $user->id)
             ->firstOrFail();
 
-        $property->update($request->validated());
+        $validated = $request->validated();
 
-        // If this is a joint property, also update the reciprocal property
-        if ($property->joint_owner_id) {
+        // Check if this is a joint property
+        $isJointProperty = in_array($property->ownership_type, ['joint', 'tenants_in_common']) && $property->joint_owner_id;
+
+        if ($isJointProperty) {
+            // For joint properties, current_value in the form is the FULL value
+            // We need to split it according to ownership percentages
             $reciprocalProperty = Property::where('user_id', $property->joint_owner_id)
                 ->where('joint_owner_id', $user->id)
                 ->where('address_line_1', $property->address_line_1)
@@ -188,9 +290,109 @@ class PropertyController extends Controller
                 ->first();
 
             if ($reciprocalProperty) {
-                $reciprocalProperty->update($request->validated());
+                // Capture before values for logging
+                $beforeValues = [
+                    'current_value' => [
+                        'user_share' => $property->current_value,
+                        'joint_owner_share' => $reciprocalProperty->current_value,
+                        'full_value' => $property->current_value + $reciprocalProperty->current_value,
+                    ],
+                ];
+
+                // Get ownership percentages
+                $userPercentage = $property->ownership_percentage;
+                $jointOwnerPercentage = $reciprocalProperty->ownership_percentage;
+
+                // For tenants_in_common, allow percentage change from form
+                if ($property->ownership_type === 'tenants_in_common' && isset($validated['ownership_percentage'])) {
+                    $userPercentage = $validated['ownership_percentage'];
+                    $jointOwnerPercentage = 100.00 - $userPercentage;
+                }
+
+                // If current_value is provided, it's the FULL value - split it
+                if (isset($validated['current_value'])) {
+                    $fullValue = $validated['current_value'];
+                    $validated['current_value'] = $fullValue * ($userPercentage / 100);
+
+                    // Also split costs and rental income if provided (they are also FULL values)
+                    $costFields = [
+                        'monthly_rental_income',
+                        'monthly_council_tax',
+                        'monthly_gas',
+                        'monthly_electricity',
+                        'monthly_water',
+                        'monthly_building_insurance',
+                        'monthly_contents_insurance',
+                        'monthly_service_charge',
+                        'monthly_maintenance_reserve',
+                        'other_monthly_costs',
+                    ];
+
+                    foreach ($costFields as $field) {
+                        if (isset($validated[$field])) {
+                            $fullFieldValue = $validated[$field];
+                            $validated[$field] = $fullFieldValue * ($userPercentage / 100);
+                        }
+                    }
+
+                    // Prepare reciprocal update data
+                    $reciprocalData = $validated;
+                    $reciprocalData['current_value'] = $fullValue * ($jointOwnerPercentage / 100);
+                    $reciprocalData['ownership_percentage'] = $jointOwnerPercentage;
+
+                    // Split costs/income for reciprocal property
+                    foreach ($costFields as $field) {
+                        if (isset($validated[$field])) {
+                            // Recalculate from full value using joint owner's percentage
+                            $fullFieldValue = $validated[$field] / ($userPercentage / 100); // Get back full value
+                            $reciprocalData[$field] = $fullFieldValue * ($jointOwnerPercentage / 100);
+                        }
+                    }
+
+                    // Update reciprocal property
+                    $reciprocalProperty->update($reciprocalData);
+
+                    // Capture after values for logging
+                    $afterValues = [
+                        'current_value' => [
+                            'user_share' => $validated['current_value'],
+                            'joint_owner_share' => $reciprocalData['current_value'],
+                            'full_value' => $fullValue,
+                        ],
+                    ];
+
+                    // Log the joint account edit
+                    \App\Models\JointAccountLog::logEdit(
+                        $user->id,
+                        $property->joint_owner_id,
+                        $property,
+                        [
+                            'before' => $beforeValues,
+                            'after' => $afterValues,
+                            'fields_changed' => ['current_value'],
+                        ],
+                        'update'
+                    );
+                } else {
+                    // No value change, just update other fields on both properties
+                    $reciprocalProperty->update($validated);
+                }
+
+                // Update user's percentage if tenants_in_common
+                if ($property->ownership_type === 'tenants_in_common' && isset($validated['ownership_percentage'])) {
+                    $validated['ownership_percentage'] = $userPercentage;
+                }
+
+                // Sync rental income for joint owner
+                $jointOwner = \App\Models\User::find($property->joint_owner_id);
+                if ($jointOwner) {
+                    $this->syncUserRentalIncome($jointOwner);
+                }
             }
         }
+
+        // Update the user's property
+        $property->update($validated);
 
         $property->load(['mortgages', 'household', 'trust']);
 
@@ -325,6 +527,11 @@ class PropertyController extends Controller
      */
     private function createJointProperty(Property $originalProperty, int $jointOwnerId, float $ownershipPercentage, float $totalValue, float $totalMortgage = 0, array $validated = []): void
     {
+        // Validate ownership percentage to prevent division by zero
+        if ($ownershipPercentage <= 0 || $ownershipPercentage >= 100) {
+            throw new \InvalidArgumentException('Ownership percentage must be between 0 and 100 (exclusive) for joint properties');
+        }
+
         // Calculate the reciprocal ownership percentage
         $reciprocalPercentage = 100.00 - $ownershipPercentage;
 
@@ -345,6 +552,21 @@ class PropertyController extends Controller
 
         // Calculate joint owner's share of the total value
         $jointPropertyData['current_value'] = $totalValue * ($reciprocalPercentage / 100);
+
+        // Calculate joint owner's share of costs and rental income
+        // Original property has user's share, calculate joint owner's share from the ratio
+        // Formula: joint_share = user_share * (reciprocal% / user%)
+        $shareRatio = $reciprocalPercentage / $ownershipPercentage;
+        $jointPropertyData['monthly_rental_income'] = ($originalProperty->monthly_rental_income ?? 0) * $shareRatio;
+        $jointPropertyData['monthly_council_tax'] = ($originalProperty->monthly_council_tax ?? 0) * $shareRatio;
+        $jointPropertyData['monthly_gas'] = ($originalProperty->monthly_gas ?? 0) * $shareRatio;
+        $jointPropertyData['monthly_electricity'] = ($originalProperty->monthly_electricity ?? 0) * $shareRatio;
+        $jointPropertyData['monthly_water'] = ($originalProperty->monthly_water ?? 0) * $shareRatio;
+        $jointPropertyData['monthly_building_insurance'] = ($originalProperty->monthly_building_insurance ?? 0) * $shareRatio;
+        $jointPropertyData['monthly_contents_insurance'] = ($originalProperty->monthly_contents_insurance ?? 0) * $shareRatio;
+        $jointPropertyData['monthly_service_charge'] = ($originalProperty->monthly_service_charge ?? 0) * $shareRatio;
+        $jointPropertyData['monthly_maintenance_reserve'] = ($originalProperty->monthly_maintenance_reserve ?? 0) * $shareRatio;
+        $jointPropertyData['other_monthly_costs'] = ($originalProperty->other_monthly_costs ?? 0) * $shareRatio;
 
         $jointProperty = Property::create($jointPropertyData);
 
@@ -391,14 +613,15 @@ class PropertyController extends Controller
 
     /**
      * Sync rental income from properties to user table
+     * Note: monthly_rental_income is ALREADY stored as user's share in database
      */
     private function syncUserRentalIncome(\App\Models\User $user): void
     {
         $annualRentalIncome = $user->properties->sum(function ($property) {
             $monthlyRental = $property->monthly_rental_income ?? 0;
-            $ownershipPercentage = $property->ownership_percentage ?? 100;
 
-            return ($monthlyRental * 12) * ($ownershipPercentage / 100);
+            // Values are already user's share - just annualize
+            return $monthlyRental * 12;
         });
 
         $user->update(['annual_rental_income' => $annualRentalIncome]);

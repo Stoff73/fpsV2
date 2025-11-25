@@ -82,7 +82,7 @@
           required
         >
           <option value="">Select ownership type...</option>
-          <option value="individual">Sole Ownership</option>
+          <option value="individual">Individual Ownership</option>
           <option value="joint_tenants">Joint Tenants (with spouse/partner)</option>
           <option value="tenants_in_common">Tenants in Common</option>
           <option value="trust">Held in Trust</option>

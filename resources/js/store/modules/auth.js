@@ -84,7 +84,7 @@ const actions = {
     }
   },
 
-  async fetchUser({ commit }) {
+  async fetchUser({ commit, state }) {
     commit('setLoading', true);
     commit('setError', null);
 
@@ -95,7 +95,11 @@ const actions = {
     } catch (error) {
       const errorMessage = error.message || 'Failed to fetch user';
       commit('setError', errorMessage);
-      commit('clearAuth');
+      // Only clear auth if we don't have a valid token
+      // This prevents logout on transient network errors during normal operations
+      if (!state.token) {
+        commit('clearAuth');
+      }
       throw error;
     } finally {
       commit('setLoading', false);

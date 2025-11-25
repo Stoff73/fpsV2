@@ -22,6 +22,7 @@ const PropertyList = () => import('@/components/NetWorth/PropertyList.vue');
 const PropertyDetail = () => import('@/components/NetWorth/Property/PropertyDetail.vue');
 const BusinessInterestsList = () => import('@/components/NetWorth/BusinessInterestsList.vue');
 const ChattelsList = () => import('@/components/NetWorth/ChattelsList.vue');
+const JointAccountHistory = () => import('@/components/NetWorth/JointAccountHistory.vue');
 const ProtectionDashboard = () => import('@/views/Protection/ProtectionDashboard.vue');
 const PolicyDetail = () => import('@/components/Protection/PolicyDetail.vue');
 const ComprehensiveProtectionPlan = () => import('@/views/Protection/ComprehensiveProtectionPlan.vue');
@@ -153,6 +154,11 @@ const routes = [
         path: 'chattels',
         name: 'NetWorthChattels',
         component: ChattelsList,
+      },
+      {
+        path: 'joint-history',
+        name: 'JointAccountHistory',
+        component: JointAccountHistory,
       },
     ],
   },

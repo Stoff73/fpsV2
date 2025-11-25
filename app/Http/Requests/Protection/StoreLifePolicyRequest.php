@@ -37,24 +37,25 @@ class StoreLifePolicyRequest extends FormRequest
         ];
 
         // Conditional rules based on policy type
+        // NOTE: All dates made optional per Nov 24 patch (v0.2.13) - users may not know exact dates
         $policyType = $this->input('policy_type');
 
         if ($policyType === 'decreasing_term') {
-            // Decreasing policies require start value, decreasing rate, and end date
+            // Decreasing policies need start value and decreasing rate for calculations
             $rules['start_value'] = ['required', 'numeric', 'min:1000', 'max:9999999999999.99'];
             $rules['decreasing_rate'] = ['required', 'numeric', 'min:0', 'max:1'];
             $rules['policy_start_date'] = ['nullable', 'date', 'before_or_equal:today'];
-            $rules['policy_end_date'] = ['required', 'date', 'after:today'];
+            $rules['policy_end_date'] = ['nullable', 'date', 'after:today'];
             $rules['policy_term_years'] = ['nullable', 'integer', 'min:1', 'max:50'];
         } elseif ($policyType === 'term' || $policyType === 'level_term' || $policyType === 'family_income_benefit') {
-            // Term policies require end date, but start date and term are optional
+            // Term policies - dates are optional
             $rules['policy_start_date'] = ['nullable', 'date', 'before_or_equal:today'];
-            $rules['policy_end_date'] = ['required', 'date', 'after:today'];
+            $rules['policy_end_date'] = ['nullable', 'date', 'after:today'];
             $rules['policy_term_years'] = ['nullable', 'integer', 'min:1', 'max:50'];
             $rules['start_value'] = ['nullable'];
             $rules['decreasing_rate'] = ['nullable'];
         } elseif ($policyType === 'whole_of_life') {
-            // Whole of life policies don't require dates or term
+            // Whole of life policies - dates are optional
             $rules['policy_start_date'] = ['nullable', 'date', 'before_or_equal:today'];
             $rules['policy_end_date'] = ['nullable', 'date', 'after:today'];
             $rules['policy_term_years'] = ['nullable', 'integer', 'min:1', 'max:50'];
