@@ -29,7 +29,7 @@
     <!-- SDLT Calculator -->
     <div v-show="activeCalculator === 'sdlt'" class="space-y-4">
       <h3 class="text-lg font-semibold text-gray-800">Stamp Duty Land Tax (SDLT) Calculator</h3>
-      <p class="text-sm text-gray-600">Calculate SDLT based on 2024/25 rates</p>
+      <p class="text-sm text-gray-600">Calculate SDLT based on 2025/26 rates</p>
 
       <form @submit.prevent="calculateSDLT" class="space-y-4">
         <div>

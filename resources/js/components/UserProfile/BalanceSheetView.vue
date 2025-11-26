@@ -17,7 +17,6 @@
               <th class="px-3 py-2 text-left text-body-sm font-semibold text-gray-900">Line Item</th>
               <th class="px-3 py-2 text-right text-body-sm font-semibold text-gray-900">You</th>
               <th v-if="hasSpouseData" class="px-3 py-2 text-right text-body-sm font-semibold text-gray-900">Spouse</th>
-              <th v-if="hasSpouseData" class="px-3 py-2 text-right text-body-sm font-semibold text-gray-900">Joint</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
@@ -29,9 +28,6 @@
               <td v-if="hasSpouseData" class="px-3 py-2 text-right text-body-base font-medium text-gray-900">
                 {{ formatCurrency(getSpouseAssetAmount(item.line_item)) }}
               </td>
-              <td v-if="hasSpouseData" class="px-3 py-2 text-right text-body-base font-bold text-gray-900">
-                {{ formatCurrency(0) }}
-              </td>
             </tr>
           </tbody>
           <tfoot>
@@ -42,9 +38,6 @@
               </td>
               <td v-if="hasSpouseData" class="px-3 py-3 text-right text-h5 font-bold text-success-700">
                 {{ formatCurrency(spouseData.total_assets) }}
-              </td>
-              <td v-if="hasSpouseData" class="px-3 py-3 text-right text-h5 font-bold text-success-700">
-                {{ formatCurrency(0) }}
               </td>
             </tr>
           </tfoot>
@@ -60,7 +53,6 @@
               <th class="px-3 py-2 text-left text-body-sm font-semibold text-gray-900">Line Item</th>
               <th class="px-3 py-2 text-right text-body-sm font-semibold text-gray-900">You</th>
               <th v-if="hasSpouseData" class="px-3 py-2 text-right text-body-sm font-semibold text-gray-900">Spouse</th>
-              <th v-if="hasSpouseData" class="px-3 py-2 text-right text-body-sm font-semibold text-gray-900">Joint</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
@@ -72,9 +64,6 @@
               <td v-if="hasSpouseData" class="px-3 py-2 text-right text-body-base font-medium text-gray-900">
                 {{ formatCurrency(getSpouseLiabilityAmount(item.line_item)) }}
               </td>
-              <td v-if="hasSpouseData" class="px-3 py-2 text-right text-body-base font-bold text-gray-900">
-                {{ formatCurrency(0) }}
-              </td>
             </tr>
           </tbody>
           <tfoot>
@@ -85,9 +74,6 @@
               </td>
               <td v-if="hasSpouseData" class="px-3 py-3 text-right text-h5 font-bold text-error-700">
                 {{ formatCurrency(spouseData.total_liabilities) }}
-              </td>
-              <td v-if="hasSpouseData" class="px-3 py-3 text-right text-h5 font-bold text-error-700">
-                {{ formatCurrency(0) }}
               </td>
             </tr>
           </tfoot>
@@ -102,7 +88,6 @@
               <th class="px-3 py-2 text-left text-body-sm font-semibold text-gray-900">Net Worth</th>
               <th class="px-3 py-2 text-right text-body-sm font-semibold text-gray-900">You</th>
               <th v-if="hasSpouseData" class="px-3 py-2 text-right text-body-sm font-semibold text-gray-900">Spouse</th>
-              <th v-if="hasSpouseData" class="px-3 py-2 text-right text-body-sm font-semibold text-gray-900">Joint</th>
             </tr>
           </thead>
           <tbody>
@@ -122,11 +107,6 @@
                   :class="spouseData.total_equity >= 0 ? 'text-success-700' : 'text-error-700'"
                 >
                   {{ formatCurrency(spouseData.total_equity) }}
-                </p>
-              </td>
-              <td v-if="hasSpouseData" class="px-3 py-3 text-right">
-                <p class="text-h2 font-display font-bold text-gray-900">
-                  {{ formatCurrency(0) }}
                 </p>
               </td>
             </tr>
@@ -174,10 +154,12 @@ export default {
     };
 
     const formatCurrency = (amount) => {
-      if (amount === null || amount === undefined) return '£0.00';
+      if (amount === null || amount === undefined) return '£0';
       return new Intl.NumberFormat('en-GB', {
         style: 'currency',
         currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
       }).format(amount);
     };
 

@@ -127,7 +127,7 @@ class ComprehensiveEstatePlanService
                 'user_name' => $user->name,
                 'completeness_score' => $completenessScore,
                 'is_complete' => $isComplete,
-                'plan_type' => $isComplete ? 'Personalized' : 'Generic',
+                'plan_type' => $isComplete ? 'Personalised' : 'Generic',
             ],
             'completeness_warning' => $this->generateCompletenessWarning($profileCompleteness),
             'executive_summary' => $this->generateExecutiveSummary(
@@ -227,16 +227,29 @@ class ComprehensiveEstatePlanService
      */
     private function buildUserProfile(User $user): array
     {
-        $spouse = null;
-        if ($user->spouse_id) {
-            $spouse = FamilyMember::find($user->spouse_id);
-        }
+        // Spouse is a User, not a FamilyMember
+        $spouse = $user->spouse;
 
         // Calculate age from date of birth
         $age = 'Not provided';
         if ($user->date_of_birth) {
             $age = \Carbon\Carbon::parse($user->date_of_birth)->age;
         }
+
+        // Get children and step-children
+        $children = FamilyMember::where('user_id', $user->id)
+            ->where('relationship', 'child')
+            ->get()
+            ->map(fn($child) => ['name' => $child->name, 'relationship' => 'Child'])
+            ->values()
+            ->toArray();
+
+        $stepChildren = FamilyMember::where('user_id', $user->id)
+            ->where('relationship', 'step_child')
+            ->get()
+            ->map(fn($child) => ['name' => $child->name, 'relationship' => 'Step-Child'])
+            ->values()
+            ->toArray();
 
         return [
             'name' => $user->name,
@@ -249,6 +262,8 @@ class ComprehensiveEstatePlanService
                 'name' => $spouse->name,
                 'relationship' => 'Spouse',
             ] : null,
+            'children' => $children,
+            'step_children' => $stepChildren,
         ];
     }
 
@@ -378,40 +393,44 @@ class ComprehensiveEstatePlanService
                 'detailed_assets' => $this->groupAssetsByType($allAssets),
             ];
         } else {
-            // User's estate
-            $userLiabilities = \App\Models\Estate\Liability::where('user_id', $user->id)->sum('current_balance') ?? 0;
-            $userLiabilities += \App\Models\Mortgage::where('user_id', $user->id)->sum('outstanding_balance') ?? 0;
+            // User's estate - get detailed liabilities
+            $userDetailedLiabilities = $this->getDetailedLiabilities($user->id);
+            $userLiabilitiesTotal = collect($userDetailedLiabilities)->sum('balance');
 
             $breakdown['user'] = [
                 'name' => $user->name,
                 'total_assets' => $aggregatedAssets->sum('current_value'),
-                'total_liabilities' => $userLiabilities,
-                'net_estate' => $aggregatedAssets->sum('current_value') - $userLiabilities,
+                'total_liabilities' => $userLiabilitiesTotal,
+                'net_estate' => $aggregatedAssets->sum('current_value') - $userLiabilitiesTotal,
                 'asset_count' => $aggregatedAssets->count(),
                 'detailed_assets' => $this->groupAssetsByType($aggregatedAssets),
+                'detailed_liabilities' => $userDetailedLiabilities,
             ];
 
             // Add spouse data if available and sharing enabled
             if ($dataSharingEnabled && $spouse && $spouseAggregatedAssets->isNotEmpty()) {
-                $spouseLiabilities = \App\Models\Estate\Liability::where('user_id', $spouse->id)->sum('current_balance') ?? 0;
-                $spouseLiabilities += \App\Models\Mortgage::where('user_id', $spouse->id)->sum('outstanding_balance') ?? 0;
+                $spouseDetailedLiabilities = $this->getDetailedLiabilities($spouse->id);
+                $spouseLiabilitiesTotal = collect($spouseDetailedLiabilities)->sum('balance');
 
                 $breakdown['spouse'] = [
                     'name' => $spouse->name,
                     'total_assets' => $spouseAggregatedAssets->sum('current_value'),
-                    'total_liabilities' => $spouseLiabilities,
-                    'net_estate' => $spouseAggregatedAssets->sum('current_value') - $spouseLiabilities,
+                    'total_liabilities' => $spouseLiabilitiesTotal,
+                    'net_estate' => $spouseAggregatedAssets->sum('current_value') - $spouseLiabilitiesTotal,
                     'asset_count' => $spouseAggregatedAssets->count(),
                     'detailed_assets' => $this->groupAssetsByType($spouseAggregatedAssets),
+                    'detailed_liabilities' => $spouseDetailedLiabilities,
                 ];
 
                 // Combined totals
+                $allLiabilities = array_merge($userDetailedLiabilities, $spouseDetailedLiabilities);
                 $breakdown['combined'] = [
                     'total_assets' => $aggregatedAssets->sum('current_value') + $spouseAggregatedAssets->sum('current_value'),
-                    'total_liabilities' => $userLiabilities + $spouseLiabilities,
-                    'net_estate' => ($aggregatedAssets->sum('current_value') + $spouseAggregatedAssets->sum('current_value')) - ($userLiabilities + $spouseLiabilities),
+                    'total_liabilities' => $userLiabilitiesTotal + $spouseLiabilitiesTotal,
+                    'net_estate' => ($aggregatedAssets->sum('current_value') + $spouseAggregatedAssets->sum('current_value')) - ($userLiabilitiesTotal + $spouseLiabilitiesTotal),
                     'asset_count' => $aggregatedAssets->count() + $spouseAggregatedAssets->count(),
                     'detailed_assets' => $this->groupAssetsByType($aggregatedAssets->concat($spouseAggregatedAssets)),
+                    'detailed_liabilities' => $allLiabilities,
                 ];
             }
         }
@@ -438,6 +457,42 @@ class ComprehensiveEstatePlanService
         }
 
         return $grouped;
+    }
+
+    /**
+     * Get detailed liabilities for a user (mortgages and other liabilities)
+     */
+    private function getDetailedLiabilities(int $userId): array
+    {
+        $liabilities = [];
+
+        // Get mortgages with property addresses
+        $mortgages = \App\Models\Mortgage::where('user_id', $userId)
+            ->with('property:id,address_line_1')
+            ->get();
+
+        foreach ($mortgages as $mortgage) {
+            $liabilities[] = [
+                'type' => 'Mortgage',
+                'name' => $mortgage->property?->address_line_1
+                    ? "Mortgage - {$mortgage->property->address_line_1}"
+                    : ($mortgage->lender_name ? "Mortgage - {$mortgage->lender_name}" : 'Mortgage'),
+                'balance' => (float) $mortgage->outstanding_balance,
+            ];
+        }
+
+        // Get other liabilities (credit cards, loans, etc.)
+        $otherLiabilities = \App\Models\Estate\Liability::where('user_id', $userId)->get();
+
+        foreach ($otherLiabilities as $liability) {
+            $liabilities[] = [
+                'type' => ucfirst(str_replace('_', ' ', $liability->liability_type)),
+                'name' => $liability->liability_name,
+                'balance' => (float) $liability->current_balance,
+            ];
+        }
+
+        return $liabilities;
     }
 
     /**

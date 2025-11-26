@@ -1,87 +1,36 @@
 <template>
   <component :is="isEmbedded ? 'div' : 'AppLayout'">
-    <div class="investment-dashboard py-6">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Breadcrumb (only show when not embedded) -->
-      <nav v-if="!isEmbedded" class="mb-6" aria-label="Breadcrumb">
-        <ol class="flex items-center space-x-2 text-sm">
-          <li>
-            <router-link to="/dashboard" class="text-gray-500 hover:text-gray-700">
-              Home
-            </router-link>
-          </li>
-          <li>
-            <svg
-              class="w-4 h-4 text-gray-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </li>
-          <li>
-            <span class="text-gray-900 font-medium">Investment</span>
-          </li>
-        </ol>
-      </nav>
-
+    <div class="investment-dashboard p-6">
       <!-- Header (only show when not embedded) -->
       <div v-if="!isEmbedded" class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Investment Portfolio</h1>
-        <p class="text-gray-600">
-          Monitor your portfolio performance, analyse holdings, and optimise your investment strategy
-        </p>
+        <h1 class="text-3xl font-bold text-gray-900">Investment Portfolio</h1>
+        <p class="text-gray-600 mt-2">Monitor your portfolio performance, analyse holdings, and optimise your investment strategy</p>
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center items-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div v-if="loading" class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
 
       <!-- Error State -->
-      <div
-        v-else-if="error"
-        class="bg-red-50 border-l-4 border-red-500 p-4 mb-6"
-      >
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg
-              class="h-5 w-5 text-red-400"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm text-red-700">{{ error }}</p>
-          </div>
-        </div>
+      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <p class="text-red-800">{{ error }}</p>
       </div>
 
       <!-- Main Content -->
-      <div v-else :class="isEmbedded ? 'investment-embedded' : 'bg-white rounded-lg shadow'">
+      <div v-else>
         <!-- Tab Navigation -->
-        <div :class="isEmbedded ? 'border-b border-gray-200' : 'border-b border-gray-200 bg-white'">
-          <nav class="-mb-px flex overflow-x-auto" aria-label="Tabs">
+        <div class="mb-6 border-b border-gray-200">
+          <nav class="flex">
             <button
-              v-for="tab in tabs"
+              v-for="tab in currentTabs"
               :key="tab.id"
-              @click="activeTab = tab.id"
+              @click="handleTabClick(tab.id)"
               :class="[
+                'px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors duration-200 bg-transparent',
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                'whitespace-nowrap py-2 px-2 border-b-2 font-medium text-sm transition-colors duration-200',
+                  ? 'text-indigo-600 border-b-2 border-indigo-600'
+                  : 'text-gray-600 hover:text-gray-900 border-b-2 border-transparent'
               ]"
             >
               {{ tab.label }}
@@ -90,75 +39,129 @@
         </div>
 
         <!-- Tab Content -->
-        <div :class="isEmbedded ? '' : 'p-6'">
-          <!-- Portfolio Overview Tab -->
+        <transition name="fade" mode="out-in">
+          <!-- DETAIL MODE: Account Detail View -->
+          <AccountDetailView
+            v-if="isDetailMode"
+            :account="selectedAccount"
+            :active-tab="activeTab"
+            @open-holding-modal="openHoldingModal"
+          />
+
+          <!-- OVERVIEW MODE: Portfolio Overview Tab -->
           <PortfolioOverview
-            v-if="activeTab === 'overview'"
+            v-else-if="activeTab === 'overview'"
             @open-add-account-modal="openAddAccountModal"
+            @select-account="selectAccount"
           />
 
-          <!-- Accounts Tab -->
-          <Accounts
-            v-else-if="activeTab === 'accounts'"
-            ref="accountsComponent"
-            @view-holdings="handleViewHoldings"
-          />
-
-          <!-- Holdings Tab -->
+          <!-- OVERVIEW MODE: Holdings Tab (all holdings across all accounts) -->
           <Holdings
             v-else-if="activeTab === 'holdings'"
             :selected-account-id="selectedAccountId"
             @clear-filter="clearAccountFilter"
           />
 
-          <!-- Performance Tab (Enhanced with Phase 2.7) -->
-          <div v-else-if="activeTab === 'performance'">
-            <Performance @navigate-to-tab="navigateToTab" />
-            <div class="mt-8">
-              <PerformanceAttribution />
+          <!-- OVERVIEW MODE: Performance Tab (Coming Soon) -->
+          <div v-else-if="activeTab === 'performance'" class="relative">
+            <!-- Coming Soon Watermark -->
+            <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+                <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+              </div>
             </div>
-            <div class="mt-8">
-              <BenchmarkComparison />
-            </div>
-          </div>
-
-          <!-- Contributions Tab (Phase 2.1) -->
-          <ContributionPlanner v-else-if="activeTab === 'contributions'" />
-
-          <!-- Portfolio Optimization Tab -->
-          <PortfolioOptimization v-else-if="activeTab === 'optimization'" />
-
-          <!-- Rebalancing Tab -->
-          <RebalancingCalculator v-else-if="activeTab === 'rebalancing'" />
-
-          <!-- Goals Tab (Enhanced with Phase 2.3) -->
-          <div v-else-if="activeTab === 'goals'">
-            <Goals @view-projection="handleViewProjection" />
-            <div class="mt-8">
-              <GoalProjection />
+            <div class="opacity-50">
+              <Performance @navigate-to-tab="navigateToTab" />
+              <div class="mt-8">
+                <PerformanceAttribution />
+              </div>
+              <div class="mt-8">
+                <BenchmarkComparison />
+              </div>
             </div>
           </div>
 
-          <!-- Tax Efficiency Tab (Phase 2.6) -->
-          <div v-else-if="activeTab === 'taxefficiency'">
-            <AssetLocationOptimizer />
-            <div class="mt-8">
-              <WrapperOptimizer />
+          <!-- OVERVIEW MODE: Portfolio Optimisation Tab (Coming Soon) -->
+          <div v-else-if="activeTab === 'optimization'" class="relative">
+            <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+                <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+              </div>
+            </div>
+            <div class="opacity-50">
+              <PortfolioOptimization />
             </div>
           </div>
 
-          <!-- Fees Tab (Phase 2.5) -->
-          <div v-else-if="activeTab === 'fees'">
-            <FeeBreakdown />
-            <div class="mt-8">
-              <FeeSavingsCalculator />
+          <!-- OVERVIEW MODE: Rebalancing Tab (Coming Soon) -->
+          <div v-else-if="activeTab === 'rebalancing'" class="relative">
+            <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+                <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+              </div>
+            </div>
+            <div class="opacity-50">
+              <RebalancingCalculator />
             </div>
           </div>
 
-          <!-- Recommendations Tab -->
-          <Recommendations v-else-if="activeTab === 'recommendations'" />
-        </div>
-      </div>
+          <!-- OVERVIEW MODE: Goals Tab (Coming Soon) -->
+          <div v-else-if="activeTab === 'goals'" class="relative">
+            <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+                <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+              </div>
+            </div>
+            <div class="opacity-50">
+              <Goals @view-projection="handleViewProjection" />
+              <div class="mt-8">
+                <GoalProjection />
+              </div>
+            </div>
+          </div>
+
+          <!-- OVERVIEW MODE: Tax Efficiency Tab (Coming Soon) -->
+          <div v-else-if="activeTab === 'taxefficiency'" class="relative">
+            <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+                <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+              </div>
+            </div>
+            <div class="opacity-50">
+              <AssetLocationOptimizer />
+              <div class="mt-8">
+                <WrapperOptimizer />
+              </div>
+            </div>
+          </div>
+
+          <!-- OVERVIEW MODE: Fees Tab (Coming Soon) -->
+          <div v-else-if="activeTab === 'fees'" class="relative">
+            <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+                <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+              </div>
+            </div>
+            <div class="opacity-50">
+              <FeeBreakdown />
+              <div class="mt-8">
+                <FeeSavingsCalculator />
+              </div>
+            </div>
+          </div>
+
+          <!-- OVERVIEW MODE: Strategy Tab (Coming Soon) -->
+          <div v-else-if="activeTab === 'recommendations'" class="relative">
+            <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+                <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+              </div>
+            </div>
+            <div class="opacity-50">
+              <Recommendations />
+            </div>
+          </div>
+        </transition>
       </div>
     </div>
   </component>
@@ -168,15 +171,12 @@
 import { mapState, mapActions } from 'vuex';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PortfolioOverview from '@/components/Investment/PortfolioOverview.vue';
-import Accounts from '@/components/Investment/Accounts.vue';
 import Holdings from '@/components/Investment/Holdings.vue';
 import Performance from '@/components/Investment/Performance.vue';
 import Goals from '@/components/Investment/Goals.vue';
 import Recommendations from '@/components/Investment/Recommendations.vue';
-import TaxFees from '@/components/Investment/TaxFees.vue';
 import PortfolioOptimization from '@/components/Investment/PortfolioOptimization.vue';
 import RebalancingCalculator from '@/components/Investment/RebalancingCalculator.vue';
-import ContributionPlanner from '@/components/Investment/ContributionPlanner.vue';
 import AssetLocationOptimizer from '@/components/Investment/AssetLocationOptimizer.vue';
 import WrapperOptimizer from '@/components/Investment/WrapperOptimizer.vue';
 import PerformanceAttribution from '@/components/Investment/PerformanceAttribution.vue';
@@ -184,6 +184,7 @@ import BenchmarkComparison from '@/components/Investment/BenchmarkComparison.vue
 import GoalProjection from '@/components/Investment/GoalProjection.vue';
 import FeeBreakdown from '@/components/Investment/FeeBreakdown.vue';
 import FeeSavingsCalculator from '@/components/Investment/FeeSavingsCalculator.vue';
+import AccountDetailView from '@/views/Investment/AccountDetailView.vue';
 
 export default {
   name: 'InvestmentDashboard',
@@ -191,15 +192,12 @@ export default {
   components: {
     AppLayout,
     PortfolioOverview,
-    Accounts,
     Holdings,
     Performance,
     Goals,
     Recommendations,
-    TaxFees,
     PortfolioOptimization,
     RebalancingCalculator,
-    ContributionPlanner,
     AssetLocationOptimizer,
     WrapperOptimizer,
     PerformanceAttribution,
@@ -207,24 +205,33 @@ export default {
     GoalProjection,
     FeeBreakdown,
     FeeSavingsCalculator,
+    AccountDetailView,
   },
 
   data() {
     return {
       activeTab: 'overview',
       selectedAccountId: null,
-      tabs: [
+      selectedAccount: null,
+      // Overview Mode Tabs (9 tabs - removed Accounts and Contributions)
+      overviewTabs: [
         { id: 'overview', label: 'Portfolio Overview' },
-        { id: 'accounts', label: 'Accounts' },
         { id: 'holdings', label: 'Holdings' },
         { id: 'performance', label: 'Performance' },
-        { id: 'contributions', label: 'Contributions' },
         { id: 'optimization', label: 'Portfolio Optimisation' },
         { id: 'rebalancing', label: 'Rebalancing' },
         { id: 'goals', label: 'Goals' },
         { id: 'taxefficiency', label: 'Tax Efficiency' },
         { id: 'fees', label: 'Fees' },
         { id: 'recommendations', label: 'Strategy' },
+      ],
+      // Detail Mode Tabs (5 tabs)
+      detailTabs: [
+        { id: 'portfolio-overview', label: 'Portfolio Overview' },
+        { id: 'account-overview', label: 'Overview' },
+        { id: 'account-holdings', label: 'Holdings' },
+        { id: 'account-performance', label: 'Performance' },
+        { id: 'account-fees', label: 'Fees' },
       ],
     };
   },
@@ -235,6 +242,16 @@ export default {
     // Check if this component is embedded in another page (like Net Worth)
     isEmbedded() {
       return this.$route.path.startsWith('/net-worth/');
+    },
+
+    // Returns true when an account is selected (detail mode)
+    isDetailMode() {
+      return !!this.selectedAccount;
+    },
+
+    // Returns appropriate tabs based on mode
+    currentTabs() {
+      return this.isDetailMode ? this.detailTabs : this.overviewTabs;
     },
   },
 
@@ -254,22 +271,37 @@ export default {
       }
     },
 
-    openAddAccountModal() {
-      // Switch to accounts tab first
-      this.activeTab = 'accounts';
-      // Wait for next tick to ensure Accounts component is rendered
-      this.$nextTick(() => {
-        if (this.$refs.accountsComponent && this.$refs.accountsComponent.openAddModal) {
-          this.$refs.accountsComponent.openAddModal();
-        }
-      });
+    // Select an account and enter detail mode
+    selectAccount(account) {
+      this.selectedAccount = account;
+      this.activeTab = 'account-overview';
     },
 
-    handleViewHoldings(account) {
-      // Store the selected account ID
-      this.selectedAccountId = account.id;
-      // Switch to holdings tab
-      this.activeTab = 'holdings';
+    // Clear selection and return to overview mode
+    clearSelection() {
+      this.selectedAccount = null;
+      this.activeTab = 'overview';
+    },
+
+    // Handle tab click - special handling for portfolio-overview in detail mode
+    handleTabClick(tabId) {
+      if (tabId === 'portfolio-overview') {
+        // Return to overview mode
+        this.clearSelection();
+      } else {
+        this.activeTab = tabId;
+      }
+    },
+
+    openAddAccountModal() {
+      // Open account add modal via store action or emit
+      // For now, just show the accounts component would handle this
+      // This will be handled by PortfolioOverview's own add button
+    },
+
+    openHoldingModal(account) {
+      // Will be implemented when Holdings form is connected
+      console.log('Open holding modal for account:', account);
     },
 
     clearAccountFilter() {
@@ -284,9 +316,7 @@ export default {
 
     handleViewProjection(goal) {
       // Handle viewing goal projection
-      // Could store the selected goal and scroll to GoalProjection component
       console.log('Viewing projection for goal:', goal);
-      // Optionally scroll to the GoalProjection component
       this.$nextTick(() => {
         const projectionElement = this.$el.querySelector('.goal-projection');
         if (projectionElement) {
@@ -299,31 +329,31 @@ export default {
 </script>
 
 <style scoped>
-/* Compact tab navigation for better fit */
-.investment-dashboard nav[aria-label="Tabs"] button {
-  padding-left: 0.5rem;  /* 8px */
-  padding-right: 0.5rem; /* 8px */
-  padding-top: 0.5rem;   /* 8px */
-  padding-bottom: 0.5rem; /* 8px */
-  font-size: 0.8125rem;    /* 13px */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-/* Mobile optimization for tab navigation */
-@media (max-width: 640px) {
-  .investment-dashboard nav[aria-label="Tabs"] button {
-    font-size: 0.75rem;  /* Slightly smaller on mobile */
-    padding-left: 0.5rem;  /* 8px */
-    padding-right: 0.5rem; /* 8px */
-  }
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
-/* Smooth scroll for tab navigation on mobile */
-nav[aria-label="Tabs"] {
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+/* Scrollbar styling for tab navigation */
+nav::-webkit-scrollbar {
+  height: 4px;
 }
 
-nav[aria-label="Tabs"]::-webkit-scrollbar {
-  display: none;
+nav::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+nav::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+nav::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 </style>

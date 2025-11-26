@@ -33,11 +33,11 @@
         <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
           <div>
             <p class="text-sm text-gray-600">Total DC Pension Pot</p>
-            <p class="text-2xl font-bold text-gray-900">£{{ totalDCPot.toLocaleString() }}</p>
+            <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalDCPot) }}</p>
           </div>
           <div class="text-right">
             <p class="text-sm text-gray-600">Maximum PCLS (25%)</p>
-            <p class="text-2xl font-bold text-green-600">£{{ maxPCLS.toLocaleString() }}</p>
+            <p class="text-2xl font-bold text-green-600">{{ formatCurrency(maxPCLS) }}</p>
           </div>
         </div>
 
@@ -48,11 +48,11 @@
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
                 <span class="text-gray-600">Tax-Free Cash:</span>
-                <span class="font-semibold">£{{ maxPCLS.toLocaleString() }}</span>
+                <span class="font-semibold">{{ formatCurrency(maxPCLS) }}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">Remaining for Drawdown:</span>
-                <span class="font-semibold">£{{ (totalDCPot - maxPCLS).toLocaleString() }}</span>
+                <span class="font-semibold">{{ formatCurrency(totalDCPot - maxPCLS) }}</span>
               </div>
             </div>
           </div>
@@ -63,7 +63,7 @@
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
                 <span class="text-gray-600">Tax-Free per Year:</span>
-                <span class="font-semibold">£{{ Math.round(maxPCLS / 10).toLocaleString() }}</span>
+                <span class="font-semibold">{{ formatCurrency(Math.round(maxPCLS / 10)) }}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">Duration:</span>
@@ -208,6 +208,18 @@ export default {
 
     maxPCLS() {
       return Math.round(this.totalDCPot * 0.25);
+    },
+  },
+
+  methods: {
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     },
   },
 };

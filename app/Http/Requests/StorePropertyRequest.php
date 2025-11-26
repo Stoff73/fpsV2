@@ -56,7 +56,7 @@ class StorePropertyRequest extends FormRequest
 
             // Mortgage details (when auto-creating mortgage from property form)
             'mortgage_lender_name' => ['nullable', 'string', 'max:255'],
-            'mortgage_type' => ['nullable', Rule::in(['repayment', 'interest_only', 'part_and_part', 'mixed'])],
+            'mortgage_type' => ['nullable', Rule::in(['repayment', 'interest_only', 'mixed'])],
             'mortgage_repayment_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'mortgage_interest_only_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'mortgage_monthly_payment' => ['nullable', 'numeric', 'min:0'],

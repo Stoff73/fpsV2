@@ -1,6 +1,13 @@
 <template>
-  <div>
-    <div v-if="data" class="space-y-6">
+  <div class="relative">
+    <!-- Coming Soon Watermark -->
+    <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+        <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+      </div>
+    </div>
+
+    <div v-if="data" class="space-y-6 opacity-50">
       <!-- Period Info -->
       <div class="card p-4 bg-gray-50">
         <p class="text-body-sm text-gray-600">
@@ -74,7 +81,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="card p-8 text-center">
+    <div v-else class="card p-8 text-center opacity-50">
       <p class="text-body-base text-gray-500">
         No data available. Click "Calculate" to generate your Cashflow statement.
       </p>

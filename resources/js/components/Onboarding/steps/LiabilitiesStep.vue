@@ -36,7 +36,7 @@
               <p class="text-body-sm text-gray-600">{{ liability.liability_name }}</p>
               <div class="mt-2">
                 <p class="text-body-sm text-gray-500">Balance</p>
-                <p class="text-body font-medium text-gray-900">£{{ liability.current_balance?.toLocaleString() }}</p>
+                <p class="text-body font-medium text-gray-900">{{ formatCurrency(liability.current_balance) }}</p>
               </div>
             </div>
             <div class="flex gap-2 ml-4">
@@ -181,6 +181,16 @@ export default {
       emit('skip');
     };
 
+    const formatCurrency = (value) => {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    };
+
     return {
       liabilities,
       showForm,
@@ -195,6 +205,7 @@ export default {
       handleNext,
       handleBack,
       handleSkip,
+      formatCurrency,
     };
   },
 };

@@ -359,7 +359,7 @@ class MortgageController extends Controller
             'loan_amount' => 'required|numeric|min:0',
             'annual_interest_rate' => 'required|numeric|min:0|max:100',
             'term_months' => 'required|integer|min:1',
-            'mortgage_type' => 'required|in:repayment,interest_only',
+            'mortgage_type' => 'required|in:repayment,interest_only,mixed',
         ]);
 
         $monthlyPayment = $this->mortgageService->calculateMonthlyPayment(

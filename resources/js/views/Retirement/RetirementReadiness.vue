@@ -1,32 +1,5 @@
 <template>
   <div class="retirement-readiness">
-    <!-- Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <!-- Years to Retirement -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-medium text-gray-600">Years to Retirement</h3>
-          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-        </div>
-        <p class="text-3xl font-bold text-gray-900">{{ yearsToRetirement }}</p>
-        <p class="text-sm text-gray-500 mt-1">Target age: {{ targetRetirementAge }}</p>
-      </div>
-
-      <!-- Projected Income -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-medium text-gray-600">Projected Income</h3>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-          </svg>
-        </div>
-        <p class="text-xl font-semibold text-gray-500">Coming Soon</p>
-        <p class="text-sm text-gray-400 mt-1">Not available in this version</p>
-      </div>
-    </div>
-
     <!-- Pensions Overview -->
     <div class="pension-overview">
       <div class="section-header-row">
@@ -57,20 +30,14 @@
           class="pension-card"
         >
           <div class="card-header">
-            <span
-              :class="getOwnershipBadgeClass(pension.ownership_type)"
-              class="ownership-badge"
-            >
-              {{ formatOwnershipType(pension.ownership_type) }}
-            </span>
             <span class="badge badge-dc">
-              DC Pension
+              {{ formatDCPensionType(pension.pension_type) }}
             </span>
           </div>
 
           <div class="card-content">
-            <h4 class="pension-provider">{{ pension.provider }}</h4>
-            <p class="pension-type">{{ pension.scheme_name || 'Defined Contribution' }}</p>
+            <h4 class="pension-scheme">{{ pension.scheme_name || 'Defined Contribution' }}</h4>
+            <p class="pension-provider-text">{{ pension.provider || '' }}</p>
 
             <div class="pension-details">
               <div class="detail-row">
@@ -78,14 +45,19 @@
                 <span class="detail-value">{{ formatCurrency(pension.current_fund_value) }}</span>
               </div>
 
-              <div v-if="pension.retirement_age" class="detail-row">
+              <div class="detail-row">
                 <span class="detail-label">Retirement Age</span>
-                <span class="detail-value">{{ pension.retirement_age }}</span>
+                <span class="detail-value">{{ pension.retirement_age || targetRetirementAge }}</span>
               </div>
 
-              <div v-if="pension.monthly_contribution_amount" class="detail-row">
+              <div class="detail-row">
                 <span class="detail-label">Monthly Contribution</span>
-                <span class="detail-value">{{ formatCurrency(pension.monthly_contribution_amount) }}</span>
+                <span class="detail-value">{{ formatCurrency(pension.monthly_contribution_amount || 0) }}</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Lump Sum</span>
+                <span class="detail-value">{{ formatCurrency(pension.lump_sum_contribution || 0) }}</span>
               </div>
             </div>
           </div>
@@ -99,35 +71,34 @@
           class="pension-card"
         >
           <div class="card-header">
-            <span
-              :class="getOwnershipBadgeClass(pension.ownership_type)"
-              class="ownership-badge"
-            >
-              {{ formatOwnershipType(pension.ownership_type) }}
-            </span>
             <span class="badge badge-db">
-              DB Pension
+              {{ formatDBPensionType(pension.scheme_type) }}
             </span>
           </div>
 
           <div class="card-content">
-            <h4 class="pension-provider">{{ pension.provider }}</h4>
-            <p class="pension-type">{{ pension.scheme_name || 'Defined Benefit' }}</p>
+            <h4 class="pension-scheme">{{ pension.scheme_name || 'Defined Benefit' }}</h4>
+            <p class="pension-provider-text">{{ pension.provider || '' }}</p>
 
             <div class="pension-details">
               <div class="detail-row">
                 <span class="detail-label">Annual Income</span>
-                <span class="detail-value">{{ formatCurrency(pension.annual_income) }}<span class="text-xs">/year</span></span>
+                <span class="detail-value">{{ formatCurrency(pension.annual_income) }}<span class="text-xs text-gray-500">/yr</span></span>
               </div>
 
-              <div v-if="pension.payment_start_age" class="detail-row">
-                <span class="detail-label">Payment Start</span>
-                <span class="detail-value">Age {{ pension.payment_start_age }}</span>
+              <div class="detail-row">
+                <span class="detail-label">Payment Start Age</span>
+                <span class="detail-value">{{ pension.payment_start_age || targetRetirementAge }}</span>
               </div>
 
-              <div v-if="pension.revaluation_rate" class="detail-row">
-                <span class="detail-label">Revaluation</span>
-                <span class="detail-value">{{ (pension.revaluation_rate * 100).toFixed(1) }}%</span>
+              <div class="detail-row">
+                <span class="detail-label">Revaluation Rate</span>
+                <span class="detail-value">{{ pension.revaluation_rate ? (pension.revaluation_rate * 100).toFixed(1) + '%' : '' }}</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Lump Sum</span>
+                <span class="detail-value">{{ formatCurrency(pension.lump_sum_entitlement || 0) }}</span>
               </div>
             </div>
           </div>
@@ -140,22 +111,19 @@
           class="pension-card"
         >
           <div class="card-header">
-            <span class="ownership-badge bg-gray-100 text-gray-800">
-              Individual
-            </span>
             <span class="badge badge-state">
               State Pension
             </span>
           </div>
 
           <div class="card-content">
-            <h4 class="pension-provider">UK State Pension</h4>
-            <p class="pension-type">State Retirement Pension</p>
+            <h4 class="pension-scheme">UK State Pension</h4>
+            <p class="pension-provider-text">State Retirement Pension</p>
 
             <div class="pension-details">
               <div class="detail-row">
                 <span class="detail-label">Forecast</span>
-                <span class="detail-value">{{ formatCurrency(statePensionForecast) }}<span class="text-xs">/year</span></span>
+                <span class="detail-value">{{ formatCurrency(statePensionForecast) }}<span class="text-xs text-gray-500">/yr</span></span>
               </div>
 
               <div class="detail-row">
@@ -180,23 +148,50 @@
         <!-- DC Pensions -->
         <div class="border-l-4 border-blue-500 pl-4">
           <p class="text-sm text-gray-600 mb-1">DC Pensions</p>
-          <p class="text-2xl font-bold text-gray-900">£{{ dcPensionValue.toLocaleString() }}</p>
+          <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(dcPensionValue) }}</p>
           <p class="text-sm text-gray-500 mt-1">{{ dcPensionCount }} pension{{ dcPensionCount !== 1 ? 's' : '' }}</p>
         </div>
 
         <!-- DB Pensions -->
         <div class="border-l-4 border-purple-500 pl-4">
           <p class="text-sm text-gray-600 mb-1">DB Pensions</p>
-          <p class="text-2xl font-bold text-gray-900">£{{ dbPensionIncome.toLocaleString() }}<span class="text-sm text-gray-500">/year</span></p>
+          <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(dbPensionIncome) }}<span class="text-sm text-gray-500">/year</span></p>
           <p class="text-sm text-gray-500 mt-1">{{ dbPensionCount }} scheme{{ dbPensionCount !== 1 ? 's' : '' }}</p>
         </div>
 
         <!-- State Pension -->
         <div class="border-l-4 border-green-500 pl-4">
           <p class="text-sm text-gray-600 mb-1">State Pension</p>
-          <p class="text-2xl font-bold text-gray-900">£{{ statePensionForecast.toLocaleString() }}<span class="text-sm text-gray-500">/year</span></p>
+          <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(statePensionForecast) }}<span class="text-sm text-gray-500">/year</span></p>
           <p class="text-sm text-gray-500 mt-1">{{ niYears }} NI years</p>
         </div>
+      </div>
+    </div>
+
+    <!-- Overview Cards (moved to bottom) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <!-- Years to Retirement -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-medium text-gray-600">Years to Retirement</h3>
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <p class="text-3xl font-bold text-gray-900">{{ yearsToRetirement }}</p>
+        <p class="text-sm text-gray-500 mt-1">Target age: {{ targetRetirementAge }}</p>
+      </div>
+
+      <!-- Projected Income -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-medium text-gray-600">Projected Income</h3>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+        </div>
+        <p class="text-xl font-semibold text-gray-500">Coming Soon</p>
+        <p class="text-sm text-gray-400 mt-1">Not available in this version</p>
       </div>
     </div>
 
@@ -222,6 +217,8 @@ export default {
   components: {
     UnifiedPensionForm,
   },
+
+  emits: ['select-pension'],
 
   data() {
     return {
@@ -301,6 +298,26 @@ export default {
       return classes[type] || 'bg-gray-100 text-gray-800';
     },
 
+    formatDCPensionType(type) {
+      const types = {
+        occupational: 'Occupational',
+        sipp: 'SIPP',
+        personal: 'Personal',
+        stakeholder: 'Stakeholder',
+        workplace: 'Workplace',
+      };
+      return types[type] || 'DC Pension';
+    },
+
+    formatDBPensionType(type) {
+      const types = {
+        final_salary: 'Final Salary',
+        career_average: 'Career Average',
+        public_sector: 'Public Sector',
+      };
+      return types[type] || 'DB Pension';
+    },
+
     closePensionForm() {
       this.showPensionForm = false;
       this.selectedPension = null;
@@ -330,8 +347,18 @@ export default {
     },
 
     viewPension(type, id) {
-      // Navigate to pension detail view instead of changing tab
-      this.$router.push(`/pension/${type}/${id}`);
+      // Emit event to parent to switch to detail view
+      let pension = null;
+      if (type === 'dc') {
+        pension = this.dcPensions.find(p => p.id === id);
+      } else if (type === 'db') {
+        pension = this.dbPensions.find(p => p.id === id);
+      } else if (type === 'state') {
+        pension = this.statePension;
+      }
+      if (pension) {
+        this.$emit('select-pension', pension, type);
+      }
     },
   },
 };
@@ -463,20 +490,22 @@ export default {
 .card-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
-.pension-provider {
+.pension-scheme {
   font-size: 18px;
   font-weight: 700;
   color: #111827;
   margin: 0;
+  line-height: 1.3;
 }
 
-.pension-type {
+.pension-provider-text {
   font-size: 14px;
   color: #6b7280;
   margin: 0;
+  min-height: 20px;
 }
 
 .pension-details {

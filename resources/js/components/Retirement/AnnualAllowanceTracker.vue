@@ -6,22 +6,22 @@
         v-model="selectedTaxYear"
         class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
       >
+        <option value="2025/26">2025/26</option>
         <option value="2024/25">2024/25</option>
         <option value="2023/24">2023/24</option>
         <option value="2022/23">2022/23</option>
-        <option value="2021/22">2021/22</option>
       </select>
     </div>
 
     <!-- Current Year Progress -->
-    <div v-if="selectedTaxYear === '2024/25'" class="mb-8">
+    <div v-if="selectedTaxYear === '2025/26'" class="mb-8">
       <div class="flex items-center justify-between mb-3">
         <span class="text-sm font-medium text-gray-700">Contributions Used</span>
         <div class="text-right">
           <span class="text-2xl font-bold text-gray-900">
-            £{{ contributionsUsed.toLocaleString() }}
+            {{ formatCurrency(contributionsUsed) }}
           </span>
-          <span class="text-sm text-gray-500"> / £{{ currentAllowance.toLocaleString() }}</span>
+          <span class="text-sm text-gray-500"> / {{ formatCurrency(currentAllowance) }}</span>
         </div>
       </div>
 
@@ -48,7 +48,7 @@
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-600">Remaining Allowance</span>
           <span class="text-lg font-bold" :class="remainingAllowance > 0 ? 'text-green-600' : 'text-red-600'">
-            £{{ Math.max(0, remainingAllowance).toLocaleString() }}
+            {{ formatCurrency(Math.max(0, remainingAllowance)) }}
           </span>
         </div>
       </div>
@@ -59,7 +59,7 @@
       <div class="flex items-center justify-between mb-3">
         <span class="text-sm font-medium text-gray-700">Contributions Used ({{ selectedTaxYear }})</span>
         <span class="text-lg font-bold text-gray-900">
-          £{{ getHistoricalContributions(selectedTaxYear).toLocaleString() }}
+          {{ formatCurrency(getHistoricalContributions(selectedTaxYear)) }}
         </span>
       </div>
 
@@ -71,7 +71,7 @@
       </div>
 
       <p class="text-sm text-gray-600 mt-2">
-        Unused allowance: £{{ getHistoricalUnused(selectedTaxYear).toLocaleString() }}
+        Unused allowance: {{ formatCurrency(getHistoricalUnused(selectedTaxYear)) }}
       </p>
     </div>
 
@@ -95,7 +95,7 @@
             <p class="text-xs text-gray-500">Available to carry forward</p>
           </div>
           <div class="text-right">
-            <p class="text-lg font-bold text-indigo-600">£{{ year.available.toLocaleString() }}</p>
+            <p class="text-lg font-bold text-indigo-600">{{ formatCurrency(year.available) }}</p>
           </div>
         </div>
       </div>
@@ -104,7 +104,7 @@
         <div class="flex items-center justify-between">
           <span class="text-sm font-medium text-indigo-900">Total Available (with carry forward)</span>
           <span class="text-xl font-bold text-indigo-600">
-            £{{ totalAvailableWithCarryForward.toLocaleString() }}
+            {{ formatCurrency(totalAvailableWithCarryForward) }}
           </span>
         </div>
       </div>
@@ -132,7 +132,7 @@
       <div>
         <p class="text-sm font-bold text-amber-900">Tapered Annual Allowance</p>
         <p class="text-sm text-amber-800 mt-1">
-          Your annual allowance has been tapered to £{{ currentAllowance.toLocaleString() }} based on your income level.
+          Your annual allowance has been tapered to {{ formatCurrency(currentAllowance) }} based on your income level.
         </p>
       </div>
     </div>
@@ -147,7 +147,7 @@ export default {
 
   data() {
     return {
-      selectedTaxYear: '2024/25',
+      selectedTaxYear: '2025/26',
     };
   },
 
@@ -230,13 +230,13 @@ export default {
     carryForwardYears() {
       // Calculate carry forward from previous 3 years
       const years = [];
-      const currentYear = '2024/25';
+      const currentYear = '2025/26';
 
       if (!this.mpaaTriggered) {
         years.push(
+          { taxYear: '2024/25', available: this.getHistoricalUnused('2024/25') },
           { taxYear: '2023/24', available: this.getHistoricalUnused('2023/24') },
-          { taxYear: '2022/23', available: this.getHistoricalUnused('2022/23') },
-          { taxYear: '2021/22', available: this.getHistoricalUnused('2021/22') }
+          { taxYear: '2022/23', available: this.getHistoricalUnused('2022/23') }
         );
       }
 
@@ -267,12 +267,22 @@ export default {
       const used = this.getHistoricalContributions(taxYear);
       return Math.min(100, Math.round((used / 60000) * 100));
     },
+
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    },
   },
 
   async mounted() {
     // Fetch annual allowance data
     try {
-      await this.$store.dispatch('retirement/fetchAnnualAllowance', '2024/25');
+      await this.$store.dispatch('retirement/fetchAnnualAllowance', '2025/26');
     } catch (error) {
       console.error('Failed to fetch annual allowance:', error);
     }

@@ -58,6 +58,8 @@ export default {
     },
   },
 
+  emits: ['select-property'],
+
   computed: {
     propertyTypeLabel() {
       const labels = {
@@ -138,7 +140,7 @@ export default {
     },
 
     viewDetails() {
-      this.$router.push(`/property/${this.property.id}`);
+      this.$emit('select-property', this.property);
     },
   },
 };

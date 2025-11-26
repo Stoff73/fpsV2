@@ -3,11 +3,6 @@
     <div class="px-4 sm:px-0">
       <!-- Header -->
       <div class="mb-6">
-        <nav class="text-sm mb-2">
-          <router-link to="/dashboard" class="text-primary-600 hover:text-primary-700">Dashboard</router-link>
-          <span class="text-gray-400 mx-2">/</span>
-          <span class="text-gray-600">UK Taxes & Allowances</span>
-        </nav>
         <h1 class="font-display text-h1 text-gray-900">UK Taxes & Allowances 2025/26</h1>
         <p class="text-body text-gray-600 mt-2">
           Current UK tax rules, rates, and allowances with detailed calculation methodologies
@@ -336,7 +331,7 @@
               <p class="text-sm text-green-900">
                 <strong>Lifetime Allowance:</strong> Abolished April 2024
                 <br>
-                <em class="text-xs">No limit on total pension savings from 2024/25 onwards</em>
+                <em class="text-xs">No limit on total pension savings from 2025/26 onwards</em>
               </p>
             </div>
 
@@ -549,9 +544,9 @@ export default {
     const activeTab = ref('income');
 
     const taxConfig = {
-      tax_year: '2024/25',
-      effective_from: '2024-04-06',
-      effective_to: '2025-04-05',
+      tax_year: '2025/26',
+      effective_from: '2025-04-06',
+      effective_to: '2026-04-05',
       income_tax: {
         personal_allowance: 12570,
         personal_allowance_taper_threshold: 100000,

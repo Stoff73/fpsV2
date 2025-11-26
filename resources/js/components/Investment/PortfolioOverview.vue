@@ -1,30 +1,5 @@
 <template>
   <div class="portfolio-overview">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      <!-- Total Value Card -->
-      <div class="bg-blue-50 rounded-lg p-6">
-        <h3 class="text-sm font-medium text-blue-900 mb-2">Total Portfolio Value</h3>
-        <p class="text-3xl font-bold text-blue-600">{{ formattedTotalValue }}</p>
-        <p class="text-sm text-blue-700 mt-2">{{ accountsCount }} accounts</p>
-      </div>
-
-      <!-- YTD Return Card -->
-      <div class="bg-green-50 rounded-lg p-6">
-        <h3 class="text-sm font-medium text-green-900 mb-2">YTD Return</h3>
-        <p class="text-3xl font-bold" :class="ytdReturn >= 0 ? 'text-green-600' : 'text-red-600'">
-          {{ formattedYtdReturn }}
-        </p>
-        <p class="text-sm text-green-700 mt-2">{{ holdingsCount }} holdings</p>
-      </div>
-
-      <!-- Diversification Score Card -->
-      <div class="bg-purple-50 rounded-lg p-6">
-        <h3 class="text-sm font-medium text-purple-900 mb-2">Diversification Score</h3>
-        <p class="text-3xl font-bold text-purple-600">{{ diversificationScore }}/100</p>
-        <p class="text-sm text-purple-700 mt-2">{{ diversificationLabel }}</p>
-      </div>
-    </div>
-
     <!-- Investment Accounts -->
     <div class="account-overview mb-8">
       <div class="section-header-row">
@@ -129,7 +104,7 @@
     </div>
 
     <!-- Risk Metrics Placeholder -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div class="bg-white border border-gray-200 rounded-lg p-6">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Risk Profile</h2>
         <div v-if="riskMetrics" class="space-y-3">
@@ -168,6 +143,33 @@
         <p v-else class="text-gray-500 text-center py-4">No tax efficiency data available</p>
       </div>
     </div>
+
+    <!-- Portfolio Summary -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-6">Portfolio Summary</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Total Portfolio Value -->
+        <div class="border-l-4 border-blue-500 pl-4">
+          <p class="text-sm text-gray-600 mb-1">Total Portfolio Value</p>
+          <p class="text-2xl font-bold text-gray-900">{{ formattedTotalValue }}</p>
+          <p class="text-sm text-gray-500 mt-1">{{ accountsCount }} account{{ accountsCount !== 1 ? 's' : '' }}</p>
+        </div>
+
+        <!-- YTD Return -->
+        <div class="border-l-4 pl-4" :class="ytdReturn >= 0 ? 'border-green-500' : 'border-red-500'">
+          <p class="text-sm text-gray-600 mb-1">YTD Return</p>
+          <p class="text-2xl font-bold" :class="ytdReturn >= 0 ? 'text-green-600' : 'text-red-600'">{{ formattedYtdReturn }}</p>
+          <p class="text-sm text-gray-500 mt-1">{{ holdingsCount }} holding{{ holdingsCount !== 1 ? 's' : '' }}</p>
+        </div>
+
+        <!-- Diversification Score -->
+        <div class="border-l-4 border-purple-500 pl-4">
+          <p class="text-sm text-gray-600 mb-1">Diversification Score</p>
+          <p class="text-2xl font-bold text-gray-900">{{ diversificationScore }}/100</p>
+          <p class="text-sm text-gray-500 mt-1">{{ diversificationLabel }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -179,6 +181,8 @@ import { TAX_CONFIG } from '@/constants/taxConfig';
 
 export default {
   name: 'PortfolioOverview',
+
+  emits: ['open-add-account-modal', 'select-account'],
 
   components: {
     AssetAllocationChart,
@@ -388,10 +392,12 @@ export default {
     },
 
     viewAccount(accountId) {
-      // Navigate to Accounts tab with selected account
-      this.$parent.activeTab = 'accounts';
-      // Optionally emit event to pre-select the account
-      this.$emit('account-selected', accountId);
+      // Find the full account object from the accounts array
+      const account = this.accounts.find(a => a.id === accountId);
+      if (account) {
+        // Emit the full account object to parent
+        this.$emit('select-account', account);
+      }
     },
 
     getSpouseName() {

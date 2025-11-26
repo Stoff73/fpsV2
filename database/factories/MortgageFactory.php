@@ -16,7 +16,7 @@ class MortgageFactory extends Factory
      */
     public function definition(): array
     {
-        $mortgageType = fake()->randomElement(['repayment', 'interest_only']);
+        $mortgageType = fake()->randomElement(['repayment', 'interest_only', 'mixed']);
         $originalAmount = fake()->numberBetween(100000, 500000);
         $outstandingBalance = $originalAmount * fake()->randomFloat(2, 0.6, 0.95);
         $interestRate = fake()->randomFloat(4, 2.5, 6.5);

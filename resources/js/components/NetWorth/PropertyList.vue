@@ -1,51 +1,50 @@
 <template>
   <div class="property-list">
-    <div class="list-header">
-      <h2 class="list-title">Properties</h2>
-      <div class="list-controls">
+    <!-- Property Detail View (when a property is selected) -->
+    <PropertyDetailInline
+      v-if="selectedProperty"
+      :property-id="selectedProperty.id"
+      @back="clearSelection"
+      @deleted="handlePropertyDeleted"
+    />
+
+    <!-- Property List View (default) -->
+    <template v-else>
+      <div class="list-header">
+        <h2 class="list-title">Properties</h2>
         <button @click="addProperty" class="add-property-button">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="button-icon">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           Add Property
         </button>
-        <select v-model="filterType" class="filter-select">
-          <option value="all">All Properties</option>
-          <option value="main_residence">Main Residence</option>
-          <option value="secondary_residence">Secondary Residence</option>
-          <option value="buy_to_let">Buy to Let</option>
-        </select>
-        <select v-model="sortBy" class="sort-select">
-          <option value="value_desc">Value (High to Low)</option>
-          <option value="value_asc">Value (Low to High)</option>
-          <option value="type">Property Type</option>
-        </select>
       </div>
-    </div>
 
-    <div v-if="loading" class="loading-state">
-      <p>Loading properties...</p>
-    </div>
+      <div v-if="loading" class="loading-state">
+        <p>Loading properties...</p>
+      </div>
 
-    <div v-else-if="error" class="error-state">
-      <p>{{ error }}</p>
-    </div>
+      <div v-else-if="error" class="error-state">
+        <p>{{ error }}</p>
+      </div>
 
-    <div v-else-if="filteredProperties.length === 0" class="empty-state">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="empty-icon">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-      </svg>
-      <p>No properties found</p>
-      <p class="empty-subtitle">Properties will be managed in Phase 4</p>
-    </div>
+      <div v-else-if="filteredProperties.length === 0" class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="empty-icon">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+        <p>No properties found</p>
+        <p class="empty-subtitle">Add your first property to track your property portfolio</p>
+      </div>
 
-    <div v-else class="properties-grid">
-      <PropertyCard
-        v-for="property in filteredProperties"
-        :key="property.id"
-        :property="property"
-      />
-    </div>
+      <div v-else class="properties-grid">
+        <PropertyCard
+          v-for="property in filteredProperties"
+          :key="property.id"
+          :property="property"
+          @select-property="selectProperty"
+        />
+      </div>
+    </template>
 
     <!-- Property Form Modal -->
     <PropertyForm
@@ -68,6 +67,7 @@
 <script>
 import PropertyCard from './PropertyCard.vue';
 import PropertyForm from './Property/PropertyForm.vue';
+import PropertyDetailInline from '@/components/NetWorth/Property/PropertyDetailInline.vue';
 import api from '@/services/api';
 
 export default {
@@ -76,6 +76,7 @@ export default {
   components: {
     PropertyCard,
     PropertyForm,
+    PropertyDetailInline,
   },
 
   data() {
@@ -83,10 +84,9 @@ export default {
       properties: [],
       loading: false,
       error: null,
-      filterType: 'all',
-      sortBy: 'value_desc',
       showPropertyForm: false,
       selectedProperty: null,
+      editingProperty: null,
       successMessage: null,
       errorMessage: null,
     };
@@ -94,35 +94,40 @@ export default {
 
   computed: {
     filteredProperties() {
-      let filtered = [...this.properties];
-
-      // Apply filter
-      if (this.filterType !== 'all') {
-        filtered = filtered.filter(p => p.property_type === this.filterType);
-      }
-
-      // Apply sort
-      if (this.sortBy === 'value_desc') {
-        filtered.sort((a, b) => b.current_value - a.current_value);
-      } else if (this.sortBy === 'value_asc') {
-        filtered.sort((a, b) => a.current_value - b.current_value);
-      } else if (this.sortBy === 'type') {
-        filtered.sort((a, b) => a.property_type.localeCompare(b.property_type));
-      }
-
-      return filtered;
+      // Sort by value (high to low) by default
+      return [...this.properties].sort((a, b) => b.current_value - a.current_value);
     },
   },
 
   methods: {
-    addProperty() {
+    // Property selection for detail view
+    selectProperty(property) {
+      this.selectedProperty = property;
+    },
+
+    clearSelection() {
       this.selectedProperty = null;
+      // Refresh properties list after returning
+      this.fetchProperties();
+    },
+
+    handlePropertyDeleted() {
+      this.selectedProperty = null;
+      this.fetchProperties();
+      this.successMessage = 'Property deleted successfully';
+      setTimeout(() => {
+        this.successMessage = null;
+      }, 5000);
+    },
+
+    addProperty() {
+      this.editingProperty = null;
       this.showPropertyForm = true;
     },
 
     closePropertyForm() {
       this.showPropertyForm = false;
-      this.selectedProperty = null;
+      this.editingProperty = null;
     },
 
     async handleSaveProperty(data) {
@@ -233,12 +238,6 @@ export default {
   margin: 0;
 }
 
-.list-controls {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
 .add-property-button {
   display: inline-flex;
   align-items: center;
@@ -261,24 +260,6 @@ export default {
 .button-icon {
   width: 20px;
   height: 20px;
-}
-
-.filter-select,
-.sort-select {
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #374151;
-  background: white;
-  cursor: pointer;
-}
-
-.filter-select:focus,
-.sort-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .properties-grid {
@@ -376,14 +357,7 @@ export default {
     align-items: flex-start;
   }
 
-  .list-controls {
-    width: 100%;
-    flex-direction: column;
-  }
-
-  .add-property-button,
-  .filter-select,
-  .sort-select {
+  .add-property-button {
     width: 100%;
   }
 

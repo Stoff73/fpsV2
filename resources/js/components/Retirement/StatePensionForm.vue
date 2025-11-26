@@ -46,7 +46,7 @@
               placeholder="e.g., 203.85"
             />
             <p class="text-xs text-gray-500 mt-1">
-              Full new State Pension (2024/25): £203.85/week (£10,600/year)
+              Full new State Pension (2025/26): £221.20/week (£11,502/year)
             </p>
           </div>
 
@@ -148,7 +148,7 @@
                 placeholder="e.g., 2500.00"
               />
               <p class="text-xs text-gray-500 mt-1">
-                Typical cost: ~£800-900 per year (2024/25)
+                Typical cost: ~£800-900 per year (2025/26)
               </p>
             </div>
           </div>

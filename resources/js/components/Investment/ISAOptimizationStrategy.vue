@@ -218,7 +218,7 @@ export default {
 
   computed: {
     taxYear() {
-      return this.strategy?.allowance?.tax_year || '2024/25';
+      return this.strategy?.allowance?.tax_year || '2025/26';
     },
 
     totalTransferSaving() {

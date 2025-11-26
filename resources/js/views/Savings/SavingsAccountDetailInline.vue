@@ -1,0 +1,415 @@
+<template>
+  <div class="savings-account-detail-inline">
+    <!-- Back Button -->
+    <button
+      @click="$emit('back')"
+      class="back-button mb-4"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+      Back to Cash Overview
+    </button>
+
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <p class="mt-4 text-gray-600">Loading account details...</p>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <p class="text-red-600">{{ error }}</p>
+      <button
+        @click="loadAccount"
+        class="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+      >
+        Retry
+      </button>
+    </div>
+
+    <!-- Account Content -->
+    <div v-else-if="account" class="space-y-6">
+      <!-- Header -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ account.institution }}</h1>
+            <p class="text-lg text-gray-600 mt-1">{{ formatAccountType(account.account_type) }}</p>
+            <div class="flex gap-2 mt-2">
+              <span v-if="account.is_emergency_fund" class="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
+                Emergency Fund
+              </span>
+              <span v-if="account.is_isa" class="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                ISA
+              </span>
+            </div>
+          </div>
+          <div class="flex space-x-2">
+            <button
+              @click="showEditModal = true"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              @click="confirmDelete"
+              class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div class="bg-gray-50 rounded-lg p-4">
+            <p class="text-sm text-gray-600">Full Balance</p>
+            <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(fullBalance) }}</p>
+            <p v-if="account.ownership_type === 'joint'" class="text-xs text-gray-600 mt-1">
+              Your Share ({{ account.ownership_percentage }}%): {{ formatCurrency(account.current_balance) }}
+            </p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <p class="text-sm text-gray-600">Interest Rate</p>
+            <p class="text-2xl font-bold text-blue-600">{{ formatInterestRate(account.interest_rate) }}</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <p class="text-sm text-gray-600">Annual Interest</p>
+            <p class="text-2xl font-bold text-green-600">{{ formatCurrency(annualInterest) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Details -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-6">Account Details</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Account Information -->
+          <div>
+            <h5 class="text-sm font-semibold text-gray-800 mb-3">Account Information</h5>
+            <dl class="space-y-2">
+              <div class="flex justify-between">
+                <dt class="text-sm text-gray-600">Institution:</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right">{{ account.institution }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-sm text-gray-600">Account Type:</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ formatAccountType(account.account_type) }}</dd>
+              </div>
+              <div v-if="account.account_number" class="flex justify-between">
+                <dt class="text-sm text-gray-600">Account Number:</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ account.account_number }}</dd>
+              </div>
+              <div v-if="account.country" class="flex justify-between">
+                <dt class="text-sm text-gray-600">Country:</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ account.country }}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Balance & Interest -->
+          <div>
+            <h5 class="text-sm font-semibold text-gray-800 mb-3">Balance & Interest</h5>
+            <dl class="space-y-2">
+              <div class="flex justify-between">
+                <dt class="text-sm text-gray-600">Full Balance:</dt>
+                <dd class="text-sm font-medium text-gray-900 font-semibold">{{ formatCurrency(fullBalance) }}</dd>
+              </div>
+              <div v-if="account.ownership_type === 'joint'" class="flex justify-between">
+                <dt class="text-sm text-gray-600">Your Share ({{ account.ownership_percentage }}%):</dt>
+                <dd class="text-sm font-medium text-blue-600">{{ formatCurrency(account.current_balance) }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-sm text-gray-600">Interest Rate:</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ formatInterestRate(account.interest_rate) }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-sm text-gray-600">Monthly Interest:</dt>
+                <dd class="text-sm font-medium text-green-600">{{ formatCurrency(monthlyInterest) }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-sm text-gray-600">Annual Interest:</dt>
+                <dd class="text-sm font-medium text-green-600">{{ formatCurrency(annualInterest) }}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Access & Terms -->
+          <div>
+            <h5 class="text-sm font-semibold text-gray-800 mb-3">Access & Terms</h5>
+            <dl class="space-y-2">
+              <div class="flex justify-between">
+                <dt class="text-sm text-gray-600">Access Type:</dt>
+                <dd class="text-sm font-medium text-gray-900 capitalize">{{ formatAccessType(account.access_type) }}</dd>
+              </div>
+              <div v-if="account.access_type === 'notice' && account.notice_period_days" class="flex justify-between">
+                <dt class="text-sm text-gray-600">Notice Period:</dt>
+                <dd class="text-sm font-medium text-orange-600">{{ account.notice_period_days }} days</dd>
+              </div>
+              <div v-if="account.access_type === 'fixed' && account.maturity_date" class="flex justify-between">
+                <dt class="text-sm text-gray-600">Maturity Date:</dt>
+                <dd class="text-sm font-medium" :class="isMatured ? 'text-gray-600' : 'text-orange-600'">
+                  {{ formatDate(account.maturity_date) }}
+                </dd>
+              </div>
+              <div v-if="account.access_type === 'fixed' && account.maturity_date" class="flex justify-between">
+                <dt class="text-sm text-gray-600">Time to Maturity:</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ calculateTimeToMaturity }}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- ISA Details (if applicable) -->
+          <div v-if="account.is_isa">
+            <h5 class="text-sm font-semibold text-gray-800 mb-3">ISA Details</h5>
+            <dl class="space-y-2">
+              <div class="flex justify-between">
+                <dt class="text-sm text-gray-600">ISA Type:</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ formatISAType(account.isa_type) }}</dd>
+              </div>
+              <div v-if="account.isa_subscription_year" class="flex justify-between">
+                <dt class="text-sm text-gray-600">Subscription Year:</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ account.isa_subscription_year }}</dd>
+              </div>
+              <div v-if="account.isa_subscription_amount" class="flex justify-between">
+                <dt class="text-sm text-gray-600">Subscription Amount:</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(account.isa_subscription_amount) }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-sm text-gray-600">Tax-Free Status:</dt>
+                <dd class="text-sm font-medium text-green-600">✓ Tax-Free Interest</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <SaveAccountModal
+      v-if="showEditModal"
+      :account="account"
+      @close="showEditModal = false"
+      @saved="handleAccountSaved"
+    />
+
+    <ConfirmationModal
+      v-if="showDeleteConfirm"
+      title="Delete Account"
+      message="Are you sure you want to delete this savings account? This action cannot be undone."
+      @confirm="handleDelete"
+      @cancel="showDeleteConfirm = false"
+    />
+  </div>
+</template>
+
+<script>
+import { mapActions } from 'vuex';
+import SaveAccountModal from '@/components/Savings/SaveAccountModal.vue';
+import ConfirmationModal from '@/components/Common/ConfirmationModal.vue';
+
+export default {
+  name: 'SavingsAccountDetailInline',
+
+  components: {
+    SaveAccountModal,
+    ConfirmationModal,
+  },
+
+  props: {
+    accountId: {
+      type: Number,
+      required: true,
+    },
+  },
+
+  emits: ['back', 'deleted'],
+
+  data() {
+    return {
+      account: null,
+      loading: true,
+      error: null,
+      showEditModal: false,
+      showDeleteConfirm: false,
+    };
+  },
+
+  computed: {
+    fullBalance() {
+      if (!this.account) return 0;
+      if (this.account.ownership_type === 'joint' && this.account.ownership_percentage) {
+        return this.account.current_balance / (this.account.ownership_percentage / 100);
+      }
+      return this.account.current_balance;
+    },
+
+    monthlyInterest() {
+      if (!this.account) return 0;
+      return (this.account.current_balance * (this.account.interest_rate / 100)) / 12;
+    },
+
+    annualInterest() {
+      if (!this.account) return 0;
+      return this.account.current_balance * (this.account.interest_rate / 100);
+    },
+
+    isMatured() {
+      if (!this.account || !this.account.maturity_date) return false;
+      return new Date(this.account.maturity_date) < new Date();
+    },
+
+    calculateTimeToMaturity() {
+      if (!this.account || !this.account.maturity_date) return 'N/A';
+
+      const today = new Date();
+      const maturity = new Date(this.account.maturity_date);
+      const diffTime = maturity - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 0) return 'Matured';
+      if (diffDays < 31) return `${diffDays} days`;
+
+      const diffMonths = Math.ceil(diffDays / 30.44);
+      const years = Math.floor(diffMonths / 12);
+      const months = diffMonths % 12;
+
+      if (years === 0) return `${months} month${months !== 1 ? 's' : ''}`;
+      if (months === 0) return `${years} year${years !== 1 ? 's' : ''}`;
+      return `${years} year${years !== 1 ? 's' : ''}, ${months} month${months !== 1 ? 's' : ''}`;
+    },
+  },
+
+  mounted() {
+    this.loadAccount();
+  },
+
+  methods: {
+    ...mapActions('savings', ['fetchAccount', 'deleteAccount']),
+
+    async loadAccount() {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        this.account = await this.fetchAccount(this.accountId);
+      } catch (error) {
+        console.error('Failed to load account:', error);
+        this.error = 'Failed to load account details. Please try again.';
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async handleAccountSaved() {
+      this.showEditModal = false;
+      await this.loadAccount();
+    },
+
+    confirmDelete() {
+      this.showDeleteConfirm = true;
+    },
+
+    async handleDelete() {
+      try {
+        await this.deleteAccount(this.accountId);
+        this.showDeleteConfirm = false;
+        this.$emit('deleted');
+      } catch (error) {
+        console.error('Failed to delete account:', error);
+        this.error = 'Failed to delete account. Please try again.';
+      }
+    },
+
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    },
+
+    formatDate(date) {
+      if (!date) return '';
+      return new Date(date).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    },
+
+    formatAccountType(type) {
+      const types = {
+        savings_account: 'Savings Account',
+        current_account: 'Current Account',
+        easy_access: 'Easy Access',
+        notice: 'Notice Account',
+        fixed: 'Fixed Term',
+      };
+      return types[type] || type;
+    },
+
+    formatAccessType(type) {
+      const types = {
+        immediate: 'Immediate Access',
+        notice: 'Notice Required',
+        fixed: 'Fixed Term',
+      };
+      return types[type] || type;
+    },
+
+    formatISAType(type) {
+      const types = {
+        cash: 'Cash ISA',
+        stocks_and_shares: 'Stocks & Shares ISA',
+        lifetime: 'Lifetime ISA',
+        innovative_finance: 'Innovative Finance ISA',
+      };
+      return types[type] || type;
+    },
+
+    formatInterestRate(rate) {
+      return `${(rate * 100).toFixed(2)}%`;
+    },
+  },
+};
+</script>
+
+<style scoped>
+.savings-account-detail-inline {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+</style>

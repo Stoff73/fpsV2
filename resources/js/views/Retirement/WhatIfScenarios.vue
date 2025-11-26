@@ -33,7 +33,7 @@
         <!-- Additional Contributions -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            Extra Monthly Contributions: £{{ scenarioData.extraContributions.toLocaleString() }}
+            Extra Monthly Contributions: {{ formatCurrency(scenarioData.extraContributions) }}
           </label>
           <input
             v-model.number="scenarioData.extraContributions"
@@ -96,11 +96,11 @@
           </div>
           <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <span class="text-sm text-gray-600">Projected Income</span>
-            <span class="font-semibold text-gray-900">£{{ baseline.income.toLocaleString() }}/year</span>
+            <span class="font-semibold text-gray-900">{{ formatCurrency(baseline.income) }}/year</span>
           </div>
           <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <span class="text-sm text-gray-600">Pension Pot</span>
-            <span class="font-semibold text-gray-900">£{{ baseline.pot.toLocaleString() }}</span>
+            <span class="font-semibold text-gray-900">{{ formatCurrency(baseline.pot) }}</span>
           </div>
         </div>
       </div>
@@ -128,24 +128,24 @@
           <div class="flex items-center justify-between p-3 bg-indigo-50 rounded-lg">
             <span class="text-sm text-gray-600">Projected Income</span>
             <div class="text-right">
-              <span class="font-semibold text-gray-900">£{{ scenarioResults.income.toLocaleString() }}/year</span>
+              <span class="font-semibold text-gray-900">{{ formatCurrency(scenarioResults.income) }}/year</span>
               <span
                 v-if="scenarioResults.income !== baseline.income"
                 :class="['text-xs ml-2', scenarioResults.income > baseline.income ? 'text-green-600' : 'text-red-600']"
               >
-                {{ scenarioResults.income > baseline.income ? '+' : '' }}£{{ (scenarioResults.income - baseline.income).toLocaleString() }}
+                {{ scenarioResults.income > baseline.income ? '+' : '' }}{{ formatCurrency(scenarioResults.income - baseline.income) }}
               </span>
             </div>
           </div>
           <div class="flex items-center justify-between p-3 bg-indigo-50 rounded-lg">
             <span class="text-sm text-gray-600">Pension Pot</span>
             <div class="text-right">
-              <span class="font-semibold text-gray-900">£{{ scenarioResults.pot.toLocaleString() }}</span>
+              <span class="font-semibold text-gray-900">{{ formatCurrency(scenarioResults.pot) }}</span>
               <span
                 v-if="scenarioResults.pot !== baseline.pot"
                 :class="['text-xs ml-2', scenarioResults.pot > baseline.pot ? 'text-green-600' : 'text-red-600']"
               >
-                {{ scenarioResults.pot > baseline.pot ? '+' : '' }}£{{ (scenarioResults.pot - baseline.pot).toLocaleString() }}
+                {{ scenarioResults.pot > baseline.pot ? '+' : '' }}{{ formatCurrency(scenarioResults.pot - baseline.pot) }}
               </span>
             </div>
           </div>
@@ -208,6 +208,16 @@ export default {
         income: projectedIncome,
         pot: Math.round(projectedPot),
       };
+    },
+
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     },
   },
 

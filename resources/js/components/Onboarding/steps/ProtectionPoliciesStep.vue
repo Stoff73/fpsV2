@@ -66,12 +66,12 @@
               <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
                 <div>
                   <p class="text-body-sm text-gray-500">{{ getCoverageLabel(policy.policyType || policy.policy_type) }}</p>
-                  <p class="text-body font-medium text-gray-900">£{{ (policy.coverage_amount || policy.sum_assured || policy.benefit_amount || 0).toLocaleString() }}</p>
+                  <p class="text-body font-medium text-gray-900">{{ formatCurrency(policy.coverage_amount || policy.sum_assured || policy.benefit_amount || 0) }}</p>
                 </div>
                 <div>
                   <p class="text-body-sm text-gray-500">Premium</p>
                   <p class="text-body font-medium text-gray-900">
-                    £{{ policy.premium_amount?.toLocaleString() }} {{ policy.premium_frequency === 'monthly' ? 'pm' : 'pa' }}
+                    {{ formatCurrency(policy.premium_amount) }} {{ policy.premium_frequency === 'monthly' ? 'pm' : 'pa' }}
                   </p>
                 </div>
                 <div v-if="policy.policy_number">
@@ -386,6 +386,16 @@ export default {
       emit('skip', 'protection_policies');
     };
 
+    const formatCurrency = (value) => {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    };
+
     return {
       policies,
       showForm,
@@ -405,6 +415,7 @@ export default {
       handleNext,
       handleBack,
       handleSkip,
+      formatCurrency,
     };
   },
 };

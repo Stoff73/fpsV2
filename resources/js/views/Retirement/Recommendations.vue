@@ -1,12 +1,19 @@
 <template>
-  <div class="recommendations">
-    <div class="mb-6">
-      <h2 class="text-2xl font-bold text-gray-900">Retirement Recommendations</h2>
-      <p class="text-gray-600 mt-1">Personalized strategies to improve your retirement readiness</p>
+  <div class="recommendations relative">
+    <!-- Coming Soon Watermark -->
+    <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+        <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+      </div>
+    </div>
+
+    <div class="mb-6 opacity-50">
+      <h2 class="text-2xl font-bold text-gray-900">Retirement Strategies</h2>
+      <p class="text-gray-600 mt-1">Personalised strategies to improve your retirement readiness</p>
     </div>
 
     <!-- Priority Filter -->
-    <div class="bg-white rounded-lg shadow p-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-4 mb-6 opacity-50">
       <div class="flex items-center justify-between">
         <span class="text-sm font-medium text-gray-700">Filter by Priority:</span>
         <div class="flex items-center space-x-2">
@@ -28,7 +35,7 @@
     </div>
 
     <!-- Recommendations List -->
-    <div v-if="filteredRecommendations.length > 0" class="space-y-4">
+    <div v-if="filteredRecommendations.length > 0" class="space-y-4 opacity-50">
       <div
         v-for="(recommendation, index) in filteredRecommendations"
         :key="index"
@@ -84,7 +91,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="bg-white rounded-lg shadow p-12 text-center">
+    <div v-else class="bg-white rounded-lg shadow p-12 text-center opacity-50">
       <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>

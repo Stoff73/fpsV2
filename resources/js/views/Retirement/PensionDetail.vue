@@ -1,17 +1,6 @@
 <template>
   <AppLayout>
     <div class="container mx-auto px-4 py-8">
-      <!-- Breadcrumbs -->
-      <nav class="text-sm mb-6">
-        <ol class="flex items-center space-x-2">
-          <li><router-link to="/dashboard" class="text-blue-600 hover:underline">Dashboard</router-link></li>
-          <li><span class="text-gray-400">/</span></li>
-          <li><router-link to="/net-worth/retirement" class="text-blue-600 hover:underline">Retirement</router-link></li>
-          <li><span class="text-gray-400">/</span></li>
-          <li class="text-gray-600">{{ pensionTypeLabel }}</li>
-        </ol>
-      </nav>
-
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -100,7 +89,7 @@
             <div class="bg-green-50 rounded-lg p-4 border border-green-200">
               <p class="text-sm text-gray-600">Weekly Amount</p>
               <p class="text-2xl font-bold text-green-600">£{{ parseFloat(pension.forecast_weekly_amount || 0).toFixed(2) }}</p>
-              <p class="text-xs text-gray-500 mt-1">£{{ (parseFloat(pension.forecast_weekly_amount || 0) * 52).toLocaleString() }}/year</p>
+              <p class="text-xs text-gray-500 mt-1">{{ formatCurrency(parseFloat(pension.forecast_weekly_amount || 0) * 52) }}/year</p>
             </div>
             <div class="bg-gray-50 rounded-lg p-4">
               <p class="text-sm text-gray-600">Qualifying Years</p>

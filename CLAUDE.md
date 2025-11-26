@@ -4,19 +4,19 @@ Development guidelines for Claude Code when working with the TenGo financial pla
 
 ---
 
-## ⚠️ CRITICAL RULES
+## CRITICAL RULES
 
 ### 1. DEPLOYMENT AND BUILD PROCESS
 
-**⚠️ NEVER INCLUDE `public/build/` IN TAR FILES WITHOUT EXPLICIT USER PERMISSION**
+**NEVER INCLUDE `public/build/` IN TAR FILES WITHOUT EXPLICIT USER PERMISSION**
 
 When creating deployment tarballs or packages:
-- ❌ **DO NOT** automatically include `public/build/` directory
-- ❌ **DO NOT** assume frontend assets should be in deployment packages
-- ❌ **NEVER** instruct user to run `npm run build` on production server
-- ✅ **ALWAYS ASK** the user before including compiled frontend assets
-- ✅ **ONLY INCLUDE** source files (Vue components, PHP files, migrations) unless explicitly told otherwise
-- ✅ **ALWAYS build on LOCAL machine**: `NODE_ENV=production npm run build`
+- **DO NOT** automatically include `public/build/` directory
+- **DO NOT** assume frontend assets should be in deployment packages
+- **NEVER** instruct user to run `npm run build` on production server
+- **ALWAYS ASK** the user before including compiled frontend assets
+- **ONLY INCLUDE** source files (Vue components, PHP files, migrations) unless explicitly told otherwise
+- **ALWAYS build on LOCAL machine**: `NODE_ENV=production npm run build`
 
 **Why**:
 - Production servers often lack Node.js or have wrong versions
@@ -40,7 +40,7 @@ When creating deployment tarballs or packages:
 - **IF OTHER AREAS ARE AFFECTED**: STOP, explain impact, ASK PERMISSION, wait for approval before proceeding
 - **BEFORE MAKING CHANGES**: Understand full scope, identify all affected files, ensure backward compatibility
 
-### 2. DATABASE BACKUP PROTOCOL
+### 3. DATABASE BACKUP PROTOCOL
 
 **ALWAYS CHECK FOR AND MAINTAIN DATABASE BACKUPS BEFORE ANY DESTRUCTIVE OPERATIONS.**
 
@@ -49,16 +49,16 @@ When creating deployment tarballs or packages:
 - **Admin Account**: `admin@fps.com` / `admin123` (ID: 1016)
 
 **Commands to AVOID Without Backup:**
-- ❌ `php artisan migrate:fresh`, `migrate:refresh`, `db:wipe`
-- ❌ `php artisan migrate:rollback` (except single recent migration)
+- `php artisan migrate:fresh`, `migrate:refresh`, `db:wipe`
+- `php artisan migrate:rollback` (except single recent migration)
 
 **Safe Commands:**
-- ✅ `php artisan migrate` (forward only)
-- ✅ Admin panel backup/restore system
+- `php artisan migrate` (forward only)
+- Admin panel backup/restore system
 
-### 3. NEVER HARDCODE USER INPUT VALUES
+### 4. NEVER HARDCODE USER INPUT VALUES
 
-**⚠️ CRITICAL: ALWAYS USE DATABASE AND USER-PROVIDED VALUES - NEVER OVERRIDE WITH HARDCODED DEFAULTS**
+**CRITICAL: ALWAYS USE DATABASE AND USER-PROVIDED VALUES - NEVER OVERRIDE WITH HARDCODED DEFAULTS**
 
 - **NEVER** hardcode values from user inputs unless explicitly instructed to do so
 - **ALWAYS** use the actual data provided by users in forms
@@ -67,7 +67,7 @@ When creating deployment tarballs or packages:
 
 **Examples:**
 
-❌ **WRONG - Hardcoding values:**
+WRONG - Hardcoding values:
 ```php
 $mortgageData = [
     'lender_name' => 'To be completed',  // NEVER DO THIS
@@ -75,17 +75,17 @@ $mortgageData = [
 ];
 ```
 
-✅ **CORRECT - Using actual user input:**
+CORRECT - Using actual user input:
 ```php
 $mortgageData = [
-    'lender_name' => $validated['lender_name'] ?? 'To be completed',  // Use input, default only if not provided
-    'mortgage_type' => $validated['mortgage_type'] ?? 'repayment',    // Use input, default only if not provided
+    'lender_name' => $validated['lender_name'] ?? 'To be completed',
+    'mortgage_type' => $validated['mortgage_type'] ?? 'repayment',
 ];
 ```
 
 **The only acceptable time to use default values is when the user has NOT provided any input at all.**
 
-### 4. USE AVAILABLE SKILLS
+### 5. USE AVAILABLE SKILLS
 
 **BEFORE STARTING ANY TASK, CHECK IF THERE IS A RELEVANT SKILL AVAILABLE.**
 
@@ -97,18 +97,19 @@ Available Skills:
 
 Available Agents:
 1. **laravel-stack-deployer** - For Laravel + MySQL + Vue.js + Vite deployment to production/staging/development environments
+2. **code-quality-auditor** - For comprehensive code quality audits after significant development
 
 **FAILURE TO USE AVAILABLE SKILLS AND AGENTS IS UNACCEPTABLE.**
 
-### 5. UNIFIED FORM COMPONENTS
+### 6. UNIFIED FORM COMPONENTS
 
-**⚠️ THE APPLICATION USES ONE FORM FOR ALL INPUTS ACROSS ALL AREAS**
+**THE APPLICATION USES ONE FORM FOR ALL INPUTS ACROSS ALL AREAS**
 
 **CRITICAL**: All data input forms MUST be reusable across the entire application:
-- ✅ The SAME form component is used whether adding data during onboarding, from the module dashboard, or editing existing data
-- ✅ Forms are located in module-specific component folders (e.g., `components/Protection/PolicyFormModal.vue`)
-- ✅ Forms accept a data prop and a mode/isEditing prop
-- ✅ Forms emit `@save` and `@close` events (NEVER use `@submit` which causes double submission)
+- The SAME form component is used whether adding data during onboarding, from the module dashboard, or editing existing data
+- Forms are located in module-specific component folders (e.g., `components/Protection/PolicyFormModal.vue`)
+- Forms accept a data prop and a mode/isEditing prop
+- Forms emit `@save` and `@close` events (NEVER use `@submit` which causes double submission)
 
 **Pattern to Follow:**
 ```vue
@@ -123,17 +124,17 @@ Available Agents:
 ```
 
 **DO NOT:**
-- ❌ Create separate forms for onboarding vs. dashboard
-- ❌ Duplicate form logic across components
-- ❌ Use `@submit` event name (causes double submission bug)
+- Create separate forms for onboarding vs. dashboard
+- Duplicate form logic across components
+- Use `@submit` event name (causes double submission bug)
 
-### 6. ENVIRONMENT VARIABLE CONTAMINATION
+### 7. ENVIRONMENT VARIABLE CONTAMINATION
 
-**⚠️ THE #1 CAUSE OF DEVELOPMENT ENVIRONMENT FAILURES IS ENVIRONMENT VARIABLE POLLUTION**
+**THE #1 CAUSE OF DEVELOPMENT ENVIRONMENT FAILURES IS ENVIRONMENT VARIABLE POLLUTION**
 
 **NEVER** export production environment variables in development sessions:
-- ❌ **NEVER** run: `export $(cat .env.production | xargs)`
-- ❌ **NEVER** run: `source .env.production`
+- **NEVER** run: `export $(cat .env.production | xargs)`
+- **NEVER** run: `source .env.production`
 
 **SOLUTION - Always use the startup script:**
 ```bash
@@ -151,43 +152,227 @@ printenv | grep -E "^APP_|^DB_|^VITE_|^CACHE_"
 3. Cache errors: "This cache store does not support tagging"
 4. Vite shows wrong URL in output
 
-### 7. CANONICAL DATA TYPES - ONE SOURCE OF TRUTH
+### 8. CANONICAL DATA TYPES - ONE SOURCE OF TRUTH
 
-**⚠️ ALL ASSET/LIABILITY/PROPERTY TYPES MUST USE CANONICAL VALUES DEFINED BY DATABASE MIGRATIONS**
+**ALL ASSET/LIABILITY/PROPERTY TYPES MUST USE CANONICAL VALUES DEFINED BY DATABASE MIGRATIONS**
 
-#### Property Types (ONLY THREE ALLOWED)
+#### Property Types (3 types)
 
-```php
-'main_residence'         → "Main Residence"
-'secondary_residence'    → "Secondary Residence"
-'buy_to_let'            → "Buy to Let"
-```
+| Value | Display Label |
+|-------|---------------|
+| `main_residence` | Main Residence |
+| `secondary_residence` | Secondary Residence |
+| `buy_to_let` | Buy to Let |
 
-**❌ FORBIDDEN**: `second_home`, `commercial`, `land`
+**FORBIDDEN**: `second_home`, `commercial`, `land`
 
-#### Ownership Types (ALL MODULES)
+#### Ownership Types (4 types - ALL MODULES)
 
-```php
-'individual'       → "Individual"
-'joint'           → "Joint"
-'trust'           → "Trust"
-```
+| Value | Display Label | Notes |
+|-------|---------------|-------|
+| `individual` | Individual | Default for ISAs (UK tax rule) |
+| `joint` | Joint Ownership | Two owners with joint rights |
+| `tenants_in_common` | Tenants in Common | Ownership by percentage, separate wills |
+| `trust` | Trust | Property held in trust |
 
-**❌ FORBIDDEN**: Never use `sole` - always use `individual`
+**FORBIDDEN**: Never use `sole` - always use `individual`
 
-#### Other Canonical Types
+#### Liability Types (9 types)
 
-**Investment Account Types**: `isa`, `gia`, `nsi`, `onshore_bond`, `offshore_bond`, `vct`, `eis`
+| Value | Display Label |
+|-------|---------------|
+| `mortgage` | Mortgage |
+| `secured_loan` | Secured Loan |
+| `personal_loan` | Personal Loan |
+| `credit_card` | Credit Card |
+| `overdraft` | Bank Overdraft |
+| `hire_purchase` | Hire Purchase / Car Finance |
+| `student_loan` | Student Loan |
+| `business_loan` | Business Loan |
+| `other` | Other |
 
-**Liability Types**: `mortgage`, `loan`, `credit_card`, `other`
+**Database Field Names (CRITICAL)**:
+- `liability_name` (NOT `description`)
+- `current_balance` (NOT `amount`)
+- `liability_type` (NOT `type`)
 
-**Life Insurance Types**: `term`, `whole_of_life`, `decreasing_term`, `family_income_benefit`, `level_term`
+#### Investment Account Types (8 types)
 
-**Critical Illness Types**: `standalone`, `accelerated`, `additional`
+| Value | Display Label | ISA Eligible |
+|-------|---------------|--------------|
+| `isa` | ISA (Stocks & Shares) | Yes - £20k limit |
+| `gia` | General Investment Account | No |
+| `nsi` | NS&I (National Savings & Investments) | No |
+| `onshore_bond` | Onshore Bond | No |
+| `offshore_bond` | Offshore Bond | No |
+| `vct` | Venture Capital Trust (VCT) | No |
+| `eis` | Enterprise Investment Scheme (EIS) | No |
+| `other` | Other | No |
 
-**Savings Access Types**: `immediate`, `notice`, `fixed`
+**Note**: For `other` type, use `account_type_other` field for description.
 
-**DC Pension Types**: `occupational`, `sipp`, `personal`, `stakeholder`
+#### Holding Asset Types (10 types)
+
+| Value | Display Label |
+|-------|---------------|
+| `uk_equity` | UK Equity |
+| `us_equity` | US Equity |
+| `international_equity` | International Equity |
+| `fund` | Fund |
+| `etf` | ETF |
+| `bond` | Bond |
+| `cash` | Cash |
+| `alternative` | Alternative |
+| `property` | Property |
+| `equity` | Equity (generic/legacy) |
+
+#### Savings Account Access Types (3 types)
+
+| Value | Display Label | Related Fields |
+|-------|---------------|----------------|
+| `immediate` | Immediate | - |
+| `notice` | Notice | `notice_period_days` |
+| `fixed` | Fixed | `maturity_date` |
+
+#### Life Insurance Policy Types (5 types)
+
+| Value | Display Label |
+|-------|---------------|
+| `term` | Term Insurance |
+| `decreasing_term` | Decreasing Life Policy |
+| `level_term` | Level Term Life Policy |
+| `whole_of_life` | Whole of Life Policy |
+| `family_income_benefit` | Family Income Benefit |
+
+#### Critical Illness Policy Types (3 types)
+
+| Value | Display Label |
+|-------|---------------|
+| `standalone` | Standalone |
+| `accelerated` | Accelerated |
+| `additional` | Additional |
+
+#### Disability Policy Coverage Types (2 types)
+
+| Value | Display Label |
+|-------|---------------|
+| `accident_only` | Accident Only |
+| `accident_and_sickness` | Accident & Sickness |
+
+#### Premium/Benefit Frequency Types
+
+| Value | Display Label | Used In |
+|-------|---------------|---------|
+| `monthly` | Monthly | All policies |
+| `quarterly` | Quarterly | All policies |
+| `annually` | Annual | All policies |
+| `weekly` | Weekly | IP/Disability benefit |
+| `lump_sum` | Lump Sum | Sickness/Illness benefit |
+
+**Note**: Vue forms may show 'annual' but database uses 'annually'.
+
+#### DC Pension Types (Dual Classification)
+
+**Scheme Type** (original field):
+| Value | Display Label |
+|-------|---------------|
+| `workplace` | Occupational (Workplace) |
+| `sipp` | SIPP |
+| `personal` | Personal Pension |
+
+**Pension Type** (newer field):
+| Value | Display Label |
+|-------|---------------|
+| `occupational` | Occupational |
+| `sipp` | SIPP |
+| `personal` | Personal Pension |
+| `stakeholder` | Stakeholder Pension |
+
+**Field Names (CRITICAL)**:
+- Workplace: `employee_contribution_percent`, `employer_contribution_percent`, `annual_salary`
+- Others: `monthly_contribution_amount` (fixed £)
+- **NOT** `employee_contribution_amount`
+
+#### DB Pension Types (3 types)
+
+| Value | Display Label |
+|-------|---------------|
+| `final_salary` | Final Salary |
+| `career_average` | Career Average (CARE) |
+| `public_sector` | Public Sector |
+
+**Inflation Protection Options**: `cpi`, `rpi`, `fixed`, `none`
+
+#### Mortgage Types (3 types)
+
+| Value | Display Label |
+|-------|---------------|
+| `repayment` | Repayment |
+| `interest_only` | Interest Only |
+| `mixed` | Mixed (Part Repayment / Part Interest Only) |
+
+**FORBIDDEN**: `part_and_part` - replaced by `mixed`
+
+**Rate Type Options**: `fixed`, `variable`, `tracker`, `discount`, `mixed`
+
+#### Trust Types (9 types)
+
+| Value | Display Label |
+|-------|---------------|
+| `bare` | Bare Trust |
+| `interest_in_possession` | Interest in Possession |
+| `discretionary` | Discretionary Trust |
+| `accumulation_maintenance` | Accumulation & Maintenance |
+| `life_insurance` | Life Insurance Trust |
+| `discounted_gift` | Discounted Gift Trust |
+| `loan` | Loan Trust |
+| `mixed` | Mixed Trust |
+| `settlor_interested` | Settlor-Interested Trust |
+
+#### Gift Types (5 types - IHT Planning)
+
+| Value | Display Label | 7-Year Rule |
+|-------|---------------|-------------|
+| `pet` | Potentially Exempt Transfer (PET) | Yes |
+| `clt` | Chargeable Lifetime Transfer (CLT) | Yes + immediate tax |
+| `exempt` | Exempt Gift | No |
+| `small_gift` | Small Gift Exemption (£250/person/year) | No |
+| `annual_exemption` | Annual Exemption (£3,000/year) | No |
+
+**Gift Status**: `within_7_years`, `survived_7_years`
+
+#### Bequest Types (4 types)
+
+| Value | Display Label |
+|-------|---------------|
+| `percentage` | Percentage of Estate |
+| `specific_amount` | Specific Amount |
+| `specific_asset` | Specific Asset |
+| `residuary` | Residuary |
+
+#### User Profile Enums
+
+**Gender**: `male`, `female`, `other`
+
+**Marital Status**: `single`, `married`, `divorced`, `widowed`
+
+**Health Status**: `yes`, `yes_previous`, `no_previous`, `no_existing`, `no_both`
+
+**Smoking Status**: `never`, `quit_recent`, `quit_long_ago`, `yes`
+
+**Employment Status**: `employed`, `part_time`, `self_employed`, `retired`, `unemployed`, `other`
+
+**Education Level**: `secondary`, `a_level`, `undergraduate`, `postgraduate`, `professional`, `other`
+
+#### Family Member Relationships
+
+| Value | Display Label |
+|-------|---------------|
+| `spouse` | Spouse |
+| `child` | Child |
+| `step_child` | Step Child |
+| `parent` | Parent |
+| `other_dependent` | Other Dependent |
 
 **ENFORCEMENT RULES:**
 1. **Database is Source of Truth**: Always check migration files first
@@ -201,9 +386,10 @@ printenv | grep -E "^APP_|^DB_|^VITE_|^CACHE_"
 
 **TenGo** - UK-focused comprehensive financial planning application covering five integrated modules: Protection, Savings, Investment, Retirement, and Estate Planning.
 
-**Current Version**: v0.2.7 (Beta - Production Ready)
+**Current Version**: v0.2.14 (Production)
 **Tech Stack**: Laravel 10.x (PHP 8.2+) + Vue.js 3 + MySQL 8.0+ + Memcached
 **Status**: All core modules complete, 95% advanced features complete
+**Production URL**: https://csjones.co/tengo
 
 ---
 
@@ -223,12 +409,26 @@ Each module has an **Agent** that orchestrates analysis:
 ### Three-Tier Architecture
 
 ```
-Vue.js 3 Frontend (150+ components)
-        ↓ REST API (80+ endpoints)
-Laravel 10.x Application Layer (6 Agents + 40+ Services)
-        ↓ Eloquent ORM
-MySQL 8.0+ (45+ tables) + Memcached
+Vue.js 3 Frontend (174 components)
+        | REST API (378 routes)
+Laravel 10.x Application Layer (6 Agents + 63 Services)
+        | Eloquent ORM
+MySQL 8.0+ (50+ tables) + Memcached
 ```
+
+### Service Layer Organization (63 Services)
+
+| Module | Services | Key Services |
+|--------|----------|--------------|
+| Estate Planning | 18 | IHTCalculationService, FutureValueCalculator, TrustService |
+| Investment | 23+ | PortfolioAnalyzer, MonteCarloSimulator, EfficientFrontierCalculator |
+| Coordination | 5 | HolisticPlanner, CashFlowCoordinator, PriorityRanker |
+| Protection | 5 | CoverageGapAnalyzer, AdequacyScorer, RecommendationEngine |
+| Retirement | 5 | PensionProjector, DecumulationPlanner, ReadinessScorer |
+| Savings | 5 | ISATracker, EmergencyFundCalculator, GoalProgressCalculator |
+| Property | 3 | PropertyService, MortgageService, PropertyTaxService |
+| User Profile | 4 | UserProfileService, PersonalAccountsService |
+| Shared | 2+ | TaxConfigService, NetWorthService |
 
 ---
 
@@ -236,7 +436,7 @@ MySQL 8.0+ (45+ tables) + Memcached
 
 ### Running Development Servers
 
-**⚠️ CRITICAL**: You must run **BOTH** servers simultaneously.
+**CRITICAL**: You must run **BOTH** servers simultaneously.
 
 **Recommended:**
 ```bash
@@ -308,12 +508,12 @@ class MyService
 - `get(string $key)` - Get any nested value using dot notation
 
 **DO NOT**:
-- ❌ Use `config('uk_tax_config')` - DEPRECATED
-- ❌ Hardcode tax values in services
+- Use `config('uk_tax_config')` - DEPRECATED
+- Hardcode tax values in services
 
 **DO**:
-- ✅ Inject TaxConfigService via constructor
-- ✅ Mock TaxConfigService in unit tests
+- Inject TaxConfigService via constructor
+- Mock TaxConfigService in unit tests
 
 ### 2. ISA Allowance Tracking (Cross-Module)
 
@@ -326,11 +526,11 @@ class MyService
 
 ### 3. Asset Ownership Patterns
 
-**Ownership Types**: Individual, Joint, Trust
+**Ownership Types**: Individual, Joint, Tenants in Common, Trust
 
 **Database Pattern**:
 ```php
-$table->enum('ownership_type', ['individual', 'joint', 'trust'])->default('individual');
+$table->enum('ownership_type', ['individual', 'joint', 'tenants_in_common', 'trust'])->default('individual');
 $table->unsignedBigInteger('joint_owner_id')->nullable();
 $table->foreignId('trust_id')->nullable();
 ```
@@ -342,9 +542,10 @@ $table->foreignId('trust_id')->nullable();
 
 ### 4. Spouse Account Management
 
-- **Auto-Creation**: New email → creates account with random password, sends welcome email
-- **Account Linking**: Existing email → links accounts bidirectionally, sets `marital_status = 'married'`
+- **Auto-Creation**: New email creates account with random password, sends welcome email
+- **Account Linking**: Existing email links accounts bidirectionally, sets `marital_status = 'married'`
 - **Permissions**: Granular view/edit permissions via `spouse_permissions` table
+- **Joint Accounts**: Audit trail via `joint_account_logs` table
 
 ### 5. Polymorphic Holdings System
 
@@ -372,19 +573,19 @@ This enables shared portfolio optimization services across Investment and Retire
 
 ### 1. Form Modal Event Naming Bug
 
-**❌ WRONG - Causes double submission:**
+**WRONG - Causes double submission:**
 ```vue
 <FormModal @submit="handleSubmit" />
 ```
 
-**✅ CORRECT - Use 'save' event:**
+**CORRECT - Use 'save' event:**
 ```vue
 <FormModal @save="handleSubmit" @close="closeModal" />
 ```
 
 ### 2. Date Field Formatting
 
-**⚠️ HTML5 date inputs REQUIRE yyyy-MM-DD format**
+**HTML5 date inputs REQUIRE yyyy-MM-DD format**
 
 **ALWAYS add a formatDateForInput() helper to components with date fields:**
 
@@ -470,36 +671,28 @@ export default {
 </script>
 ```
 
-**Benefits**:
-- Single entry point for multiple entity types
-- Clear visual selection for users
-- Reuses existing individual form components
-- Maintains separation of concerns
-
 ### 5. British vs. American Spelling
 
 **CRITICAL RULE**: British English for users, American English for code
 
 #### User-Facing Text (Use British Spelling)
-
-- ✅ Headings: `<h1>Portfolio Optimisation</h1>`
-- ✅ Button labels: `<button>Customise</button>`
-- ✅ Form placeholders: `placeholder="Analyse your data"`
+- Headings: `<h1>Portfolio Optimisation</h1>`
+- Button labels: `<button>Customise</button>`
+- Form placeholders: `placeholder="Analyse your data"`
 
 #### Code Syntax (Use American Spelling - DO NOT CHANGE)
-
-- ❌ CSS classes: `class="items-center"` (Tailwind convention)
-- ❌ API routes: `/api/retirement/analyze` (Laravel convention)
-- ❌ Variable names: `optimizationResult`, `colorScheme`
-- ❌ Method names: `analyzePortfolio()`, `optimizeAllocation()`
+- CSS classes: `class="items-center"` (Tailwind convention)
+- API routes: `/api/retirement/analyze` (Laravel convention)
+- Variable names: `optimizationResult`, `colorScheme`
+- Method names: `analyzePortfolio()`, `optimizeAllocation()`
 
 ### 6. Syncing Related Form Data (CRITICAL)
 
-**⚠️ CRITICAL**: When forms have related parent-child data (e.g., property + mortgage), ALWAYS sync the child form data with the parent using watchers.
+**CRITICAL**: When forms have related parent-child data (e.g., property + mortgage), ALWAYS sync the child form data with the parent using watchers.
 
 **Problem Example**: PropertyForm has `form.ownership_type` and `mortgageForm.ownership_type`. User changes property to joint, but mortgage stays individual.
 
-**✅ CORRECT - Use watchers to sync:**
+**CORRECT - Use watchers to sync:**
 
 ```javascript
 watch: {
@@ -534,7 +727,44 @@ if (!this.property.mortgages?.length) {
 - Prevents silent data inconsistency bugs that are hard to debug
 - Ensures frontend and backend state remain synchronized
 
-**Real-World Impact**: This pattern fixed the critical joint mortgage bug where only one mortgage was created instead of two.
+### 7. Coming Soon Watermark Pattern
+
+**ALWAYS use the consistent amber box pattern for Coming Soon watermarks:**
+
+```vue
+<template>
+  <div class="relative">
+    <!-- Coming Soon Watermark -->
+    <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+        <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+      </div>
+    </div>
+
+    <!-- Actual content with reduced opacity -->
+    <div class="opacity-50">
+      <!-- Component content here -->
+    </div>
+  </div>
+</template>
+```
+
+**Key Elements**:
+- `bg-amber-100` - Light amber background
+- `border-2 border-amber-400` - Visible amber border
+- `rounded-lg px-8 py-4` - Rounded corners with padding
+- `transform -rotate-12` - Slight rotation for visual interest
+- `shadow-lg` - Drop shadow for depth
+- `text-2xl font-bold text-amber-700` - Bold amber text
+- `opacity-50` on content - Dims underlying content
+
+**DO NOT use plain gray text watermarks like:**
+```vue
+<!-- WRONG -->
+<div class="text-6xl font-bold text-gray-300 opacity-50 transform -rotate-12">
+  Coming Soon
+</div>
+```
 
 ---
 
@@ -591,6 +821,7 @@ if (!this.property.mortgages?.length) {
 - **RNRB**: £175,000 (residence nil rate band, transferable)
 - **Pension Annual Allowance**: £60,000 (tapered for high earners)
 - **ISA Annual Allowance**: £20,000 (April 6 - April 5)
+- **Personal Allowance**: £12,570
 - **Tax Year Period**: April 6 to April 5
 
 ---
@@ -637,7 +868,7 @@ test('calculates IHT liability correctly for single person', function () {
     $result = $service->calculateIHTLiability($assets, collect(), $profile);
 
     // Estate: £500k - NRB: £325k = £175k taxable
-    // IHT: £175k × 40% = £70k
+    // IHT: £175k x 40% = £70k
     expect($result['iht_liability'])->toBe(70000.0);
 });
 ```
@@ -703,129 +934,70 @@ resources/js/
 
 ---
 
+## Version History
+
+### v0.2.14 (25 November 2025) - Latest
+
+**10 Major Fixes**:
+1. Family Member/Spouse Account Linking - User Profile now uses same service as onboarding
+2. Joint Property Sync - Joint property editing shows full values and syncs with audit trail
+3. Joint Property Cost/Income Split - Monthly costs and rental income split by ownership percentage
+4. Joint Account History UI - New "Joint History" tab in Net Worth dashboard
+5. Code Quality Fixes - 11 issues resolved (1 critical: division by zero prevention)
+6. Spouse Modal Logout Fix - Fixed flash/logout issue when adding spouse
+7. DC Pension Provider Nullable - Migration for provider column
+8. Joint Mortgage Payment Split - Correctly splits by ownership percentage
+9. Spouse Expenditure Display - Fixed double `/api` prefix bug
+10. Life Policy Validation - Made policy_end_date optional for term policies
+
+### v0.2.13 (24 November 2025)
+
+**Critical Pension and Protection Fixes**:
+- DC pension creation (all types including stakeholder)
+- DB pension creation (field name mapping)
+- Protection policy dates made optional
+- Financial commitments tracking (Disability/Sickness premiums)
+- All database nullable constraints fixed
+
+### v0.2.10 "Boma Build" (20 November 2025)
+
+**28 Bug Fixes**:
+- Financial Commitments API (DC Pension namespace, field names)
+- Expenditure Form (property expenses, spouse totals)
+- Rental Income Display
+- Spouse Account Linking validation
+- Dashboard Card enhancements
+
+---
+
 ## Previously Known Issues - NOW RESOLVED
 
-### ✅ RESOLVED - Joint Mortgage Reciprocal Creation (Fixed November 15, 2025)
+### Joint Mortgage Reciprocal Creation (Fixed November 15, 2025)
 
-**Issue**: When creating a joint property with a mortgage, only ONE mortgage record was being created instead of TWO.
+**Issue**: Joint property with mortgage only created ONE mortgage record instead of TWO.
+**Solution**: Added watchers in PropertyForm.vue to sync mortgage ownership with property ownership.
+**Status**: FIXED
 
-**Root Cause**: PropertyForm's `mortgageForm` kept default `ownership_type: 'individual'` even when property was joint. MortgageController checked ownership_type to trigger reciprocal creation but it was always 'individual'.
-
-**Solution**: Added watchers in PropertyForm.vue to sync mortgage ownership with property ownership:
-- Watch `form.ownership_type` → Update `mortgageForm.ownership_type`
-- Watch `form.joint_owner_id` → Update `mortgageForm.joint_owner_id`
-- Watch `form.joint_owner_name` → Update `mortgageForm.joint_owner_name`
-
-**Status**: ✅ **FIXED** - Both property and mortgage reciprocal records now created correctly
-
-**Documentation**: See `DEPLOYMENT_PATCH_v0.2.8.md` Section 14.10
-
-**Key Lesson**: When forms have related data (parent-child), always sync the data using watchers to prevent inconsistent submissions.
-
-### ✅ RESOLVED - Estate Plan Spouse Data & IHT Liability Display (Fixed November 15, 2025)
+### Estate Plan Spouse Data & IHT Liability Display (Fixed November 15, 2025)
 
 **Issues**:
-1. Comprehensive Estate Plan (Plans module) not showing spouse assets/liabilities even when data sharing enabled
-2. IHT Planning tab not displaying non-mortgage liabilities (credit cards, loans, etc.)
-
-**Root Causes**:
-1. `ComprehensiveEstatePlanService` only gathered user assets, didn't pass spouse data to build methods
-2. `IHTController.formatLiabilitiesBreakdown()` used wrong field names (`amount` instead of `current_balance`, `description` instead of `liability_name`)
+1. Estate Plan not showing spouse assets when data sharing enabled
+2. IHT Planning tab not displaying non-mortgage liabilities
 
 **Solutions**:
-1. Updated `ComprehensiveEstatePlanService`:
-   - Added spouse asset gathering when data sharing enabled
-   - Enhanced `buildBalanceSheet()`, `buildEstateOverview()`, `buildEstateBreakdown()` to accept and display spouse data
-   - Returns structured data with `user`, `spouse`, and `combined` sections
+1. Updated ComprehensiveEstatePlanService to gather spouse data
+2. Fixed field names in IHTController (`current_balance` not `amount`, `liability_name` not `description`)
 
-2. Updated `IHTController.formatLiabilitiesBreakdown()`:
-   - Changed `$liability->amount` to `$liability->current_balance`
-   - Changed `$liability->description` to `$liability->liability_name`
-   - Applied fixes to both user and spouse liability sections
+**Status**: FIXED
 
-**Status**: ✅ **FIXED** - Estate Plan shows combined spouse data, all liabilities display correctly
+### All Liability Display Issues (Fixed November 17, 2025)
 
-**Documentation**: See `DEPLOYMENT_PATCH_v0.2.9.md`
+- Net Worth Card now shows all 9 liability types
+- IHT Planning displays all liabilities correctly
+- Liability types expanded from 4 to 9 types
+- Interest rates display correctly
 
-**Key Lesson**: Always verify model field names match database schema. The Liability model uses `current_balance` and `liability_name`, not `amount` and `description`.
-
-### ✅ RESOLVED - All Liability Display Issues (Confirmed November 17, 2025)
-
-**Comprehensive Resolution Summary**:
-
-All liability-related display and categorization issues have been fully resolved across all modules:
-
-1. **Net Worth Card Liability Display** ✅
-   - Fixed: Only mortgages showing, missing other liability types
-   - Solution: Replaced deprecated `PersonalAccount` model with `Liability` model
-   - Result: Complete liability breakdown with all 9 types visible
-
-2. **IHT Planning Liability Display** ✅
-   - Fixed: Non-mortgage liabilities not displaying
-   - Solution: Corrected field names in `formatLiabilitiesBreakdown()`
-   - Result: All liabilities (mortgages, credit cards, loans, hire purchase, etc.) display correctly
-
-3. **Expanded Liability Types** ✅
-   - Enhancement: Expanded from 4 types to 9 types
-   - New types: Secured loan, unsecured loan, personal loan, car loan, hire purchase, overdraft
-   - Migration: `2025_11_15_170630_update_liability_type_enum_to_support_all_types.php`
-   - Result: More accurate debt categorization and reporting
-
-4. **User Profile Liabilities** ✅
-   - Fixed: Interest rates displaying as 2700.00% instead of 27.00%
-   - Fixed: Balance sheet showing categories instead of individual line items
-   - Result: Accurate display with correct formatting
-
-**Current Status**:
-- ✅ All 9 liability types fully supported
-- ✅ Correct display across all modules (Net Worth, Estate Planning, User Profile)
-- ✅ Proper categorization and reporting
-- ✅ No known liability-related issues remaining
-
-**Files Involved**:
-- `app/Services/NetWorth/NetWorthService.php`
-- `app/Http/Controllers/Api/Estate/IHTController.php`
-- `app/Services/UserProfile/PersonalAccountsService.php`
-- `database/migrations/2025_11_15_170630_update_liability_type_enum_to_support_all_types.php`
-
-**Documentation**: See `DEPLOYMENT_PATCH_v0.2.9.md` for complete details
-
-### ✅ RESOLVED - v0.2.10 "Boma Build" Fixes (Deployed November 20, 2025)
-
-**28 Bug Fixes and Feature Enhancements** - All successfully deployed to production
-
-**Key Fixes**:
-
-1. **Financial Commitments API** (Bugs #20-23):
-   - Fixed incorrect DC Pension model namespace (`App\Models\Retirement\DCPension`)
-   - Fixed DC Pension field name (`monthly_contribution_amount` not `employee_contribution_amount`)
-   - Fixed Property expense field names to match database schema
-   - Fixed Protection policy premium calculations (`premium_amount` + `premium_frequency`)
-
-2. **Expenditure Form** (Bugs #24-27):
-   - Fixed property expenses not displaying in financial commitments
-   - Fixed expense totals showing £0 despite data in database
-   - Fixed spouse expenditure tab missing joint expenses
-   - Fixed spouse totals not including joint commitments
-
-3. **Rental Income Display** (Bug #28):
-   - Fixed rental income not appearing in onboarding Income step
-   - Changed from cached store data to fresh API fetch
-
-4. **Spouse Account Linking** (Bug #19):
-   - Fixed validation to allow re-linking already-linked spouses
-
-5. **Dashboard Card Enhancements**:
-   - Enhanced all dashboard cards with uniform styling
-   - Added clickable navigation to relevant modules
-   - Fixed estate card future values display
-   - Added WealthSummary component with spouse data integration
-
-**Status**: ✅ **ALL FIXED** - Successfully deployed and verified in production
-
-**Production URL**: https://csjones.co/tengo
-
-**Documentation**: See `bomaPath.md` and `DEPLOYMENT_v0.2.10_INSTRUCTIONS.md` for complete details
+**Status**: FIXED
 
 ---
 
@@ -840,18 +1012,11 @@ For any bugs encountered, please use the `systematic-debugging` skill to investi
 
 ---
 
-**Current Version**: v0.2.13 (Production)
+**Current Version**: v0.2.14 (Production)
 **Production URL**: https://csjones.co/tengo
-**Last Updated**: November 24, 2025
-**Status**: 🚀 Production Ready - All Core Features Complete
-
-**Latest Patch (v0.2.13)**: Critical pension and protection policy fixes
-- ✅ DC pension creation (all types including stakeholder)
-- ✅ DB pension creation (field name mapping)
-- ✅ Protection policy dates made optional
-- ✅ Financial commitments tracking (Disability/Sickness premiums)
-- ✅ All database nullable constraints fixed
+**Last Updated**: November 26, 2025
+**Status**: Production Ready - All Core Features Complete
 
 ---
 
-🤖 **Built with [Claude Code](https://claude.com/claude-code)**
+Built with [Claude Code](https://claude.com/claude-code)

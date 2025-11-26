@@ -46,7 +46,7 @@
       <div v-if="type === 'dc'" class="space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-600">Current Fund Value</span>
-          <span class="text-lg font-bold text-gray-900">£{{ parseFloat(pension.current_fund_value || 0).toLocaleString() }}</span>
+          <span class="text-lg font-bold text-gray-900">{{ formatCurrency(pension.current_fund_value) }}</span>
         </div>
 
         <!-- Workplace Pension: Show Employee & Employer Contributions -->
@@ -65,7 +65,7 @@
         <template v-else-if="isPersonalPension">
           <div class="flex items-center justify-between">
             <span class="text-sm text-gray-600">Monthly Contribution</span>
-            <span class="text-sm font-semibold text-gray-900">£{{ parseFloat(pension.monthly_contribution_amount || 0).toLocaleString() }}</span>
+            <span class="text-sm font-semibold text-gray-900">{{ formatCurrency(pension.monthly_contribution_amount) }}</span>
           </div>
         </template>
       </div>
@@ -74,7 +74,7 @@
       <div v-if="type === 'db'" class="space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-600">Annual Income</span>
-          <span class="text-lg font-bold text-gray-900">£{{ parseFloat(pension.annual_income || 0).toLocaleString() }}<span class="text-sm text-gray-500">/year</span></span>
+          <span class="text-lg font-bold text-gray-900">{{ formatCurrency(pension.annual_income) }}<span class="text-sm text-gray-500">/year</span></span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-600">Service Years</span>
@@ -110,7 +110,7 @@
           </div>
           <div class="col-span-2" v-if="pension.projected_fund_value">
             <p class="text-gray-600 mb-1">Projected Fund Value at Retirement</p>
-            <p class="text-xl font-bold text-indigo-600">£{{ parseFloat(pension.projected_fund_value || 0).toLocaleString() }}</p>
+            <p class="text-xl font-bold text-indigo-600">{{ formatCurrency(pension.projected_fund_value) }}</p>
           </div>
         </div>
 
@@ -130,11 +130,11 @@
           </div>
           <div>
             <p class="text-gray-600 mb-1">Pensionable Salary</p>
-            <p class="font-medium text-gray-900">£{{ parseFloat(pension.final_salary || 0).toLocaleString() }}</p>
+            <p class="font-medium text-gray-900">{{ formatCurrency(pension.final_salary) }}</p>
           </div>
           <div class="col-span-2">
             <p class="text-gray-600 mb-1">PCLS Available</p>
-            <p class="font-medium text-gray-900">{{ pension.pcls_available ? `£${parseFloat(pension.pcls_available).toLocaleString()}` : 'N/A' }}</p>
+            <p class="font-medium text-gray-900">{{ pension.pcls_available ? formatCurrency(pension.pcls_available) : 'N/A' }}</p>
           </div>
         </div>
       </div>
@@ -211,6 +211,16 @@ export default {
 
     toggleExpand() {
       this.expanded = !this.expanded;
+    },
+
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     },
   },
 };

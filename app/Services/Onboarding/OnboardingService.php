@@ -516,7 +516,7 @@ class OnboardingService
             }
         } else {
             // Joint mode or single user: Update user with flat data
-            $user->update([
+            $expenditureData = [
                 'food_groceries' => $data['food_groceries'] ?? 0,
                 'transport_fuel' => $data['transport_fuel'] ?? 0,
                 'healthcare_medical' => $data['healthcare_medical'] ?? 0,
@@ -530,12 +530,29 @@ class OnboardingService
                 'pets' => $data['pets'] ?? 0,
                 'childcare' => $data['childcare'] ?? 0,
                 'school_fees' => $data['school_fees'] ?? 0,
+                'school_lunches' => $data['school_lunches'] ?? 0,
+                'school_extras' => $data['school_extras'] ?? 0,
+                'university_fees' => $data['university_fees'] ?? 0,
                 'children_activities' => $data['children_activities'] ?? 0,
+                'gifts_charity' => $data['gifts_charity'] ?? 0,
+                'regular_savings' => $data['regular_savings'] ?? 0,
                 'other_expenditure' => $data['other_expenditure'] ?? 0,
                 'monthly_expenditure' => $data['monthly_expenditure'] ?? 0,
                 'annual_expenditure' => $data['annual_expenditure'] ?? 0,
                 'expenditure_entry_mode' => $data['expenditure_entry_mode'] ?? 'category',
-            ]);
+                'expenditure_sharing_mode' => 'joint',
+            ];
+
+            $user->update($expenditureData);
+
+            // CRITICAL: For joint/50/50 mode, also update spouse with the same expenses
+            // Both accounts share the same household expenses (each represents 50%)
+            if ($user->spouse_id) {
+                $spouse = User::find($user->spouse_id);
+                if ($spouse) {
+                    $spouse->update($expenditureData);
+                }
+            }
         }
     }
 
@@ -1111,7 +1128,7 @@ class OnboardingService
                                      $user->food_groceries > 0 ||
                                      $user->transport_fuel > 0;
 
-                if (!$hasExpenditureData) {
+                if (! $hasExpenditureData) {
                     return null;
                 }
 
@@ -1195,7 +1212,7 @@ class OnboardingService
                 // No spouse data or spouse has no expenditure - return just user data
                 return $userData;
 
-            // Add other step fallbacks as needed
+                // Add other step fallbacks as needed
             default:
                 return null;
         }

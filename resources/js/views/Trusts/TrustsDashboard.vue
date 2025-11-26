@@ -3,11 +3,6 @@
     <div class="px-4 sm:px-0">
       <!-- Header -->
       <div class="mb-6">
-        <nav class="text-sm mb-2">
-          <router-link to="/dashboard" class="text-primary-600 hover:text-primary-700">Dashboard</router-link>
-          <span class="text-gray-400 mx-2">/</span>
-          <span class="text-gray-600">Trusts</span>
-        </nav>
         <div class="flex items-center justify-between">
           <div>
             <h1 class="font-display text-h1 text-gray-900">Trusts Dashboard</h1>

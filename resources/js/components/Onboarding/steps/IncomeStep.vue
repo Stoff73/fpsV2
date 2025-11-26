@@ -278,10 +278,10 @@
           <div class="bg-gray-50 rounded-lg p-4">
             <p class="text-body-sm text-gray-600">Total Annual Income</p>
             <p class="text-h3 font-display text-gray-900">
-              £{{ totalIncome.toLocaleString() }}
+              {{ formatCurrency(totalIncome) }}
             </p>
             <p v-if="hasRentalIncome" class="text-body-sm text-gray-500 mt-2">
-              Includes £{{ annualRentalIncome.toLocaleString() }} rental income
+              Includes {{ formatCurrency(annualRentalIncome) }} rental income
             </p>
           </div>
         </div>
@@ -482,6 +482,16 @@ export default {
       }
     });
 
+    const formatCurrency = (value) => {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    };
+
     return {
       formData,
       loading,
@@ -494,6 +504,7 @@ export default {
       hasRentalIncome,
       handleNext,
       handleBack,
+      formatCurrency,
     };
   },
 };

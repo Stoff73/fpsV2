@@ -108,7 +108,7 @@
                 </div>
                 <div class="mt-2">
                   <p class="text-body-sm text-gray-500">Annual Forecast</p>
-                  <p class="text-body font-medium text-gray-900">£{{ pensions.state.state_pension_forecast_annual?.toLocaleString() }}</p>
+                  <p class="text-body font-medium text-gray-900">{{ formatCurrency(pensions.state.state_pension_forecast_annual) }}</p>
                 </div>
               </div>
               <div class="flex gap-2 ml-4">
@@ -189,7 +189,7 @@
                 </p>
                 <div class="mt-2">
                   <p class="text-body-sm text-gray-500">Value</p>
-                  <p class="text-body font-medium text-gray-900">£{{ property.current_value?.toLocaleString() }}</p>
+                  <p class="text-body font-medium text-gray-900">{{ formatCurrency(property.current_value) }}</p>
                 </div>
               </div>
               <div class="flex gap-2 ml-4">
@@ -272,7 +272,7 @@
                 </div>
                 <div class="mt-2">
                   <p class="text-body-sm text-gray-500">Value</p>
-                  <p class="text-body font-medium text-gray-900">£{{ investment.current_value?.toLocaleString() }}</p>
+                  <p class="text-body font-medium text-gray-900">{{ formatCurrency(investment.current_value) }}</p>
                 </div>
               </div>
               <div class="flex gap-2 ml-4">
@@ -338,7 +338,7 @@
                 </div>
                 <div class="mt-2">
                   <p class="text-body-sm text-gray-500">Balance</p>
-                  <p class="text-body font-medium text-gray-900">£{{ savings.current_balance?.toLocaleString() }}</p>
+                  <p class="text-body font-medium text-gray-900">{{ formatCurrency(savings.current_balance) }}</p>
                 </div>
               </div>
               <div class="flex gap-2 ml-4">
@@ -797,6 +797,16 @@ export default {
       emit('skip', 'assets');
     }
 
+    const formatCurrency = (value) => {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    };
+
     return {
       activeTab,
       assetTabs,
@@ -839,6 +849,7 @@ export default {
       handleNext,
       handleBack,
       handleSkip,
+      formatCurrency,
     };
   },
 };

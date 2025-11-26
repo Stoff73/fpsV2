@@ -1,0 +1,709 @@
+<template>
+  <div class="property-detail-inline">
+    <!-- Back Button -->
+    <button
+      @click="$emit('back')"
+      class="back-button mb-4"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+      Back to Properties
+    </button>
+
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <p class="mt-4 text-gray-600">Loading property details...</p>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <p class="text-red-600">{{ error }}</p>
+      <button
+        @click="loadProperty"
+        class="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+      >
+        Retry
+      </button>
+    </div>
+
+    <!-- Property Content -->
+    <div v-else-if="property" class="space-y-6">
+      <!-- Header -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ propertyAddress }}</h1>
+            <p class="text-lg text-gray-600 mt-1">{{ propertyTypeLabel }}</p>
+          </div>
+          <div class="flex space-x-2">
+            <button
+              @click="showEditModal = true"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              @click="confirmDelete"
+              class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+          <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <p class="text-sm text-gray-600">Full Property Value</p>
+            <p class="text-2xl font-bold text-blue-600">{{ formatCurrency(calculateFullPropertyValue()) }}</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <p class="text-sm text-gray-600">Your Share ({{ property.ownership_percentage }}%)</p>
+            <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(property.current_value) }}</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <p class="text-sm text-gray-600">Equity</p>
+            <p class="text-2xl font-bold text-green-600">{{ formatCurrency(property.equity || 0) }}</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <p class="text-sm text-gray-600">Mortgage Balance</p>
+            <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(mortgageBalance) }}</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-4" v-if="property.property_type === 'buy_to_let'">
+            <p class="text-sm text-gray-600">Net Rental Yield</p>
+            <p class="text-2xl font-bold text-blue-600">{{ property.net_rental_yield || 0 }}%</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="bg-white rounded-lg shadow-md">
+        <div class="border-b border-gray-200">
+          <nav class="flex -mb-px">
+            <button
+              v-for="tab in tabs"
+              :key="tab.id"
+              @click="activeTab = tab.id"
+              class="px-6 py-3 border-b-2 font-medium text-sm transition-colors"
+              :class="
+                activeTab === tab.id
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              "
+            >
+              {{ tab.label }}
+            </button>
+          </nav>
+        </div>
+
+        <div class="p-6">
+          <!-- Overview Tab -->
+          <div v-show="activeTab === 'overview'" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Property Details</h3>
+                <dl class="space-y-2">
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Address:</dt>
+                    <dd class="text-sm font-medium text-gray-900 text-right">{{ propertyAddress }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Postcode:</dt>
+                    <dd class="text-sm font-medium text-gray-900">{{ property.postcode }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Property Type:</dt>
+                    <dd class="text-sm font-medium text-gray-900">{{ propertyTypeLabel }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Purchase Date:</dt>
+                    <dd class="text-sm font-medium text-gray-900">{{ formatDate(property.purchase_date) }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Purchase Price:</dt>
+                    <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.purchase_price) }}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Ownership</h3>
+                <dl class="space-y-2">
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Ownership Type:</dt>
+                    <dd class="text-sm font-medium text-gray-900 capitalize">{{ property.ownership_type }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Ownership Percentage:</dt>
+                    <dd class="text-sm font-medium text-gray-900">{{ property.ownership_percentage }}%</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Valuation</h3>
+                <dl class="space-y-2">
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Full Property Value:</dt>
+                    <dd class="text-sm font-medium text-blue-600 font-semibold">{{ formatCurrency(calculateFullPropertyValue()) }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Your Share ({{ property.ownership_percentage }}%):</dt>
+                    <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.current_value) }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Valuation Date:</dt>
+                    <dd class="text-sm font-medium text-gray-900">{{ formatDate(property.valuation_date) || 'Not set' }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Value Change:</dt>
+                    <dd class="text-sm font-medium" :class="valueChange >= 0 ? 'text-green-600' : 'text-red-600'">
+                      {{ formatCurrency(valueChange) }} ({{ valueChangePercent }}%)
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div v-if="property.property_type === 'buy_to_let'">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Rental Income</h3>
+                <dl class="space-y-2">
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Monthly Rental Income:</dt>
+                    <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(property.monthly_rental_income) }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Annual Rental Income:</dt>
+                    <dd class="text-sm font-medium text-gray-900">{{ formatCurrency((property.monthly_rental_income || 0) * 12) }}</dd>
+                  </div>
+                  <div class="flex justify-between" v-if="property.tenant_name">
+                    <dt class="text-sm text-gray-600">Tenant:</dt>
+                    <dd class="text-sm font-medium text-gray-900">{{ property.tenant_name }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mortgage Tab -->
+          <div v-show="activeTab === 'mortgage'" class="space-y-6">
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-semibold text-gray-800">Mortgages</h3>
+              <button
+                @click="showEditModal = true"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Add Mortgage
+              </button>
+            </div>
+
+            <div v-if="mortgages.length === 0" class="text-center py-8 text-gray-500">
+              <p>No mortgages found for this property.</p>
+            </div>
+
+            <div v-else class="space-y-6">
+              <div
+                v-for="mortgage in mortgages"
+                :key="mortgage.id"
+                class="bg-white border border-gray-200 rounded-lg p-6"
+              >
+                <!-- Mortgage Header -->
+                <div class="flex justify-between items-start mb-6">
+                  <div>
+                    <h4 class="text-xl font-semibold text-gray-900">{{ mortgage.lender_name }}</h4>
+                    <p class="text-sm text-gray-600 mt-1">{{ formatMortgageType(mortgage.mortgage_type) }}</p>
+                  </div>
+                  <button
+                    @click="deleteMortgageConfirm(mortgage.id)"
+                    class="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                <!-- Mortgage Details Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Mortgage Details Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Mortgage Details</h5>
+                    <dl class="space-y-2">
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Lender:</dt>
+                        <dd class="text-sm font-medium text-gray-900 text-right">{{ mortgage.lender_name }}</dd>
+                      </div>
+                      <div v-if="mortgage.mortgage_account_number" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Account Number:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.mortgage_account_number }}</dd>
+                      </div>
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Mortgage Type:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatMortgageType(mortgage.mortgage_type) }}</dd>
+                      </div>
+                      <div v-if="mortgage.mortgage_type === 'mixed' && mortgage.repayment_percentage" class="flex justify-between">
+                        <dt class="text-sm text-gray-600 pl-4">└ Repayment:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.repayment_percentage }}%</dd>
+                      </div>
+                      <div v-if="mortgage.mortgage_type === 'mixed' && mortgage.interest_only_percentage" class="flex justify-between">
+                        <dt class="text-sm text-gray-600 pl-4">└ Interest Only:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.interest_only_percentage }}%</dd>
+                      </div>
+                      <div v-if="mortgage.country" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Property Country:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.country }}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <!-- Loan Information Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Loan Information</h5>
+                    <dl class="space-y-2">
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Original Loan Amount:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(mortgage.original_loan_amount) }}</dd>
+                      </div>
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Full Outstanding Balance:</dt>
+                        <dd class="text-sm font-medium text-blue-600 font-semibold">{{ formatCurrency(calculateFullOutstandingBalance(mortgage)) }}</dd>
+                      </div>
+                      <div v-if="property.ownership_type === 'joint'" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Your Share ({{ property.ownership_percentage }}%):</dt>
+                        <dd class="text-sm font-medium text-blue-600">{{ formatCurrency(mortgage.outstanding_balance) }}</dd>
+                      </div>
+                      <div v-if="mortgage.original_loan_amount" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Amount Paid Off:</dt>
+                        <dd class="text-sm font-medium text-green-600">{{ formatCurrency(mortgage.original_loan_amount - mortgage.outstanding_balance) }}</dd>
+                      </div>
+                      <div v-if="property.current_value && mortgage.outstanding_balance" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Loan-to-Value (LTV):</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ calculateLTV(mortgage) }}%</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <!-- Interest Rate Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Interest Rate</h5>
+                    <dl class="space-y-2">
+                      <div v-if="mortgage.rate_type !== 'mixed'" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Interest Rate:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.interest_rate }}%</dd>
+                      </div>
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Rate Type:</dt>
+                        <dd class="text-sm font-medium text-gray-900 capitalize">{{ mortgage.rate_type }}</dd>
+                      </div>
+                      <div v-if="mortgage.rate_type === 'mixed' && mortgage.fixed_rate_percentage" class="flex justify-between">
+                        <dt class="text-sm text-gray-600 pl-4">└ Fixed ({{ parseFloat(mortgage.fixed_rate_percentage).toFixed(2) }}%):</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ parseFloat(mortgage.fixed_interest_rate).toFixed(2) }}%</dd>
+                      </div>
+                      <div v-if="mortgage.rate_type === 'mixed' && mortgage.variable_rate_percentage" class="flex justify-between">
+                        <dt class="text-sm text-gray-600 pl-4">└ Variable ({{ parseFloat(mortgage.variable_rate_percentage).toFixed(2) }}%):</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ parseFloat(mortgage.variable_interest_rate).toFixed(2) }}%</dd>
+                      </div>
+                      <div v-if="mortgage.rate_type === 'fixed' && mortgage.rate_fix_end_date" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Rate Fix Ends:</dt>
+                        <dd class="text-sm font-medium text-orange-600">{{ formatDate(mortgage.rate_fix_end_date) }}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <!-- Payment Information Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Payment Information</h5>
+                    <dl class="space-y-2">
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Full Monthly Payment:</dt>
+                        <dd class="text-sm font-medium text-blue-600 font-semibold">{{ formatCurrency(calculateFullMonthlyPayment(mortgage)) }}</dd>
+                      </div>
+                      <div v-if="property.ownership_type === 'joint' || property.ownership_type === 'tenants_in_common'" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Your Share ({{ property.ownership_percentage }}%):</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(mortgage.monthly_payment) }}</dd>
+                      </div>
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Full Annual Payment:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatCurrency(calculateFullMonthlyPayment(mortgage) * 12) }}</dd>
+                      </div>
+                      <div v-if="mortgage.start_date && mortgage.maturity_date" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Remaining Term:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ calculateRemainingTerm(mortgage.maturity_date) }}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <!-- Dates Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Important Dates</h5>
+                    <dl class="space-y-2">
+                      <div v-if="mortgage.start_date" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Start Date:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatDate(mortgage.start_date) }}</dd>
+                      </div>
+                      <div v-if="mortgage.maturity_date" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Maturity Date:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ formatDate(mortgage.maturity_date) }}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <!-- Ownership Section -->
+                  <div>
+                    <h5 class="text-sm font-semibold text-gray-800 mb-3">Ownership</h5>
+                    <dl class="space-y-2">
+                      <div class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Ownership Type:</dt>
+                        <dd class="text-sm font-medium text-gray-900 capitalize">{{ mortgage.ownership_type === 'individual' ? 'Individual Owner' : 'Joint Owner' }}</dd>
+                      </div>
+                      <div v-if="mortgage.ownership_type === 'joint' && mortgage.joint_owner_name" class="flex justify-between">
+                        <dt class="text-sm text-gray-600">Joint Owner:</dt>
+                        <dd class="text-sm font-medium text-gray-900">{{ mortgage.joint_owner_name }}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financials Tab -->
+          <div v-show="activeTab === 'financials'">
+            <PropertyFinancials
+              :property="property"
+              :mortgages="mortgages"
+              @update-costs="handleCostsUpdate"
+            />
+          </div>
+
+          <!-- Taxes Tab -->
+          <div v-show="activeTab === 'taxes'">
+            <PropertyTaxCalculator :property="property" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <PropertyForm
+      v-if="showEditModal"
+      :property="property"
+      @save="handlePropertyUpdate"
+      @close="showEditModal = false"
+    />
+
+    <ConfirmationModal
+      v-if="showDeleteConfirm"
+      title="Delete Property"
+      message="Are you sure you want to delete this property? This action cannot be undone."
+      @confirm="handleDelete"
+      @cancel="showDeleteConfirm = false"
+    />
+
+    <ConfirmationModal
+      v-if="showDeleteMortgageConfirm"
+      title="Delete Mortgage"
+      message="Are you sure you want to delete this mortgage?"
+      @confirm="handleMortgageDelete"
+      @cancel="showDeleteMortgageConfirm = false"
+    />
+  </div>
+</template>
+
+<script>
+import { mapState, mapActions } from 'vuex';
+import PropertyForm from './PropertyForm.vue';
+import PropertyFinancials from './PropertyFinancials.vue';
+import PropertyTaxCalculator from './PropertyTaxCalculator.vue';
+import ConfirmationModal from '../../Common/ConfirmationModal.vue';
+
+export default {
+  name: 'PropertyDetailInline',
+
+  components: {
+    PropertyForm,
+    PropertyFinancials,
+    PropertyTaxCalculator,
+    ConfirmationModal,
+  },
+
+  props: {
+    propertyId: {
+      type: Number,
+      required: true,
+    },
+  },
+
+  emits: ['back', 'deleted'],
+
+  data() {
+    return {
+      activeTab: 'overview',
+      tabs: [
+        { id: 'overview', label: 'Overview' },
+        { id: 'mortgage', label: 'Mortgage' },
+        { id: 'financials', label: 'Financials' },
+        { id: 'taxes', label: 'Taxes' },
+      ],
+      showEditModal: false,
+      showDeleteConfirm: false,
+      showDeleteMortgageConfirm: false,
+      mortgageToDelete: null,
+    };
+  },
+
+  computed: {
+    ...mapState('netWorth', ['selectedProperty', 'mortgages', 'loading', 'error']),
+
+    property() {
+      return this.selectedProperty;
+    },
+
+    propertyAddress() {
+      if (!this.property) return '';
+      const parts = [
+        this.property.address_line_1,
+        this.property.address_line_2,
+        this.property.city,
+      ].filter(Boolean);
+      return parts.join(', ');
+    },
+
+    propertyTypeLabel() {
+      const types = {
+        main_residence: 'Main Residence',
+        secondary_residence: 'Secondary Residence',
+        buy_to_let: 'Buy to Let',
+      };
+      return types[this.property?.property_type] || '';
+    },
+
+    mortgageBalance() {
+      if (this.mortgages && this.mortgages.length > 0) {
+        return this.mortgages.reduce((sum, m) => sum + (m.outstanding_balance || 0), 0);
+      }
+      return this.property?.outstanding_mortgage || 0;
+    },
+
+    valueChange() {
+      if (!this.property) return 0;
+      return this.property.current_value - this.property.purchase_price;
+    },
+
+    valueChangePercent() {
+      if (!this.property || this.property.purchase_price === 0) return '0.00';
+      const percent = (this.valueChange / this.property.purchase_price) * 100;
+      return percent.toFixed(2);
+    },
+  },
+
+  mounted() {
+    this.loadProperty();
+  },
+
+  methods: {
+    ...mapActions('netWorth', [
+      'fetchProperty',
+      'fetchPropertyMortgages',
+      'updateProperty',
+      'deleteProperty',
+      'createMortgage',
+      'updateMortgage',
+      'deleteMortgage',
+    ]),
+
+    async loadProperty() {
+      try {
+        await this.fetchProperty(this.propertyId);
+        await this.fetchPropertyMortgages(this.propertyId);
+      } catch (error) {
+        console.error('Failed to load property:', error);
+      }
+    },
+
+    async handlePropertyUpdate(data) {
+      try {
+        await this.updateProperty({ id: this.propertyId, data: data.property });
+
+        if (data.mortgage && data.mortgage.outstanding_balance) {
+          try {
+            if (this.mortgages && this.mortgages.length > 0) {
+              await this.updateMortgage({
+                id: this.mortgages[0].id,
+                data: data.mortgage,
+                propertyId: this.propertyId,
+              });
+            } else {
+              await this.createMortgage({
+                propertyId: this.propertyId,
+                data: data.mortgage,
+              });
+            }
+          } catch (mortgageError) {
+            console.error('Failed to save mortgage:', mortgageError);
+          }
+        }
+
+        this.showEditModal = false;
+        await this.loadProperty();
+      } catch (error) {
+        console.error('Failed to update property:', error);
+      }
+    },
+
+    async handleCostsUpdate(costsData) {
+      try {
+        await this.updateProperty({ id: this.propertyId, data: costsData });
+        await this.loadProperty();
+      } catch (error) {
+        console.error('Failed to update costs:', error);
+        throw error;
+      }
+    },
+
+    confirmDelete() {
+      this.showDeleteConfirm = true;
+    },
+
+    async handleDelete() {
+      try {
+        await this.deleteProperty(this.propertyId);
+        this.showDeleteConfirm = false;
+        this.$emit('deleted');
+      } catch (error) {
+        console.error('Failed to delete property:', error);
+      }
+    },
+
+    deleteMortgageConfirm(mortgageId) {
+      this.mortgageToDelete = mortgageId;
+      this.showDeleteMortgageConfirm = true;
+    },
+
+    async handleMortgageDelete() {
+      try {
+        await this.deleteMortgage({
+          id: this.mortgageToDelete,
+          propertyId: this.propertyId,
+        });
+        this.showDeleteMortgageConfirm = false;
+        this.mortgageToDelete = null;
+        await this.loadProperty();
+      } catch (error) {
+        console.error('Failed to delete mortgage:', error);
+      }
+    },
+
+    formatMortgageType(type) {
+      const types = {
+        repayment: 'Repayment',
+        interest_only: 'Interest Only',
+        part_and_part: 'Part and Part',
+        mixed: 'Mixed',
+      };
+      return types[type] || type;
+    },
+
+    calculateFullOutstandingBalance(mortgage) {
+      if ((this.property?.ownership_type === 'joint' || this.property?.ownership_type === 'tenants_in_common') && this.property?.ownership_percentage) {
+        return mortgage.outstanding_balance / (this.property.ownership_percentage / 100);
+      }
+      return mortgage.outstanding_balance;
+    },
+
+    calculateFullMonthlyPayment(mortgage) {
+      if ((this.property?.ownership_type === 'joint' || this.property?.ownership_type === 'tenants_in_common') && this.property?.ownership_percentage) {
+        return mortgage.monthly_payment / (this.property.ownership_percentage / 100);
+      }
+      return mortgage.monthly_payment;
+    },
+
+    calculateFullPropertyValue() {
+      if ((this.property?.ownership_type === 'joint' || this.property?.ownership_type === 'tenants_in_common') && this.property?.ownership_percentage) {
+        return this.property.current_value / (this.property.ownership_percentage / 100);
+      }
+      return this.property?.current_value || 0;
+    },
+
+    calculateLTV(mortgage) {
+      const fullBalance = this.calculateFullOutstandingBalance(mortgage);
+      const fullValue = this.calculateFullPropertyValue();
+
+      if (!fullValue || fullValue === 0) return '0.00';
+
+      const ltv = (fullBalance / fullValue) * 100;
+      return ltv.toFixed(2);
+    },
+
+    calculateRemainingTerm(maturityDate) {
+      if (!maturityDate) return 'N/A';
+      const today = new Date();
+      const maturity = new Date(maturityDate);
+      const diffTime = maturity - today;
+      const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30.44));
+
+      if (diffMonths <= 0) return 'Matured';
+
+      const years = Math.floor(diffMonths / 12);
+      const months = diffMonths % 12;
+
+      if (years === 0) return `${months} month${months !== 1 ? 's' : ''}`;
+      if (months === 0) return `${years} year${years !== 1 ? 's' : ''}`;
+      return `${years} year${years !== 1 ? 's' : ''}, ${months} month${months !== 1 ? 's' : ''}`;
+    },
+
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    },
+
+    formatDate(date) {
+      if (!date) return '';
+      return new Date(date).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    },
+  },
+};
+</script>
+
+<style scoped>
+.property-detail-inline {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+</style>

@@ -10,7 +10,7 @@
     <!-- Total Pension Value (Primary Metric) -->
     <div class="text-center mb-6 py-4 bg-indigo-50 rounded-lg">
       <div class="text-sm text-gray-600 mb-1">Total Pension Value</div>
-      <div class="text-3xl font-bold text-indigo-600">£{{ totalPensionValue.toLocaleString() }}</div>
+      <div class="text-3xl font-bold text-indigo-600">{{ formatCurrency(totalPensionValue) }}</div>
     </div>
 
     <!-- Key Metrics -->
@@ -24,7 +24,7 @@
       <!-- Projected Income -->
       <div class="flex items-center justify-between">
         <span class="text-sm text-gray-600">Projected Income</span>
-        <span class="text-sm font-semibold text-gray-900">£{{ projectedIncome.toLocaleString() }}/year</span>
+        <span class="text-sm font-semibold text-gray-900">{{ formatCurrency(projectedIncome) }}/year</span>
       </div>
     </div>
 
@@ -60,6 +60,15 @@ export default {
   methods: {
     navigateToDashboard() {
       this.$router.push('/net-worth/retirement');
+    },
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     },
   },
 };

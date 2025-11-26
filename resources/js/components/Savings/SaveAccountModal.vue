@@ -396,7 +396,7 @@ export default {
         interest_rate: (parseFloat(this.account.interest_rate) || 0) * 100, // Convert decimal to percentage for display
         access_type: this.account.access_type || 'immediate',
         notice_period_days: this.account.notice_period_days || null,
-        maturity_date: this.account.maturity_date || '',
+        maturity_date: this.formatDateForInput(this.account.maturity_date),
         is_emergency_fund: this.account.is_emergency_fund || false,
         is_isa: this.account.is_isa || false,
         country: this.account.country || 'United Kingdom',
@@ -406,6 +406,19 @@ export default {
         ownership_type: this.account.ownership_type || 'individual',
         joint_owner_id: this.account.joint_owner_id || null,
       };
+    },
+
+    formatDateForInput(date) {
+      if (!date) return '';
+      if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return date;
+      }
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return '';
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     },
 
     async handleSubmit() {

@@ -201,7 +201,10 @@ export default {
       immediate: true,
       handler(newGoal) {
         if (newGoal) {
-          this.formData = { ...newGoal };
+          this.formData = {
+            ...newGoal,
+            target_date: this.formatDateForInput(newGoal.target_date),
+          };
         } else {
           this.resetForm();
         }
@@ -287,6 +290,29 @@ export default {
         linked_account_ids: [],
       };
       this.errors = {};
+    },
+
+    formatDateForInput(date) {
+      if (!date) return '';
+      if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return date;
+      }
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return '';
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
+
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     },
   },
 };

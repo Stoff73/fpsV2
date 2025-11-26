@@ -1,18 +1,25 @@
 <template>
-  <div class="portfolio-analysis">
-    <div class="mb-6">
+  <div class="portfolio-analysis relative">
+    <!-- Coming Soon Watermark -->
+    <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+        <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
+      </div>
+    </div>
+
+    <div class="mb-6 opacity-50">
       <h2 class="text-2xl font-bold text-gray-900">Portfolio Analysis</h2>
       <p class="text-gray-600 mt-1">Advanced portfolio optimisation for your DC pension holdings</p>
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-12">
+    <div v-if="loading" class="flex justify-center items-center py-12 opacity-50">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       <span class="ml-3 text-gray-600">Loading portfolio analysis...</span>
     </div>
 
     <!-- No Portfolio Data State -->
-    <div v-else-if="!hasPortfolioData" class="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+    <div v-else-if="!hasPortfolioData" class="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center opacity-50">
       <svg class="mx-auto h-16 w-16 text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
       </svg>
@@ -33,7 +40,7 @@
     </div>
 
     <!-- Portfolio Analysis Content -->
-    <div v-else class="space-y-8">
+    <div v-else class="space-y-8 opacity-50">
       <!-- Portfolio Summary -->
       <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg shadow-md p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Portfolio Summary</h3>

@@ -1,7 +1,7 @@
 <template>
   <div class="isa-allowance-summary bg-white rounded-lg shadow-md p-6">
     <div class="flex justify-between items-start mb-4">
-      <h3 class="text-xl font-semibold text-gray-800">ISA Allowance 2024/25</h3>
+      <h3 class="text-xl font-semibold text-gray-800">ISA Allowance 2025/26</h3>
       <div class="text-sm text-gray-500">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -120,7 +120,7 @@ export default {
 
   data() {
     return {
-      ISA_ALLOWANCE: 20000, // 2024/25 tax year
+      ISA_ALLOWANCE: 20000, // 2025/26 tax year
     };
   },
 

@@ -45,16 +45,16 @@
                     Employer: {{ parseFloat(pension.employer_contribution_percent || 0) }}%
                   </span>
                   <span v-else-if="pension.scheme_type === 'personal'">
-                    Personal Pension: £{{ parseFloat(pension.monthly_contribution_amount || 0).toLocaleString() }}/month
+                    Personal Pension: {{ formatCurrency(parseFloat(pension.monthly_contribution_amount || 0)) }}/month
                   </span>
                   <span v-else-if="pension.scheme_type === 'sipp'">
-                    SIPP: £{{ parseFloat(pension.monthly_contribution_amount || 0).toLocaleString() }}/month
+                    SIPP: {{ formatCurrency(parseFloat(pension.monthly_contribution_amount || 0)) }}/month
                   </span>
                 </p>
               </div>
               <div class="text-right">
                 <p class="text-lg font-bold text-gray-900">
-                  £{{ calculateAnnualContribution(pension).toLocaleString() }}
+                  {{ formatCurrency(calculateAnnualContribution(pension)) }}
                 </p>
                 <p class="text-sm text-gray-500">per year</p>
               </div>
@@ -70,7 +70,7 @@
           <div class="flex items-center justify-between">
             <p class="text-lg font-semibold text-gray-900">Total Contributions This Year</p>
             <p class="text-2xl font-bold text-indigo-600">
-              £{{ totalContributionsThisYear.toLocaleString() }}
+              {{ formatCurrency(totalContributionsThisYear) }}
             </p>
           </div>
         </div>
@@ -106,7 +106,7 @@
           <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <h3 class="text-lg font-semibold text-gray-900">Key Thresholds (2024/25)</h3>
+          <h3 class="text-lg font-semibold text-gray-900">Key Thresholds (2025/26)</h3>
         </div>
         <div class="space-y-3">
           <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
@@ -236,6 +236,16 @@ export default {
       // Use annual_salary if available, otherwise use profile income, otherwise estimate
       const salary = parseFloat(pension.annual_salary || this.profile?.current_income || 50000);
       return (salary * totalPercent) / 100;
+    },
+
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     },
   },
 };

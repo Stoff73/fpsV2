@@ -138,7 +138,7 @@
                 {{ validationErrors.employee_contribution_percent }}
               </p>
               <p v-else-if="calculatedEmployeeContribution" class="text-xs text-gray-500 mt-1">
-                = £{{ calculatedEmployeeContribution.toLocaleString() }}/month
+                = {{ formatCurrency(calculatedEmployeeContribution) }}/month
               </p>
               <p v-else class="text-xs text-gray-500 mt-1">Enter as percentage of salary (0-100)</p>
             </div>
@@ -161,7 +161,7 @@
                 {{ validationErrors.employer_contribution_percent }}
               </p>
               <p v-else-if="calculatedEmployerContribution" class="text-xs text-gray-500 mt-1">
-                = £{{ calculatedEmployerContribution.toLocaleString() }}/month
+                = {{ formatCurrency(calculatedEmployerContribution) }}/month
               </p>
               <p v-else class="text-xs text-gray-500 mt-1">Enter as percentage of salary (0-100)</p>
             </div>
@@ -483,6 +483,16 @@ export default {
       }
 
       this.$emit('save', this.formData);
+    },
+
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     },
   },
 };

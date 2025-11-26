@@ -60,15 +60,15 @@
     <div class="border-b border-gray-200 mb-6">
       <nav class="-mb-px flex space-x-8" aria-label="Tabs">
         <button
-          @click="activeTab = 'profit_loss'"
+          @click="activeTab = 'balance_sheet'"
           :class="[
-            activeTab === 'profit_loss'
+            activeTab === 'balance_sheet'
               ? 'border-primary-600 text-primary-700'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
             'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-body-sm transition-colors',
           ]"
         >
-          Profit & Loss
+          Balance Sheet
         </button>
         <button
           @click="activeTab = 'cashflow'"
@@ -82,15 +82,15 @@
           Cashflow
         </button>
         <button
-          @click="activeTab = 'balance_sheet'"
+          @click="activeTab = 'profit_loss'"
           :class="[
-            activeTab === 'balance_sheet'
+            activeTab === 'profit_loss'
               ? 'border-primary-600 text-primary-700'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
             'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-body-sm transition-colors',
           ]"
         >
-          Balance Sheet
+          Profit & Loss
         </button>
       </nav>
     </div>
@@ -105,11 +105,11 @@
 
     <!-- Tab Content -->
     <div v-else>
-      <!-- Profit & Loss -->
-      <div v-show="activeTab === 'profit_loss'">
-        <ProfitAndLossView
-          :data="personalAccounts?.profitAndLoss"
-          :spouse-data="spouseAccounts?.profitAndLoss"
+      <!-- Balance Sheet -->
+      <div v-show="activeTab === 'balance_sheet'">
+        <BalanceSheetView
+          :data="personalAccounts?.balanceSheet"
+          :spouse-data="spouseAccounts?.balanceSheet"
         />
       </div>
 
@@ -121,11 +121,11 @@
         />
       </div>
 
-      <!-- Balance Sheet -->
-      <div v-show="activeTab === 'balance_sheet'">
-        <BalanceSheetView
-          :data="personalAccounts?.balanceSheet"
-          :spouse-data="spouseAccounts?.balanceSheet"
+      <!-- Profit & Loss -->
+      <div v-show="activeTab === 'profit_loss'">
+        <ProfitAndLossView
+          :data="personalAccounts?.profitAndLoss"
+          :spouse-data="spouseAccounts?.profitAndLoss"
         />
       </div>
     </div>
@@ -150,7 +150,7 @@ export default {
 
   setup() {
     const store = useStore();
-    const activeTab = ref('profit_loss');
+    const activeTab = ref('balance_sheet');
     const loading = computed(() => store.getters['userProfile/loading']);
 
     const personalAccounts = computed(() => store.getters['userProfile/personalAccounts']);

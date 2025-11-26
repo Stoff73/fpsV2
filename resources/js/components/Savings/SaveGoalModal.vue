@@ -261,11 +261,24 @@ export default {
         goal_name: this.goal.goal_name || '',
         target_amount: parseFloat(this.goal.target_amount) || 0,
         current_saved: parseFloat(this.goal.current_saved) || 0,
-        target_date: this.goal.target_date || '',
+        target_date: this.formatDateForInput(this.goal.target_date),
         priority: this.goal.priority || 'medium',
         linked_account_id: this.goal.linked_account_id || null,
         auto_transfer_amount: this.goal.auto_transfer_amount ? parseFloat(this.goal.auto_transfer_amount) : null,
       };
+    },
+
+    formatDateForInput(date) {
+      if (!date) return '';
+      if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return date;
+      }
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return '';
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     },
 
     async handleSubmit() {

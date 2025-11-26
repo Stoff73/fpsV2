@@ -13,7 +13,7 @@
     <div class="space-y-3 mb-4">
       <div class="flex justify-between items-center">
         <span class="text-body-sm text-gray-600">Tax Year</span>
-        <span class="text-body font-semibold text-gray-900">2024/25</span>
+        <span class="text-body font-semibold text-gray-900">2025/26</span>
       </div>
       <div class="flex justify-between items-center">
         <span class="text-body-sm text-gray-600">Personal Allowance</span>

@@ -118,7 +118,7 @@
           <div>
             <p class="text-sm text-gray-600 mb-1">Forecast Weekly Amount</p>
             <p class="text-2xl font-bold text-gray-900">£{{ parseFloat(statePension.forecast_weekly_amount || 0).toFixed(2) }}</p>
-            <p class="text-sm text-gray-500 mt-1">£{{ (parseFloat(statePension.forecast_weekly_amount || 0) * 52).toLocaleString() }}/year</p>
+            <p class="text-sm text-gray-500 mt-1">{{ formatCurrency(parseFloat(statePension.forecast_weekly_amount || 0) * 52) }}/year</p>
           </div>
           <div>
             <p class="text-sm text-gray-600 mb-1">Qualifying Years</p>
@@ -249,6 +249,16 @@ export default {
           alert('Failed to delete pension. Please try again.');
         }
       }
+    },
+
+    formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     },
   },
 

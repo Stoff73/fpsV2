@@ -1,17 +1,6 @@
 <template>
   <AppLayout>
     <div class="container mx-auto px-4 py-8">
-    <!-- Breadcrumbs -->
-    <nav class="text-sm mb-6">
-      <ol class="flex items-center space-x-2">
-        <li><router-link to="/dashboard" class="text-blue-600 hover:underline">Dashboard</router-link></li>
-        <li><span class="text-gray-400">/</span></li>
-        <li><router-link to="/protection" class="text-blue-600 hover:underline">Protection</router-link></li>
-        <li><span class="text-gray-400">/</span></li>
-        <li class="text-gray-600">Policy Details</li>
-      </ol>
-    </nav>
-
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-12">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>

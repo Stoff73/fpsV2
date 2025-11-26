@@ -65,7 +65,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <!-- ISA Allowance Tracker -->
       <div class="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">ISA Allowance (2024/25)</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">ISA Allowance (2025/26)</h3>
         <div class="mb-4">
           <div class="flex justify-between items-center mb-2">
             <span class="text-sm text-gray-600">Used</span>
@@ -87,7 +87,7 @@
 
       <!-- CGT Allowance -->
       <div class="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Capital Gains Tax (2024/25)</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Capital Gains Tax (2025/26)</h3>
         <div class="space-y-3 text-sm">
           <div class="flex justify-between">
             <span class="text-gray-600">Annual Allowance:</span>
@@ -180,7 +180,7 @@ export default {
     },
 
     calculateCGT(unrealisedGain) {
-      const cgtAllowance = 3000; // 2024/25 allowance
+      const cgtAllowance = 3000; // 2025/26 allowance
       const taxableGain = Math.max(0, unrealisedGain - cgtAllowance);
       const cgtRate = 0.20; // Higher rate taxpayer
       return taxableGain * cgtRate;

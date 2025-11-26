@@ -121,6 +121,8 @@ export default {
     SaveAccountModal,
   },
 
+  emits: ['select-account'],
+
   data() {
     return {
       showAddAccountModal: false,
@@ -144,7 +146,10 @@ export default {
     ...mapActions('savings', ['createAccount', 'updateAccount', 'fetchSavingsData']),
 
     viewAccountDetail(accountId) {
-      this.$router.push({ name: 'SavingsAccountDetail', params: { id: accountId } });
+      const account = this.accounts.find(a => a.id === accountId);
+      if (account) {
+        this.$emit('select-account', account);
+      }
     },
 
     getBalanceLabel(account) {

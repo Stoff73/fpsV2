@@ -152,12 +152,13 @@ export default {
     },
 
     formatCurrency(value) {
+      if (value === null || value === undefined) return '£0';
       return new Intl.NumberFormat('en-GB', {
         style: 'currency',
         currency: 'GBP',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(value || 0);
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
     },
 
     formatDate(dateString) {

@@ -537,7 +537,7 @@ export default {
           isValid = false;
         }
         if (this.formData.isa_subscription_current_year > this.ISA_ALLOWANCE) {
-          this.errors.isa_subscription_current_year = `Subscription cannot exceed £${this.ISA_ALLOWANCE.toLocaleString()} allowance`;
+          this.errors.isa_subscription_current_year = `Subscription cannot exceed ${this.formatCurrency(this.ISA_ALLOWANCE)} allowance`;
           isValid = false;
         }
       }

@@ -58,7 +58,7 @@ class ComprehensiveProtectionPlanService
                 'user_name' => $user->name,
                 'completeness_score' => $completenessScore,
                 'is_complete' => $isComplete,
-                'plan_type' => $isComplete ? 'Personalized' : 'Generic',
+                'plan_type' => $isComplete ? 'Personalised' : 'Generic',
             ],
             'completeness_warning' => $this->generateCompletenessWarning($profileCompleteness),
             'executive_summary' => $this->generateExecutiveSummary($data, $profile, $profileCompleteness),
@@ -437,8 +437,8 @@ class ComprehensiveProtectionPlanService
 
         // Determine plan type for recommendations
         $planType = match (true) {
-            $completenessScore >= 100 => 'Personalized',
-            $completenessScore >= 70 => 'Mostly Personalized',
+            $completenessScore >= 100 => 'Personalised',
+            $completenessScore >= 70 => 'Mostly Personalised',
             $completenessScore >= 50 => 'Partially Generic',
             default => 'Generic',
         };

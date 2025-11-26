@@ -208,16 +208,24 @@
 
               <div class="space-y-3">
                 <div class="flex justify-between border-b pb-2">
-                  <span class="text-gray-600">Gender:</span>
-                  <span class="font-semibold text-gray-900">{{ plan.user_profile.gender }}</span>
-                </div>
-                <div class="flex justify-between border-b pb-2">
                   <span class="text-gray-600">Marital Status:</span>
                   <span class="font-semibold text-gray-900">{{ plan.user_profile.marital_status }}</span>
                 </div>
                 <div v-if="plan.user_profile.spouse" class="flex justify-between border-b pb-2">
                   <span class="text-gray-600">Spouse:</span>
                   <span class="font-semibold text-gray-900">{{ plan.user_profile.spouse.name }}</span>
+                </div>
+                <div v-if="plan.user_profile.children && plan.user_profile.children.length > 0" class="flex justify-between border-b pb-2">
+                  <span class="text-gray-600">{{ plan.user_profile.children.length === 1 ? 'Child' : 'Children' }}:</span>
+                  <span class="font-semibold text-gray-900">
+                    {{ plan.user_profile.children.map(c => c.name).join(', ') }}
+                  </span>
+                </div>
+                <div v-if="plan.user_profile.step_children && plan.user_profile.step_children.length > 0" class="flex justify-between border-b pb-2">
+                  <span class="text-gray-600">{{ plan.user_profile.step_children.length === 1 ? 'Step-Child' : 'Step-Children' }}:</span>
+                  <span class="font-semibold text-gray-900">
+                    {{ plan.user_profile.step_children.map(c => c.name).join(', ') }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -270,6 +278,28 @@
                   </div>
                 </div>
               </div>
+
+              <!-- User Detailed Liabilities Breakdown -->
+              <div v-if="plan.estate_breakdown.user.detailed_liabilities && plan.estate_breakdown.user.detailed_liabilities.length > 0" class="mt-6">
+                <div class="bg-amber-100 p-3 rounded-t font-semibold text-amber-900">
+                  Liabilities
+                </div>
+                <div class="border border-amber-200 rounded-b overflow-hidden">
+                  <div
+                    v-for="(liability, index) in plan.estate_breakdown.user.detailed_liabilities"
+                    :key="index"
+                    class="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-amber-50"
+                  >
+                    <div class="flex items-center gap-3">
+                      <span class="text-gray-900">{{ liability.name }}</span>
+                      <span class="px-2 py-0.5 bg-amber-200 text-amber-800 text-xs rounded-full">
+                        {{ liability.type }}
+                      </span>
+                    </div>
+                    <span class="font-semibold text-amber-900">{{ formatCurrency(liability.balance) }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Spouse Estate Section -->
@@ -315,6 +345,28 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Spouse Detailed Liabilities Breakdown -->
+              <div v-if="plan.estate_breakdown.spouse.detailed_liabilities && plan.estate_breakdown.spouse.detailed_liabilities.length > 0" class="mt-6">
+                <div class="bg-amber-100 p-3 rounded-t font-semibold text-amber-900">
+                  Liabilities
+                </div>
+                <div class="border border-amber-200 rounded-b overflow-hidden">
+                  <div
+                    v-for="(liability, index) in plan.estate_breakdown.spouse.detailed_liabilities"
+                    :key="index"
+                    class="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-amber-50"
+                  >
+                    <div class="flex items-center gap-3">
+                      <span class="text-gray-900">{{ liability.name }}</span>
+                      <span class="px-2 py-0.5 bg-amber-200 text-amber-800 text-xs rounded-full">
+                        {{ liability.type }}
+                      </span>
+                    </div>
+                    <span class="font-semibold text-amber-900">{{ formatCurrency(liability.balance) }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Combined Estate Section -->
@@ -357,6 +409,28 @@
                       </div>
                       <span class="font-semibold text-gray-900">{{ formatCurrency(asset.value) }}</span>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Combined Detailed Liabilities Breakdown -->
+              <div v-if="plan.estate_breakdown.combined.detailed_liabilities && plan.estate_breakdown.combined.detailed_liabilities.length > 0" class="mt-6">
+                <div class="bg-amber-100 p-3 rounded-t font-semibold text-amber-900">
+                  Liabilities
+                </div>
+                <div class="border border-amber-200 rounded-b overflow-hidden">
+                  <div
+                    v-for="(liability, index) in plan.estate_breakdown.combined.detailed_liabilities"
+                    :key="index"
+                    class="flex justify-between items-center p-3 border-b last:border-b-0 hover:bg-amber-50"
+                  >
+                    <div class="flex items-center gap-3">
+                      <span class="text-gray-900">{{ liability.name }}</span>
+                      <span class="px-2 py-0.5 bg-amber-200 text-amber-800 text-xs rounded-full">
+                        {{ liability.type }}
+                      </span>
+                    </div>
+                    <span class="font-semibold text-amber-900">{{ formatCurrency(liability.balance) }}</span>
                   </div>
                 </div>
               </div>
