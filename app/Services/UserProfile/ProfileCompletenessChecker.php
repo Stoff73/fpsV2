@@ -158,11 +158,25 @@ class ProfileCompletenessChecker
      */
     private function hasDependants(User $user): bool
     {
-        // Check if spouse is marked as dependent OR has children
+        // Check if spouse is marked as dependent
         $spouseDependant = $user->spouse_id && $user->spouse && $user->spouse->is_dependent ?? false;
-        $hasChildren = $user->familyMembers()->where('is_dependent', true)->where('relationship', '!=', 'spouse')->exists();
 
-        return $spouseDependant || $hasChildren;
+        // Check if user has dependent children
+        $hasChildren = $user->familyMembers()
+            ->where('is_dependent', true)
+            ->where('relationship', '!=', 'spouse')
+            ->exists();
+
+        // Also check if spouse has dependent children (shared between linked accounts)
+        $spouseHasChildren = false;
+        if ($user->spouse_id) {
+            $spouseHasChildren = \App\Models\FamilyMember::where('user_id', $user->spouse_id)
+                ->where('is_dependent', true)
+                ->whereIn('relationship', ['child', 'step_child'])
+                ->exists();
+        }
+
+        return $spouseDependant || $hasChildren || $spouseHasChildren;
     }
 
     /**

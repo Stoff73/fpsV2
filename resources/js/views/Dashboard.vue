@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="px-4 sm:px-0">
+    <div class="px-4 sm:px-0 py-6">
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <!-- Card 1: Net Worth -->
         <NetWorthOverviewCard />

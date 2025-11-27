@@ -498,18 +498,55 @@ class FamilyMembersController extends Controller
             ->findOrFail($id);
 
         $data = $request->validated();
+
+        // Construct full name from name parts if provided
+        if (isset($data['first_name']) || isset($data['last_name'])) {
+            $firstName = $data['first_name'] ?? $familyMember->first_name ?? '';
+            $middleName = $data['middle_name'] ?? $familyMember->middle_name ?? '';
+            $lastName = $data['last_name'] ?? $familyMember->last_name ?? '';
+            $data['name'] = trim($firstName . ($middleName ? ' ' . $middleName : '') . ' ' . $lastName);
+        }
+
         $familyMember->update($data);
 
-        // If updating a spouse, sync the income to the spouse user account
+        // If updating a spouse, sync relevant fields to the spouse user account
         if ($familyMember->relationship === 'spouse' && $user->spouse_id) {
             $spouseUser = \App\Models\User::find($user->spouse_id);
-            if ($spouseUser && isset($data['annual_income'])) {
-                $spouseUser->annual_employment_income = $data['annual_income'];
-                $spouseUser->save();
+            if ($spouseUser) {
+                $spouseUpdates = [];
 
-                // Clear protection analysis cache for both users
-                \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$user->id}");
-                \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$spouseUser->id}");
+                // Sync name if it was updated
+                if (isset($data['name'])) {
+                    $spouseUpdates['name'] = $data['name'];
+                }
+
+                // Sync date of birth if updated
+                if (isset($data['date_of_birth'])) {
+                    $spouseUpdates['date_of_birth'] = $data['date_of_birth'];
+                }
+
+                // Sync gender if updated
+                if (isset($data['gender'])) {
+                    $spouseUpdates['gender'] = $data['gender'];
+                }
+
+                // Sync income if updated
+                if (isset($data['annual_income'])) {
+                    $spouseUpdates['annual_employment_income'] = $data['annual_income'];
+                }
+
+                // Sync NI number if updated
+                if (isset($data['national_insurance_number'])) {
+                    $spouseUpdates['national_insurance_number'] = $data['national_insurance_number'];
+                }
+
+                if (! empty($spouseUpdates)) {
+                    $spouseUser->update($spouseUpdates);
+
+                    // Clear protection analysis cache for both users
+                    \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$user->id}");
+                    \Illuminate\Support\Facades\Cache::forget("protection_analysis_{$spouseUser->id}");
+                }
             }
         }
 

@@ -515,39 +515,44 @@ class OnboardingService
                 }
             }
         } else {
-            // Joint mode or single user: Update user with flat data
+            // Joint mode or single user
+            // Check if user has a spouse - if so, apply 50/50 split
+            $isJointMode = $user->spouse_id !== null;
+            $divisor = $isJointMode ? 2 : 1;
+
+            // Calculate halved values for joint mode, full values for single user
             $expenditureData = [
-                'food_groceries' => $data['food_groceries'] ?? 0,
-                'transport_fuel' => $data['transport_fuel'] ?? 0,
-                'healthcare_medical' => $data['healthcare_medical'] ?? 0,
-                'insurance' => $data['insurance'] ?? 0,
-                'mobile_phones' => $data['mobile_phones'] ?? 0,
-                'internet_tv' => $data['internet_tv'] ?? 0,
-                'subscriptions' => $data['subscriptions'] ?? 0,
-                'clothing_personal_care' => $data['clothing_personal_care'] ?? 0,
-                'entertainment_dining' => $data['entertainment_dining'] ?? 0,
-                'holidays_travel' => $data['holidays_travel'] ?? 0,
-                'pets' => $data['pets'] ?? 0,
-                'childcare' => $data['childcare'] ?? 0,
-                'school_fees' => $data['school_fees'] ?? 0,
-                'school_lunches' => $data['school_lunches'] ?? 0,
-                'school_extras' => $data['school_extras'] ?? 0,
-                'university_fees' => $data['university_fees'] ?? 0,
-                'children_activities' => $data['children_activities'] ?? 0,
-                'gifts_charity' => $data['gifts_charity'] ?? 0,
-                'regular_savings' => $data['regular_savings'] ?? 0,
-                'other_expenditure' => $data['other_expenditure'] ?? 0,
-                'monthly_expenditure' => $data['monthly_expenditure'] ?? 0,
-                'annual_expenditure' => $data['annual_expenditure'] ?? 0,
+                'food_groceries' => ($data['food_groceries'] ?? 0) / $divisor,
+                'transport_fuel' => ($data['transport_fuel'] ?? 0) / $divisor,
+                'healthcare_medical' => ($data['healthcare_medical'] ?? 0) / $divisor,
+                'insurance' => ($data['insurance'] ?? 0) / $divisor,
+                'mobile_phones' => ($data['mobile_phones'] ?? 0) / $divisor,
+                'internet_tv' => ($data['internet_tv'] ?? 0) / $divisor,
+                'subscriptions' => ($data['subscriptions'] ?? 0) / $divisor,
+                'clothing_personal_care' => ($data['clothing_personal_care'] ?? 0) / $divisor,
+                'entertainment_dining' => ($data['entertainment_dining'] ?? 0) / $divisor,
+                'holidays_travel' => ($data['holidays_travel'] ?? 0) / $divisor,
+                'pets' => ($data['pets'] ?? 0) / $divisor,
+                'childcare' => ($data['childcare'] ?? 0) / $divisor,
+                'school_fees' => ($data['school_fees'] ?? 0) / $divisor,
+                'school_lunches' => ($data['school_lunches'] ?? 0) / $divisor,
+                'school_extras' => ($data['school_extras'] ?? 0) / $divisor,
+                'university_fees' => ($data['university_fees'] ?? 0) / $divisor,
+                'children_activities' => ($data['children_activities'] ?? 0) / $divisor,
+                'gifts_charity' => ($data['gifts_charity'] ?? 0) / $divisor,
+                'regular_savings' => ($data['regular_savings'] ?? 0) / $divisor,
+                'other_expenditure' => ($data['other_expenditure'] ?? 0) / $divisor,
+                'monthly_expenditure' => ($data['monthly_expenditure'] ?? 0) / $divisor,
+                'annual_expenditure' => ($data['annual_expenditure'] ?? 0) / $divisor,
                 'expenditure_entry_mode' => $data['expenditure_entry_mode'] ?? 'category',
                 'expenditure_sharing_mode' => 'joint',
             ];
 
             $user->update($expenditureData);
 
-            // CRITICAL: For joint/50/50 mode, also update spouse with the same expenses
-            // Both accounts share the same household expenses (each represents 50%)
-            if ($user->spouse_id) {
+            // For joint/50/50 mode, also update spouse with the same halved expenses
+            // Each account now stores their 50% share of the household total
+            if ($isJointMode) {
                 $spouse = User::find($user->spouse_id);
                 if ($spouse) {
                     $spouse->update($expenditureData);

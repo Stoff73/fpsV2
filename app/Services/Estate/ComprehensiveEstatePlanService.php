@@ -139,7 +139,7 @@ class ComprehensiveEstatePlanService
                 $projectedIHTLiability,
                 $secondDeathAnalysis
             ),
-            'user_profile' => $this->buildUserProfile($user),
+            'user_profile' => $this->buildUserProfile($user, $spouse, $dataSharingEnabled),
             'balance_sheet' => $this->buildBalanceSheet($user, $assets, $ihtAnalysis, $spouse, $spouseAssets, $dataSharingEnabled),
             'estate_overview' => $this->buildEstateOverview($aggregatedAssets, $ihtAnalysis, $spouseAggregatedAssets, $dataSharingEnabled),
             'estate_breakdown' => $this->buildEstateBreakdown($user, $aggregatedAssets, $secondDeathAnalysis, $spouse, $spouseAggregatedAssets, $dataSharingEnabled),
@@ -225,29 +225,65 @@ class ComprehensiveEstatePlanService
     /**
      * Build user profile section
      */
-    private function buildUserProfile(User $user): array
+    private function buildUserProfile(User $user, ?User $spouse = null, bool $dataSharingEnabled = false): array
     {
-        // Spouse is a User, not a FamilyMember
-        $spouse = $user->spouse;
-
         // Calculate age from date of birth
         $age = 'Not provided';
         if ($user->date_of_birth) {
             $age = \Carbon\Carbon::parse($user->date_of_birth)->age;
         }
 
-        // Get children and step-children
+        // Get children and step-children from user's family members
         $children = FamilyMember::where('user_id', $user->id)
             ->where('relationship', 'child')
-            ->get()
-            ->map(fn($child) => ['name' => $child->name, 'relationship' => 'Child'])
-            ->values()
-            ->toArray();
+            ->get();
 
         $stepChildren = FamilyMember::where('user_id', $user->id)
             ->where('relationship', 'step_child')
-            ->get()
-            ->map(fn($child) => ['name' => $child->name, 'relationship' => 'Step-Child'])
+            ->get();
+
+        // If spouse exists and data sharing is enabled, also include spouse's children
+        // (avoiding duplicates based on name and date_of_birth)
+        if ($spouse && $dataSharingEnabled) {
+            $spouseChildren = FamilyMember::where('user_id', $spouse->id)
+                ->where('relationship', 'child')
+                ->get();
+
+            // Add spouse's children that aren't duplicates
+            foreach ($spouseChildren as $spouseChild) {
+                $isDuplicate = $children->contains(function ($child) use ($spouseChild) {
+                    return $child->name === $spouseChild->name &&
+                           $child->date_of_birth === $spouseChild->date_of_birth;
+                });
+
+                if (! $isDuplicate) {
+                    $children->push($spouseChild);
+                }
+            }
+
+            $spouseStepChildren = FamilyMember::where('user_id', $spouse->id)
+                ->where('relationship', 'step_child')
+                ->get();
+
+            // Add spouse's step-children that aren't duplicates
+            foreach ($spouseStepChildren as $spouseStepChild) {
+                $isDuplicate = $stepChildren->contains(function ($child) use ($spouseStepChild) {
+                    return $child->name === $spouseStepChild->name &&
+                           $child->date_of_birth === $spouseStepChild->date_of_birth;
+                });
+
+                if (! $isDuplicate) {
+                    $stepChildren->push($spouseStepChild);
+                }
+            }
+        }
+
+        // Convert to array format
+        $childrenArray = $children->map(fn ($child) => ['name' => $child->name, 'relationship' => 'Child'])
+            ->values()
+            ->toArray();
+
+        $stepChildrenArray = $stepChildren->map(fn ($child) => ['name' => $child->name, 'relationship' => 'Step-Child'])
             ->values()
             ->toArray();
 
@@ -262,8 +298,8 @@ class ComprehensiveEstatePlanService
                 'name' => $spouse->name,
                 'relationship' => 'Spouse',
             ] : null,
-            'children' => $children,
-            'step_children' => $stepChildren,
+            'children' => $childrenArray,
+            'step_children' => $stepChildrenArray,
         ];
     }
 
