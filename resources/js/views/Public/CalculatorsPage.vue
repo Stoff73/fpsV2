@@ -1,109 +1,159 @@
 <template>
   <PublicLayout>
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-800 py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
-          Financial Calculators
+    <!-- Hero Section -->
+    <div class="relative min-h-[50vh] flex items-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden">
+      <!-- Animated Background Elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div class="absolute top-1/3 right-1/4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-1/4 left-1/3 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <!-- Grid Pattern Overlay -->
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0wIDBoNjB2NjBIMHoiLz48cGF0aCBkPSJNMzAgMzBtLTEgMGExIDEgMCAxIDAgMiAwYTEgMSAwIDEgMCAtMiAwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz48L2c+PC9zdmc+')] opacity-40"></div>
+
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center w-full">
+        <!-- Badge -->
+        <div class="inline-flex items-center px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-sm font-medium mb-6 backdrop-blur-sm">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          Free Financial Tools
+        </div>
+
+        <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+          Financial
+          <span class="bg-gradient-to-r from-blue-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+            Calculators
+          </span>
         </h1>
-        <p class="text-xl text-blue-100 max-w-3xl mx-auto">
-          Free tools to help you understand your finances better
+        <p class="text-xl text-slate-300 max-w-2xl mx-auto">
+          Free tools to help you understand your finances better. Plan your taxes, mortgages, savings, and retirement with confidence.
         </p>
       </div>
     </div>
 
-    <!-- Calculators Grid -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <!-- Calculator Navigation -->
-      <div class="flex flex-wrap gap-2 mb-8 justify-center">
-        <button
-          v-for="calc in calculators"
-          :key="calc.id"
-          @click="activeCalculator = calc.id"
-          :class="[
-            'px-4 py-2 rounded-lg font-medium transition-colors',
-            activeCalculator === calc.id
-              ? 'bg-blue-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-          ]"
-        >
-          {{ calc.name }}
-        </button>
+    <!-- Calculator Selection Cards -->
+    <div class="bg-slate-50 py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <button
+            v-for="calc in calculators"
+            :key="calc.id"
+            @click="activeCalculator = calc.id"
+            :class="[
+              'group relative p-4 rounded-xl transition-all duration-300 text-center',
+              activeCalculator === calc.id
+                ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 scale-105'
+                : 'bg-white text-slate-700 hover:bg-slate-100 hover:shadow-md border border-slate-200'
+            ]"
+          >
+            <div :class="[
+              'w-10 h-10 mx-auto mb-2 rounded-lg flex items-center justify-center transition-colors',
+              activeCalculator === calc.id ? 'bg-white/20' : 'bg-slate-100 group-hover:bg-slate-200'
+            ]">
+              <component :is="calc.icon" :class="activeCalculator === calc.id ? 'text-white' : 'text-slate-600'" />
+            </div>
+            <span class="font-medium text-sm">{{ calc.name }}</span>
+          </button>
+        </div>
       </div>
+    </div>
 
+    <!-- Calculator Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <!-- Income Tax Calculator -->
-      <div v-if="activeCalculator === 'income-tax'" class="bg-white rounded-xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Income Tax Calculator</h2>
-        <p class="text-gray-600 mb-8">Calculate your UK income tax and National Insurance contributions for 2025/26.</p>
+      <div v-if="activeCalculator === 'income-tax'" class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
+          <h2 class="text-2xl font-bold text-white">Income Tax Calculator</h2>
+          <p class="text-blue-100 mt-1">Calculate your UK income tax and National Insurance contributions for 2025/26</p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="space-y-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Annual Gross Income</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2.5 text-gray-500">£</span>
-                <input
-                  v-model.number="incomeTax.income"
-                  type="number"
-                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="50000"
-                />
+        <div class="p-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Annual Gross Income</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 font-medium">£</span>
+                  <input
+                    v-model.number="incomeTax.income"
+                    type="number"
+                    class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="50,000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Pension Contributions</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 font-medium">£</span>
+                  <input
+                    v-model.number="incomeTax.pension"
+                    type="number"
+                    class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="0"
+                  />
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Pension contributions reduce your taxable income</p>
+              </div>
+
+              <button
+                @click="calculateIncomeTax"
+                class="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
+              >
+                Calculate Tax
+              </button>
+            </div>
+
+            <div v-if="incomeTax.result" class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
+              <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Results
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Gross Income</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(incomeTax.result.gross) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Pension Contributions</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(incomeTax.result.pension) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Taxable Income</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(incomeTax.result.taxable) }}</span>
+                </div>
+                <div class="border-t border-slate-300 my-2"></div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Income Tax</span>
+                  <span class="font-semibold text-red-600">-{{ formatCurrency(incomeTax.result.tax) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">National Insurance</span>
+                  <span class="font-semibold text-red-600">-{{ formatCurrency(incomeTax.result.ni) }}</span>
+                </div>
+                <div class="border-t border-slate-300 my-2"></div>
+                <div class="flex justify-between items-center py-3 bg-green-50 -mx-6 px-6 rounded-lg">
+                  <span class="font-bold text-slate-900">Net Income</span>
+                  <span class="font-bold text-2xl text-green-600">{{ formatCurrency(incomeTax.result.net) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Effective Tax Rate</span>
+                  <span class="font-semibold text-slate-900">{{ incomeTax.result.effectiveRate }}%</span>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Pension Contributions</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2.5 text-gray-500">£</span>
-                <input
-                  v-model.number="incomeTax.pension"
-                  type="number"
-                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="0"
-                />
-              </div>
-            </div>
-
-            <button
-              @click="calculateIncomeTax"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Calculate
-            </button>
-          </div>
-
-          <div v-if="incomeTax.result" class="bg-gray-50 rounded-lg p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Results</h3>
-            <div class="space-y-3">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Gross Income:</span>
-                <span class="font-semibold">{{ formatCurrency(incomeTax.result.gross) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Pension Contributions:</span>
-                <span class="font-semibold">{{ formatCurrency(incomeTax.result.pension) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Taxable Income:</span>
-                <span class="font-semibold">{{ formatCurrency(incomeTax.result.taxable) }}</span>
-              </div>
-              <div class="border-t border-gray-300 pt-3"></div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Income Tax:</span>
-                <span class="font-semibold text-red-600">{{ formatCurrency(incomeTax.result.tax) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">National Insurance:</span>
-                <span class="font-semibold text-red-600">{{ formatCurrency(incomeTax.result.ni) }}</span>
-              </div>
-              <div class="border-t border-gray-300 pt-3"></div>
-              <div class="flex justify-between text-lg">
-                <span class="font-bold text-gray-900">Net Income:</span>
-                <span class="font-bold text-green-600">{{ formatCurrency(incomeTax.result.net) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Effective Tax Rate:</span>
-                <span class="font-semibold">{{ incomeTax.result.effectiveRate }}%</span>
+            <div v-else class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 flex items-center justify-center">
+              <div class="text-center">
+                <svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <p class="text-slate-500">Enter your income and click Calculate to see results</p>
               </div>
             </div>
           </div>
@@ -111,114 +161,133 @@
       </div>
 
       <!-- Mortgage Calculator -->
-      <div v-if="activeCalculator === 'mortgage'" class="bg-white rounded-xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Mortgage Affordability Calculator</h2>
-        <p class="text-gray-600 mb-8">Calculate how much you can afford to borrow and your monthly repayments.</p>
+      <div v-if="activeCalculator === 'mortgage'" class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-teal-600 to-teal-700 px-8 py-6">
+          <h2 class="text-2xl font-bold text-white">Mortgage Affordability Calculator</h2>
+          <p class="text-teal-100 mt-1">Calculate how much you can afford to borrow and your monthly repayments</p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="space-y-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Annual Income</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2.5 text-gray-500">£</span>
-                <input
-                  v-model.number="mortgage.income"
-                  type="number"
-                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="50000"
-                />
+        <div class="p-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="space-y-5">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Annual Income</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 font-medium">£</span>
+                  <input
+                    v-model.number="mortgage.income"
+                    type="number"
+                    class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                    placeholder="50,000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Property Value</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 font-medium">£</span>
+                  <input
+                    v-model.number="mortgage.propertyValue"
+                    type="number"
+                    class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                    placeholder="250,000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Deposit</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 font-medium">£</span>
+                  <input
+                    v-model.number="mortgage.deposit"
+                    type="number"
+                    class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                    placeholder="25,000"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Interest Rate (%)</label>
+                  <input
+                    v-model.number="mortgage.interestRate"
+                    type="number"
+                    step="0.1"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                    placeholder="5.5"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Term (years)</label>
+                  <input
+                    v-model.number="mortgage.term"
+                    type="number"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                    placeholder="25"
+                  />
+                </div>
+              </div>
+
+              <button
+                @click="calculateMortgage"
+                class="w-full px-6 py-4 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-xl font-semibold hover:from-teal-700 hover:to-teal-800 transition-all shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40"
+              >
+                Calculate Mortgage
+              </button>
+            </div>
+
+            <div v-if="mortgage.result" class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
+              <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Results
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Property Value</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(mortgage.result.propertyValue) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Deposit ({{ mortgage.result.ltv }}% LTV)</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(mortgage.result.deposit) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Loan Amount</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(mortgage.result.loanAmount) }}</span>
+                </div>
+                <div class="border-t border-slate-300 my-2"></div>
+                <div class="flex justify-between items-center py-3 bg-teal-50 -mx-6 px-6 rounded-lg">
+                  <span class="font-bold text-slate-900">Monthly Payment</span>
+                  <span class="font-bold text-2xl text-teal-600">{{ formatCurrency(mortgage.result.monthlyPayment) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Total Interest</span>
+                  <span class="font-semibold text-red-600">{{ formatCurrency(mortgage.result.totalInterest) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Total Repayment</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(mortgage.result.totalRepayment) }}</span>
+                </div>
+                <div class="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <p class="text-sm text-blue-900">
+                    <strong>Maximum Affordable (4.5x income):</strong><br />
+                    {{ formatCurrency(mortgage.result.maxAffordable) }}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Property Value</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2.5 text-gray-500">£</span>
-                <input
-                  v-model.number="mortgage.propertyValue"
-                  type="number"
-                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="250000"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Deposit</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2.5 text-gray-500">£</span>
-                <input
-                  v-model.number="mortgage.deposit"
-                  type="number"
-                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="25000"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Interest Rate (%)</label>
-              <input
-                v-model.number="mortgage.interestRate"
-                type="number"
-                step="0.1"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="5.5"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Mortgage Term (years)</label>
-              <input
-                v-model.number="mortgage.term"
-                type="number"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="25"
-              />
-            </div>
-
-            <button
-              @click="calculateMortgage"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Calculate
-            </button>
-          </div>
-
-          <div v-if="mortgage.result" class="bg-gray-50 rounded-lg p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Results</h3>
-            <div class="space-y-3">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Property Value:</span>
-                <span class="font-semibold">{{ formatCurrency(mortgage.result.propertyValue) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Deposit ({{ mortgage.result.ltv }}% LTV):</span>
-                <span class="font-semibold">{{ formatCurrency(mortgage.result.deposit) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Loan Amount:</span>
-                <span class="font-semibold">{{ formatCurrency(mortgage.result.loanAmount) }}</span>
-              </div>
-              <div class="border-t border-gray-300 pt-3"></div>
-              <div class="flex justify-between text-lg">
-                <span class="font-bold text-gray-900">Monthly Payment:</span>
-                <span class="font-bold text-blue-600">{{ formatCurrency(mortgage.result.monthlyPayment) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Total Interest:</span>
-                <span class="font-semibold">{{ formatCurrency(mortgage.result.totalInterest) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Total Repayment:</span>
-                <span class="font-semibold">{{ formatCurrency(mortgage.result.totalRepayment) }}</span>
-              </div>
-              <div class="border-t border-gray-300 pt-3"></div>
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p class="text-sm text-blue-900">
-                  <strong>Maximum Affordable:</strong><br />
-                  Based on 4.5x income: {{ formatCurrency(mortgage.result.maxAffordable) }}
-                </p>
+            <div v-else class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 flex items-center justify-center">
+              <div class="text-center">
+                <svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <p class="text-slate-500">Enter your details and click Calculate to see results</p>
               </div>
             </div>
           </div>
@@ -226,81 +295,99 @@
       </div>
 
       <!-- Loan Repayment Calculator -->
-      <div v-if="activeCalculator === 'loan'" class="bg-white rounded-xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Loan Repayment Calculator</h2>
-        <p class="text-gray-600 mb-8">Calculate monthly payments and total interest on personal loans.</p>
+      <div v-if="activeCalculator === 'loan'" class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-orange-600 to-orange-700 px-8 py-6">
+          <h2 class="text-2xl font-bold text-white">Loan Repayment Calculator</h2>
+          <p class="text-orange-100 mt-1">Calculate monthly payments and total interest on personal loans</p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="space-y-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Loan Amount</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2.5 text-gray-500">£</span>
+        <div class="p-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Loan Amount</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 font-medium">£</span>
+                  <input
+                    v-model.number="loan.amount"
+                    type="number"
+                    class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                    placeholder="10,000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Interest Rate (% APR)</label>
                 <input
-                  v-model.number="loan.amount"
+                  v-model.number="loan.rate"
                   type="number"
-                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="10000"
+                  step="0.1"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                  placeholder="8.9"
                 />
               </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Loan Term (months)</label>
+                <input
+                  v-model.number="loan.term"
+                  type="number"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                  placeholder="36"
+                />
+              </div>
+
+              <button
+                @click="calculateLoan"
+                class="w-full px-6 py-4 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl font-semibold hover:from-orange-700 hover:to-orange-800 transition-all shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40"
+              >
+                Calculate Loan
+              </button>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Interest Rate (% APR)</label>
-              <input
-                v-model.number="loan.rate"
-                type="number"
-                step="0.1"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="8.9"
-              />
+            <div v-if="loan.result" class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
+              <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Results
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Loan Amount</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(loan.result.amount) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Interest Rate</span>
+                  <span class="font-semibold text-slate-900">{{ loan.result.rate }}% APR</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Term</span>
+                  <span class="font-semibold text-slate-900">{{ loan.result.term }} months</span>
+                </div>
+                <div class="border-t border-slate-300 my-2"></div>
+                <div class="flex justify-between items-center py-3 bg-orange-50 -mx-6 px-6 rounded-lg">
+                  <span class="font-bold text-slate-900">Monthly Payment</span>
+                  <span class="font-bold text-2xl text-orange-600">{{ formatCurrency(loan.result.monthlyPayment) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Total Interest</span>
+                  <span class="font-semibold text-red-600">{{ formatCurrency(loan.result.totalInterest) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Total Repayment</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(loan.result.totalRepayment) }}</span>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Loan Term (months)</label>
-              <input
-                v-model.number="loan.term"
-                type="number"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="36"
-              />
-            </div>
-
-            <button
-              @click="calculateLoan"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Calculate
-            </button>
-          </div>
-
-          <div v-if="loan.result" class="bg-gray-50 rounded-lg p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Results</h3>
-            <div class="space-y-3">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Loan Amount:</span>
-                <span class="font-semibold">{{ formatCurrency(loan.result.amount) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Interest Rate:</span>
-                <span class="font-semibold">{{ loan.result.rate }}% APR</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Term:</span>
-                <span class="font-semibold">{{ loan.result.term }} months</span>
-              </div>
-              <div class="border-t border-gray-300 pt-3"></div>
-              <div class="flex justify-between text-lg">
-                <span class="font-bold text-gray-900">Monthly Payment:</span>
-                <span class="font-bold text-blue-600">{{ formatCurrency(loan.result.monthlyPayment) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Total Interest:</span>
-                <span class="font-semibold text-red-600">{{ formatCurrency(loan.result.totalInterest) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Total Repayment:</span>
-                <span class="font-semibold">{{ formatCurrency(loan.result.totalRepayment) }}</span>
+            <div v-else class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 flex items-center justify-center">
+              <div class="text-center">
+                <svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-slate-500">Enter your loan details and click Calculate to see results</p>
               </div>
             </div>
           </div>
@@ -308,112 +395,129 @@
       </div>
 
       <!-- Emergency Fund Calculator -->
-      <div v-if="activeCalculator === 'emergency-fund'" class="bg-white rounded-xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Emergency Fund Calculator</h2>
-        <p class="text-gray-600 mb-8">Calculate how much you should save for emergencies (3-6 months of expenses).</p>
+      <div v-if="activeCalculator === 'emergency-fund'" class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6">
+          <h2 class="text-2xl font-bold text-white">Emergency Fund Calculator</h2>
+          <p class="text-green-100 mt-1">Calculate how much you should save for emergencies (3-6 months of expenses)</p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="space-y-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Monthly Expenses</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2.5 text-gray-500">£</span>
-                <input
-                  v-model.number="emergencyFund.monthlyExpenses"
-                  type="number"
-                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="2500"
-                />
+        <div class="p-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Monthly Expenses</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 font-medium">£</span>
+                  <input
+                    v-model.number="emergencyFund.monthlyExpenses"
+                    type="number"
+                    class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                    placeholder="2,500"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Current Savings</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2.5 text-gray-500">£</span>
-                <input
-                  v-model.number="emergencyFund.currentSavings"
-                  type="number"
-                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="5000"
-                />
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Current Savings</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 font-medium">£</span>
+                  <input
+                    v-model.number="emergencyFund.currentSavings"
+                    type="number"
+                    class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                    placeholder="5,000"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Target Months</label>
-              <select
-                v-model.number="emergencyFund.targetMonths"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Target Months</label>
+                <select
+                  v-model.number="emergencyFund.targetMonths"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                >
+                  <option :value="3">3 months (minimum recommended)</option>
+                  <option :value="6">6 months (standard recommendation)</option>
+                  <option :value="9">9 months (conservative)</option>
+                  <option :value="12">12 months (very conservative)</option>
+                </select>
+              </div>
+
+              <button
+                @click="calculateEmergencyFund"
+                class="w-full px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all shadow-lg shadow-green-500/25 hover:shadow-green-500/40"
               >
-                <option :value="3">3 months</option>
-                <option :value="6">6 months</option>
-                <option :value="9">9 months</option>
-                <option :value="12">12 months</option>
-              </select>
+                Calculate Fund
+              </button>
             </div>
 
-            <button
-              @click="calculateEmergencyFund"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Calculate
-            </button>
-          </div>
+            <div v-if="emergencyFund.result" class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
+              <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Results
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Monthly Expenses</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(emergencyFund.result.monthlyExpenses) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Target Coverage</span>
+                  <span class="font-semibold text-slate-900">{{ emergencyFund.result.targetMonths }} months</span>
+                </div>
+                <div class="border-t border-slate-300 my-2"></div>
+                <div class="flex justify-between items-center py-3 bg-green-50 -mx-6 px-6 rounded-lg">
+                  <span class="font-bold text-slate-900">Target Fund</span>
+                  <span class="font-bold text-2xl text-green-600">{{ formatCurrency(emergencyFund.result.targetAmount) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Current Savings</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(emergencyFund.result.currentSavings) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Shortfall</span>
+                  <span :class="emergencyFund.result.shortfall > 0 ? 'font-semibold text-red-600' : 'font-semibold text-green-600'">
+                    {{ emergencyFund.result.shortfall > 0 ? formatCurrency(emergencyFund.result.shortfall) : 'Fully funded!' }}
+                  </span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Current Runway</span>
+                  <span class="font-semibold text-slate-900">{{ emergencyFund.result.currentRunway.toFixed(1) }} months</span>
+                </div>
+                <div class="mt-4" :class="[
+                  'rounded-xl p-4',
+                  emergencyFund.result.adequacy === 'Good' ? 'bg-green-50 border border-green-200' :
+                  emergencyFund.result.adequacy === 'Adequate' ? 'bg-blue-50 border border-blue-200' :
+                  'bg-amber-50 border border-amber-200'
+                ]">
+                  <p :class="[
+                    'text-sm font-semibold',
+                    emergencyFund.result.adequacy === 'Good' ? 'text-green-900' :
+                    emergencyFund.result.adequacy === 'Adequate' ? 'text-blue-900' :
+                    'text-amber-900'
+                  ]">
+                    Status: {{ emergencyFund.result.adequacy }}
+                  </p>
+                  <p :class="[
+                    'text-xs mt-1',
+                    emergencyFund.result.adequacy === 'Good' ? 'text-green-700' :
+                    emergencyFund.result.adequacy === 'Adequate' ? 'text-blue-700' :
+                    'text-amber-700'
+                  ]">
+                    {{ emergencyFund.result.message }}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-          <div v-if="emergencyFund.result" class="bg-gray-50 rounded-lg p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Results</h3>
-            <div class="space-y-3">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Monthly Expenses:</span>
-                <span class="font-semibold">{{ formatCurrency(emergencyFund.result.monthlyExpenses) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Target Coverage:</span>
-                <span class="font-semibold">{{ emergencyFund.result.targetMonths }} months</span>
-              </div>
-              <div class="border-t border-gray-300 pt-3"></div>
-              <div class="flex justify-between text-lg">
-                <span class="font-bold text-gray-900">Target Fund:</span>
-                <span class="font-bold text-blue-600">{{ formatCurrency(emergencyFund.result.targetAmount) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Current Savings:</span>
-                <span class="font-semibold">{{ formatCurrency(emergencyFund.result.currentSavings) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Shortfall:</span>
-                <span :class="emergencyFund.result.shortfall > 0 ? 'font-semibold text-red-600' : 'font-semibold text-green-600'">
-                  {{ emergencyFund.result.shortfall > 0 ? formatCurrency(emergencyFund.result.shortfall) : 'Fully funded!' }}
-                </span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Current Runway:</span>
-                <span class="font-semibold">{{ emergencyFund.result.currentRunway.toFixed(1) }} months</span>
-              </div>
-              <div class="border-t border-gray-300 pt-3"></div>
-              <div :class="[
-                'rounded-lg p-3',
-                emergencyFund.result.adequacy === 'Good' ? 'bg-green-50 border border-green-200' :
-                emergencyFund.result.adequacy === 'Adequate' ? 'bg-blue-50 border border-blue-200' :
-                'bg-amber-50 border border-amber-200'
-              ]">
-                <p :class="[
-                  'text-sm font-semibold',
-                  emergencyFund.result.adequacy === 'Good' ? 'text-green-900' :
-                  emergencyFund.result.adequacy === 'Adequate' ? 'text-blue-900' :
-                  'text-amber-900'
-                ]">
-                  Status: {{ emergencyFund.result.adequacy }}
-                </p>
-                <p :class="[
-                  'text-xs mt-1',
-                  emergencyFund.result.adequacy === 'Good' ? 'text-green-700' :
-                  emergencyFund.result.adequacy === 'Adequate' ? 'text-blue-700' :
-                  'text-amber-700'
-                ]">
-                  {{ emergencyFund.result.message }}
-                </p>
+            <div v-else class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 flex items-center justify-center">
+              <div class="text-center">
+                <svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <p class="text-slate-500">Enter your expenses and savings to see your emergency fund status</p>
               </div>
             </div>
           </div>
@@ -421,112 +525,160 @@
       </div>
 
       <!-- Pension Growth Calculator -->
-      <div v-if="activeCalculator === 'pension'" class="bg-white rounded-xl shadow-lg p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Pension Growth Calculator</h2>
-        <p class="text-gray-600 mb-8">Project your pension pot at retirement with regular contributions.</p>
+      <div v-if="activeCalculator === 'pension'" class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6">
+          <h2 class="text-2xl font-bold text-white">Pension Growth Calculator</h2>
+          <p class="text-purple-100 mt-1">Project your pension pot at retirement with regular contributions</p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="space-y-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Current Pension Value</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2.5 text-gray-500">£</span>
+        <div class="p-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="space-y-5">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Current Pension Value</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 font-medium">£</span>
+                  <input
+                    v-model.number="pension.currentValue"
+                    type="number"
+                    class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                    placeholder="50,000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Monthly Contribution</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-3 text-slate-400 font-medium">£</span>
+                  <input
+                    v-model.number="pension.monthlyContribution"
+                    type="number"
+                    class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                    placeholder="500"
+                  />
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Including employer contributions and tax relief</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Current Age</label>
+                  <input
+                    v-model.number="pension.currentAge"
+                    type="number"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                    placeholder="35"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold text-slate-700 mb-2">Retirement Age</label>
+                  <input
+                    v-model.number="pension.retirementAge"
+                    type="number"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                    placeholder="65"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Expected Growth Rate (%)</label>
                 <input
-                  v-model.number="pension.currentValue"
+                  v-model.number="pension.growthRate"
                   type="number"
-                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="50000"
+                  step="0.1"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                  placeholder="5.0"
                 />
+                <p class="text-xs text-slate-500 mt-1">Typical range: 4-7% for balanced portfolios</p>
+              </div>
+
+              <button
+                @click="calculatePension"
+                class="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
+              >
+                Calculate Projection
+              </button>
+            </div>
+
+            <div v-if="pension.result" class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
+              <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                Projection
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Years to Retirement</span>
+                  <span class="font-semibold text-slate-900">{{ pension.result.yearsToRetirement }} years</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Current Value</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(pension.result.currentValue) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Total Contributions</span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(pension.result.totalContributions) }}</span>
+                </div>
+                <div class="border-t border-slate-300 my-2"></div>
+                <div class="flex justify-between items-center py-3 bg-purple-50 -mx-6 px-6 rounded-lg">
+                  <span class="font-bold text-slate-900">Projected Pot at {{ pension.retirementAge }}</span>
+                  <span class="font-bold text-2xl text-purple-600">{{ formatCurrency(pension.result.projectedValue) }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-600">Investment Growth</span>
+                  <span class="font-semibold text-green-600">{{ formatCurrency(pension.result.investmentGrowth) }}</span>
+                </div>
+                <div class="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <p class="text-sm text-blue-900 font-semibold mb-2">At 4% withdrawal rate:</p>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <p class="text-xs text-blue-700">Annual Income</p>
+                      <p class="font-bold text-blue-900">{{ formatCurrency(pension.result.annualIncome) }}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-blue-700">Monthly Income</p>
+                      <p class="font-bold text-blue-900">{{ formatCurrency(pension.result.monthlyIncome) }}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Monthly Contribution</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2.5 text-gray-500">£</span>
-                <input
-                  v-model.number="pension.monthlyContribution"
-                  type="number"
-                  class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Current Age</label>
-              <input
-                v-model.number="pension.currentAge"
-                type="number"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="35"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Retirement Age</label>
-              <input
-                v-model.number="pension.retirementAge"
-                type="number"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="65"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Expected Growth Rate (%)</label>
-              <input
-                v-model.number="pension.growthRate"
-                type="number"
-                step="0.1"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="5.0"
-              />
-            </div>
-
-            <button
-              @click="calculatePension"
-              class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Calculate
-            </button>
-          </div>
-
-          <div v-if="pension.result" class="bg-gray-50 rounded-lg p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Projection</h3>
-            <div class="space-y-3">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Years to Retirement:</span>
-                <span class="font-semibold">{{ pension.result.yearsToRetirement }} years</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Current Value:</span>
-                <span class="font-semibold">{{ formatCurrency(pension.result.currentValue) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Total Contributions:</span>
-                <span class="font-semibold">{{ formatCurrency(pension.result.totalContributions) }}</span>
-              </div>
-              <div class="border-t border-gray-300 pt-3"></div>
-              <div class="flex justify-between text-lg">
-                <span class="font-bold text-gray-900">Projected Pot at {{ pension.retirementAge }}:</span>
-                <span class="font-bold text-green-600">{{ formatCurrency(pension.result.projectedValue) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Investment Growth:</span>
-                <span class="font-semibold text-blue-600">{{ formatCurrency(pension.result.investmentGrowth) }}</span>
-              </div>
-              <div class="border-t border-gray-300 pt-3"></div>
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p class="text-sm text-blue-900">
-                  <strong>At 4% withdrawal rate:</strong><br />
-                  Annual income: {{ formatCurrency(pension.result.annualIncome) }}<br />
-                  Monthly income: {{ formatCurrency(pension.result.monthlyIncome) }}
-                </p>
+            <div v-else class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200 flex items-center justify-center">
+              <div class="text-center">
+                <svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <p class="text-slate-500">Enter your pension details to see your retirement projection</p>
               </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-gradient-to-r from-slate-800 to-slate-900 py-16">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold text-white mb-4">
+          Ready for Comprehensive Financial Planning?
+        </h2>
+        <p class="text-slate-300 mb-8">
+          Create a free account to access all planning tools and get a complete view of your finances.
+        </p>
+        <router-link
+          to="/register"
+          class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-xl"
+        >
+          Get Started Free
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </router-link>
       </div>
     </div>
   </PublicLayout>
@@ -546,11 +698,11 @@ export default {
     return {
       activeCalculator: 'income-tax',
       calculators: [
-        { id: 'income-tax', name: 'Income Tax' },
-        { id: 'mortgage', name: 'Mortgage' },
-        { id: 'loan', name: 'Loan Repayment' },
-        { id: 'emergency-fund', name: 'Emergency Fund' },
-        { id: 'pension', name: 'Pension Growth' },
+        { id: 'income-tax', name: 'Income Tax', icon: 'IconTax' },
+        { id: 'mortgage', name: 'Mortgage', icon: 'IconHome' },
+        { id: 'loan', name: 'Loan', icon: 'IconLoan' },
+        { id: 'emergency-fund', name: 'Emergency Fund', icon: 'IconShield' },
+        { id: 'pension', name: 'Pension', icon: 'IconChart' },
       ],
       incomeTax: {
         income: null,
@@ -641,7 +793,7 @@ export default {
       }
 
       const net = income - tax - ni;
-      const effectiveRate = ((tax + ni) / income * 100).toFixed(1);
+      const effectiveRate = income > 0 ? ((tax + ni) / income * 100).toFixed(1) : '0.0';
 
       this.incomeTax.result = {
         gross: income,
@@ -780,3 +932,32 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+</style>
