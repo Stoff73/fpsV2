@@ -25,7 +25,7 @@ class StoreMortgageRequest extends FormRequest
         return [
             'lender_name' => ['required', 'string', 'max:255'],
             'mortgage_account_number' => ['nullable', 'string', 'max:50'],
-            'mortgage_type' => ['required', Rule::in(['repayment', 'interest_only', 'mixed'])],
+            'mortgage_type' => ['nullable', Rule::in(['repayment', 'interest_only', 'mixed'])],
             'country' => ['nullable', 'string', 'max:255'],
 
             // Mixed mortgage type fields (repayment vs interest-only split)
