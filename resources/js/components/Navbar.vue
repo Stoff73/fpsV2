@@ -19,6 +19,21 @@
           </div>
         </div>
 
+        <!-- Center - Feedback Button -->
+        <div class="hidden sm:flex sm:items-center">
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSeEotaP8CrnnhPYcuLdhl9fwIDT2V8GoduC0ytNtPcyD4FdSw/viewform?usp=publish-editor"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center px-4 py-2 border-2 border-amber-500 text-body-sm font-medium rounded-button text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            Feedback
+          </a>
+        </div>
+
         <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
           <router-link
             v-if="!onboardingCompleted"
@@ -155,6 +170,14 @@
         >
           Dashboard
         </router-link>
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSeEotaP8CrnnhPYcuLdhl9fwIDT2V8GoduC0ytNtPcyD4FdSw/viewform?usp=publish-editor"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="block pl-3 pr-4 py-2 border-l-4 border-amber-500 text-base font-medium bg-amber-50 text-amber-700"
+        >
+          Feedback
+        </a>
         <router-link
           v-if="isAdmin"
           to="/admin"
