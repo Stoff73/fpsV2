@@ -77,8 +77,9 @@
         <!-- Actions -->
         <div class="flex gap-3">
           <button
-            @click="handleEditAccount(account)"
-            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
+            disabled
+            class="px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed"
+            title="This functionality is not available for this demo"
           >
             Edit
           </button>

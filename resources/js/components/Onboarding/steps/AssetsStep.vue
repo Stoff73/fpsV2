@@ -56,69 +56,117 @@
           Pensions are often one of the largest components of retirement planning. Add your DC pensions, DB pensions, and State Pension forecast to get a complete retirement picture.
         </p>
 
-        <!-- DC Pensions -->
-        <div v-if="pensions.dc.length > 0" class="space-y-3">
-          <h4 class="text-body font-medium text-gray-900">
-            DC Pensions ({{ pensions.dc.length }})
-          </h4>
-          <div class="grid grid-cols-1 gap-4">
-            <PensionCard
-              v-for="pension in pensions.dc"
-              :key="pension.id"
-              :pension="pension"
-              type="dc"
-              @edit="openPensionForm('dc', pension)"
-              @delete="deletePension('dc', pension.id)"
-            />
-          </div>
-        </div>
+        <!-- Pensions Grid -->
+        <div v-if="pensions.dc.length > 0 || pensions.db.length > 0 || pensions.state" class="pensions-grid">
+          <!-- DC Pensions -->
+          <div
+            v-for="pension in pensions.dc"
+            :key="'dc-' + pension.id"
+            class="pension-card"
+            @click="openPensionForm('dc', pension)"
+          >
+            <div class="card-header">
+              <span class="badge badge-dc">
+                {{ formatDCPensionType(pension.pension_type || pension.scheme_type) }}
+              </span>
+            </div>
 
-        <!-- DB Pensions -->
-        <div v-if="pensions.db.length > 0" class="space-y-3">
-          <h4 class="text-body font-medium text-gray-900">
-            DB Pensions ({{ pensions.db.length }})
-          </h4>
-          <div class="grid grid-cols-1 gap-4">
-            <PensionCard
-              v-for="pension in pensions.db"
-              :key="pension.id"
-              :pension="pension"
-              type="db"
-              @edit="openPensionForm('db', pension)"
-              @delete="deletePension('db', pension.id)"
-            />
-          </div>
-        </div>
+            <div class="card-content">
+              <h4 class="pension-scheme">{{ pension.scheme_name || 'Defined Contribution' }}</h4>
+              <p class="pension-provider-text">{{ pension.provider || '' }}</p>
 
-        <!-- State Pension -->
-        <div v-if="pensions.state" class="space-y-3">
-          <h4 class="text-body font-medium text-gray-900">
-            State Pension
-          </h4>
-          <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <h5 class="text-body font-medium text-gray-900">
-                    UK State Pension
-                  </h5>
-                  <span class="text-body-sm px-2 py-0.5 bg-green-100 text-green-700 rounded">
-                    State Pension
-                  </span>
-                </div>
-                <div class="mt-2">
-                  <p class="text-body-sm text-gray-500">Annual Forecast</p>
-                  <p class="text-body font-medium text-gray-900">{{ formatCurrency(pensions.state.state_pension_forecast_annual) }}</p>
+              <div class="pension-details">
+                <div class="value-rows">
+                  <div class="detail-row">
+                    <span class="detail-label">Current Value</span>
+                    <span class="detail-value">{{ formatCurrency(pension.current_fund_value) }}</span>
+                  </div>
+
+                  <div class="detail-row">
+                    <span class="detail-label">Retirement Age</span>
+                    <span class="detail-value">{{ pension.retirement_age || 67 }}</span>
+                  </div>
+
+                  <div class="detail-row">
+                    <span class="detail-label">Monthly Contribution</span>
+                    <span class="detail-value">{{ formatCurrency(pension.monthly_contribution_amount || 0) }}</span>
+                  </div>
                 </div>
               </div>
-              <div class="flex gap-2 ml-4">
-                <button
-                  type="button"
-                  class="text-primary-600 hover:text-primary-700 text-body-sm"
-                  @click="openPensionForm('state', pensions.state)"
-                >
-                  Edit
-                </button>
+            </div>
+          </div>
+
+          <!-- DB Pensions -->
+          <div
+            v-for="pension in pensions.db"
+            :key="'db-' + pension.id"
+            class="pension-card"
+            @click="openPensionForm('db', pension)"
+          >
+            <div class="card-header">
+              <span class="badge badge-db">
+                {{ formatDBPensionType(pension.scheme_type) }}
+              </span>
+            </div>
+
+            <div class="card-content">
+              <h4 class="pension-scheme">{{ pension.scheme_name || 'Defined Benefit' }}</h4>
+              <p class="pension-provider-text">{{ pension.provider || '' }}</p>
+
+              <div class="pension-details">
+                <div class="value-rows">
+                  <div class="detail-row">
+                    <span class="detail-label">Annual Income</span>
+                    <span class="detail-value">{{ formatCurrency(pension.annual_income) }}<span class="text-xs text-gray-500">/yr</span></span>
+                  </div>
+
+                  <div class="detail-row">
+                    <span class="detail-label">Payment Start Age</span>
+                    <span class="detail-value">{{ pension.payment_start_age || 67 }}</span>
+                  </div>
+
+                  <div class="detail-row">
+                    <span class="detail-label">Lump Sum</span>
+                    <span class="detail-value">{{ formatCurrency(pension.lump_sum_entitlement || 0) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- State Pension -->
+          <div
+            v-if="pensions.state"
+            class="pension-card"
+            @click="openPensionForm('state', pensions.state)"
+          >
+            <div class="card-header">
+              <span class="badge badge-state">
+                State Pension
+              </span>
+            </div>
+
+            <div class="card-content">
+              <h4 class="pension-scheme">UK State Pension</h4>
+              <p class="pension-provider-text">State Retirement Pension</p>
+
+              <div class="pension-details">
+                <div class="value-rows">
+                  <div class="detail-row">
+                    <span class="detail-label">Forecast</span>
+                    <span class="detail-value">{{ formatCurrency(pensions.state.state_pension_forecast_annual) }}<span class="text-xs text-gray-500">/yr</span></span>
+                  </div>
+
+                  <div class="detail-row">
+                    <span class="detail-label">NI Years</span>
+                    <span class="detail-value">{{ pensions.state.ni_years_completed || 0 }} / 35</span>
+                  </div>
+
+                  <div class="detail-row">
+                    <span class="detail-label">Payment Age</span>
+                    <span class="detail-value">{{ pensions.state.state_pension_age || 67 }}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -166,49 +214,13 @@
             Properties ({{ properties.length }})
           </h4>
 
-          <div
-            v-for="property in properties"
-            :key="property.id"
-            class="border border-gray-200 rounded-lg p-4 bg-gray-50"
-          >
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <h5 class="text-body font-medium text-gray-900 capitalize">
-                    {{ property.property_type?.replace(/_/g, ' ') }}
-                  </h5>
-                  <span class="text-body-sm px-2 py-0.5 bg-blue-100 text-blue-700 rounded capitalize">
-                    {{ property.ownership_type }}
-                  </span>
-                </div>
-                <p class="text-body-sm text-gray-600">
-                  {{ property.address_line_1 }}{{ property.address_line_2 ? ', ' + property.address_line_2 : '' }}
-                </p>
-                <p class="text-body-sm text-gray-600">
-                  {{ property.city }}, {{ property.postcode }}
-                </p>
-                <div class="mt-2">
-                  <p class="text-body-sm text-gray-500">Value</p>
-                  <p class="text-body font-medium text-gray-900">{{ formatCurrency(property.current_value) }}</p>
-                </div>
-              </div>
-              <div class="flex gap-2 ml-4">
-                <button
-                  type="button"
-                  class="text-primary-600 hover:text-primary-700 text-body-sm"
-                  @click="editProperty(property)"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  class="text-red-600 hover:text-red-700 text-body-sm"
-                  @click="deleteProperty(property.id)"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <PropertyCard
+              v-for="property in properties"
+              :key="property.id"
+              :property="property"
+              @select-property="editProperty"
+            />
           </div>
         </div>
 
@@ -249,47 +261,56 @@
           Investment accounts include ISAs, General Investment Accounts, and bonds. These form part of your overall wealth.
         </p>
 
-        <!-- Added Investments List -->
-        <div v-if="investments.length > 0" class="space-y-3">
-          <h4 class="text-body font-medium text-gray-900">
-            Investment Accounts ({{ investments.length }})
-          </h4>
-
+        <!-- Investments Grid -->
+        <div v-if="investments.length > 0" class="accounts-grid">
           <div
             v-for="investment in investments"
             :key="investment.id"
-            class="border border-gray-200 rounded-lg p-4 bg-gray-50"
+            class="account-card"
+            @click="editInvestment(investment)"
           >
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <h5 class="text-body font-medium text-gray-900">
-                    {{ investment.provider }}
-                  </h5>
-                  <span class="text-body-sm px-2 py-0.5 bg-green-100 text-green-700 rounded capitalize">
-                    {{ investment.account_type?.replace(/_/g, ' ') }}
-                  </span>
+            <div class="card-header">
+              <span
+                :class="getOwnershipBadgeClass(investment.ownership_type)"
+                class="ownership-badge"
+              >
+                {{ formatOwnershipType(investment.ownership_type) }}
+              </span>
+              <span
+                class="badge"
+                :class="getInvestmentTypeBadgeClass(investment.account_type)"
+              >
+                {{ formatInvestmentAccountType(investment.account_type) }}
+              </span>
+            </div>
+
+            <div class="card-content">
+              <h4 class="account-institution">{{ investment.provider }}</h4>
+              <p class="account-type">{{ investment.account_name || investment.platform || '' }}</p>
+
+              <div class="account-details">
+                <!-- Joint account: show full value and user's share -->
+                <div v-if="investment.ownership_type === 'joint'">
+                  <div class="detail-row">
+                    <span class="detail-label">Full Value</span>
+                    <span class="detail-value">{{ formatCurrency(investment.current_value * 2) }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Your Share (50%)</span>
+                    <span class="detail-value text-purple-600">{{ formatCurrency(investment.current_value) }}</span>
+                  </div>
                 </div>
-                <div class="mt-2">
-                  <p class="text-body-sm text-gray-500">Value</p>
-                  <p class="text-body font-medium text-gray-900">{{ formatCurrency(investment.current_value) }}</p>
+
+                <!-- Individual account shows just current value -->
+                <div v-else class="detail-row">
+                  <span class="detail-label">Current Value</span>
+                  <span class="detail-value">{{ formatCurrency(investment.current_value) }}</span>
                 </div>
-              </div>
-              <div class="flex gap-2 ml-4">
-                <button
-                  type="button"
-                  class="text-primary-600 hover:text-primary-700 text-body-sm"
-                  @click="editInvestment(investment)"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  class="text-red-600 hover:text-red-700 text-body-sm"
-                  @click="deleteInvestment(investment.id)"
-                >
-                  Delete
-                </button>
+
+                <div class="detail-row">
+                  <span class="detail-label">Holdings</span>
+                  <span class="detail-value">{{ investment.holdings?.length || 0 }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -315,47 +336,50 @@
           Include all cash and bank accounts, including current accounts, Cash ISAs, easy access savings, and fixed-term deposits.
         </p>
 
-        <!-- Added Cash Accounts List -->
-        <div v-if="savingsAccounts.length > 0" class="space-y-3">
-          <h4 class="text-body font-medium text-gray-900">
-            Accounts ({{ savingsAccounts.length }})
-          </h4>
-
+        <!-- Cash Accounts Grid -->
+        <div v-if="savingsAccounts.length > 0" class="accounts-grid">
           <div
             v-for="savings in savingsAccounts"
             :key="savings.id"
-            class="border border-gray-200 rounded-lg p-4 bg-gray-50"
+            class="account-card"
+            @click="editSavings(savings)"
           >
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <h5 class="text-body font-medium text-gray-900">
-                    {{ savings.institution }}
-                  </h5>
-                  <span class="text-body-sm px-2 py-0.5 bg-purple-100 text-purple-700 rounded capitalize">
-                    {{ savings.account_type?.replace(/_/g, ' ') }}
-                  </span>
-                </div>
-                <div class="mt-2">
-                  <p class="text-body-sm text-gray-500">Balance</p>
-                  <p class="text-body font-medium text-gray-900">{{ formatCurrency(savings.current_balance) }}</p>
-                </div>
+            <div class="card-header">
+              <span
+                :class="getOwnershipBadgeClass(savings.ownership_type)"
+                class="ownership-badge"
+              >
+                {{ formatOwnershipType(savings.ownership_type) }}
+              </span>
+              <div class="badge-group">
+                <span v-if="savings.is_emergency_fund" class="badge badge-emergency">
+                  Emergency Fund
+                </span>
+                <span v-if="savings.is_isa" class="badge badge-isa">
+                  ISA
+                </span>
               </div>
-              <div class="flex gap-2 ml-4">
-                <button
-                  type="button"
-                  class="text-primary-600 hover:text-primary-700 text-body-sm"
-                  @click="editSavings(savings)"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  class="text-red-600 hover:text-red-700 text-body-sm"
-                  @click="deleteSavings(savings.id)"
-                >
-                  Delete
-                </button>
+            </div>
+
+            <div class="card-content">
+              <h4 class="account-institution">{{ savings.institution }}</h4>
+              <p class="account-type">{{ formatSavingsAccountType(savings.account_type) }}</p>
+
+              <div class="account-details">
+                <div class="detail-row">
+                  <span class="detail-label">{{ savings.ownership_type === 'joint' ? 'Full Balance' : 'Balance' }}</span>
+                  <span class="detail-value">{{ formatCurrency(getFullSavingsBalance(savings)) }}</span>
+                </div>
+
+                <div v-if="savings.ownership_type === 'joint'" class="detail-row">
+                  <span class="detail-label">Your Share ({{ savings.ownership_percentage }}%)</span>
+                  <span class="detail-value text-purple-600">{{ formatCurrency(savings.current_balance) }}</span>
+                </div>
+
+                <div v-if="savings.interest_rate > 0" class="detail-row">
+                  <span class="detail-label">Interest Rate</span>
+                  <span class="detail-value interest">{{ formatInterestRate(savings.interest_rate) }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -429,12 +453,12 @@
 import { ref, computed, onMounted } from 'vue';
 import OnboardingStep from '../OnboardingStep.vue';
 import PropertyForm from '@/components/NetWorth/Property/PropertyForm.vue';
+import PropertyCard from '@/components/NetWorth/PropertyCard.vue';
 import AccountForm from '@/components/Investment/AccountForm.vue';
 import SaveAccountModal from '@/components/Savings/SaveAccountModal.vue';
 import DCPensionForm from '@/components/Retirement/DCPensionForm.vue';
 import DBPensionForm from '@/components/Retirement/DBPensionForm.vue';
 import StatePensionForm from '@/components/Retirement/StatePensionForm.vue';
-import PensionCard from '@/components/Retirement/PensionCard.vue';
 import propertyService from '@/services/propertyService';
 import investmentService from '@/services/investmentService';
 import savingsService from '@/services/savingsService';
@@ -446,12 +470,12 @@ export default {
   components: {
     OnboardingStep,
     PropertyForm,
+    PropertyCard,
     AccountForm,
     SaveAccountModal,
     DCPensionForm,
     DBPensionForm,
     StatePensionForm,
-    PensionCard,
   },
 
   emits: ['next', 'back', 'skip'],
@@ -807,6 +831,104 @@ export default {
       }).format(value);
     };
 
+    const formatDCPensionType = (type) => {
+      const types = {
+        occupational: 'Occupational',
+        sipp: 'SIPP',
+        personal: 'Personal',
+        stakeholder: 'Stakeholder',
+        workplace: 'Workplace',
+      };
+      return types[type] || 'DC Pension';
+    };
+
+    const formatDBPensionType = (type) => {
+      const types = {
+        final_salary: 'Final Salary',
+        career_average: 'Career Average',
+        public_sector: 'Public Sector',
+      };
+      return types[type] || 'DB Pension';
+    };
+
+    // Investment account helper functions
+    const formatInvestmentAccountType = (type) => {
+      const types = {
+        'isa': 'ISA',
+        'sipp': 'SIPP',
+        'gia': 'GIA',
+        'pension': 'Pension',
+        'nsi': 'NS&I',
+        'onshore_bond': 'Onshore Bond',
+        'offshore_bond': 'Offshore Bond',
+        'vct': 'VCT',
+        'eis': 'EIS',
+        'other': 'Other',
+      };
+      return types[type] || type;
+    };
+
+    const getInvestmentTypeBadgeClass = (type) => {
+      const classes = {
+        isa: 'bg-green-100 text-green-800',
+        gia: 'bg-blue-100 text-blue-800',
+        sipp: 'bg-purple-100 text-purple-800',
+        pension: 'bg-purple-100 text-purple-800',
+        nsi: 'bg-indigo-100 text-indigo-800',
+        onshore_bond: 'bg-orange-100 text-orange-800',
+        offshore_bond: 'bg-orange-100 text-orange-800',
+        vct: 'bg-pink-100 text-pink-800',
+        eis: 'bg-pink-100 text-pink-800',
+        other: 'bg-gray-100 text-gray-800',
+      };
+      return classes[type] || 'bg-gray-100 text-gray-800';
+    };
+
+    // Savings account helper functions
+    const formatSavingsAccountType = (type) => {
+      const types = {
+        savings_account: 'Savings Account',
+        current_account: 'Current Account',
+        easy_access: 'Easy Access',
+        notice: 'Notice Account',
+        fixed: 'Fixed Term',
+      };
+      return types[type] || type;
+    };
+
+    const getFullSavingsBalance = (account) => {
+      // If joint ownership, calculate full balance from user's share
+      if (account.ownership_type === 'joint' && account.ownership_percentage) {
+        return account.current_balance / (account.ownership_percentage / 100);
+      }
+      // For individual ownership, user's share = full balance
+      return account.current_balance;
+    };
+
+    const formatInterestRate = (rate) => {
+      // Convert from decimal to percentage (e.g., 0.01 -> 1.00%)
+      return `${(rate * 100).toFixed(2)}%`;
+    };
+
+    // Common ownership helper functions
+    const formatOwnershipType = (type) => {
+      const types = {
+        individual: 'Individual',
+        joint: 'Joint',
+        trust: 'Trust',
+      };
+      return types[type] || 'Individual';
+    };
+
+    const getOwnershipBadgeClass = (type) => {
+      const classes = {
+        individual: 'bg-gray-100 text-gray-800',
+        joint: 'bg-purple-100 text-purple-800',
+        trust: 'bg-amber-100 text-amber-800',
+      };
+      return classes[type] || 'bg-gray-100 text-gray-800';
+    };
+
     return {
       activeTab,
       assetTabs,
@@ -850,7 +972,208 @@ export default {
       handleBack,
       handleSkip,
       formatCurrency,
+      formatDCPensionType,
+      formatDBPensionType,
+      // Investment helpers
+      formatInvestmentAccountType,
+      getInvestmentTypeBadgeClass,
+      // Savings helpers
+      formatSavingsAccountType,
+      getFullSavingsBalance,
+      formatInterestRate,
+      // Common helpers
+      formatOwnershipType,
+      getOwnershipBadgeClass,
     };
   },
 };
 </script>
+
+<style scoped>
+/* Pension Cards Grid */
+.pensions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.pension-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pension-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.badge-dc {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-db {
+  background: #e9d5ff;
+  color: #6b21a8;
+}
+
+.badge-state {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pension-scheme {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.pension-provider-text {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  min-height: 20px;
+}
+
+.pension-details {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.value-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 16px;
+  color: #111827;
+  font-weight: 700;
+}
+
+/* Account Cards Grid (Investments & Savings) */
+.accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.account-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.account-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+}
+
+.ownership-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.badge-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge-emergency {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-isa {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.account-institution {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.account-type {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  min-height: 20px;
+}
+
+.account-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.detail-value.interest {
+  color: #10b981;
+}
+
+@media (max-width: 768px) {
+  .pensions-grid,
+  .accounts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

@@ -39,8 +39,9 @@
           </div>
           <div class="flex space-x-2">
             <button
-              @click="showEditModal = true"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              disabled
+              class="px-4 py-2 bg-gray-300 text-gray-500 rounded-md cursor-not-allowed"
+              title="This functionality is not available for this demo"
             >
               Edit
             </button>

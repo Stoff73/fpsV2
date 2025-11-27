@@ -440,7 +440,7 @@ class ProtectionController extends Controller
         $validated = $request->validate([
             'provider' => 'required|string|max:255',
             'policy_number' => 'nullable|string|max:255',
-            'benefit_amount' => 'required|numeric|min:100',
+            'benefit_amount' => 'required|numeric|min:1000',
             'benefit_frequency' => 'required|in:monthly,weekly',
             'deferred_period_weeks' => 'nullable|integer|min:0|max:104',
             'benefit_period_months' => 'nullable|integer|min:1|max:720',
@@ -483,7 +483,7 @@ class ProtectionController extends Controller
         $validated = $request->validate([
             'provider' => 'sometimes|string|max:255',
             'policy_number' => 'sometimes|nullable|string|max:255',
-            'benefit_amount' => 'sometimes|numeric|min:100',
+            'benefit_amount' => 'sometimes|numeric|min:1000',
             'benefit_frequency' => 'sometimes|in:monthly,weekly',
             'deferred_period_weeks' => 'sometimes|integer|min:0|max:104',
             'benefit_period_months' => 'sometimes|nullable|integer|min:1|max:720',

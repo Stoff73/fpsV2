@@ -147,7 +147,7 @@
                   Joint
                 </span>
               </div>
-              <p class="policy-details">Benefit: {{ formatCurrency(policy.monthly_benefit) }}/mo • {{ policy.waiting_period_weeks }} weeks waiting</p>
+              <p class="policy-details">Benefit: {{ formatCurrency(policy.benefit_amount) }}/mo • {{ policy.deferred_period_weeks || 0 }} weeks waiting</p>
             </div>
             <span class="policy-premium policy-premium-teal">{{ formatCurrency(policy.premium_amount) }}/mo</span>
           </div>

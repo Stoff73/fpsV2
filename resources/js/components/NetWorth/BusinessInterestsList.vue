@@ -1,41 +1,56 @@
 <template>
-  <div class="business-interests-list">
-    <div class="list-header">
-      <h2 class="list-title">Business Interests</h2>
-      <div class="list-controls">
-        <select v-model="filterType" class="filter-select">
-          <option value="all">All Businesses</option>
-          <option value="sole_trader">Sole Trader</option>
-          <option value="partnership">Partnership</option>
-          <option value="limited_company">Limited Company</option>
-          <option value="llp">LLP</option>
-        </select>
-        <select v-model="sortBy" class="sort-select">
-          <option value="value_desc">Value (High to Low)</option>
-          <option value="value_asc">Value (Low to High)</option>
-          <option value="name">Business Name</option>
-        </select>
+  <div class="business-interests-list relative">
+    <!-- Coming Soon Watermark -->
+    <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      <div class="bg-amber-100 border-2 border-amber-400 rounded-lg px-8 py-4 transform -rotate-12 shadow-lg">
+        <p class="text-2xl font-bold text-amber-700">Coming Soon</p>
       </div>
     </div>
 
-    <div v-if="loading" class="loading-state">
-      <p>Loading business interests...</p>
+    <div class="opacity-50">
+      <div class="list-header">
+        <h2 class="list-title">Business Interests</h2>
+        <div class="list-controls">
+          <select v-model="filterType" class="filter-select" disabled>
+            <option value="all">All Businesses</option>
+            <option value="sole_trader">Sole Trader</option>
+            <option value="partnership">Partnership</option>
+            <option value="limited_company">Limited Company</option>
+            <option value="llp">LLP</option>
+          </select>
+          <select v-model="sortBy" class="sort-select" disabled>
+            <option value="value_desc">Value (High to Low)</option>
+            <option value="value_asc">Value (Low to High)</option>
+            <option value="name">Business Name</option>
+          </select>
+        </div>
+      </div>
+
+      <div v-if="loading" class="loading-state">
+        <p>Loading business interests...</p>
+      </div>
+
+      <div v-else-if="error" class="error-state">
+        <p>{{ error }}</p>
+      </div>
+
+      <div v-else class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="empty-icon">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+        </svg>
+        <p class="empty-title">Business Interests</p>
+        <p class="empty-subtitle">Track and manage your business interests including sole trader businesses, partnerships, limited companies and LLPs.</p>
+        <p class="feature-description">This feature will allow you to:</p>
+        <ul class="feature-list">
+          <li>Record business ownership stakes and valuations</li>
+          <li>Track different business structures (Sole Trader, Partnership, Limited Company, LLP)</li>
+          <li>Include business assets in your net worth calculations</li>
+          <li>Plan for business succession and estate implications</li>
+        </ul>
+      </div>
     </div>
 
-    <div v-else-if="error" class="error-state">
-      <p>{{ error }}</p>
-    </div>
-
-    <div v-else-if="filteredBusinesses.length === 0" class="empty-state">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="empty-icon">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
-      </svg>
-      <p class="empty-title">Business Interests</p>
-      <p class="empty-subtitle">Track and manage your business interests including sole trader businesses, partnerships, limited companies and LLPs.</p>
-      <p class="coming-soon-badge">Coming in Beta</p>
-    </div>
-
-    <div v-else class="businesses-grid">
+    <div v-if="filteredBusinesses.length > 0" class="businesses-grid">
       <BusinessInterestCard
         v-for="business in filteredBusinesses"
         :key="business.id"
@@ -199,6 +214,47 @@ export default {
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
+}
+
+.empty-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.feature-description {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.feature-list li {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 6px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.feature-list li::before {
+  content: "•";
+  color: #f59e0b;
+  font-weight: bold;
+  position: absolute;
+  left: 8px;
 }
 
 @media (max-width: 768px) {

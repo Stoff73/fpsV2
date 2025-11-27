@@ -105,12 +105,13 @@
               <!-- Date of Birth -->
               <div>
                 <label for="date_of_birth" class="block text-body-sm font-medium text-gray-700 mb-1">
-                  Date of Birth
+                  Date of Birth <span class="text-error-600">*</span>
                 </label>
                 <input
                   id="date_of_birth"
                   v-model="form.date_of_birth"
                   type="date"
+                  required
                   class="input-field"
                 />
               </div>

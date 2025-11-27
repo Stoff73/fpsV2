@@ -112,13 +112,16 @@
                 <input
                   v-model.number="formData.coverage_amount"
                   type="number"
-                  step="1000"
+                  :step="isIncomeProtection ? 100 : 1000"
                   required
-                  min="0"
+                  :min="isIncomeProtection ? 1000 : 0"
                   class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0"
                 />
               </div>
+              <p v-if="isIncomeProtection" class="text-xs text-gray-500 mt-1">
+                This is the monthly amount paid out if you are unable to work. Minimum £1,000 per month.
+              </p>
             </div>
 
             <!-- Decreasing Policy Fields -->
@@ -559,6 +562,11 @@ export default {
     isLifeInsurance() {
       const type = this.formData.policyType || this.policy?.policy_type;
       return type === 'life';
+    },
+
+    isIncomeProtection() {
+      const type = this.formData.policyType || this.policy?.policy_type;
+      return type === 'incomeProtection';
     },
 
     showLifePolicyType() {

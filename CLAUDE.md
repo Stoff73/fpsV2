@@ -936,7 +936,32 @@ resources/js/
 
 ## Version History
 
-### v0.2.14 (25 November 2025) - Latest
+### v0.2.16 (27 November 2025) - Latest
+
+**UI/UX Improvements**:
+1. Income Protection Display Fix - Benefit amount now displays correctly on dashboard card
+2. Investment & Savings Plan - Added scaffold warning banner
+3. Emergency Fund Data - Fixed data not pulling through (SavingsAgent fallback to User model)
+4. Demo Mode - Disabled edit buttons for Property, Investment, and Savings accounts
+5. Family Member Form - Made Date of Birth a required field
+6. Onboarding UI - Property cards now use PropertyCard component from Net Worth
+7. Onboarding UI - Retirement cards styled to match RetirementReadiness.vue
+8. Onboarding UI - Investment cards styled to match PortfolioOverview.vue
+9. Onboarding UI - Cash/Savings cards styled to match CurrentSituation.vue
+10. Will Planning - Added "Preview Mode" notice with legal disclaimer
+11. Business Interests - Updated Coming Soon banner to match app style
+12. Chattels & Valuables - Updated Coming Soon banner to match app style
+
+### v0.2.15 (26 November 2025)
+
+**Linked Account Fixes and UI Improvements**:
+- Welcome screen updates
+- Feedback button added to navbar
+- Joint expenditure display fix
+- Breadcrumb removal
+- Various UI polish
+
+### v0.2.14 (25 November 2025)
 
 **10 Major Fixes**:
 1. Family Member/Spouse Account Linking - User Profile now uses same service as onboarding
@@ -1012,9 +1037,9 @@ For any bugs encountered, please use the `systematic-debugging` skill to investi
 
 ---
 
-**Current Version**: v0.2.14 (Production)
+**Current Version**: v0.2.16 (Production)
 **Production URL**: https://csjones.co/tengo
-**Last Updated**: November 26, 2025
+**Last Updated**: November 27, 2025
 **Status**: Production Ready - All Core Features Complete
 
 ---

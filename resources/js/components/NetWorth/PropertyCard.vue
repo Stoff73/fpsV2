@@ -22,22 +22,26 @@
       </p>
 
       <div class="property-details">
-        <!-- Show full property value for joint or tenants in common properties -->
-        <div v-if="isSharedOwnership" class="detail-row">
-          <span class="detail-label">Full Property Value</span>
-          <span class="detail-value full-value">{{ formatCurrency(fullPropertyValue) }}</span>
+        <!-- Fixed height container for value rows -->
+        <div class="value-rows">
+          <!-- Show full property value for joint or tenants in common properties -->
+          <div v-if="isSharedOwnership" class="detail-row">
+            <span class="detail-label">Full Property Value</span>
+            <span class="detail-value full-value">{{ formatCurrency(fullPropertyValue) }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-label">{{ isSharedOwnership ? `Your Share (${property.ownership_percentage}%)` : 'Current Value' }}</span>
+            <span class="detail-value">{{ formatCurrency(property.current_value) }}</span>
+          </div>
+
+          <div v-if="hasMortgage" class="detail-row">
+            <span class="detail-label">{{ mortgageLabel }}</span>
+            <span class="detail-value mortgage">{{ formatCurrency(mortgageAmount) }}</span>
+          </div>
         </div>
 
-        <div class="detail-row">
-          <span class="detail-label">{{ isSharedOwnership ? `Your Share (${property.ownership_percentage}%)` : 'Current Value' }}</span>
-          <span class="detail-value">{{ formatCurrency(property.current_value) }}</span>
-        </div>
-
-        <div v-if="hasMortgage" class="detail-row">
-          <span class="detail-label">{{ mortgageLabel }}</span>
-          <span class="detail-value mortgage">{{ formatCurrency(mortgageAmount) }}</span>
-        </div>
-
+        <!-- Equity row always at bottom -->
         <div class="detail-row equity">
           <span class="detail-label">Equity</span>
           <span class="detail-value">{{ formatCurrency(equity) }}</span>
@@ -239,9 +243,15 @@ export default {
 .property-details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   padding-top: 12px;
   border-top: 1px solid #e5e7eb;
+}
+
+.value-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 78px; /* Space for 3 rows: 3 * 22px (line height) + 2 * 8px (gaps) = 78px */
 }
 
 .detail-row {
@@ -249,9 +259,11 @@ export default {
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
+  min-height: 22px;
 }
 
 .detail-row.equity {
+  margin-top: auto;
   padding-top: 8px;
   border-top: 1px solid #e5e7eb;
   font-weight: 600;

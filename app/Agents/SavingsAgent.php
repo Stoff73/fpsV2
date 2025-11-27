@@ -7,6 +7,7 @@ namespace App\Agents;
 use App\Models\ExpenditureProfile;
 use App\Models\SavingsAccount;
 use App\Models\SavingsGoal;
+use App\Models\User;
 use App\Services\Savings\EmergencyFundCalculator;
 use App\Services\Savings\GoalProgressCalculator;
 use App\Services\Savings\ISATracker;
@@ -34,10 +35,21 @@ class SavingsAgent extends BaseAgent
             // Get user data
             $accounts = SavingsAccount::where('user_id', $userId)->get();
             $goals = SavingsGoal::where('user_id', $userId)->get();
+            $user = User::find($userId);
             $expenditureProfile = ExpenditureProfile::where('user_id', $userId)->first();
 
             $totalSavings = $accounts->sum('current_balance');
-            $monthlyExpenditure = (float) ($expenditureProfile?->total_monthly_expenditure ?? 0);
+
+            // Get monthly expenditure - try ExpenditureProfile first, then fall back to User model
+            $monthlyExpenditure = 0.0;
+            if ($expenditureProfile && $expenditureProfile->total_monthly_expenditure > 0) {
+                $monthlyExpenditure = (float) $expenditureProfile->total_monthly_expenditure;
+            } elseif ($user && $user->monthly_expenditure > 0) {
+                $monthlyExpenditure = (float) $user->monthly_expenditure;
+            } elseif ($user && $user->annual_expenditure > 0) {
+                // Fall back to annual expenditure divided by 12
+                $monthlyExpenditure = (float) ($user->annual_expenditure / 12);
+            }
 
             // Emergency Fund Analysis
             $runway = $this->emergencyFundCalculator->calculateRunway(
