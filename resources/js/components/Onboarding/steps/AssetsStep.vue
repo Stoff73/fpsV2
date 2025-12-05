@@ -195,6 +195,16 @@
           >
             + Add State Pension
           </button>
+          <button
+            type="button"
+            class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-blue-600 bg-white rounded-md hover:bg-blue-50 transition-colors text-sm font-medium"
+            @click="openUploadModal('pension_statement')"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            Upload Statement
+          </button>
         </div>
 
         <p v-if="pensions.dc.length === 0 && pensions.db.length === 0 && !pensions.state" class="text-body-sm text-gray-500 italic">
@@ -317,13 +327,25 @@
         </div>
 
         <!-- Add Investment Button -->
-        <button
-          type="button"
-          class="btn-secondary w-full md:w-auto"
-          @click="showInvestmentForm = true"
-        >
-          + Add Investment Account
-        </button>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="showInvestmentForm = true"
+          >
+            + Add Investment Account
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-blue-600 bg-white rounded-md hover:bg-blue-50 transition-colors text-sm font-medium"
+            @click="openUploadModal('investment_statement')"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            Upload Statement
+          </button>
+        </div>
 
         <p v-if="investments.length === 0" class="text-body-sm text-gray-500 italic">
           You can skip this step and add investments later from your dashboard.
@@ -386,13 +408,25 @@
         </div>
 
         <!-- Add Account Button -->
-        <button
-          type="button"
-          class="btn-secondary w-full md:w-auto"
-          @click="showSavingsForm = true"
-        >
-          + Add Account
-        </button>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="showSavingsForm = true"
+          >
+            + Add Account
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-blue-600 bg-white rounded-md hover:bg-blue-50 transition-colors text-sm font-medium"
+            @click="openUploadModal('savings_statement')"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            Upload Statement
+          </button>
+        </div>
 
         <p v-if="savingsAccounts.length === 0" class="text-body-sm text-gray-500 italic">
           You can skip this step and add accounts later from your dashboard.
@@ -446,6 +480,15 @@
       @close="closePensionForm"
       @save="handlePensionSaved"
     />
+
+    <!-- Document Upload Modal -->
+    <DocumentUploadModal
+      v-if="showUploadModal"
+      :document-type="uploadDocumentType"
+      @close="closeUploadModal"
+      @saved="handleDocumentSaved"
+      @manual-entry="closeUploadModal"
+    />
   </OnboardingStep>
 </template>
 
@@ -459,6 +502,7 @@ import SaveAccountModal from '@/components/Savings/SaveAccountModal.vue';
 import DCPensionForm from '@/components/Retirement/DCPensionForm.vue';
 import DBPensionForm from '@/components/Retirement/DBPensionForm.vue';
 import StatePensionForm from '@/components/Retirement/StatePensionForm.vue';
+import DocumentUploadModal from '@/components/Shared/DocumentUploadModal.vue';
 import propertyService from '@/services/propertyService';
 import investmentService from '@/services/investmentService';
 import savingsService from '@/services/savingsService';
@@ -476,6 +520,7 @@ export default {
     DCPensionForm,
     DBPensionForm,
     StatePensionForm,
+    DocumentUploadModal,
   },
 
   emits: ['next', 'back', 'skip'],
@@ -500,6 +545,10 @@ export default {
 
     const loading = ref(false);
     const error = ref(null);
+
+    // Document upload state
+    const showUploadModal = ref(false);
+    const uploadDocumentType = ref(null);
 
     // Pensions state
     const pensions = ref({ dc: [], db: [], state: null });
@@ -798,6 +847,31 @@ export default {
       }
     }
 
+    // Document upload functions
+    function openUploadModal(documentType) {
+      uploadDocumentType.value = documentType;
+      showUploadModal.value = true;
+    }
+
+    function closeUploadModal() {
+      showUploadModal.value = false;
+      uploadDocumentType.value = null;
+    }
+
+    async function handleDocumentSaved(savedData) {
+      console.log('Document saved:', savedData);
+      closeUploadModal();
+
+      // Reload the appropriate data based on document type
+      if (uploadDocumentType.value === 'pension_statement') {
+        await loadPensions();
+      } else if (uploadDocumentType.value === 'investment_statement') {
+        await loadInvestments();
+      } else if (uploadDocumentType.value === 'savings_statement') {
+        await loadSavingsAccounts();
+      }
+    }
+
     // Navigation
     function handleNext() {
       // Define tab order for Assets & Wealth screen
@@ -965,6 +1039,12 @@ export default {
       deleteSavings,
       closeSavingsForm,
       handleSavingsSaved,
+      // Document upload
+      showUploadModal,
+      uploadDocumentType,
+      openUploadModal,
+      closeUploadModal,
+      handleDocumentSaved,
       // Common
       loading,
       error,

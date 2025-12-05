@@ -4,12 +4,20 @@
     <div class="pension-overview">
       <div class="section-header-row">
         <h3 class="section-title">Your Pensions</h3>
-        <button @click="showPensionForm = true" class="add-pension-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="btn-icon">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Add Pension
-        </button>
+        <div class="flex gap-3">
+          <button @click="showPensionForm = true" class="add-pension-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="btn-icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Add Pension
+          </button>
+          <button @click="showUploadModal = true" class="upload-btn">
+            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            Upload Statement
+          </button>
+        </div>
       </div>
 
       <!-- Empty State -->
@@ -204,18 +212,29 @@
       @close="closePensionForm"
       @save="handlePensionSave"
     />
+
+    <!-- Document Upload Modal -->
+    <DocumentUploadModal
+      v-if="showUploadModal"
+      document-type="pension_statement"
+      @close="closeUploadModal"
+      @saved="handleDocumentSaved"
+      @manual-entry="closeUploadModal(); showPensionForm = true;"
+    />
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters } from 'vuex';
 import UnifiedPensionForm from '../../components/Retirement/UnifiedPensionForm.vue';
+import DocumentUploadModal from '@/components/Shared/DocumentUploadModal.vue';
 
 export default {
   name: 'RetirementReadiness',
 
   components: {
     UnifiedPensionForm,
+    DocumentUploadModal,
   },
 
   emits: ['select-pension'],
@@ -223,6 +242,7 @@ export default {
   data() {
     return {
       showPensionForm: false,
+      showUploadModal: false,
       selectedPension: null,
       isEditMode: false,
     };
@@ -360,6 +380,17 @@ export default {
         this.$emit('select-pension', pension, type);
       }
     },
+
+    closeUploadModal() {
+      this.showUploadModal = false;
+    },
+
+    async handleDocumentSaved(savedData) {
+      console.log('Document saved:', savedData);
+      this.showUploadModal = false;
+      // Refresh retirement data
+      await this.$store.dispatch('retirement/fetchRetirementData');
+    },
   },
 };
 </script>
@@ -419,6 +450,25 @@ export default {
 
 .add-pension-btn:hover {
   background: #2563eb;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: white;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-btn:hover {
+  background: #eff6ff;
 }
 
 .btn-icon {

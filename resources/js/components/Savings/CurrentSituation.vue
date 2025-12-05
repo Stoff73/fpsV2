@@ -4,12 +4,20 @@
     <div class="account-overview">
       <div class="section-header-row">
         <h3 class="section-title">Account Overview</h3>
-        <button @click="handleAddAccount" class="add-account-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="btn-icon">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Add Account
-        </button>
+        <div class="flex gap-3">
+          <button @click="handleAddAccount" class="add-account-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="btn-icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Add Account
+          </button>
+          <button @click="showUploadModal = true" class="upload-btn">
+            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            Upload Statement
+          </button>
+        </div>
       </div>
 
       <div v-if="accounts.length > 0" class="accounts-grid">
@@ -105,6 +113,15 @@
       @save="handleSaveAccount"
       @close="handleCloseModal"
     />
+
+    <!-- Document Upload Modal -->
+    <DocumentUploadModal
+      v-if="showUploadModal"
+      document-type="savings_statement"
+      @close="closeUploadModal"
+      @saved="handleDocumentSaved"
+      @manual-entry="closeUploadModal(); handleAddAccount();"
+    />
   </div>
 </template>
 
@@ -112,6 +129,7 @@
 import { mapState, mapGetters, mapActions } from 'vuex';
 import ISAAllowanceTracker from './ISAAllowanceTracker.vue';
 import SaveAccountModal from './SaveAccountModal.vue';
+import DocumentUploadModal from '@/components/Shared/DocumentUploadModal.vue';
 
 export default {
   name: 'CurrentSituation',
@@ -119,6 +137,7 @@ export default {
   components: {
     ISAAllowanceTracker,
     SaveAccountModal,
+    DocumentUploadModal,
   },
 
   emits: ['select-account'],
@@ -126,6 +145,7 @@ export default {
   data() {
     return {
       showAddAccountModal: false,
+      showUploadModal: false,
       selectedAccount: null,
       isEditingAccount: false,
     };
@@ -248,6 +268,17 @@ export default {
         alert('Failed to save account. Please try again.');
       }
     },
+
+    closeUploadModal() {
+      this.showUploadModal = false;
+    },
+
+    async handleDocumentSaved(savedData) {
+      console.log('Document saved:', savedData);
+      this.showUploadModal = false;
+      // Refresh savings data
+      await this.fetchSavingsData();
+    },
   },
 };
 </script>
@@ -290,6 +321,25 @@ export default {
 
 .add-account-btn:hover {
   background: #2563eb;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: white;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-btn:hover {
+  background: #eff6ff;
 }
 
 .btn-icon {

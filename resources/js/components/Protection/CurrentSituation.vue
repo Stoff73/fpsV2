@@ -73,26 +73,37 @@
           </p>
         </div>
 
-        <button
-          @click="$emit('add-policy')"
-          class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        <div class="flex gap-3">
+          <button
+            @click="$emit('add-policy')"
+            class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          Add New Policy
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Add New Policy
+          </button>
+          <button
+            @click="showUploadModal = true"
+            class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-blue-600 bg-white rounded-lg hover:bg-blue-50 transition-colors font-medium"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            Upload Document
+          </button>
+        </div>
       </div>
 
       <!-- Filter and Sort Controls -->
@@ -197,6 +208,15 @@
         </div>
       </div>
     </div>
+
+    <!-- Document Upload Modal -->
+    <DocumentUploadModal
+      v-if="showUploadModal"
+      document-type="insurance_policy"
+      @close="closeUploadModal"
+      @saved="handleDocumentSaved"
+      @manual-entry="closeUploadModal(); $emit('add-policy');"
+    />
   </div>
 </template>
 
@@ -205,6 +225,7 @@ import { mapState, mapGetters } from 'vuex';
 import PremiumBreakdownChart from './PremiumBreakdownChart.vue';
 import CoverageTimelineChart from './CoverageTimelineChart.vue';
 import PolicyCard from './PolicyCard.vue';
+import DocumentUploadModal from '@/components/Shared/DocumentUploadModal.vue';
 import protectionService from '@/services/protectionService';
 
 export default {
@@ -214,6 +235,7 @@ export default {
     PremiumBreakdownChart,
     CoverageTimelineChart,
     PolicyCard,
+    DocumentUploadModal,
   },
 
   data() {
@@ -221,6 +243,7 @@ export default {
       hasNoPoliciesChecked: false,
       filterType: 'all',
       sortBy: 'coverage_desc',
+      showUploadModal: false,
     };
   },
 
@@ -403,6 +426,17 @@ export default {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }).format(value);
+    },
+
+    closeUploadModal() {
+      this.showUploadModal = false;
+    },
+
+    handleDocumentSaved(savedData) {
+      console.log('Document saved:', savedData);
+      this.showUploadModal = false;
+      // Emit event to parent to refresh data
+      this.$emit('refresh-data');
     },
   },
 };

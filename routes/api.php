@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\SavingsController;
 use App\Http\Controllers\Api\SpousePermissionController;
 use App\Http\Controllers\Api\UKTaxesController;
 use App\Http\Controllers\Api\UserProfileController;
+use App\Http\Controllers\Api\DocumentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -762,4 +763,17 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('tax-settings')->group(func
     Route::post('/{id}/activate', [\App\Http\Controllers\Api\TaxSettingsController::class, 'setActive']);
     Route::post('/{id}/duplicate', [\App\Http\Controllers\Api\TaxSettingsController::class, 'duplicate']);
     Route::delete('/{id}', [\App\Http\Controllers\Api\TaxSettingsController::class, 'delete']);
+});
+
+// Document Upload & AI Extraction routes
+Route::middleware('auth:sanctum')->prefix('documents')->group(function () {
+    Route::get('/', [DocumentController::class, 'index']);
+    Route::get('/types', [DocumentController::class, 'types']);
+    Route::post('/upload', [DocumentController::class, 'upload']);
+    Route::post('/upload-only', [DocumentController::class, 'uploadOnly']);
+    Route::get('/{id}', [DocumentController::class, 'show']);
+    Route::get('/{id}/extraction', [DocumentController::class, 'getExtraction']);
+    Route::post('/{id}/confirm', [DocumentController::class, 'confirm']);
+    Route::post('/{id}/reprocess', [DocumentController::class, 'reprocess']);
+    Route::delete('/{id}', [DocumentController::class, 'destroy']);
 });

@@ -1,0 +1,221 @@
+<template>
+  <div
+    class="relative border-2 border-dashed rounded-lg p-8 text-center transition-colors"
+    :class="dropZoneClass"
+    @dragenter.prevent="handleDragEnter"
+    @dragover.prevent="handleDragOver"
+    @dragleave.prevent="handleDragLeave"
+    @drop.prevent="handleDrop"
+  >
+    <!-- File Input (hidden) -->
+    <input
+      ref="fileInput"
+      type="file"
+      class="hidden"
+      :accept="acceptString"
+      @change="handleFileSelect"
+    />
+
+    <!-- No file selected -->
+    <div v-if="!selectedFile" class="space-y-4">
+      <!-- Upload Icon -->
+      <div class="mx-auto w-16 h-16 text-gray-400">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+          />
+        </svg>
+      </div>
+
+      <!-- Instructions -->
+      <div>
+        <p class="text-gray-700 font-medium">
+          Drag and drop your document here
+        </p>
+        <p class="text-gray-500 text-sm mt-1">
+          or
+          <button
+            type="button"
+            class="text-blue-600 hover:text-blue-700 font-medium"
+            @click="openFileDialog"
+          >
+            click to browse
+          </button>
+        </p>
+      </div>
+
+      <!-- Supported formats -->
+      <p class="text-gray-400 text-xs">
+        Supported: PDF, PNG, JPG, JPEG (max {{ maxSizeMB }}MB)
+      </p>
+    </div>
+
+    <!-- File selected -->
+    <div v-else class="space-y-4">
+      <!-- File Icon -->
+      <div class="mx-auto w-16 h-16" :class="fileIconClass">
+        <svg v-if="isPdf" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M10.92,12.31C10.68,11.54 10.15,9.08 11.55,9.04C12.95,9 12.03,12.16 12.03,12.16C12.42,13.65 14.05,14.72 14.05,14.72C14.55,14.57 17.4,14.24 17,15.72C16.57,17.2 13.5,15.81 13.5,15.81C11.55,15.95 10.09,16.47 10.09,16.47C8.96,18.58 7.64,19.5 7.1,18.61C6.43,17.5 9.23,16.07 9.23,16.07C10.68,13.72 10.92,12.31 10.92,12.31Z" />
+        </svg>
+        <svg v-else fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z" />
+        </svg>
+      </div>
+
+      <!-- File Info -->
+      <div>
+        <p class="text-gray-800 font-medium truncate max-w-xs mx-auto">
+          {{ selectedFile.name }}
+        </p>
+        <p class="text-gray-500 text-sm">
+          {{ formatFileSize(selectedFile.size) }}
+        </p>
+      </div>
+
+      <!-- Remove button -->
+      <button
+        type="button"
+        class="text-red-600 hover:text-red-700 text-sm font-medium"
+        @click="removeFile"
+      >
+        Remove
+      </button>
+    </div>
+
+    <!-- Error message -->
+    <div v-if="error" class="mt-4 text-red-600 text-sm">
+      {{ error }}
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'UploadDropZone',
+
+  props: {
+    acceptedTypes: {
+      type: Array,
+      default: () => ['.pdf', '.png', '.jpg', '.jpeg', '.webp'],
+    },
+    maxSizeMB: {
+      type: Number,
+      default: 10,
+    },
+  },
+
+  emits: ['file-selected', 'file-removed', 'error'],
+
+  data() {
+    return {
+      selectedFile: null,
+      isDragging: false,
+      error: null,
+    };
+  },
+
+  computed: {
+    acceptString() {
+      return this.acceptedTypes.join(',');
+    },
+
+    dropZoneClass() {
+      if (this.isDragging) {
+        return 'border-blue-500 bg-blue-50';
+      }
+      if (this.selectedFile) {
+        return 'border-green-500 bg-green-50';
+      }
+      if (this.error) {
+        return 'border-red-300 bg-red-50';
+      }
+      return 'border-gray-300 bg-gray-50 hover:border-gray-400';
+    },
+
+    isPdf() {
+      return this.selectedFile?.type === 'application/pdf';
+    },
+
+    fileIconClass() {
+      return this.isPdf ? 'text-red-500' : 'text-blue-500';
+    },
+  },
+
+  methods: {
+    openFileDialog() {
+      this.$refs.fileInput.click();
+    },
+
+    handleDragEnter() {
+      this.isDragging = true;
+    },
+
+    handleDragOver() {
+      this.isDragging = true;
+    },
+
+    handleDragLeave() {
+      this.isDragging = false;
+    },
+
+    handleDrop(event) {
+      this.isDragging = false;
+      const files = event.dataTransfer.files;
+      if (files.length > 0) {
+        this.processFile(files[0]);
+      }
+    },
+
+    handleFileSelect(event) {
+      const files = event.target.files;
+      if (files.length > 0) {
+        this.processFile(files[0]);
+      }
+    },
+
+    processFile(file) {
+      this.error = null;
+
+      // Validate file type
+      const allowedMimes = [
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+      ];
+      if (!allowedMimes.includes(file.type)) {
+        this.error = 'Invalid file type. Please upload a PDF or image (JPEG, PNG, WebP).';
+        this.$emit('error', this.error);
+        return;
+      }
+
+      // Validate file size
+      const maxBytes = this.maxSizeMB * 1024 * 1024;
+      if (file.size > maxBytes) {
+        this.error = `File too large. Maximum size is ${this.maxSizeMB}MB.`;
+        this.$emit('error', this.error);
+        return;
+      }
+
+      this.selectedFile = file;
+      this.$emit('file-selected', file);
+    },
+
+    removeFile() {
+      this.selectedFile = null;
+      this.error = null;
+      this.$refs.fileInput.value = '';
+      this.$emit('file-removed');
+    },
+
+    formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    },
+  },
+};
+</script>
