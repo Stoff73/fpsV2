@@ -165,10 +165,25 @@ export default {
     const loading = ref(false);
     const error = ref(null);
 
+    // Nickname mapping for special users (Welcome screen only)
+    const nicknameMap = {
+      'Steven Cracknell': 'Captain',
+      'Darren Veenhuis': 'Dazzler',
+      'Gareth Brace': 'Big G',
+      'Stephen Kavanagh': 'Oh Ah',
+      'Tristan von Strein': 'TDawg',
+      'Paul Smith': 'Smitty',
+      'Brett Isenberg': 'Slippery',
+    };
+
     const userName = computed(() => {
       const user = store.state.auth.user;
       if (user && user.name) {
-        // Get first name only
+        // Check if user has a nickname
+        if (nicknameMap[user.name]) {
+          return nicknameMap[user.name];
+        }
+        // Get first name only for other users
         return user.name.split(' ')[0];
       }
       return '';
